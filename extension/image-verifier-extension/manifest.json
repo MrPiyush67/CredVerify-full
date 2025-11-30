@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "CredVerify Certificate Extractor",
+  "description": "AI-powered certificate verification with OCR and automatic credential upload to CredVerify",
+  "version": "2.1",
+  "permissions": [
+    "scripting",
+    "activeTab",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "http://localhost/*",
+    "https://credverify.vercel.app/*",
+    "https://*.coursera.org/*",
+    "https://*.udacity.com/*",
+    "https://*.edx.org/*",
+    "https://*.udemy.com/*",
+    "https://*.linkedin.com/*",
+    "https://*.ibm.com/*",
+    "https://*.google.com/*",
+    "https://*.microsoft.com/*",
+    "https://*.deeplearning.ai/*",
+    "https://*.kaggle.com/*",
+    "https://*.codealpha.tech/*",
+    "https://*.internshala.com/*",
+    "https://*.nptel.ac.in/*",
+    "https://*.skillshare.com/*",
+    "https://*.unstop.com/*",
+    "https://skillsforall.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup-new.html",
+    "default_icon": {
+      "48": "icons/icon48.jpg"
+    }
+  },
+  "icons": {
+    "48": "icons/icon48.jpg"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

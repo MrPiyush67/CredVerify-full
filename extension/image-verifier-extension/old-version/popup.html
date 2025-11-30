@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Image Verifier</title>
+    <style>
+      body { font-family: system-ui, Arial; width:360px; padding:12px; }
+      h3 { margin:6px 0 8px; font-size:15px; }
+      .page-url { font-size:12px; color:#333; word-break:break-all; margin-bottom:8px; }
+      .endpoint { display:flex; gap:6px; margin-bottom:8px; }
+      .endpoint input { flex:1; padding:6px; font-size:13px; }
+      .endpoint button { padding:6px 8px; }
+      .images { max-height:260px; overflow:auto; border:1px solid #eee; padding:8px; border-radius:6px; }
+      .img-item { display:flex; gap:8px; align-items:center; padding:6px 4px; border-bottom:1px solid #f3f3f3; }
+      .img-item:last-child { border-bottom:0; }
+      .thumb { width:64px; height:48px; object-fit:cover; border-radius:4px; background:#fafafa; border:1px solid #ddd; }
+      .img-meta { font-size:12px; color:#222; max-width:230px; word-break:break-all; }
+      .controls { display:flex; gap:8px; margin-top:10px; }
+      .verify { flex:1; padding:8px; font-weight:600; }
+      .status { margin-top:8px; font-size:13px; white-space:pre-wrap; word-break:break-word; }
+      .small { font-size:11px; color:#666; }
+    </style>
+  </head>
+  <body>
+    <h3>Image Verifier</h3>
+
+    <div class="page-url" id="pageUrl">Page: —</div>
+
+    <div class="endpoint">
+      <input id="endpoint" placeholder="https://your.api/verify (saved)" />
+      <button id="saveEndpoint">Save</button>
+    </div>
+    <div class="small">Tip: endpoint must accept multipart/form-data. CORS must allow requests from extension.</div>
+
+    <div style="height:8px;"></div>
+
+    <div class="images" id="images">Loading images…</div>
+
+    <div class="controls">
+      <button id="refresh">Refresh</button>
+      <button id="verify" class="verify" disabled>Verify</button>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

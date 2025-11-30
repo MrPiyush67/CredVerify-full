@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================
+   GLOBAL CSS VARIABLES - HSL Format
+   ============================================ */
+:root {
+  --background: hsl(0 0% 95%);
+  --foreground: hsl(222 47% 11%);
+  --card: hsl(0 0% 100%);
+  --border: hsl(220 13% 91%);
+  --primary: hsl(222 47% 11%);
+  --primary-foreground: hsl(0 0% 100%);
+
+  --muted: hsl(0 0% 90%);
+  --muted-foreground: hsl(220 9% 46%);
+  --accent: hsl(210 40% 96%);
+  --accent-foreground: hsl(222 47% 11%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(222 47% 11%);
+
+  /* Landing Page Specific Colors */
+  --landing-bg: hsl(0 0% 98%);
+  --landing-fg: hsl(222 47% 11%);
+
+  /* Role-Specific Brand Colors */
+  --credentialist-primary: hsl(180 72% 24%);
+  --credentialist-light: hsl(180 45% 52%);
+  --curator-primary: hsl(186 57% 35%);
+  --curator-light: hsl(181 30% 73%);
+  --validant-primary: hsl(179, 39%, 49%);
+  --validant-light: hsl(179 48% 57%);
+
+  /* Chart & Status Colors */
+  --chart-verified: hsl(152 68% 48%);
+  --chart-pending: hsl(207 90% 54%);
+  --chart-rejected: hsl(4 90% 58%);
+
+  /* Sidebar Defaults */
+  --sidebar-bg: var(--card);
+  --sidebar-fg: var(--foreground);
+}
+
+/* Role Themes */
+.credentialist-theme {
+  --sidebar-bg: var(--credentialist-primary);
+  --sidebar-fg: hsl(0 0% 100%);
+  --primary: var(--credentialist-primary);
+}
+
+.curator-theme {
+  --sidebar-bg: var(--curator-primary);
+  --sidebar-fg: hsl(0 0% 100%);
+  --primary: var(--curator-primary);
+}
+
+.validant-theme {
+  --sidebar-bg: var(--validant-primary);
+  --sidebar-fg: hsl(0 0% 100%);
+  --primary: var(--validant-primary);
+}
+
+/* Dark Mode - Application Base */
+.dark {
+  --background: hsl(222 47% 11%);
+  --foreground: hsl(0 0% 93%);
+  --card: hsl(220 13% 10%);
+  --border: hsl(0 0% 25%);
+  --primary: hsl(0 0% 93%);
+  --primary-foreground: hsl(0 0% 4%);
+
+  --muted: hsl(0 0% 15%);
+  --muted-foreground: hsl(220 9% 66%);
+  --accent: hsl(0 0% 15%);
+  --accent-foreground: hsl(0 0% 93%);
+  --popover: hsl(220 13% 10%);
+  --popover-foreground: hsl(0 0% 93%);
+
+  /* Landing Page Dark Mode */
+  --landing-bg: hsl(234 47% 10%);
+  --landing-fg: hsl(0 0% 93%);
+
+  /* Role Colors - Slightly Adjusted for Dark Mode */
+  --credentialist-primary: hsl(180 58% 31%);
+  --curator-primary: hsl(180 45% 52%);
+  --validant-primary: hsl(179 45% 53%);
+}
+
+/* Tailwind Theme Configuration */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-landing-bg: var(--landing-bg);
+  --color-landing-fg: var(--landing-fg);
+  --color-credentialist-primary: var(--credentialist-primary);
+  --color-credentialist-light: var(--credentialist-light);
+  --color-curator-primary: var(--curator-primary);
+  --color-curator-light: var(--curator-light);
+  --color-validant-primary: var(--validant-primary);
+  --color-validant-light: var(--validant-light);
+  --color-chart-verified: var(--chart-verified);
+  --color-chart-pending: var(--chart-pending);
+  --color-chart-rejected: var(--chart-rejected);
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ============================================
+   BRAND & GRADIENT EFFECTS
+   ============================================ */
+
+/* Animated gradient text for "CredVerify" brand */
+.brand-highlight {
+  background: linear-gradient(90deg, var(--credentialist-primary), var(--curator-primary), var(--validant-primary), var(--credentialist-primary));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 8s ease infinite;
+}
+
+@keyframes gradient-shift {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Underline accent for brand text */
+.brand-highlight::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--credentialist-primary), var(--curator-primary), var(--validant-primary));
+  border-radius: 2px;
+  opacity: 0.5;
+}
+
+/* Accent gradient for title words */
+.title-accent {
+  background: linear-gradient(135deg, var(--curator-primary), var(--validant-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+/* Custom Utilities for Bento Grid */
+.pattern-grid-lg {
+  background-image: radial-gradient(currentColor 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.8);
+}
