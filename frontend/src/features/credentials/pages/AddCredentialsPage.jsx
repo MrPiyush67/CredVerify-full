@@ -69,8 +69,6 @@ export default function AddCredentialsPage() {
   const handleCredentialSubmit = (payload) => {
     // This is where you'll connect to your backend API
     // For now, we'll just store it locally
-    console.log('Credential submitted:', payload);
-
     setSubmittedCredentials(prev => [...prev, {
       id: Date.now(),
       ...payload,
@@ -104,11 +102,9 @@ export default function AddCredentialsPage() {
         }]);
 
         // Show success message (you can use a toast notification here)
-        console.log('Credential uploaded successfully!');
       }
 
     } catch (error) {
-      console.error('Error submitting credential:', error);
       // Show error to user (you can use a toast notification here)
       alert('Failed to upload credential. Please try again.');
     }

@@ -12,7 +12,7 @@ export const navigationItems = {
   validant: [
     { label: 'Home', href: '/home' },
     { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Issue Credential', href: '' }, //dummy added
+    { label: 'Issue Credential', href: '/issue-credentials' },
     { label: 'Requests', href: '/requests' },
     { label: 'Profile', href: '/profile' },
     { label: 'Notifications', href: '/notifications' },

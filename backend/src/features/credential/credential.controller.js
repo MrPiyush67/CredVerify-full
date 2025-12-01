@@ -165,12 +165,21 @@ export const previewCertificate = asyncHandler(async (req, res) => {
     });
   }
 
+  // Get validant name for instructor field
+  const instructorName = req.user.name || 'Admin';
+
+  // Generate a dummy certificate ID for preview (not saved to database)
+  const mongoose = (await import('mongoose')).default;
+  const dummyCertificateId = new mongoose.Types.ObjectId().toString();
+
   const pdfBuffer = await generateCertificatePDF({
     recipientName: recipientName || 'John Doe', // Default name for preview
     credentialName,
     issueDate,
     hours,
     nsqfLevel,
+    instructorName,
+    certificateId: dummyCertificateId,
   });
 
   res.set({

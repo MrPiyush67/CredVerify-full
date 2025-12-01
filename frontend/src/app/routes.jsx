@@ -14,6 +14,7 @@ const DashboardPage = lazy(() => import('@features/dashboard/pages/DashboardPage
 const CredentialsPage = lazy(() => import('@features/credentials/pages/CredentialsPage.jsx'));
 const AddCredentialsPage = lazy(() => import('@features/credentials/pages/AddCredentialsPage.jsx'));
 const RequestsPage = lazy(() => import('@features/verification/pages/RequestsPage.jsx'));
+const IssueCredentialsPage = lazy(() => import('@features/verification/pages/IssueCredentialsPage.jsx'));
 const JobsPage = lazy(() => import('@features/jobs/pages/JobsPage.jsx'));
 const PostJobPage = lazy(() => import('@features/jobs/pages/PostJobPage.jsx'));
 
@@ -46,6 +47,11 @@ export default function AppRoutes() {
       {/* Validant-only routes */}
       <Route element={<ProtectedRoute requiredRole="validant" />}>
         <Route path="/requests" element={<RequestsPage />} />
+      </Route>
+
+      {/* Issue Credentials - temporarily accessible to all authenticated users for testing */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/issue-credentials" element={<IssueCredentialsPage />} />
       </Route>
 
       {/* Curator-only routes */}

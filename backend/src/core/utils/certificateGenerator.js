@@ -2,6 +2,7 @@ import puppeteer from 'puppeteer';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import mongoose from 'mongoose';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,6 +16,8 @@ const generateCertificateHTML = async ({
   issueDate,
   hours,
   nsqfLevel,
+  instructorName = 'Admin',
+  certificateId = null,
 }) => {
   const formattedDate = new Date(issueDate).toLocaleDateString('en-US', { 
     year: 'numeric', 
@@ -22,7 +25,9 @@ const generateCertificateHTML = async ({
     day: 'numeric' 
   }).replace(',', '');
   
-  const certificateUrl = `https://credverify.vercel.app`;
+  // Generate or use provided certificate ID for verification
+  const verificationId = certificateId || new mongoose.Types.ObjectId().toString();
+  const certificateUrl = `https://localhost:5173/verify/${verificationId}`;
   
   // Read the template image and convert to base64
   const templatePath = path.join(__dirname, '../../../../frontend/public/credantial-template/Certificatetemplatenocontent.png');
@@ -82,32 +87,9 @@ const generateCertificateHTML = async ({
         /* Header */
         .header {
           display: flex;
-          justify-content: space-between;
+          justify-content: flex-end;
           align-items: flex-start;
           margin-bottom: 40px;
-        }
-        
-        .logo-section {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-        }
-        
-        .logo-icon {
-          width: 55px;
-          height: 55px;
-        }
-        
-        .logo-text {
-          font-family: 'Montserrat', sans-serif;
-          font-size: 28px;
-          font-weight: 700;
-          color: #2D3748;
-          letter-spacing: -0.5px;
-        }
-        
-        .logo-text span {
-          color: #14B8A6;
         }
         
         .cert-url {
@@ -230,13 +212,6 @@ const generateCertificateHTML = async ({
       <div class="certificate-bg"></div>
       <div class="content">
         <div class="header">
-          <div class="logo-section">
-            <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L3 7V12C3 17.52 6.84 22.74 12 24C17.16 22.74 21 17.52 21 12V7L12 2Z" fill="#14B8A6" stroke="#14B8A6" stroke-width="1.5"/>
-              <path d="M9 12L11 14L15 10" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <div class="logo-text">Cred<span>Verify</span></div>
-          </div>
           <div class="cert-url">Certificate Url:  ${certificateUrl}</div>
         </div>
 
@@ -250,17 +225,17 @@ const generateCertificateHTML = async ({
 
         <div class="footer">
           <div class="footer-left">
-            <div class="info-text">Date <span class="info-label">${formattedDate}</span></div>
-            <div class="info-text">Length <span class="info-label">${hours} total hours</span></div>
+            <div class="info-text">Date : <span class="info-label">${formattedDate}</span></div>
+            <div class="info-text">Length : <span class="info-label">${hours} total hours</span></div>
           </div>
 
           <div class="footer-center">
-            <div class="info-text">Instructors : <span class="info-label">Admin</span></div>
+            <div class="info-text">Instructors : <span class="info-label">${instructorName}</span></div>
           </div>
 
           <div class="footer-right">
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(certificateUrl)}&margin=0" class="qr-code" alt="QR Code" />
-            <div class="info-text">NSQF :<span class="info-label">level ${nsqfLevel}</span></div>
+            <div class="info-text">NSQF : <span class="info-label">level ${nsqfLevel}</span></div>
           </div>
         </div>
       </div>

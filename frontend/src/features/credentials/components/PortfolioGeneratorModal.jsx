@@ -117,7 +117,6 @@ export default function PortfolioGeneratorModal({
       pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
       pdf.save(`DSA_Portfolio_${new Date().getTime()}.pdf`);
     } catch (error) {
-      console.error('PDF export failed:', error);
       alert('Failed to export PDF. Please try again.');
     } finally {
       setIsExporting(false);
@@ -159,7 +158,6 @@ export default function PortfolioGeneratorModal({
         onClose();
       }, 'image/png');
     } catch (error) {
-      console.error('Save as credential failed:', error);
       alert('Failed to save as credential. Please try again.');
     } finally {
       setIsSaving(false);

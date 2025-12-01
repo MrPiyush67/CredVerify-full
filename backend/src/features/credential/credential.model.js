@@ -72,6 +72,19 @@ const credentialSchema = new mongoose.Schema(
       type: String, // Notes from validant during verification
       maxlength: 500,
     },
+    // Fields for micro-credentials
+    hours: {
+      type: Number,
+      min: 0,
+    },
+    nsqfLevel: {
+      type: Number,
+      min: 1,
+      max: 10,
+    },
+    pdfPath: {
+      type: String, // Path to generated certificate PDF
+    },
   },
   {
     timestamps: true,

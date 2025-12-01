@@ -22,6 +22,10 @@ await fs.mkdir(certsDir, { recursive: true }).catch(() => {});
 export const issueBulkCredentials = async (validantId, credentialData, recipients) => {
   const { credentialName, issueDate, hours, nsqfLevel } = credentialData;
   
+  // Fetch validant details for instructor name
+  const validant = await User.findById(validantId).select('name');
+  const instructorName = validant?.name || 'Admin';
+  
   const results = {
     successful: [],
     failed: [],
@@ -32,13 +36,54 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
     try {
       const { name, email } = recipient;
 
-      // 1. Generate PDF certificate
+      // 0. Find or create user for the recipient
+      let user = await User.findOne({ email });
+      let isNewUser = false;
+      
+      if (!user) {
+        // Create a new credentialist user for this recipient
+        const bcrypt = (await import('bcryptjs')).default;
+        const defaultPassword = await bcrypt.hash('CredVerify@123', 10);
+        
+        user = await User.create({
+          name: name,
+          email: email,
+          passwordHash: defaultPassword,
+          role: 'credentialist',
+          isActive: true,
+        });
+        
+        isNewUser = true;
+        console.log(`✅ Created new user account for: ${email}`);
+      }
+      
+      const credential = await Credential.create({
+        credentialist: user._id,
+        title: credentialName,
+        credentialType: 'micro-credential',
+        issuer: 'WEV DEV LOPED BY TO BOOT CAMP',
+        issueDate: new Date(issueDate),
+        hours: parseInt(hours),
+        nsqfLevel: parseInt(nsqfLevel),
+        status: 'verified',
+        verifiedBy: validantId,
+        verifiedAt: new Date(),
+        isPublic: false,
+        skills: [],
+        description: `Issued via bulk credential issuance on ${new Date().toLocaleDateString()}`,
+      });
+
+      const certificateId = credential._id.toString();
+
+      // 1. Generate PDF certificate with verification ID
       const pdfBuffer = await generateCertificatePDF({
         recipientName: name,
         credentialName,
         issueDate,
         hours,
         nsqfLevel,
+        instructorName,
+        certificateId,
       });
 
       // Save PDF to local directory as backup
@@ -72,26 +117,9 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
         emailError = err;
       }
 
-      // 3. Find or create user and save credential record
-      let user = await User.findOne({ email });
-      if (user) {
-        // Create credential record in database
-        await Credential.create({
-          credentialist: user._id,
-          title: credentialName,
-          credentialType: 'micro-credential',
-          issuer: 'WEV DEV LOPED BY TO BOOT CAMP',
-          issueDate: new Date(issueDate),
-          hours: parseInt(hours),
-          nsqfLevel: parseInt(nsqfLevel),
-          status: 'verified',
-          verifiedBy: validantId,
-          verifiedAt: new Date(),
-          isPublic: false,
-          skills: [],
-          description: `Issued via bulk credential issuance on ${new Date().toLocaleDateString()}`,
-        });
-      }
+      // 3. Update credential with PDF path
+      credential.pdfPath = filepath;
+      await credential.save();
 
       // Add to results with email status
       const resultEntry = {
@@ -99,11 +127,19 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
         email,
         status: emailSent ? 'sent' : 'pdf_only',
         pdfPath: filepath,
+        certificateId,
+        verificationUrl: `https://credverify.vercel.app/verify/${certificateId}`,
+        isNewUser, // Flag to indicate if a new account was created
       };
       
       if (!emailSent && emailError) {
         resultEntry.emailError = emailError.message;
         resultEntry.note = 'PDF generated and saved locally, but email failed to send';
+      }
+      
+      if (isNewUser) {
+        resultEntry.accountCreated = true;
+        resultEntry.defaultPassword = 'CredVerify@123';
       }
 
       results.successful.push(resultEntry);

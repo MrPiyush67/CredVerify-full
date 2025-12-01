@@ -36,8 +36,11 @@ const ProtectedRoute = ({ requiredRole }) => {
 
   // Authenticated but wrong role - redirect to home
   if (requiredRole && userRole !== requiredRole) {
+    console.log(`🔒 Access denied: Required role "${requiredRole}", but user has role "${userRole}". Redirecting to /home`);
     return <Navigate to="/home" replace />;
   }
+
+  console.log(`✅ Access granted: User role "${userRole}" matches required role "${requiredRole || 'any'}"`);
 
   // Authenticated and authorized - render protected content
   return (
