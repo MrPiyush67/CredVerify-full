@@ -24,6 +24,22 @@ const credentialSchema = new mongoose.Schema(
       default: 0,
     },
 
+    // New: Weighted verification system (ChatGPT recommended)
+    verificationStatus: {
+      type: String,
+      enum: ['VERIFIED', 'REVIEW_REQUIRED', 'REJECTED', 'PENDING'],
+      default: 'PENDING',
+    },
+    finalVerificationScore: {
+      type: Number,   // 0-100 (weighted: 60% name + 30% domain + 10% metadata)
+      min: 0,
+      max: 100,
+    },
+    autoApproved: {
+      type: Boolean,
+      default: false,  // true if score ≥85% and auto-verified
+    },
+
     // Core info
     title: {
       type: String,   // course / program title

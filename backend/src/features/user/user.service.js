@@ -15,9 +15,30 @@ export const createUser = async (userData) => {
   // Hash password
   const passwordHash = await hashPassword(password);
 
+  // Auto-generate unique username if not provided
+  let finalUsername = username;
+  if (!finalUsername) {
+    const baseUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+    finalUsername = baseUsername;
+
+    // Check if username exists and append random suffix if needed
+    let usernameExists = await User.findOne({ username: finalUsername });
+    if (usernameExists) {
+      // Generate unique suffix using timestamp + random number
+      const uniqueSuffix = Date.now().toString().slice(-4) + Math.floor(Math.random() * 1000);
+      finalUsername = `${baseUsername}${uniqueSuffix}`;
+
+      // Final safety check (extremely rare collision)
+      usernameExists = await User.findOne({ username: finalUsername });
+      if (usernameExists) {
+        finalUsername = `${baseUsername}${Date.now()}${Math.floor(Math.random() * 10000)}`;
+      }
+    }
+  }
+
   // Create user with all data (base + role-specific fields)
   const user = await User.create({
-    username,
+    username: finalUsername,
     name, // Legal name - immutable
     email,
     passwordHash,

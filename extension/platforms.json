@@ -1,0 +1,324 @@
+{
+  "platforms": [
+    {
+      "id": "coursera",
+      "name": "Coursera",
+      "category": "mooc",
+      "domains": [
+        "coursera.org",
+        "learner.coursera.com"
+      ]
+    },
+    {
+      "id": "udemy",
+      "name": "Udemy",
+      "category": "mooc",
+      "domains": [
+        "udemy.com",
+        "www.udemy.com"
+      ]
+    },
+    {
+      "id": "unstop",
+      "name": "Unstop",
+      "category": "hackathon_challenges_and_learning_platform",
+      "domains": [
+        "unstop.com",
+        "unstop.ai",
+        "dare2compete.com"
+      ]
+    },
+    {
+      "id": "edx",
+      "name": "edX",
+      "category": "mooc",
+      "domains": [
+        "edx.org",
+        "courses.edx.org"
+      ]
+    },
+    {
+      "id": "udacity",
+      "name": "Udacity",
+      "category": "mooc",
+      "domains": [
+        "udacity.com"
+      ]
+    },
+    {
+      "id": "futurelearn",
+      "name": "FutureLearn",
+      "category": "mooc",
+      "domains": [
+        "futurelearn.com"
+      ]
+    },
+    {
+      "id": "linkedin_learning",
+      "name": "LinkedIn Learning",
+      "category": "mooc",
+      "domains": [
+        "linkedin.com",
+        "learning.linkedin.com"
+      ]
+    },
+    {
+      "id": "datacamp",
+      "name": "DataCamp",
+      "category": "mooc",
+      "domains": [
+        "datacamp.com"
+      ]
+    },
+    {
+      "id": "simplilearn",
+      "name": "Simplilearn",
+      "category": "mooc",
+      "domains": [
+        "simplilearn.com"
+      ]
+    },
+    {
+      "id": "great_learning",
+      "name": "Great Learning",
+      "category": "mooc",
+      "domains": [
+        "mygreatlearning.com"
+      ]
+    },
+    {
+      "id": "swayam",
+      "name": "SWAYAM",
+      "category": "indian_government",
+      "domains": [
+        "swayam.gov.in"
+      ]
+    },
+    {
+      "id": "nptel",
+      "name": "NPTEL",
+      "category": "indian_government",
+      "domains": [
+        "nptel.ac.in",
+        "onlinecourses.nptel.ac.in"
+      ]
+    },
+    {
+      "id": "skill_india_digital",
+      "name": "Skill India Digital",
+      "category": "indian_government",
+      "domains": [
+        "skillindiadigital.gov.in"
+      ]
+    },
+    {
+      "id": "skill_india",
+      "name": "Skill India",
+      "category": "indian_government",
+      "domains": [
+        "skillindia.gov.in"
+      ]
+    },
+    {
+      "id": "nsdc",
+      "name": "NSDC",
+      "category": "indian_government",
+      "domains": [
+        "nsdcindia.org"
+      ]
+    },
+    {
+      "id": "futureskills_prime",
+      "name": "FutureSkills Prime",
+      "category": "indian_government",
+      "domains": [
+        "futureskillsprime.in"
+      ]
+    },
+    {
+      "id": "digilocker",
+      "name": "DigiLocker",
+      "category": "wallet_storage",
+      "domains": [
+        "digilocker.gov.in",
+        "digilocker.nic.in"
+      ]
+    },
+    {
+      "id": "ncvet",
+      "name": "NCVET",
+      "category": "ncvet_ecosystem",
+      "domains": [
+        "ncvet.gov.in",
+        "ncvetech.in"
+      ]
+    },
+    {
+      "id": "nqr",
+      "name": "National Qualification Register",
+      "category": "ncvet_ecosystem",
+      "domains": [
+        "nqr.gov.in"
+      ]
+    },
+    {
+      "id": "msde",
+      "name": "MSDE",
+      "category": "ncvet_ecosystem",
+      "domains": [
+        "msde.gov.in"
+      ]
+    },
+    {
+      "id": "github",
+      "name": "GitHub",
+      "category": "developer_profile",
+      "domains": [
+        "github.com",
+        "gist.github.com"
+      ]
+    },
+    {
+      "id": "gitlab",
+      "name": "GitLab",
+      "category": "developer_profile",
+      "domains": [
+        "gitlab.com"
+      ]
+    },
+    {
+      "id": "bitbucket",
+      "name": "Bitbucket",
+      "category": "developer_profile",
+      "domains": [
+        "bitbucket.org"
+      ]
+    },
+    {
+      "id": "leetcode",
+      "name": "LeetCode",
+      "category": "coding_platform",
+      "domains": [
+        "leetcode.com",
+        "leetcode.cn"
+      ]
+    },
+    {
+      "id": "codechef",
+      "name": "CodeChef",
+      "category": "coding_platform",
+      "domains": [
+        "codechef.com"
+      ]
+    },
+    {
+      "id": "hackerrank",
+      "name": "HackerRank",
+      "category": "coding_platform",
+      "domains": [
+        "hackerrank.com"
+      ]
+    },
+    {
+      "id": "hackerearth",
+      "name": "HackerEarth",
+      "category": "coding_platform",
+      "domains": [
+        "hackerearth.com"
+      ]
+    },
+    {
+      "id": "codeforces",
+      "name": "Codeforces",
+      "category": "coding_platform",
+      "domains": [
+        "codeforces.com"
+      ]
+    },
+    {
+      "id": "aws_training",
+      "name": "AWS Certification",
+      "category": "cloud_vendor",
+      "domains": [
+        "aws.amazon.com",
+        "training.aws"
+      ]
+    },
+    {
+      "id": "google_cloud",
+      "name": "Google Cloud Skills Boost",
+      "category": "cloud_vendor",
+      "domains": [
+        "cloudskillsboost.google",
+        "googlecloud.com"
+      ]
+    },
+    {
+      "id": "microsoft_learn",
+      "name": "Microsoft Learn",
+      "category": "cloud_vendor",
+      "domains": [
+        "learn.microsoft.com"
+      ]
+    },
+    {
+      "id": "oracle_university",
+      "name": "Oracle University",
+      "category": "vendor_certification",
+      "domains": [
+        "education.oracle.com"
+      ]
+    },
+    {
+      "id": "ibm_skillsbuild",
+      "name": "IBM SkillsBuild",
+      "category": "vendor_certification",
+      "domains": [
+        "skillsbuild.org"
+      ]
+    },
+    {
+      "id": "cisco_netacad",
+      "name": "Cisco Networking Academy",
+      "category": "vendor_certification",
+      "domains": [
+        "netacad.com"
+      ]
+    },
+    {
+      "id": "credly",
+      "name": "Credly",
+      "category": "badge_wallet",
+      "domains": [
+        "credly.com",
+        "youracclaim.com"
+      ]
+    },
+    {
+      "id": "accredible",
+      "name": "Accredible",
+      "category": "badge_wallet",
+      "domains": [
+        "accredible.com",
+        "certificates.accredible.com"
+      ]
+    },
+    {
+      "id": "badgr",
+      "name": "Badgr",
+      "category": "badge_wallet",
+      "domains": [
+        "badgr.com",
+        "api.badgr.io"
+      ]
+    },
+    {
+      "id": "hubspot_academy",
+      "name": "HubSpot Academy",
+      "category": "mooc",
+      "domains": [
+        "academy.hubspot.com"
+      ]
+    }
+  ]
+}
