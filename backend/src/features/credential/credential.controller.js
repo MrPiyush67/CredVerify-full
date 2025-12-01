@@ -2,6 +2,7 @@ import { asyncHandler } from '../../core/utils/asyncHandler.js';
 import { sendSuccess } from '../../core/utils/response.js';
 import { MESSAGES } from '../../core/constants/messages.js';
 import * as credentialService from './credential.service.js';
+import * as bulkCredentialService from './bulkCredential.service.js';
 
 // @desc    Upload a credential
 // @route   POST /api/credentials
@@ -48,30 +49,7 @@ export const updateCredential = asyncHandler(async (req, res) => {
 // @route   POST /api/credentials/from-extension
 // @access  Private (Credentialist only)
 export const createCredentialFromExtension = asyncHandler(async (req, res) => {
-  console.log('\n' + '🟢'.repeat(40));
-  console.log('📥 MAIN BACKEND - RECEIVED FROM EXTENSION');
-  console.log('🟢'.repeat(40));
-  console.log('\n👤 AUTHENTICATED USER (req.user):');
-  console.log(JSON.stringify({
-    _id: req.user._id,
-    name: req.user.name,
-    email: req.user.email,
-    role: req.user.role,
-  }, null, 2));
-  console.log('\n📋 REQUEST BODY (req.body):');
-  console.log(JSON.stringify(req.body, null, 2));
-  console.log('\n🟢'.repeat(40) + '\n');
-
   const credential = await credentialService.createCredential(req.user._id, req.body);
-
-  console.log('\n✅ CREDENTIAL CREATED:');
-  console.log(JSON.stringify({
-    _id: credential._id,
-    title: credential.title,
-    status: credential.status,
-    user: credential.user,
-  }, null, 2));
-  console.log('\n');
 
   return sendSuccess(res, 201, 'Credential saved successfully from extension', { credential });
 });
@@ -170,4 +148,61 @@ export const rejectCredential = asyncHandler(async (req, res) => {
     rejectionReason
   );
   return sendSuccess(res, 200, MESSAGES.CREDENTIAL.REJECTED, { credential });
+});
+
+import { generateCertificatePDF } from '../../core/utils/certificateGenerator.js';
+
+// @desc    Preview credential certificate
+// @route   POST /api/credentials/preview
+// @access  Private (Validant only)
+export const previewCertificate = asyncHandler(async (req, res) => {
+  const { credentialName, issueDate, hours, nsqfLevel, recipientName } = req.body;
+
+  if (!credentialName || !issueDate || !hours || !nsqfLevel) {
+    return res.status(400).json({
+      success: false,
+      message: 'Please provide all credential details for preview',
+    });
+  }
+
+  const pdfBuffer = await generateCertificatePDF({
+    recipientName: recipientName || 'John Doe', // Default name for preview
+    credentialName,
+    issueDate,
+    hours,
+    nsqfLevel,
+  });
+
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Length': pdfBuffer.length,
+    'Content-Disposition': `inline; filename="preview.pdf"`,
+  });
+
+  res.send(pdfBuffer);
+});
+
+// @desc    Issue bulk credentials to multiple recipients
+// @route   POST /api/credentials/bulk-issue
+// @access  Private (Validant only)
+export const issueBulkCredentials = asyncHandler(async (req, res) => {
+  const { credentialData, recipients } = req.body;
+  const validantId = req.user._id;
+  
+  // Validate input
+  if (!credentialData || !recipients || !Array.isArray(recipients) || recipients.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid input. Credential data and recipients array required.',
+    });
+  }
+
+  // Issue credentials to all recipients
+  const results = await bulkCredentialService.issueBulkCredentials(
+    validantId,
+    credentialData,
+    recipients
+  );
+
+  return sendSuccess(res, 200, 'Bulk credential issuance completed', { results });
 });

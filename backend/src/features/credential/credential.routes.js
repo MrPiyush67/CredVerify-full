@@ -15,6 +15,8 @@ import {
   verifyCredential,
   rejectCredential,
   createCredentialFromExtension,
+  issueBulkCredentials,
+  previewCertificate,
 } from './credential.controller.js';
 
 const router = express.Router();
@@ -27,6 +29,8 @@ router.post('/credentials/from-extension', protect, createCredentialFromExtensio
 
 // Validant routes (specific routes first)
 router.get('/credentials/pending', protect, isValidant, getPendingCredentials);
+router.post('/credentials/preview', protect, isValidant, previewCertificate);
+router.post('/credentials/bulk-issue', protect, isValidant, issueBulkCredentials);
 
 // Credentialist routes (specific routes before parameterized)
 router.post('/credentials', protect, isCredentialist, uploadCredential);
