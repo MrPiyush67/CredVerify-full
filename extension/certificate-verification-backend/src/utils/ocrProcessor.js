@@ -29,11 +29,14 @@ export const extractTextFromImage = async (imageBuffer) => {
     // Preprocess the image
     const processedImage = await preprocessImage(imageBuffer);
 
-    // Perform OCR
+    // Perform OCR with optimized settings for certificates
+    // Using PSM 11 (Sparse text) with LSTM engine for best results
     const { data: { text, confidence } } = await Tesseract.recognize(
       processedImage,
       'eng',
       {
+        tessedit_pageseg_mode: Tesseract.PSM.SPARSE_TEXT, // Best for certificates
+        tessedit_ocr_engine_mode: Tesseract.OEM.LSTM_ONLY, // Neural network engine
         logger: (m) => {
           if (m.status === 'recognizing text') {
             console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`);

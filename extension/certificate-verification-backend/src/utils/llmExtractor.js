@@ -10,8 +10,8 @@ const getGeminiModel = () => {
       throw new Error('GEMINI_API_KEY environment variable is not set');
     }
     genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    // Use gemini-1.5-flash (free tier, widely available)
-    model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+    // Use gemini-2.5-flash (stable, free tier, fast and accurate)
+    model = genAI.getGenerativeModel({ model: 'models/gemini-2.5-flash' });
   }
   return model;
 };
