@@ -6,8 +6,9 @@ import { INDIAN_INSTITUTIONS } from '../constants/institutions.js';
 export default function ValidantVerificationModal({ isOpen, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
     title: '',
+    certificateName: '',
     institution: '',
-    credentialType: 'degree',
+    type: 'degree',
     issueDate: '',
     file: null,
     credentialistComments: '',
@@ -79,8 +80,10 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
     // Create FormData for file upload
     const submitData = new FormData();
     submitData.append('title', formData.title);
+    submitData.append('certificateName', formData.certificateName || formData.title);
+    submitData.append('legalNameSnapshot', formData.certificateName || formData.title);
     submitData.append('institution', formData.institution);
-    submitData.append('credentialType', formData.credentialType);
+    submitData.append('type', formData.type);
     submitData.append('issueDate', formData.issueDate);
     submitData.append('issuer', formData.institution); // Set issuer same as institution
     submitData.append('credentialistComments', formData.credentialistComments);
@@ -98,8 +101,9 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
   const handleClose = () => {
     setFormData({
       title: '',
+      certificateName: '',
       institution: '',
-      credentialType: 'degree',
+      type: 'degree',
       issueDate: '',
       file: null,
       credentialistComments: '',
@@ -202,14 +206,13 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
                 Credential Type <span className="text-red-500">*</span>
               </label>
               <select
-                value={formData.credentialType}
-                onChange={(e) => handleInputChange('credentialType', e.target.value)}
+                value={formData.type}
+                onChange={(e) => handleInputChange('type', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="degree">Degree</option>
                 <option value="certificate">Certificate</option>
-                <option value="badge">Badge</option>
-                <option value="license">License</option>
+                <option value="micro_credential">Micro Credential</option>
                 <option value="other">Other</option>
               </select>
             </div>

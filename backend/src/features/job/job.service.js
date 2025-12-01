@@ -250,7 +250,7 @@ export const applyToJob = async (jobId, credentialistId) => {
     metadata: {
       jobId: job._id,
       jobTitle: job.title,
-      curatorName: job.curator.name,
+      curatorName: job.curator.username,
     },
   });
 

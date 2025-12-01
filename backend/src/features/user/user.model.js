@@ -4,10 +4,17 @@ import { ROLE_VALUES } from '../../core/constants/roles.js';
 const userSchema = new mongoose.Schema(
   {
     // ===== PRIMARY REQUIREMENTS =====
+    username: {
+      type: String,
+      required: [true, 'Username is required'],
+      trim: true,
+      maxlength: 50,
+    },
     name: {
       type: String,
-      required: [true, 'Name is required'],
+      required: [true, 'Legal name is required'],
       trim: true,
+      immutable: true, // Cannot be changed after initial creation
     },
     email: {
       type: String,

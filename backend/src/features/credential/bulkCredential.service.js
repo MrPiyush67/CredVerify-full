@@ -45,8 +45,12 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
         const bcrypt = (await import('bcryptjs')).default;
         const defaultPassword = await bcrypt.hash('CredVerify@123', 10);
         
+        // Generate username from name
+        const username = name.toLowerCase().replace(/\s+/g, '_');
+        
         user = await User.create({
-          name: name,
+          username: username,
+          name: name, // Legal name - immutable
           email: email,
           passwordHash: defaultPassword,
           role: 'credentialist',
@@ -54,21 +58,26 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
         });
         
         isNewUser = true;
-        console.log(`✅ Created new user account for: ${email}`);
+        console.log(`✅ Created new user account for: ${email} with username: ${username}`);
       }
       
       const credential = await Credential.create({
-        credentialist: user._id,
+        user: user._id,
+        legalNameSnapshot: name,
+        certificateName: name,
+        nameMatchConfidence: 100,
         title: credentialName,
-        credentialType: 'micro-credential',
+        type: 'micro_credential',
         issuer: 'WEV DEV LOPED BY TO BOOT CAMP',
         issueDate: new Date(issueDate),
-        hours: parseInt(hours),
+        totalHours: parseInt(hours),
         nsqfLevel: parseInt(nsqfLevel),
         status: 'verified',
         verifiedBy: validantId,
         verifiedAt: new Date(),
         isPublic: false,
+        isDomainTrusted: true,
+        isIssuerVerified: true,
         skills: [],
         description: `Issued via bulk credential issuance on ${new Date().toLocaleDateString()}`,
       });

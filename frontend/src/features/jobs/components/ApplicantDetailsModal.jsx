@@ -276,7 +276,7 @@ export default function ApplicantDetailsModal({ jobId, applicantUserId, applican
                               <p className="text-sm text-muted-foreground">{cred.issuer}</p>
                               <div className="flex items-center gap-2 mt-1">
                                 <Badge variant="outline" className="text-xs">
-                                  {cred.credentialType}
+                                  {cred.type}
                                 </Badge>
                                 {cred.issueDate && (
                                   <span className="text-xs text-muted-foreground">

@@ -108,13 +108,13 @@ export const sendMessage = async (conversationId, userId, content) => {
         await createNotification({
           user: participantId,
           title: 'New Message',
-          message: `${message.sender.name} sent you a message.`,
+          message: `${message.sender.username} sent you a message.`,
           type: 'info',
           category: 'message',
           metadata: {
             conversationId: conversationId,
             senderId: userId,
-            senderName: message.sender.name,
+            senderName: message.sender.username,
             messagePreview: content.substring(0, 50),
           },
         });

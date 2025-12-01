@@ -4,7 +4,7 @@ import { generateToken } from '../../core/utils/generateToken.js';
 import { ROLES } from '../../core/constants/roles.js';
 
 export const createUser = async (userData) => {
-  const { name, email, password, role, ...profileData } = userData;
+  const { username, name, email, password, role, ...profileData } = userData;
 
   // Check if user already exists
   const existingUser = await User.findOne({ email });
@@ -17,7 +17,8 @@ export const createUser = async (userData) => {
 
   // Create user with all data (base + role-specific fields)
   const user = await User.create({
-    name,
+    username,
+    name, // Legal name - immutable
     email,
     passwordHash,
     role,
@@ -96,8 +97,8 @@ export const updateRoleProfile = async (userId, updates) => {
 export const getChatUsers = async (currentUserId) => {
   // Get all users except the current user, exclude password
   const users = await User.find({ _id: { $ne: currentUserId } })
-    .select('name email avatar role companyName')
-    .sort({ name: 1 });
+    .select('username name email avatar role companyName')
+    .sort({ username: 1 });
 
   return users;
 };

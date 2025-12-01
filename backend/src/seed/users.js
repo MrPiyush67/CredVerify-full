@@ -46,6 +46,7 @@ const credentialists = [
   // DEMO USER 1: Priya Sharma
   {
     _id: SEED_IDS.credentialist1,
+    username: 'priya_sharma',
     name: 'Priya Sharma',
     email: 'priya.sharma@example.com',
     password: 'password123',
@@ -91,6 +92,7 @@ const credentialists = [
   },
   {
     _id: SEED_IDS.credentialist2,
+    username: 'ananya_desai',
     name: 'Ananya Desai',
     email: 'ananya.desai@example.com',
     password: 'password123',
@@ -151,6 +153,7 @@ const credentialists = [
   },
   {
     _id: SEED_IDS.credentialist3,
+    username: 'neha_gupta',
     name: 'Neha Gupta',
     email: 'neha.gupta@example.com',
     password: 'password123',
@@ -203,6 +206,7 @@ const credentialists = [
   },
   {
     _id: SEED_IDS.credentialist4,
+    username: 'divya_iyer',
     name: 'Divya Iyer',
     email: 'divya.iyer@example.com',
     password: 'password123',
@@ -255,6 +259,7 @@ const credentialists = [
   },
   {
     _id: SEED_IDS.credentialist5,
+    username: 'sneha_kulkarni',
     name: 'Sneha Kulkarni',
     email: 'sneha.kulkarni@example.com',
     password: 'password123',
@@ -306,6 +311,7 @@ const credentialists = [
   },
   {
     _id: SEED_IDS.credentialist6,
+    username: 'riya_patel',
     name: 'Riya Patel',
     email: 'riya.patel@example.com',
     password: 'password123',
@@ -363,6 +369,7 @@ const credentialists = [
   },
   {
     _id: SEED_IDS.credentialist7,
+    username: 'kavya_reddy',
     name: 'Kavya Reddy',
     email: 'kavya.reddy@example.com',
     password: 'password123',
@@ -414,6 +421,7 @@ const credentialists = [
   },
   {
     _id: SEED_IDS.credentialist8,
+    username: 'pooja_menon',
     name: 'Pooja Menon',
     email: 'pooja.menon@example.com',
     password: 'password123',
@@ -466,6 +474,7 @@ const credentialists = [
   },
   {
     _id: SEED_IDS.credentialist9,
+    username: 'aishwarya_singh',
     name: 'Aishwarya Singh',
     email: 'aishwarya.singh@example.com',
     password: 'password123',
@@ -524,6 +533,7 @@ const credentialists = [
   },
   {
     _id: SEED_IDS.credentialist10,
+    username: 'shreya_nair',
     name: 'Shreya Nair',
     email: 'shreya.nair@example.com',
     password: 'password123',
@@ -595,6 +605,7 @@ const validants = [
   // DEMO USER 2: Dr. Kavita Rao
   {
     _id: SEED_IDS.validant1,
+    username: 'dr_kavita_rao',
     name: 'Dr. Kavita Rao',
     email: 'kavita.rao@credverify.com',
     password: 'password123',
@@ -662,6 +673,7 @@ const validants = [
   },
   {
     _id: SEED_IDS.validant2,
+    username: 'prof_meera_krishnan',
     name: 'Prof. Meera Krishnan',
     email: 'meera.krishnan@nit.edu',
     password: 'password123',
@@ -706,6 +718,7 @@ const validants = [
   },
   {
     _id: SEED_IDS.validant3,
+    username: 'dr_priya_malhotra',
     name: 'Dr. Priya Malhotra',
     email: 'priya.malhotra@du.ac.in',
     password: 'password123',
@@ -772,6 +785,7 @@ const validants = [
   },
   {
     _id: SEED_IDS.validant4,
+    username: 'prof_anjali_bose',
     name: 'Prof. Anjali Bose',
     email: 'anjali.bose@jnu.ac.in',
     password: 'password123',
@@ -831,6 +845,7 @@ const validants = [
   },
   {
     _id: SEED_IDS.validant5,
+    username: 'dr_sneha_verma',
     name: 'Dr. Sneha Verma',
     email: 'sneha.verma@bits-pilani.ac.in',
     password: 'password123',
@@ -889,6 +904,7 @@ const validants = [
   },
   {
     _id: SEED_IDS.validant6,
+    username: 'prof_lakshmi_iyer',
     name: 'Prof. Lakshmi Iyer',
     email: 'lakshmi.iyer@vit.ac.in',
     password: 'password123',
@@ -948,6 +964,7 @@ const validants = [
   },
   {
     _id: SEED_IDS.validant7,
+    username: 'dr_ritu_sharma',
     name: 'Dr. Ritu Sharma',
     email: 'ritu.sharma@iitb.ac.in',
     password: 'password123',
@@ -1014,6 +1031,7 @@ const validants = [
   },
   {
     _id: SEED_IDS.validant8,
+    username: 'prof_deepa_nair',
     name: 'Prof. Deepa Nair',
     email: 'deepa.nair@iitm.ac.in',
     password: 'password123',
@@ -1080,6 +1098,7 @@ const validants = [
   },
   {
     _id: SEED_IDS.validant9,
+    username: 'dr_vidya_desai',
     name: 'Dr. Vidya Desai',
     email: 'vidya.desai@dtu.ac.in',
     password: 'password123',
@@ -1146,6 +1165,7 @@ const validants = [
   },
   {
     _id: SEED_IDS.validant10,
+    username: 'prof_sarika_pillai',
     name: 'Prof. Sarika Pillai',
     email: 'sarika.pillai@iitkgp.ac.in',
     password: 'password123',
@@ -1217,6 +1237,7 @@ const curators = [
   // DEMO USER 3: Meera Krishnan
   {
     _id: SEED_IDS.curator1,
+    username: 'meera_krishnan',
     name: 'Meera Krishnan',
     email: 'meera.krishnan@startupx.io',
     password: 'password123',
@@ -1289,6 +1310,7 @@ const curators = [
   },
   {
     _id: SEED_IDS.curator2,
+    username: 'rajesh_gupta',
     name: 'Rajesh Gupta',
     email: 'rajesh.gupta@techinnovate.com',
     password: 'password123',
@@ -1353,6 +1375,7 @@ const curators = [
   },
   {
     _id: SEED_IDS.curator3,
+    username: 'aarti_deshmukh',
     name: 'Aarti Deshmukh',
     email: 'aarti.deshmukh@healthtech.io',
     password: 'password123',
@@ -1416,6 +1439,7 @@ const curators = [
   },
   {
     _id: SEED_IDS.curator4,
+    username: 'nikhil_shah',
     name: 'Nikhil Shah',
     email: 'nikhil.shah@financeai.com',
     password: 'password123',
@@ -1480,6 +1504,7 @@ const curators = [
   },
   {
     _id: SEED_IDS.curator5,
+    username: 'ritu_agarwal',
     name: 'Ritu Agarwal',
     email: 'ritu.agarwal@ecommerce.in',
     password: 'password123',
@@ -1544,6 +1569,7 @@ const curators = [
   },
   {
     _id: SEED_IDS.curator6,
+    username: 'lakshmi_rao',
     name: 'Lakshmi Rao',
     email: 'lakshmi.rao@dataanalytics.io',
     password: 'password123',
@@ -1607,6 +1633,7 @@ const curators = [
   },
   {
     _id: SEED_IDS.curator7,
+    username: 'varun_pillai',
     name: 'Varun Pillai',
     email: 'varun.pillai@gamesstudio.com',
     password: 'password123',
@@ -1677,6 +1704,7 @@ const curators = [
   },
   {
     _id: SEED_IDS.curator8,
+    username: 'manish_bose',
     name: 'Manish Bose',
     email: 'manish.bose@edutech.com',
     password: 'password123',
@@ -1747,6 +1775,7 @@ const curators = [
   },
   {
     _id: SEED_IDS.curator9,
+    username: 'sneha_kulkarni_curator',
     name: 'Sneha Kulkarni',
     email: 'sneha.kulkarni@webtech.in',
     password: 'password123',
@@ -1812,6 +1841,7 @@ const curators = [
   },
   {
     _id: SEED_IDS.curator10,
+    username: 'amit_verma',
     name: 'Amit Verma',
     email: 'amit.verma@cloudcorp.com',
     password: 'password123',

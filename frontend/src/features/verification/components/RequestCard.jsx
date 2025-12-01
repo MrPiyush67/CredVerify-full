@@ -63,13 +63,13 @@ export default function RequestCard({ credential, onSuccess }) {
           <div className="flex items-center justify-between">
             <CardTitle className="text-base flex items-center gap-2">
               <UserIcon className="h-4 w-4" />
-              {credential.credentialist?.name || credential.user?.name || 'Unknown User'}
+              {credential.user?.name || credential.credentialist?.name || 'Unknown User'}
             </CardTitle>
             <Badge className={getStatusColor(credential.status)}>
               {credential.status}
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground">{credential.credentialist?.email || credential.user?.email}</p>
+          <p className="text-sm text-muted-foreground">{credential.user?.email || credential.credentialist?.email}</p>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

@@ -92,7 +92,7 @@ export const initializeSocket = (server) => {
       socket.to(`conversation:${conversationId}`).emit('typing:start', {
         userId,
         conversationId,
-        name: socket.user.name,
+        name: socket.user.username,
       });
     });
 

@@ -1,15 +1,15 @@
 import Credential from './credential.model.js';
 import { createNotification } from '../notification/notification.service.js';
 
-export const createCredential = async (credentialistId, credentialData) => {
+export const createCredential = async (userId, credentialData) => {
   const credential = await Credential.create({
-    credentialist: credentialistId,
+    user: userId,
     ...credentialData,
   });
 
   // Create notification for successful credential upload
   await createNotification({
-    user: credentialistId,
+    user: userId,
     title: 'Credential Uploaded Successfully',
     message: `Your "${credential.title}" credential has been saved as draft.`,
     type: 'success',
@@ -23,8 +23,8 @@ export const createCredential = async (credentialistId, credentialData) => {
   return credential;
 };
 
-export const getMyCredentials = async (credentialistId, filters = {}) => {
-  const query = { credentialist: credentialistId, ...filters };
+export const getMyCredentials = async (userId, filters = {}) => {
+  const query = { user: userId, ...filters };
 
   const credentials = await Credential.find(query)
     .populate('verifiedBy', 'name email')
@@ -35,7 +35,7 @@ export const getMyCredentials = async (credentialistId, filters = {}) => {
 
 export const getCredentialById = async (credentialId, userId = null) => {
   const credential = await Credential.findById(credentialId)
-    .populate('credentialist', 'name email avatar')
+    .populate('user', 'name email avatar')
     .populate('verifiedBy', 'name email');
 
   if (!credential) {
@@ -43,7 +43,7 @@ export const getCredentialById = async (credentialId, userId = null) => {
   }
 
   // If userId provided, check if user is owner
-  if (userId && credential.credentialist._id.toString() !== userId.toString()) {
+  if (userId && credential.user._id.toString() !== userId.toString()) {
     // Only return if verified (for privacy)
     if (credential.status !== 'verified') {
       throw new Error('Unauthorized to view this credential');
@@ -53,10 +53,10 @@ export const getCredentialById = async (credentialId, userId = null) => {
   return credential;
 };
 
-export const updateCredential = async (credentialistId, credentialId, updates) => {
+export const updateCredential = async (userId, credentialId, updates) => {
   const credential = await Credential.findOne({
     _id: credentialId,
-    credentialist: credentialistId,
+    user: userId,
   });
 
   if (!credential) {
@@ -74,10 +74,10 @@ export const updateCredential = async (credentialistId, credentialId, updates) =
   return credential;
 };
 
-export const deleteCredential = async (credentialistId, credentialId) => {
+export const deleteCredential = async (userId, credentialId) => {
   const credential = await Credential.findOneAndDelete({
     _id: credentialId,
-    credentialist: credentialistId,
+    user: userId,
   });
 
   if (!credential) {
@@ -87,10 +87,10 @@ export const deleteCredential = async (credentialistId, credentialId) => {
   return credential;
 };
 
-export const requestVerification = async (credentialistId, credentialId) => {
+export const requestVerification = async (userId, credentialId) => {
   const credential = await Credential.findOne({
     _id: credentialId,
-    credentialist: credentialistId,
+    user: userId,
   });
 
   if (!credential) {
@@ -117,7 +117,7 @@ export const requestVerification = async (credentialistId, credentialId) => {
 
   // Notify credentialist
   await createNotification({
-    user: credentialistId,
+    user: userId,
     title: 'Verification Requested',
     message: `Your verification request for "${credential.title}" has been sent to validants.`,
     type: 'info',
@@ -135,18 +135,18 @@ export const requestVerification = async (credentialistId, credentialId) => {
   return credential;
 };
 
-export const getVerifiedCredentials = async (credentialistId) => {
+export const getVerifiedCredentials = async (userId) => {
   const credentials = await Credential.find({
-    credentialist: credentialistId,
+    user: userId,
     status: 'verified',
   }).sort({ verifiedAt: -1 });
 
   return credentials;
 };
 
-export const getCredentialStats = async (credentialistId) => {
+export const getCredentialStats = async (userId) => {
   const stats = await Credential.aggregate([
-    { $match: { credentialist: credentialistId } },
+    { $match: { user: userId } },
     {
       $facet: {
         total: [{ $count: 'count' }],
@@ -175,8 +175,8 @@ export const getPublicCredentials = async (filters = {}) => {
   const query = { status: 'verified', isPublic: true };
 
   // Optional filters
-  if (filters.credentialType) {
-    query.credentialType = filters.credentialType;
+  if (filters.type) {
+    query.type = filters.type;
   }
   if (filters.issuer) {
     query.issuer = { $regex: filters.issuer, $options: 'i' };
@@ -186,7 +186,7 @@ export const getPublicCredentials = async (filters = {}) => {
   }
 
   const credentials = await Credential.find(query)
-    .populate('credentialist', 'name email avatar')
+    .populate('user', 'name email avatar')
     .populate('verifiedBy', 'name email')
     .sort({ verifiedAt: -1 });
 
@@ -210,15 +210,15 @@ export const getPendingCredentialsForValidant = async (filters = {}) => {
   }
 
   // Optional filters
-  if (filters.credentialType) {
-    query.credentialType = filters.credentialType;
+  if (filters.type) {
+    query.type = filters.type;
   }
   if (filters.issuer) {
     query.issuer = { $regex: filters.issuer, $options: 'i' };
   }
 
   const credentials = await Credential.find(query)
-    .populate('credentialist', 'name email avatar')
+    .populate('user', 'name email avatar')
     .populate('verifiedBy', 'name email')
     .sort({ requestedAt: -1, updatedAt: -1 }); // Most recent first
 
@@ -228,8 +228,8 @@ export const getPendingCredentialsForValidant = async (filters = {}) => {
 // Verify credential (validant action)
 export const verifyCredential = async (validantId, credentialId, verificationNotes = '') => {
   const credential = await Credential.findById(credentialId).populate(
-    'credentialist',
-    'name'
+    'user',
+    'username name'
   );
   if (!credential) throw new Error('Credential not found');
   if (credential.status !== 'pending') throw new Error('Credential is not pending verification');
@@ -245,7 +245,7 @@ export const verifyCredential = async (validantId, credentialId, verificationNot
 
   // Notify credentialist of successful verification
   await createNotification({
-    user: credential.credentialist._id,
+    user: credential.user._id,
     title: '✅ Credential Verified!',
     message: `Your "${credential.title}" has been verified successfully.`,
     type: 'success',
@@ -264,8 +264,8 @@ export const verifyCredential = async (validantId, credentialId, verificationNot
 // Reject credential (validant action)
 export const rejectCredential = async (validantId, credentialId, rejectionReason) => {
   const credential = await Credential.findById(credentialId).populate(
-    'credentialist',
-    'name'
+    'user',
+    'username name'
   );
   if (!credential) throw new Error('Credential not found');
   if (credential.status !== 'pending') throw new Error('Credential is not pending verification');
@@ -280,7 +280,7 @@ export const rejectCredential = async (validantId, credentialId, rejectionReason
 
   // Notify credentialist of rejection
   await createNotification({
-    user: credential.credentialist._id,
+    user: credential.user._id,
     title: '❌ Credential Rejected',
     message: `Your "${credential.title}" was rejected. Reason: ${rejectionReason}`,
     type: 'warning',

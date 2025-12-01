@@ -97,10 +97,10 @@ export const getCredentialStats = asyncHandler(async (req, res) => {
 // @route   GET /api/credentials/public
 // @access  Public
 export const getPublicCredentials = asyncHandler(async (req, res) => {
-  const { credentialType, issuer, skills } = req.query;
+  const { type, issuer, skills } = req.query;
   const filters = {};
 
-  if (credentialType) filters.credentialType = credentialType;
+  if (type) filters.type = type;
   if (issuer) filters.issuer = issuer;
   if (skills) filters.skills = skills.split(',');
 
@@ -112,10 +112,10 @@ export const getPublicCredentials = asyncHandler(async (req, res) => {
 // @route   GET /api/credentials/pending
 // @access  Private (Validant only)
 export const getPendingCredentials = asyncHandler(async (req, res) => {
-  const { credentialType, issuer, status, statusIn } = req.query;
+  const { type, issuer, status, statusIn } = req.query;
   const filters = {};
 
-  if (credentialType) filters.credentialType = credentialType;
+  if (type) filters.type = type;
   if (issuer) filters.issuer = issuer;
   if (status) filters.status = status;
   if (statusIn) filters.statusIn = statusIn;
