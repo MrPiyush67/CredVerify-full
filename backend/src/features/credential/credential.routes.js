@@ -18,14 +18,24 @@ import {
   issueBulkCredentials,
   previewCertificate,
 } from './credential.controller.js';
+import {
+  verifyCertificate,
+  getTrustedDomainsList,
+  extractCertificatePreview,
+} from './verification/verification.controller.js';
 
 const router = express.Router();
 
 // Public routes
 router.get('/credentials/public', getPublicCredentials);
+router.get('/credentials/trusted-domains', getTrustedDomainsList);
 
 // Extension routes (requires auth but not role-specific)
 router.post('/credentials/from-extension', protect, createCredentialFromExtension);
+
+// Certificate verification endpoints (OCR + LLM pipeline)
+router.post('/credentials/verify-certificate', protect, verifyCertificate);
+router.post('/credentials/extract-preview', protect, extractCertificatePreview);
 
 // Validant routes (specific routes first)
 router.get('/credentials/pending', protect, isValidant, getPendingCredentials);

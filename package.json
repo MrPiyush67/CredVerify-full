@@ -1,14 +1,13 @@
 {
+  "type": "module",
   "scripts": {
-    "zip-extension": "powershell -Command \"Compress-Archive -Path 'extension/image-verifier-extension/*' -DestinationPath 'frontend/public/credverify-extension.zip' -Force\"",
+    "zip-extension": "powershell -Command \"Compress-Archive -Path 'extension/*' -DestinationPath 'frontend/public/credverify-extension.zip' -Force\"",
     "open-extensions": "powershell -Command \"& 'C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe' 'brave://extensions'\"",
     "update-extension": "npm run zip-extension && npm run open-extensions",
-    "watch-update": "nodemon --watch extension/image-verifier-extension --exec \"npm run update-extension\""
-  },
-  "dependencies": {
-    "@zxing/browser": "^0.1.5"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.11"
+    "watch-update": "nodemon --watch extension --exec \"npm run update-extension\"",
+    "platforms:list": "node scripts/platforms-manager.js list",
+    "platforms:stats": "node scripts/platforms-manager.js stats",
+    "platforms:add": "node scripts/platforms-manager.js add",
+    "platforms:search": "node scripts/platforms-manager.js search"
   }
 }
