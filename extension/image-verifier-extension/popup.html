@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Certificate Verifier</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div class="header-icon">🎓</div>
+      <div>
+        <div class="header-title">Certificate Verifier</div>
+        <div class="header-subtitle">AI-Powered Verification</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Domain Status -->
+    <div id="domainStatus"></div>
+
+    <!-- Certificate Preview -->
+    <div class="card">
+      <div class="card-title">
+        📄 Certificate Preview
+      </div>
+      <div class="certificate-preview" id="certificatePreview">
+        <div class="preview-placeholder">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">📸</div>
+          <div>Select a certificate image from the page</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Selection (Hidden by default) -->
+    <div id="imageSelectionCard" style="display: none;">
+      <div class="card">
+        <div class="card-title">
+          🖼️ Available Images
+          <span class="badge badge-secondary" id="imageCount">0</span>
+        </div>
+        <div id="imageList" style="max-height: 200px; overflow-y: auto;"></div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div id="progressContainer" style="display: none;">
+      <div class="progress">
+        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+      </div>
+      <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); text-align: center;" id="progressText">
+        Initializing...
+      </div>
+    </div>
+
+    <!-- Status/Alerts -->
+    <div id="statusContainer"></div>
+
+    <!-- Verification Result -->
+    <div id="verificationResult" style="display: none;"></div>
+
+    <!-- Action Buttons -->
+    <div class="button-group">
+      <button id="refreshBtn" class="button button-secondary">
+        🔄 Refresh
+      </button>
+      <button id="verifyBtn" class="button button-primary button-full" disabled>
+        <span class="spinner" id="verifySpinner" style="display: none;"></span>
+        <span id="verifyBtnText">✓ Verify Certificate</span>
+      </button>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider"></div>
+
+    <!-- Settings -->
+    <details>
+      <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">
+        ⚙️ Settings
+      </summary>
+      <div class="card" style="margin-top: 0.5rem;">
+        <div class="card-title">API Endpoint</div>
+        <div style="display: flex; gap: 0.5rem;">
+          <input type="text" id="endpointInput" placeholder="http://localhost:3001/api/verify-certificate"
+            style="flex: 1; padding: 0.5rem; border: 1px solid hsl(var(--border)); border-radius: var(--radius-md); font-size: 0.875rem;" />
+          <button id="saveEndpointBtn" class="button button-secondary">
+            Save
+          </button>
+        </div>
+        <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">
+          Default: http://localhost:3001/api/verify-certificate
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>

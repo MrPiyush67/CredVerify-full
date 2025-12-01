@@ -34,7 +34,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (authError) {
       setError(authError);
-      toast.error(authError);
+      // toast.error(authError); // Removed annoying 401 toast
     }
   }, [authError]);
 

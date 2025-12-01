@@ -33,13 +33,16 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_popup": "popup-new.html",
+    "default_popup": "popup.html",
     "default_icon": {
-      "48": "icons/icon48.jpg"
+      "16": "icons/16x16.png",
+      "48": "icons/48x48.png"
     }
   },
   "icons": {
-    "48": "icons/icon48.jpg"
+    "16": "icons/16x16.png",
+    "48": "icons/48x48.png",
+    "128": "icons/128x128.png"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"

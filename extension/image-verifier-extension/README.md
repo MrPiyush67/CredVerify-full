@@ -255,6 +255,44 @@ For issues or questions:
 3. Check browser console for errors
 4. Open an issue on GitHub
 
+## Publishing
+
+### Prerequisites
+- Extension fully tested locally
+- Icons: 16x16, 48x48, 128x128 PNG in `icons/` folder
+- Screenshots: At least 1-5 PNG images (1280x800 or 1280x720) in `screenshots/` folder
+- Descriptions: Short and long descriptions in `manifest.json`
+- Logo/banner: Optional 1280x720 PNG for store listing
+
+### Package the Extension
+```bash
+cd extension/image-verifier-extension
+zip -r ../image-verifier-extension.zip . -x "node_modules/*" "*.git*"
+```
+
+### Upload to Chrome Web Store
+1. Go to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole/)
+2. Click "New Item"
+3. Upload `image-verifier-extension.zip`
+4. Fill in store listing details:
+   - Title, description, category
+   - Upload icons and screenshots from `screenshots/` folder
+   - Set pricing (free)
+   - Add privacy policy URL if needed
+5. Submit for review
+
+### Test Locally Before Publishing
+```bash
+# Load unpacked in Chrome
+chrome://extensions/ → Load unpacked → select extension folder
+```
+
+### Common Issues
+- Ensure `manifest_version: 3`
+- Check all `host_permissions` are valid
+- Verify icons are PNG and correct sizes
+- Test on multiple domains from whitelist
+
 ## Credits
 
 - Design inspired by [shadcn/ui](https://ui.shadcn.com/)
