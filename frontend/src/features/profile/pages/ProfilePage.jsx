@@ -10,12 +10,15 @@ import {
   selectProfileLoading,
   selectProfileError
 } from '../redux/profileSlice.js';
+import { fetchCredentials, selectCredentials } from '@features/credentials/redux/credentialsSlice';
+import { selectUser as selectAuthUser } from '@features/auth/redux/authSlice';
 import { Button, PageHeader } from '@common';
 import { BentoGrid } from '../components/BentoGrid';
 import { IdentityCard } from '../components/IdentityCard';
 import { ContactCard } from '../components/ContactCard';
 import { RoleDetailsCard } from '../components/RoleDetailsCard';
 import { SkillsCard, ExperienceCard, EducationCard, AchievementsCard } from '../components/ProfileCards';
+import { CredentialsCard } from '../components/CredentialsCard';
 
 export default function ProfilePage() {
   const dispatch = useDispatch();
@@ -27,14 +30,22 @@ export default function ProfilePage() {
   const roleProfile = useSelector(selectRoleProfile);
   const isLoading = useSelector(selectProfileLoading);
   const error = useSelector(selectProfileError);
+  const credentials = useSelector(selectCredentials);
+  const authUser = useSelector(selectAuthUser);
+
+  // Check if viewing own profile
+  const isOwnProfile = !userId || (authUser && user && authUser._id === user._id);
 
   useEffect(() => {
     if (userId && role) {
       // Fetch public profile for the specified user
       dispatch(fetchPublicProfile({ userId, role }));
+      // Don't fetch credentials for other users' profiles
     } else {
       // Fetch current user's own profile
       dispatch(fetchUserProfile());
+      // Fetch credentials for own profile only
+      dispatch(fetchCredentials({ page: 1, limit: 100 }));
     }
   }, [dispatch, userId, role]);
 
@@ -89,6 +100,7 @@ export default function ProfilePage() {
         <ExperienceCard experience={user.experience} />
         <EducationCard education={user.education} />
         <AchievementsCard achievements={user.achievements} />
+        <CredentialsCard credentials={credentials} isOwnProfile={isOwnProfile} />
       </BentoGrid>
     </div>
   );

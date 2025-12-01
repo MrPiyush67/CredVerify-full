@@ -35,7 +35,7 @@ export const getMyCredentials = async (userId, filters = {}) => {
 
 export const getCredentialById = async (credentialId, userId = null) => {
   const credential = await Credential.findById(credentialId)
-    .populate('user', 'name email avatar')
+    .populate('user', 'name username email avatar')
     .populate('verifiedBy', 'name email');
 
   if (!credential) {

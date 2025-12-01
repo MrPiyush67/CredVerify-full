@@ -1,91 +1,9 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  X,
-  FileText,
-  User,
-  Calendar,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Globe,
-  Lock,
-  Shield,
-  Award,
-  Link as LinkIcon,
-  Hash,
-  Target
-} from 'lucide-react';
-import { Button } from '@common';
+import { X, CheckCircle, Clock, XCircle, ExternalLink, Calendar, User, FileText, Award, Hash, Globe, Lock, Shield } from 'lucide-react';
+import { Button, Badge, Loader } from '@common';
 
-const DetailRow = ({ icon, label, value, highlight }) => {
-  if (!value && value !== 0 && value !== false) return null;
-  
-  const IconComponent = icon;
-  
-  return (
-    <div className="flex items-start gap-3 py-2">
-      <div className="mt-0.5">
-        <IconComponent className={`h-4 w-4 ${highlight ? 'text-teal-600' : 'text-gray-400'}`} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</dt>
-        <dd className={`mt-1 text-sm ${highlight ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
-          {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value}
-        </dd>
-      </div>
-    </div>
-  );
-};
-
-const Section = ({ title, children }) => (
-  <div className="space-y-1">
-    <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide border-b pb-2 mb-3">
-      {title}
-    </h3>
-    <dl className="space-y-1">{children}</dl>
-  </div>
-);
-
-const getStatusColor = (status) => {
-  switch (status) {
-    case 'verified':
-      return 'text-green-600 bg-green-50 border-green-200';
-    case 'pending':
-      return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-    case 'rejected':
-      return 'text-red-600 bg-red-50 border-red-200';
-    default:
-      return 'text-gray-600 bg-gray-50 border-gray-200';
-  }
-};
-
-const getStatusIcon = (status) => {
-  switch (status) {
-    case 'verified':
-      return CheckCircle;
-    case 'pending':
-      return Clock;
-    case 'rejected':
-      return XCircle;
-    default:
-      return AlertCircle;
-  }
-};
-
-export default function CredentialDetailsModal({ isOpen, onClose, credential }) {
-  if (!credential) return null;
-
-  const formatDate = (date) => {
-    if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-  };
-
-  const StatusIcon = getStatusIcon(credential.status);
+export default function CredentialDetailsModal({ isOpen, onClose, credential, loading }) {
+  if (!credential && !loading) return null;
 
   return (
     <AnimatePresence>
@@ -97,7 +15,7 @@ export default function CredentialDetailsModal({ isOpen, onClose, credential }) 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/50 z-50"
           />
 
           {/* Modal */}
@@ -106,226 +24,294 @@ export default function CredentialDetailsModal({ isOpen, onClose, credential }) 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden"
+              className="bg-card rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto"
             >
               {/* Header */}
-              <div className="sticky top-0 bg-linear-to-r from-teal-600 to-teal-500 text-white px-6 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <FileText className="h-6 w-6" />
-                  <div>
-                    <h2 className="text-xl font-bold">{credential.title}</h2>
-                    {credential.issuer && (
-                      <p className="text-teal-100 text-sm">Issued by {credential.issuer}</p>
-                    )}
-                  </div>
-                </div>
+              <div className="flex items-center justify-between p-6 border-b">
+                <h2 className="text-xl font-semibold">Credential Details</h2>
                 <button
                   onClick={onClose}
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               {/* Content */}
-              <div className="overflow-y-auto max-h-[calc(90vh-80px)] p-6 space-y-6">
-                {/* Status Banner */}
-                <div className={`flex items-center gap-3 px-4 py-3 rounded-lg border ${getStatusColor(credential.status)}`}>
-                  <StatusIcon className="h-5 w-5" />
-                  <div className="flex-1">
-                    <span className="font-semibold capitalize">{credential.status}</span>
-                    {credential.verificationNotes && (
-                      <p className="text-sm mt-1 opacity-80">{credential.verificationNotes}</p>
+              {loading ? (
+                <div className="p-12 flex justify-center">
+                  <Loader />
+                </div>
+              ) : credential ? (
+                <div className="p-6 space-y-6">{/* Status indicator hidden, stored in meta */}
+                  {credential.meta?.status && (
+                    <input type="hidden" value={credential.meta.status} />
+                  )}
+
+                  {/* Title */}
+                  <div>
+                    <h3 className="text-2xl font-semibold">{credential.title}</h3>
+                    {credential.issuer && (
+                      <p className="text-muted-foreground mt-1">{credential.issuer}</p>
                     )}
                   </div>
+
+                  {/* Public/Private Indicator */}
                   <div className="flex items-center gap-2">
                     {credential.isPublic ? (
-                      <div className="flex items-center gap-1 px-2 py-1 bg-white/50 rounded">
-                        <Globe className="h-3.5 w-3.5" />
-                        <span className="text-xs font-medium">Public</span>
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-teal-50 border border-teal-200 rounded-lg">
+                        <Globe className="h-4 w-4 text-teal-600" />
+                        <span className="text-sm font-medium text-teal-700">Public</span>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-1 px-2 py-1 bg-white/50 rounded">
-                        <Lock className="h-3.5 w-3.5" />
-                        <span className="text-xs font-medium">Private</span>
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg">
+                        <Lock className="h-4 w-4 text-gray-600" />
+                        <span className="text-sm font-medium text-gray-700">Private</span>
+                      </div>
+                    )}
+                    {credential.isIssuerVerified && (
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg">
+                        <Shield className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium text-green-700">Verified Issuer</span>
                       </div>
                     )}
                   </div>
-                </div>
 
-                {/* Core Information */}
-                <Section title="Core Information">
-                  <DetailRow
-                    icon={Award}
-                    label="Credential Title"
-                    value={credential.title}
-                    highlight
-                  />
-                  <DetailRow
-                    icon={User}
-                    label="Legal Name"
-                    value={credential.legalNameSnapshot}
-                  />
-                  <DetailRow
-                    icon={FileText}
-                    label="Certificate Name"
-                    value={credential.certificateName}
-                  />
-                  <DetailRow
-                    icon={Target}
-                    label="Name Match Confidence"
-                    value={credential.nameMatchConfidence ? `${credential.nameMatchConfidence}%` : 'N/A'}
-                  />
-                  <DetailRow
-                    icon={Hash}
-                    label="Credential Type"
-                    value={credential.type ? credential.type.replace('_', ' ').toUpperCase() : 'N/A'}
-                  />
-                  <DetailRow
-                    icon={Clock}
-                    label="Total Hours"
-                    value={credential.totalHours ? `${credential.totalHours} hours` : 'N/A'}
-                  />
-                  <DetailRow
-                    icon={User}
-                    label="Issuing Organization"
-                    value={credential.issuer}
-                  />
-                  <DetailRow
-                    icon={Calendar}
-                    label="Issue Date"
-                    value={formatDate(credential.issueDate)}
-                  />
-                  {credential.expiryDate && (
-                    <DetailRow
-                      icon={Calendar}
-                      label="Expiry Date"
-                      value={formatDate(credential.expiryDate)}
-                    />
-                  )}
-                </Section>
+                  {/* Core Information */}
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide border-b pb-2">
+                      Core Information
+                    </h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {credential.type && (
+                        <div className="flex items-start gap-3">
+                          <Award className="h-5 w-5 text-muted-foreground mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium">Type</p>
+                            <p className="text-sm text-muted-foreground capitalize">
+                              {credential.type.replace('_', ' ')}
+                            </p>
+                          </div>
+                        </div>
+                      )}
 
-                {/* Source & Verification */}
-                <Section title="Source & Verification">
-                  {credential.sourceUrl && (
-                    <DetailRow
-                      icon={LinkIcon}
-                      label="Source URL"
-                      value={
-                        <a
-                          href={credential.sourceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-teal-600 hover:underline break-all"
-                        >
-                          {credential.sourceUrl}
-                        </a>
-                      }
-                    />
-                  )}
-                  <DetailRow
-                    icon={Globe}
-                    label="Source Domain"
-                    value={credential.sourceDomain}
-                  />
-                  <DetailRow
-                    icon={Shield}
-                    label="Trusted Domain"
-                    value={credential.isDomainTrusted}
-                  />
-                  <DetailRow
-                    icon={Shield}
-                    label="Issuer Verified"
-                    value={credential.isIssuerVerified}
-                    highlight={credential.isIssuerVerified}
-                  />
-                </Section>
+                      {credential.credentialId && (
+                        <div className="flex items-start gap-3">
+                          <Hash className="h-5 w-5 text-muted-foreground mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium">Credential ID</p>
+                            <p className="text-sm text-muted-foreground">{credential.credentialId}</p>
+                          </div>
+                        </div>
+                      )}
 
-                {/* User Information */}
-                {credential.user && (
-                  <Section title="Credential Owner">
-                    <DetailRow
-                      icon={User}
-                      label="Name"
-                      value={credential.user.name}
-                    />
-                    <DetailRow
-                      icon={User}
-                      label="Username"
-                      value={credential.user.username}
-                    />
-                    <DetailRow
-                      icon={Hash}
-                      label="Email"
-                      value={credential.user.email}
-                    />
-                  </Section>
-                )}
+                      {credential.issueDate && (
+                        <div className="flex items-start gap-3">
+                          <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium">Issue Date</p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(credential.issueDate).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                      )}
 
-                {/* Metadata */}
-                {credential.meta && Object.keys(credential.meta).length > 0 && (
-                  <Section title="Additional Metadata">
-                    {Object.entries(credential.meta).map(([key, value]) => (
-                      <DetailRow
-                        key={key}
-                        icon={Hash}
-                        label={key.replace(/([A-Z])/g, ' $1').trim()}
-                        value={typeof value === 'object' ? JSON.stringify(value) : String(value)}
-                      />
-                    ))}
-                  </Section>
-                )}
+                      {credential.totalHours && (
+                        <div className="flex items-start gap-3">
+                          <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium">Total Hours</p>
+                            <p className="text-sm text-muted-foreground">{credential.totalHours} hours</p>
+                          </div>
+                        </div>
+                      )}
 
-                {/* Timeline */}
-                <Section title="Timeline">
-                  <DetailRow
-                    icon={Calendar}
-                    label="Created"
-                    value={formatDate(credential.createdAt)}
-                  />
-                  <DetailRow
-                    icon={Calendar}
-                    label="Last Updated"
-                    value={formatDate(credential.updatedAt)}
-                  />
-                </Section>
+                      {credential.legalNameSnapshot && (
+                        <div className="flex items-start gap-3">
+                          <User className="h-5 w-5 text-muted-foreground mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium">Legal Name</p>
+                            <p className="text-sm text-muted-foreground">{credential.legalNameSnapshot}</p>
+                          </div>
+                        </div>
+                      )}
 
-                {/* File Information */}
-                {credential.file && (
-                  <Section title="Attached File">
-                    <DetailRow
-                      icon={FileText}
-                      label="File Name"
-                      value={credential.file.fileName}
-                    />
-                    <DetailRow
-                      icon={Hash}
-                      label="File Type"
-                      value={credential.file.fileType}
-                    />
-                    {credential.file.url && (
-                      <div className="mt-4">
-                        <a
-                          href={credential.file.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
-                        >
-                          <FileText className="h-4 w-4" />
-                          View Original Document
-                        </a>
+                      {credential.certificateName && (
+                        <div className="flex items-start gap-3">
+                          <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium">Certificate Name</p>
+                            <p className="text-sm text-muted-foreground">{credential.certificateName}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {credential.description && (
+                      <div className="pt-2">
+                        <p className="text-sm font-medium mb-1">Description</p>
+                        <p className="text-sm text-muted-foreground">{credential.description}</p>
                       </div>
                     )}
-                  </Section>
-                )}
-              </div>
 
-              {/* Footer */}
-              <div className="sticky bottom-0 bg-gray-50 px-6 py-4 border-t flex justify-end">
-                <Button onClick={onClose} variant="outline">
-                  Close
-                </Button>
-              </div>
+                    {credential.skills && credential.skills.length > 0 && (
+                      <div className="pt-2">
+                        <p className="text-sm font-medium mb-2">Skills</p>
+                        <div className="flex flex-wrap gap-2">
+                          {credential.skills.map((skill, index) => (
+                            <span
+                              key={index}
+                              className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-200"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Source Information */}
+                  {(credential.sourceUrl || credential.sourceDomain) && (
+                    <div className="space-y-4">
+                      <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide border-b pb-2">
+                        Source Information
+                      </h4>
+                      
+                      <div className="grid grid-cols-1 gap-4">
+                        {credential.sourceUrl && (
+                          <div className="flex items-start gap-3">
+                            <Globe className="h-5 w-5 text-muted-foreground mt-0.5" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium">Source URL</p>
+                              <a
+                                href={credential.sourceUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-blue-600 hover:underline break-all"
+                              >
+                                {credential.sourceUrl}
+                              </a>
+                            </div>
+                          </div>
+                        )}
+
+                        {credential.sourceDomain && (
+                          <div className="flex items-start gap-3">
+                            <Globe className="h-5 w-5 text-muted-foreground mt-0.5" />
+                            <div>
+                              <p className="text-sm font-medium">Domain</p>
+                              <p className="text-sm text-muted-foreground">{credential.sourceDomain}</p>
+                              {credential.isDomainTrusted && (
+                                <span className="inline-flex items-center gap-1 mt-1 text-xs text-green-600">
+                                  <Shield className="h-3 w-3" />
+                                  Trusted Domain
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Owner Information */}
+                  {credential.user && (
+                    <div className="space-y-4">
+                      <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide border-b pb-2">
+                        Owner Information
+                      </h4>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-start gap-3">
+                          <User className="h-5 w-5 text-muted-foreground mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium">Name</p>
+                            <p className="text-sm text-muted-foreground">{credential.user.name}</p>
+                          </div>
+                        </div>
+
+                        {credential.user.email && (
+                          <div className="flex items-start gap-3">
+                            <Hash className="h-5 w-5 text-muted-foreground mt-0.5" />
+                            <div>
+                              <p className="text-sm font-medium">Email</p>
+                              <p className="text-sm text-muted-foreground">{credential.user.email}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Timeline */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {credential.createdAt && (
+                      <div className="flex items-start gap-3">
+                        <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium">Created</p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(credential.createdAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {credential.updatedAt && (
+                      <div className="flex items-start gap-3">
+                        <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium">Last Updated</p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(credential.updatedAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Document Link */}
+                  {(credential.file?.url || credential.documentUrl) && (
+                    <div className="pt-4 border-t">
+                      <a
+                        href={credential.file?.url || credential.documentUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:underline"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        View Document
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex gap-3 pt-4">
+                    <Button onClick={onClose} className="flex-1">
+                      Close
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6 text-center text-muted-foreground">
+                  No credential data available
+                </div>
+              )}
             </motion.div>
           </div>
         </>

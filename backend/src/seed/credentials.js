@@ -30,7 +30,7 @@ const credentials = [
     skills: ['AWS', 'Cloud Architecture', 'EC2', 'S3', 'Lambda'],
     description: 'Professional certification demonstrating expertise in designing distributed systems on AWS.',
     file: {
-      url: 'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=AWS+Solutions+Architect+Certificate',
+      url: 'https://aws.amazon.com/certification/certified-solutions-architect-associate/',
       fileName: 'aws-solutions-architect.pdf',
       fileType: 'application/pdf',
       uploadedAt: monthsAgo(8),

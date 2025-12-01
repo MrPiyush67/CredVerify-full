@@ -18,12 +18,12 @@ export const BentoCard = ({ children, className = "", title, icon: Icon, delay =
       className={`bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col ${className}`}
     >
       {(title || Icon) && (
-        <div className="px-6 pt-6 pb-2 flex items-center gap-3 mb-2 border-b border-gray-50">
+        <div className="px-4 pt-4 pb-2 flex items-center gap-3 mb-1 border-b border-gray-50">
           {Icon && <div className="p-2 bg-gray-50 rounded-lg text-gray-700"><Icon size={18} /></div>}
           {title && <h3 className="font-semibold text-gray-900 text-lg">{title}</h3>}
         </div>
       )}
-      <div className="px-6 py-6 flex-1">
+      <div className="px-4 py-4 flex-1">
         {children}
       </div>
     </motion.div>

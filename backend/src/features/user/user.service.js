@@ -67,11 +67,14 @@ export const getUserProfile = async (userId) => {
 };
 
 export const updateUserProfile = async (userId, updates) => {
+  // Remove immutable fields from updates
+  const { name, email, role, passwordHash, ...allowedUpdates } = updates;
+  
   const user = await User.findByIdAndUpdate(
     userId,
-    { $set: updates },
+    { $set: allowedUpdates },
     { new: true, runValidators: true }
-  );
+  ).select('-passwordHash');
 
   if (!user) {
     throw new Error('User not found');

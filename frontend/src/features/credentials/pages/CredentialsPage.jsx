@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import { Button, PageHeader, Loader } from '@common';
-import { fetchCredentials, selectCredentials, selectCredentialsLoading, selectCredentialsError, selectCredentialsPagination } from '../redux/credentialsSlice';
+import { fetchCredentials, fetchCredentialById, selectCredentials, selectCredentialsLoading, selectCredentialsError, selectCredentialsPagination, selectSelectedCredential } from '../redux/credentialsSlice';
 import { selectUser } from '@features/auth/redux/authSlice';
 import CredentialsList from '../components/CredentialsList.jsx';
 import CredentialUploadModal from '../components/CredentialUploadModal.jsx';
@@ -17,18 +17,27 @@ export default function CredentialsPage() {
   const loading = useSelector(selectCredentialsLoading);
   const error = useSelector(selectCredentialsError);
   const pagination = useSelector(selectCredentialsPagination);
+  const selectedCredential = useSelector(selectSelectedCredential);
 
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [selectedCredential, setSelectedCredential] = useState(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
 
   useEffect(() => {
     dispatch(fetchCredentials());
   }, [dispatch]);
 
-  const handleViewDetails = (credential) => {
-    setSelectedCredential(credential);
+  const handleViewDetails = async (credential) => {
     setIsDetailsModalOpen(true);
+    setDetailsLoading(true);
+    try {
+      // Fetch full credential details from backend
+      await dispatch(fetchCredentialById(credential._id)).unwrap();
+    } catch (error) {
+      console.error('Failed to fetch credential details:', error);
+    } finally {
+      setDetailsLoading(false);
+    }
   };
 
   const handleRefresh = () => dispatch(fetchCredentials({ page: pagination.page }));
@@ -86,6 +95,7 @@ export default function CredentialsPage() {
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
         credential={selectedCredential}
+        loading={detailsLoading}
         onSuccess={handleRefresh}
       />
     </div>
