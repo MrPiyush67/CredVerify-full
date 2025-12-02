@@ -72,31 +72,33 @@ export function CredentialsCard({ credentials = [], isOwnProfile = false, classN
               onClick={() => navigate('/credentials')}
             >
               {/* Thumbnail */}
-              <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-linear-to-br from-teal-50 to-green-50 shadow-sm">
+              <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden shadow-sm bg-linear-to-br from-teal-50 to-green-50">
                 {credential.file?.url ? (
                   credential.file.fileType?.includes('image') ? (
-                    <img
-                      src={credential.file.url}
-                      alt={credential.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextElementSibling.style.display = 'flex';
-                      }}
-                    />
+                    <>
+                      <img
+                        src={credential.file.url}
+                        alt={credential.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentElement.nextElementSibling.style.display = 'flex';
+                        }}
+                      />
+                      <div className="w-full h-full flex items-center justify-center bg-teal-600 text-white" style={{ display: 'none' }}>
+                        <FileText className="h-8 w-8" />
+                      </div>
+                    </>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-teal-50 to-green-50">
+                    <div className="w-full h-full flex items-center justify-center">
                       <FileText className="h-8 w-8 text-teal-600" />
                     </div>
                   )
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-teal-50 to-green-50">
+                  <div className="w-full h-full flex items-center justify-center">
                     <FileText className="h-8 w-8 text-teal-600" />
                   </div>
                 )}
-                <div className="w-full h-full flex items-center justify-center bg-teal-600 text-white text-xl font-bold" style={{ display: 'none' }}>
-                  <FileText className="h-8 w-8" />
-                </div>
               </div>
 
               {/* Content */}

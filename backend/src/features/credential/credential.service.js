@@ -1,7 +1,25 @@
 import Credential from './credential.model.js';
 import { createNotification } from '../notification/notification.service.js';
+import PlatformProfile from '../platform/platform.model.js';
 
 export const createCredential = async (userId, credentialData) => {
+  // Validate required fields
+  if (!credentialData.title) {
+    throw new Error('Credential title is required');
+  }
+  if (!credentialData.issuer) {
+    throw new Error('Issuer is required');
+  }
+  if (!credentialData.issueDate) {
+    throw new Error('Issue date is required');
+  }
+  if (!credentialData.legalNameSnapshot) {
+    throw new Error('Legal name snapshot is required');
+  }
+  if (!credentialData.certificateName) {
+    throw new Error('Certificate name is required');
+  }
+
   const credential = await Credential.create({
     user: userId,
     ...credentialData,
@@ -242,6 +260,16 @@ export const verifyCredential = async (validantId, credentialId, verificationNot
   }
 
   await credential.save();
+  
+  // If this is a platform credential, mark the platform as verified
+  if (credential.meta?.verificationType === 'platform_profile' && credential.meta?.platformId) {
+    const platformProfile = await PlatformProfile.findOne({ user: credential.user._id });
+    if (platformProfile && platformProfile[credential.meta.platformId]) {
+      platformProfile[credential.meta.platformId].isVerified = true;
+      platformProfile[credential.meta.platformId].pendingValidation = false;
+      await platformProfile.save();
+    }
+  }
 
   // Notify credentialist of successful verification
   await createNotification({
@@ -277,6 +305,17 @@ export const rejectCredential = async (validantId, credentialId, rejectionReason
   credential.verificationRequested = false;
 
   await credential.save();
+  
+  // If this is a platform credential, mark the platform as rejected
+  if (credential.meta?.verificationType === 'platform_profile' && credential.meta?.platformId) {
+    const platformProfile = await PlatformProfile.findOne({ user: credential.user._id });
+    if (platformProfile && platformProfile[credential.meta.platformId]) {
+      platformProfile[credential.meta.platformId].isVerified = false;
+      platformProfile[credential.meta.platformId].pendingValidation = false;
+      platformProfile[credential.meta.platformId].handle = null; // Reset handle so user can try again
+      await platformProfile.save();
+    }
+  }
 
   // Notify credentialist of rejection
   await createNotification({

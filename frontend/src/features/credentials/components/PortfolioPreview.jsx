@@ -146,45 +146,35 @@ const AwardBadges = ({ awards }) => (
 );
 
 export default function PortfolioPreview({ portfolioData, userName = 'Your Name', userBio = 'Software Engineer' }) {
-  // Use provided data or fallback to mock data
-  const platforms = portfolioData?.platforms || [
-    { name: 'LeetCode', status: 'ok', domain: 'leetcode.com' },
-    { name: 'CodeForces', status: 'ok', domain: 'codeforces.com' },
-    { name: 'CodeChef', status: 'ok', domain: 'codechef.com' },
-    { name: 'GFG', status: 'ok', domain: 'geeksforgeeks.org' },
-    { name: 'InterviewBit', status: 'pending', domain: 'interviewbit.com' },
-    { name: 'CodeStudio', status: 'ok', domain: 'naukri.com' },
-    { name: 'HackerRank', status: 'ok', domain: 'hackerrank.com' },
-  ];
+  // Use provided data with fallbacks to empty/zero values
+  const platforms = portfolioData?.platforms || [];
+  const githubHandle = portfolioData?.githubHandle || null;
+  const leetcodeHandle = portfolioData?.leetcodeHandle || null;
 
   const problems = portfolioData?.problems || {
-    fundamentals: { value: 174, total: 300, difficulty: { Easy: 99, Medium: 65, Hard: 10 } },
-    dsa: { value: 936, total: 1500, difficulty: { Easy: 254, Medium: 557, Hard: 125 } },
-    cp: { value: 119, total: 250, difficulty: { Easy: 27, Medium: 92, Hard: 0 } },
+    fundamentals: { value: 0, total: 300, difficulty: { Easy: 0, Medium: 0, Hard: 0 } },
+    dsa: { value: 0, total: 1500, difficulty: { Easy: 0, Medium: 0, Hard: 0 } },
+    cp: { value: 0, total: 250, difficulty: { Easy: 0, Medium: 0, Hard: 0 } },
   };
 
-  const dsaTopics = portfolioData?.dsaTopics || [
-    { label: 'Arrays', value: 414 },
-    { label: 'Dynamic Programming', value: 185 },
-    { label: 'Strings', value: 162 },
-    { label: 'Hashing & Sets', value: 142 },
-    { label: 'Trees', value: 121 },
-    { label: 'DFS & Graphs', value: 95 },
-    { label: 'Stack', value: 83 },
-    { label: 'Greedy Algorithms', value: 79 },
-    { label: 'Math', value: 70 },
-  ];
+  const dsaTopics = portfolioData?.dsaTopics && portfolioData.dsaTopics.length > 0 
+    ? portfolioData.dsaTopics 
+    : [];
 
-  const contests = portfolioData?.contests || { codechef: 8, codeforces: 10 };
-  const awards = portfolioData?.awards || [
-    { name: 'Star' }, { name: '100 Days' }, { name: 'Knight' }, { name: 'Contest' }, { name: 'Diamond' }
-  ];
+  const contests = portfolioData?.contests || { codechef: 0, codeforces: 0 };
+  const awards = portfolioData?.awards || [];
 
-  const ratingHistory = portfolioData?.ratingHistory || [1500, 1520, 1550, 1600, 1625, 1670, 1718];
-  const totalQuestions = portfolioData?.totalQuestions || '1229';
-  const activeDays = portfolioData?.activeDays || '493';
-  const globalRank = portfolioData?.globalRank || '2087';
-  const maxRank = portfolioData?.maxRank || '1794';
+  const ratingHistory = portfolioData?.ratingHistory && portfolioData.ratingHistory.length > 0 
+    ? portfolioData.ratingHistory 
+    : [0];
+    
+  const totalQuestions = portfolioData?.totalQuestions || 0;
+  const activeDays = portfolioData?.activeDays || 0;
+  const globalRank = portfolioData?.globalRank || 0;
+  const maxRank = portfolioData?.maxRank || 0;
+  const contestRating = portfolioData?.contestRating || 0;
+  const maxContestRating = portfolioData?.maxContestRating || 0;
+  const contestRank = portfolioData?.contestRank || 'N/A';
 
   return (
     <div className="bg-white p-6 rounded-lg">
@@ -192,7 +182,7 @@ export default function PortfolioPreview({ portfolioData, userName = 'Your Name'
         {/* Left Column */}
         <div className="md:col-span-3 space-y-6">
           <div className="rounded-xl border-2 border-gray-200 bg-white p-6 flex flex-col items-center text-center shadow-sm">
-            <div className="h-28 w-28 rounded-full bg-gradient-to-br from-[#116466] to-[#0d9488] mb-4 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+            <div className="h-28 w-28 rounded-full bg-linear-to-br from-[#116466] to-[#0d9488] mb-4 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
               {userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
             </div>
             <h2 className="font-bold text-xl text-gray-800">{userName}</h2>
@@ -204,12 +194,26 @@ export default function PortfolioPreview({ portfolioData, userName = 'Your Name'
               </div>
             </div>
             <div className="mt-4 w-full flex gap-2">
-              <Button size="sm" variant="outline" className="flex-1 text-[#116466] border-[#116466]">
-                <ExternalLink className="h-3 w-3 mr-1" /> GitHub
-              </Button>
-              <Button size="sm" variant="outline" className="flex-1 text-[#116466] border-[#116466]">
-                <ExternalLink className="h-3 w-3 mr-1" /> LinkedIn
-              </Button>
+              {githubHandle && (
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex-1 text-[#116466] border-[#116466]"
+                  onClick={() => window.open(`https://github.com/${githubHandle}`, '_blank')}
+                >
+                  <ExternalLink className="h-3 w-3 mr-1" /> GitHub
+                </Button>
+              )}
+              {leetcodeHandle && (
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex-1 text-[#116466] border-[#116466]"
+                  onClick={() => window.open(`https://leetcode.com/${leetcodeHandle}`, '_blank')}
+                >
+                  <ExternalLink className="h-3 w-3 mr-1" /> LeetCode
+                </Button>
+              )}
             </div>
           </div>
 
@@ -227,15 +231,17 @@ export default function PortfolioPreview({ portfolioData, userName = 'Your Name'
               <TrendingUp className="h-5 w-5 text-[#116466]" />
               <span className="text-sm font-bold text-gray-700">Leaderboard</span>
             </div>
-            <div className="text-4xl font-bold text-[#116466] mb-1">{globalRank}</div>
-            <div className="text-xs text-gray-600 mb-4">Global Rank <span className="text-[#116466] font-semibold">(Max {maxRank})</span></div>
+            <div className="text-4xl font-bold text-[#116466] mb-1">{globalRank || 'N/A'}</div>
+            <div className="text-xs text-gray-600 mb-4">
+              Global Rank {maxRank > 0 && <span className="text-[#116466] font-semibold">(Max {maxRank})</span>}
+            </div>
             <div className="grid grid-cols-3 gap-2 text-center text-xs mb-4">
               <div className="p-2 bg-gray-50 rounded">
-                <div className="font-bold text-gray-800">21 Nov</div>
+                <div className="font-bold text-gray-800">{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</div>
                 <div className="text-gray-500 text-[10px]">Last Refresh</div>
               </div>
               <div className="p-2 bg-gray-50 rounded">
-                <div className="font-bold text-gray-800">{activeDays}</div>
+                <div className="font-bold text-gray-800">{activeDays || 0}</div>
                 <div className="text-gray-500 text-[10px]">Active Days</div>
               </div>
               <div className="p-2 bg-gray-50 rounded">
@@ -260,39 +266,57 @@ export default function PortfolioPreview({ portfolioData, userName = 'Your Name'
             <div className="p-4 border-b bg-gray-50">
               <h3 className="font-bold text-gray-700">Contribution Activity</h3>
             </div>
-            <Heatmap />
+            {totalQuestions > 0 ? (
+              <Heatmap />
+            ) : (
+              <div className="p-6 text-center text-sm text-gray-500">
+                No contribution data available yet
+              </div>
+            )}
           </div>
 
           <div className="rounded-xl border-2 border-gray-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-gray-800">Total Contests</h3>
-              <span className="text-xs bg-[#116466]/10 text-[#116466] px-3 py-1 rounded-full font-semibold">{contests.codechef + contests.codeforces}</span>
+              <span className="text-xs bg-[#116466]/10 text-[#116466] px-3 py-1 rounded-full font-semibold">
+                {(contests.codechef || 0) + (contests.codeforces || 0)}
+              </span>
             </div>
 
             <div className="flex gap-6 text-sm flex-wrap">
-              <div className="flex items-center gap-2 bg-orange-50 px-3 py-2 rounded-lg">
-                <span className="h-3 w-3 rounded-full bg-orange-500" />
-                <span className="font-medium text-gray-700">CodeChef</span>
-                <span className="font-bold text-orange-600">{contests.codechef}</span>
-              </div>
-              <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-lg">
-                <span className="h-3 w-3 rounded-full bg-blue-500" />
-                <span className="font-medium text-gray-700">CodeForces</span>
-                <span className="font-bold text-blue-600">{contests.codeforces}</span>
-              </div>
+              {contests.codechef > 0 && (
+                <div className="flex items-center gap-2 bg-orange-50 px-3 py-2 rounded-lg">
+                  <span className="h-3 w-3 rounded-full bg-orange-500" />
+                  <span className="font-medium text-gray-700">CodeChef</span>
+                  <span className="font-bold text-orange-600">{contests.codechef}</span>
+                </div>
+              )}
+              {contests.codeforces > 0 && (
+                <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-lg">
+                  <span className="h-3 w-3 rounded-full bg-blue-500" />
+                  <span className="font-medium text-gray-700">CodeForces</span>
+                  <span className="font-bold text-blue-600">{contests.codeforces}</span>
+                </div>
+              )}
+              {contests.codechef === 0 && contests.codeforces === 0 && (
+                <div className="text-sm text-gray-500">No contest data available</div>
+              )}
             </div>
           </div>
 
           <div className="rounded-xl border-2 border-gray-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-gray-800">Rating Progress</h3>
-              <div className="text-xs bg-gray-100 px-3 py-1 rounded-full">
-                <span className="font-medium text-gray-600">14 Sept 2020</span>
-                <span className="mx-1">•</span>
-                <span className="font-semibold text-[#116466]">September Challenge 2020</span>
-              </div>
+              {contestRating > 0 && (
+                <div className="text-xs bg-gray-100 px-3 py-1 rounded-full">
+                  <span className="font-medium text-gray-600">{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                  <span className="mx-1">•</span>
+                  <span className="font-semibold text-[#116466]">Latest Update</span>
+                </div>
+              )}
             </div>
-            <div className="h-64 relative bg-gradient-to-b from-gray-50 to-white rounded-lg p-4">
+            {ratingHistory.length > 0 && ratingHistory[0] > 0 ? (
+              <div className="h-64 relative bg-linear-to-b from-gray-50 to-white rounded-lg p-4">
               {(() => {
                 const data = ratingHistory;
                 const W = 420, H = 200;
@@ -351,31 +375,45 @@ export default function PortfolioPreview({ portfolioData, userName = 'Your Name'
                 );
               })()}
             </div>
+            ) : (
+              <div className="p-6 text-center text-sm text-gray-500">
+                No rating progress data available yet
+              </div>
+            )}
           </div>
 
           <div className="rounded-xl border-2 border-gray-200 bg-white shadow-sm overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b bg-gray-50">
               <h3 className="font-bold text-gray-700 flex items-center gap-2">
                 <Award className="h-5 w-5 text-[#116466]" />
-                Awards
+                Achievements
               </h3>
-              <Button size="sm" variant="ghost" className="text-[#116466] font-semibold hover:bg-[#116466]/10">
-                Show more →
-              </Button>
             </div>
-            <AwardBadges awards={awards} />
+            {awards.length > 0 ? (
+              <AwardBadges awards={awards} />
+            ) : (
+              <div className="p-6 text-center text-sm text-gray-500">
+                No achievements yet. Keep solving!
+              </div>
+            )}
           </div>
 
           <div className="rounded-xl border-2 border-gray-200 bg-white shadow-sm overflow-hidden">
             <div className="p-4 border-b bg-gray-50">
               <h3 className="font-bold text-gray-700">DSA Topic Analysis</h3>
             </div>
-            <BarChart data={dsaTopics} />
-            <div className="p-4 border-t bg-gray-50 text-center">
-              <Button size="sm" variant="ghost" className="text-[#116466] font-semibold hover:bg-[#116466]/10">
-                Show more →
-              </Button>
-            </div>
+            {dsaTopics.length > 0 ? (
+              <>
+                <BarChart data={dsaTopics} />
+                <div className="p-4 border-t bg-gray-50 text-center">
+                  <div className="text-xs text-gray-600">Based on {totalQuestions} total problems solved</div>
+                </div>
+              </>
+            ) : (
+              <div className="p-6 text-center text-sm text-gray-500">
+                No topic data available yet
+              </div>
+            )}
           </div>
         </div>
 
@@ -396,22 +434,26 @@ export default function PortfolioPreview({ portfolioData, userName = 'Your Name'
               Contest Rankings
             </h3>
             <div className="space-y-4">
-              <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold text-gray-700">CODECHEF</span>
-                  <span className="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded font-medium">Rank 1794</span>
+              {contestRating > 0 || maxContestRating > 0 ? (
+                <>
+                  {maxContestRating > 0 && (
+                    <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-gray-700">CONTEST RATING</span>
+                        <span className="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded font-medium">
+                          {contestRank}
+                        </span>
+                      </div>
+                      <div className="text-3xl font-bold text-orange-600">{contestRating || 0}</div>
+                      <div className="text-xs text-gray-600 mt-1">Max {maxContestRating}</div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="p-4 bg-gray-50 rounded-lg border text-center text-sm text-gray-500">
+                  No contest rating data available
                 </div>
-                <div className="text-3xl font-bold text-orange-600">1718</div>
-                <div className="text-xs text-gray-600 mt-1">Max 1794</div>
-              </div>
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold text-gray-700">CODEFORCES</span>
-                  <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded font-medium">Pupil</span>
-                </div>
-                <div className="text-3xl font-bold text-blue-600">1375</div>
-                <div className="text-xs text-gray-600 mt-1">Max 1643</div>
-              </div>
+              )}
             </div>
           </div>
         </div>

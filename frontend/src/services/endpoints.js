@@ -151,6 +151,15 @@ export const ENDPOINTS = {
     SETTINGS: 'credentialist/settings',
     STATS: 'credentialist/stats',
   },
+
+  PLATFORMS: {
+    GET_PROFILE: 'platforms/profile',
+    SUBMIT_HANDLE: (platform) => `platforms/${platform}/submit`,
+    REQUEST_VERIFICATION: (platform) => `platforms/${platform}/request-verification`,
+    VERIFY: (platform) => `platforms/${platform}/verify`,
+    REFRESH: (platform) => `platforms/${platform}/refresh`,
+    REMOVE: (platform) => `platforms/${platform}`,
+  },
 };
 
 export default ENDPOINTS;

@@ -4,18 +4,14 @@ import logger from '@utils/logger.js';
 
 /**
  * Upload a new credential
- * @param {FormData} credentialData - Credential data including file
+ * @param {Object} credentialData - Credential data
  * @returns {Promise} - API response with credential data
  */
 export const uploadCredential = async (credentialData) => {
   try {
-    logger.debug('Uploading credential', { hasFile: credentialData.has('file') });
+    logger.debug('Uploading credential', { title: credentialData.title });
     
-    const response = await axiosClient.post(ENDPOINTS.CREDENTIALS.CREATE, credentialData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await axiosClient.post(ENDPOINTS.CREDENTIALS.CREATE, credentialData);
 
     logger.debug('Credential uploaded successfully', {
       credentialId: response.data?.data?.credential?._id
@@ -23,7 +19,10 @@ export const uploadCredential = async (credentialData) => {
 
     return response.data;
   } catch (error) {
-    logger.error('Failed to upload credential', { error: error.message });
+    logger.error('Failed to upload credential', { 
+      error: error.response?.data?.message || error.message,
+      details: error.response?.data
+    });
     throw error;
   }
 };

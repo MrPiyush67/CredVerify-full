@@ -8,6 +8,7 @@ import notifications from '@features/notifications/redux/notificationsSlice.js';
 import settings from '@features/settings/redux/settingsSlice.js';
 import dashboard from '@features/dashboard/redux/dashboardSlice.js';
 import credentials from '@features/credentials/redux/credentialsSlice.js';
+import platforms from '@features/platforms/redux/platformsSlice.js';
 
 // Load persisted auth state from localStorage
 const loadAuthState = () => {
@@ -43,7 +44,8 @@ export const store = configureStore({
     notifications,
     settings,
     dashboard,
-    credentials
+    credentials,
+    platforms
   },
   preloadedState: {
     auth: loadAuthState()
