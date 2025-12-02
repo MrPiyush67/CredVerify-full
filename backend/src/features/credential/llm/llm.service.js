@@ -27,8 +27,11 @@ export async function extractCertificateMetadata(ocrText) {
   "issueDate": "string - issue date in YYYY-MM-DD format",
   "completionDate": "string - completion date in YYYY-MM-DD format",
   "skills": ["array", "of", "skills"],
-  "description": "string - brief description"
+  "description": "string - brief description",
+  "certificateUrl": "string - verification URL/link if present on certificate (e.g., coursera.org/verify/ABC123)"
 }
+
+IMPORTANT: Look for any URLs or verification links printed on the certificate itself.
 
 OCR Text:
 ${ocrText}`;

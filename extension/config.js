@@ -1,66 +1,37 @@
 /**
  * CredVerify Extension Configuration
- * 
- * Central configuration file for API endpoints and environment settings
+ * Simple configuration for extension APIs
  */
 
 const CONFIG = {
-  // Environment (change to 'production' when deploying)
+  // Environment
   ENV: 'development',
 
   // API Endpoints
   DEVELOPMENT: {
-    MAIN_BACKEND: 'http://127.0.0.1:5000',
-    FRONTEND_APP: 'http://127.0.0.1:5173',
-
-    // API Routes
-    API: {
-      // User Authentication
-      EXTENSION_LOGIN: '/api/users/extension-login',
-      LOGOUT: '/api/auth/logout',
-
-      // Credential Verification (OCR + LLM)
-      VERIFY_CERTIFICATE: '/api/credentials/verify-certificate',
-      EXTRACT_PREVIEW: '/api/credentials/extract-preview',
-
-      // Credential Management
-      CREATE_FROM_EXTENSION: '/api/credentials/from-extension',
-      GET_PUBLIC_CREDENTIALS: '/api/credentials/public',
-
-      // Trusted Domains
-      TRUSTED_DOMAINS: '/api/credentials/trusted-domains',
-    }
+    BACKEND: 'http://127.0.0.1:5000',
+    FRONTEND: 'http://127.0.0.1:5173'
   },
 
   PRODUCTION: {
-    MAIN_BACKEND: 'https://api.credverify.com', // Replace with your production URL
-    FRONTEND_APP: 'https://app.credverify.com', // Replace with your production URL
-
-    // API Routes (same as development)
-    API: {
-      EXTENSION_LOGIN: '/api/users/extension-login',
-      LOGOUT: '/api/auth/logout',
-      VERIFY_CERTIFICATE: '/api/credentials/verify-certificate',
-      EXTRACT_PREVIEW: '/api/credentials/extract-preview',
-      CREATE_FROM_EXTENSION: '/api/credentials/from-extension',
-      GET_PUBLIC_CREDENTIALS: '/api/credentials/public',
-      TRUSTED_DOMAINS: '/api/credentials/trusted-domains',
-    }
+    BACKEND: 'https://api.credverify.com',
+    FRONTEND: 'https://app.credverify.com'
   },
 
-  // Get current environment config
+  // Get current config
   get current() {
     return this.ENV === 'production' ? this.PRODUCTION : this.DEVELOPMENT;
   },
 
-  // Helper to build full URL
-  getFullUrl(endpoint) {
-    return `${this.current.MAIN_BACKEND}${endpoint}`;
+  // API Routes
+  API: {
+    LOGIN: '/api/users/extension-login',
+    VERIFY: '/api/credentials/verify-certificate'
   },
 
-  // Get specific API endpoint
-  getEndpoint(key) {
-    return this.getFullUrl(this.current.API[key]);
+  // Build full URL
+  url(endpoint) {
+    return `${this.current.BACKEND}${endpoint}`;
   }
 };
 

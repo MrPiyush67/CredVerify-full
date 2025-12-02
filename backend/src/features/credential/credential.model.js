@@ -68,8 +68,8 @@ const credentialSchema = new mongoose.Schema(
 
     // Micro-credential extras (optional but small)
     nsqfLevel: {
-      type: Number,   // 1–10
-      min: 1,
+      type: Number,   // 0–10
+      min: 0,
       max: 10,
     },
     totalHours: {

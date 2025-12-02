@@ -2,14 +2,48 @@ import { processCertificateImage, verifyCertificateComplete } from '../verificat
 import { getTrustedDomains } from '../validation/domainValidator.service.js';
 import { uploadCredentialFile } from '../../../core/utils/imagekitService.js';
 
+// Request deduplication map (prevent duplicate uploads within 5 seconds)
+const recentRequests = new Map();
+
 /**
  * POST /api/credentials/verify-certificate
  * Verify certificate from extension
  */
 export async function verifyCertificate(req, res) {
   try {
-    const { imageData, sourceUrl, imageType = 'base64', fileData, autoSave = true } = req.body;
-    const userId = req.user._id;
+    const { imageData, sourceUrl, imageType = 'base64', fileData, autoSave = true, testMode, testUserName } = req.body;
+
+    // Support test mode (no auth required)
+    const userId = testMode ? 'test-user-id' : req.user?._id;
+
+    if (!testMode && !req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required (or use testMode: true)',
+      });
+    }
+
+    // Deduplicate requests (prevent double-click or loop issues)
+    const requestKey = `${userId}-${imageData.substring(0, 50)}`;
+    const now = Date.now();
+    const lastRequest = recentRequests.get(requestKey);
+
+    if (lastRequest && (now - lastRequest) < 5000) {
+      console.log('⚠️ Duplicate request detected within 5 seconds - ignoring');
+      return res.status(429).json({
+        success: false,
+        message: 'Duplicate request detected. Please wait before retrying.',
+      });
+    }
+
+    recentRequests.set(requestKey, now);
+
+    // Cleanup old entries (older than 10 seconds)
+    for (const [key, timestamp] of recentRequests.entries()) {
+      if (now - timestamp > 10000) {
+        recentRequests.delete(key);
+      }
+    }
 
     // Validate required fields
     if (!imageData) {
@@ -26,12 +60,18 @@ export async function verifyCertificate(req, res) {
       });
     }
 
+    console.log('🔵 [VERIFY] Starting verification for user:', userId);
+    console.log('🔵 [VERIFY] Source URL:', sourceUrl);
+    console.log('🔵 [VERIFY] Image data length:', imageData.length);
+
     // Process certificate
     const processedData = await processCertificateImage({
       userId,
       imageData,
       sourceUrl,
       imageType,
+      testMode,
+      testUserName, // Simulate user's legal name for name matching in test mode
     });
 
     // Handle early rejections (domain/name validation failures)
@@ -44,6 +84,8 @@ export async function verifyCertificate(req, res) {
           verification: processedData.verification,
           nameValidation: processedData.nameValidation,
           domainValidation: processedData.domainValidation,
+          certificateUrlValidation: processedData.certificateUrlValidation, // Include certificate URL validation details
+          extractedData: processedData.extractedData, // Include extracted data for debugging
         },
       });
     }
@@ -57,7 +99,7 @@ export async function verifyCertificate(req, res) {
 
       if (!fileData) {
         try {
-          console.log('Uploading certificate image to ImageKit...');
+          console.log('📤 [IMAGEKIT] Uploading certificate image to ImageKit...');
 
           // Convert base64 to buffer
           const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
@@ -66,7 +108,7 @@ export async function verifyCertificate(req, res) {
           // Upload to ImageKit
           const uploadResult = await uploadCredentialFile(buffer, {
             fileName: `certificate-${Date.now()}.jpg`,
-            userName: req.user.name || 'unknown',
+            userName: req.user?.name || 'unknown',
             issuer: processedData.extractedData?.issuerName || 'unknown',
             tags: ['certificate', 'verified'],
           });
@@ -93,11 +135,10 @@ export async function verifyCertificate(req, res) {
         }
       }
 
-      const result = await verifyCertificateComplete({
+      // Save to database directly (don't re-process)
+      const credential = await verifyCertificateComplete({
         userId,
-        imageData,
-        sourceUrl,
-        imageType,
+        processedData, // Pass already processed data instead of re-processing
         fileData: uploadedFileData,
       });
 
@@ -105,8 +146,13 @@ export async function verifyCertificate(req, res) {
         success: true,
         message: 'Certificate verified and saved successfully',
         data: {
-          credential: result.credential,
-          processing: result.processingResult,
+          credential: credential,
+          verification: processedData.verification,
+          extractedData: processedData.extractedData,
+          nameValidation: processedData.nameValidation,
+          domainValidation: processedData.domainValidation,
+          certificateUrlValidation: processedData.certificateUrlValidation,
+          warnings: processedData.warnings,
           saved: true,
         },
       });

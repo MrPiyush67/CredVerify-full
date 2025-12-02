@@ -26,6 +26,318 @@
   let verificationData = null;
   let authToken = null;
   let currentUser = null;
+  let isAntiTamperCheckPending = false;
+  let isVerifying = false; // Prevent double submission
+
+  // ============================================================================
+  // ANTI-TAMPER FUNCTIONS
+  // ============================================================================
+
+  /**
+   * Calculate perceptual hash (pHash) of image for anti-tampering
+   * @param {Blob} blob - Image blob
+   * @returns {Promise<string>} - 64-character hex hash
+   */
+  async function calculateImageHash(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            // Create canvas for image processing
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Resize to 8x8 for perceptual hash
+            const size = 8;
+            canvas.width = size;
+            canvas.height = size;
+
+            // Draw resized image
+            ctx.drawImage(img, 0, 0, size, size);
+
+            // Get pixel data
+            const imageData = ctx.getImageData(0, 0, size, size);
+            const pixels = imageData.data;
+
+            // Convert to grayscale and calculate average
+            const grayscale = [];
+            let sum = 0;
+
+            for (let i = 0; i < pixels.length; i += 4) {
+              const gray = Math.round((pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3);
+              grayscale.push(gray);
+              sum += gray;
+            }
+
+            const average = sum / grayscale.length;
+
+            // Create binary hash (1 if pixel > average, 0 otherwise)
+            let hash = '';
+            for (let i = 0; i < grayscale.length; i++) {
+              hash += grayscale[i] > average ? '1' : '0';
+            }
+
+            // Convert binary to hex
+            let hexHash = '';
+            for (let i = 0; i < hash.length; i += 4) {
+              const chunk = hash.substr(i, 4);
+              hexHash += parseInt(chunk, 2).toString(16);
+            }
+
+            resolve(hexHash);
+          } catch (error) {
+            reject(error);
+          }
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  /**
+   * Compare two image hashes (allows small variations)
+   * @param {string} hash1 - First hash
+   * @param {string} hash2 - Second hash
+   * @returns {boolean} - True if hashes match (within tolerance)
+   */
+  function compareImageHashes(hash1, hash2) {
+    if (!hash1 || !hash2 || hash1.length !== hash2.length) {
+      return false;
+    }
+
+    // Calculate Hamming distance (number of different bits)
+    let differences = 0;
+    for (let i = 0; i < hash1.length; i++) {
+      if (hash1[i] !== hash2[i]) {
+        differences++;
+      }
+    }
+
+    // Allow up to 10% difference (for compression variations)
+    const tolerance = Math.floor(hash1.length * 0.1);
+    return differences <= tolerance;
+  }
+
+  /**
+   * Check if there's a pending anti-tamper verification
+   */
+  async function checkAntiTamperStatus() {
+    try {
+      const storage = await chrome.storage.local.get(['cv_anti_tamper_pending']);
+
+      if (storage.cv_anti_tamper_pending) {
+        // Check if the pending check is too old (more than 5 minutes)
+        const fiveMinutes = 5 * 60 * 1000;
+        if (Date.now() - storage.cv_anti_tamper_pending.timestamp > fiveMinutes) {
+          console.log('📱 [POPUP] Clearing stale anti-tamper check (older than 5 minutes)');
+          await chrome.storage.local.remove(['cv_anti_tamper_pending']);
+          return;
+        }
+
+        isAntiTamperCheckPending = true;
+        console.log('📱 [POPUP] ⚠️ Anti-tamper check pending, will verify after page refresh');
+
+        // Show status
+        showAlert('🔐 Verifying certificate authenticity after page refresh...', 'info');
+
+        // Perform anti-tamper check
+        await performAntiTamperCheck(storage.cv_anti_tamper_pending);
+      }
+    } catch (error) {
+      console.error('📱 [POPUP] Anti-tamper check error:', error);
+      // Clear on error to prevent getting stuck
+      await chrome.storage.local.remove(['cv_anti_tamper_pending']);
+    }
+  }
+
+  /**
+   * Perform anti-tamper verification after page refresh
+   * @param {object} storedData - { imageHash, imageUrl, pageUrl, timestamp }
+   */
+  async function performAntiTamperCheck(storedData) {
+    try {
+      console.log('📱 [POPUP] 🔐 Performing anti-tamper verification...');
+      console.log('📱 [POPUP] Stored hash:', storedData.imageHash);
+      console.log('📱 [POPUP] Original URL:', storedData.imageUrl);
+
+      showProgress(10, 'Scanning page for certificate image...');
+
+      // Get all images from page
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      const [tab] = tabs;
+
+      if (!tab) {
+        throw new Error('No active tab found');
+      }
+
+      // Verify we're on the same page
+      if (tab.url !== storedData.pageUrl) {
+        throw new Error('Page URL has changed. Please start verification again.');
+      }
+
+      // Inject script to collect all images
+      const result = await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: () => {
+          const images = [];
+          document.querySelectorAll('img').forEach(img => {
+            if (img.src && img.naturalWidth > 200 && img.naturalHeight > 200) {
+              images.push({
+                src: img.src,
+                width: img.naturalWidth,
+                height: img.naturalHeight,
+              });
+            }
+          });
+          return images;
+        },
+      });
+
+      const pageImages = result[0]?.result || [];
+      console.log('📱 [POPUP] Found', pageImages.length, 'images on page');
+
+      if (pageImages.length === 0) {
+        throw new Error('No images found on page after refresh');
+      }
+
+      showProgress(30, 'Calculating image fingerprints...');
+
+      // Check each image for hash match
+      let matchFound = false;
+      let matchedImage = null;
+
+      for (let i = 0; i < pageImages.length; i++) {
+        const imgData = pageImages[i];
+        showProgress(30 + (50 * (i / pageImages.length)), `Checking image ${i + 1}/${pageImages.length}...`);
+
+        try {
+          // Fetch image and calculate hash
+          const response = await fetch(imgData.src);
+          const blob = await response.blob();
+          const currentHash = await calculateImageHash(blob);
+
+          console.log('📱 [POPUP] Image', i + 1, 'hash:', currentHash);
+
+          // Compare hashes
+          if (compareImageHashes(storedData.imageHash, currentHash)) {
+            console.log('📱 [POPUP] ✅ MATCH FOUND! Image is authentic');
+            matchFound = true;
+            matchedImage = {
+              url: imgData.src,
+              blob: blob,
+            };
+            break;
+          }
+        } catch (error) {
+          console.warn('📱 [POPUP] Error checking image', i + 1, ':', error.message);
+        }
+      }
+
+      if (matchFound) {
+        // Success - image is authentic
+        showProgress(90, 'Anti-tamper check passed!');
+
+        // Clear pending check from storage, but KEEP isAntiTamperCheckPending = true
+        // so next click proceeds to actual verification instead of re-checking
+        await chrome.storage.local.remove(['cv_anti_tamper_pending']);
+        // isAntiTamperCheckPending stays TRUE - this allows the next click to proceed
+
+        // Set the matched image as selected
+        selectedImageUrl = matchedImage.url;
+        selectedImageBlob = matchedImage.blob;
+
+        // Update UI
+        certificatePreview.innerHTML = `<img src="${matchedImage.url}" alt="Certificate" style="width: 100%; height: auto; border-radius: var(--radius-md);">`;
+        certificatePreview.classList.add('has-image');
+        verifyBtn.disabled = false;
+
+        // Clear progress and show success message with clear instructions
+        progressContainer.style.display = 'none';
+        showAlert('✅ Anti-tamper verification passed! Certificate is authentic. Click "Verify Certificate" button below to continue verification.', 'success');
+
+        console.log('📱 [POPUP] ✅ Anti-tamper check complete - ready for verification');
+        console.log('📱 [POPUP] 👆 User should now click "Verify Certificate" button');
+      } else {
+        // Failure - image was tampered with or removed
+        progressContainer.style.display = 'none';
+
+        await chrome.storage.local.remove(['cv_anti_tamper_pending']);
+        isAntiTamperCheckPending = false;
+
+        showAlert('⚠️ Anti-tamper check FAILED! The certificate image has changed or was removed after page refresh. This may indicate tampering. Please select the certificate again.', 'destructive');
+
+        console.error('📱 [POPUP] ❌ No matching image found - possible tampering');
+      }
+
+    } catch (error) {
+      console.error('📱 [POPUP] ❌ Anti-tamper check error:', error);
+
+      await chrome.storage.local.remove(['cv_anti_tamper_pending']);
+      isAntiTamperCheckPending = false;
+      progressContainer.style.display = 'none';
+
+      showAlert(`Anti-tamper check failed: ${error.message}`, 'destructive');
+    }
+  }
+
+  /**
+   * Initiate anti-tamper check (before verification)
+   * Calculates hash, stores it, and refreshes page
+   */
+  async function initiateAntiTamperCheck() {
+    try {
+      if (!selectedImageBlob || !selectedImageUrl) {
+        throw new Error('No image selected');
+      }
+
+      console.log('📱 [POPUP] 🔐 Initiating anti-tamper protection...');
+      showProgress(10, 'Step 1/2: Calculating image fingerprint...');
+
+      // Calculate image hash
+      const imageHash = await calculateImageHash(selectedImageBlob);
+      console.log('📱 [POPUP] Image hash:', imageHash);
+
+      showProgress(50, 'Step 2/2: Preparing page refresh...');
+
+      // Store anti-tamper data
+      await chrome.storage.local.set({
+        cv_anti_tamper_pending: {
+          imageHash: imageHash,
+          imageUrl: selectedImageUrl,
+          pageUrl: currentPageUrl,
+          timestamp: Date.now(),
+        },
+      });
+
+      console.log('📱 [POPUP] Anti-tamper data stored, refreshing page...');
+
+      showProgress(80, 'Refreshing page to verify authenticity...');
+
+      // Wait a moment for storage to complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Refresh the current tab
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tabs[0]) {
+        await chrome.tabs.reload(tabs[0].id);
+        // Popup will close automatically on refresh
+      }
+
+    } catch (error) {
+      console.error('📱 [POPUP] ❌ Anti-tamper initiation error:', error);
+      progressContainer.style.display = 'none';
+      showAlert(`Anti-tamper setup failed: ${error.message}`, 'destructive');
+    }
+  }
+
+  // ============================================================================
+  // END ANTI-TAMPER FUNCTIONS
+  // ============================================================================
 
   // Initialize
   init();
@@ -50,6 +362,9 @@
     if (storage.cv_endpoint) {
       endpointInput.value = storage.cv_endpoint;
     }
+
+    // Check for pending anti-tamper verification
+    await checkAntiTamperStatus();
 
     // Check domain status
     await checkDomainStatus();
@@ -355,6 +670,14 @@
     console.log('📱 [POPUP] selectedImageUrl:', selectedImageUrl);
     console.log('📱 [POPUP] selectedImageBlob:', selectedImageBlob ? `${selectedImageBlob.size} bytes` : 'null');
     console.log('📱 [POPUP] currentPageUrl:', currentPageUrl);
+    console.log('📱 [POPUP] isAntiTamperCheckPending:', isAntiTamperCheckPending);
+    console.log('📱 [POPUP] isVerifying:', isVerifying);
+
+    // Prevent double submission
+    if (isVerifying) {
+      console.log('📱 [POPUP] ⚠️ Verification already in progress, ignoring click');
+      return;
+    }
 
     if (!selectedImageUrl) {
       console.error('📱 [POPUP] ❌ No image URL selected');
@@ -366,6 +689,34 @@
     verifyBtn.disabled = true;
     verifySpinner.style.display = 'inline-block';
     verifyBtnText.textContent = 'Verifying...';
+
+    // ========================================
+    // ANTI-TAMPER PROTECTION: First-time verification
+    // ========================================
+    if (!isAntiTamperCheckPending) {
+      console.log('📱 [POPUP] 🔐 First-time verification - initiating anti-tamper check');
+      console.log('📱 [POPUP] ℹ️ This will refresh the page to verify certificate authenticity');
+      showAlert('🔐 Initiating anti-tamper protection. Page will refresh to verify certificate authenticity...', 'info');
+      await initiateAntiTamperCheck();
+      // Function will refresh page and exit
+      // Don't reset flags here - let the page refresh handle it
+      verifyBtn.disabled = false;
+      verifySpinner.style.display = 'none';
+      verifyBtnText.textContent = '✓ Verify Certificate';
+      return;
+    }
+
+    console.log('📱 [POPUP] ✅ Anti-tamper check already passed - proceeding with verification');
+
+
+    // ========================================
+    // PROCEED WITH ACTUAL VERIFICATION
+    // (Only reaches here after anti-tamper check passed)
+    // ========================================
+
+    // Set verification flag to prevent double submission
+    isVerifying = true;
+    console.log('📱 [POPUP] 🔒 Set isVerifying = true (locked) at', new Date().toISOString());
 
     // Show progress
     showProgress(0, 'Preparing certificate...');
@@ -463,6 +814,11 @@
       // Display result
       displayVerificationResult(result);
 
+      // Reset flags after successful verification
+      isVerifying = false;
+      isAntiTamperCheckPending = false;
+      console.log('📱 [POPUP] ✅ Verification complete - flags reset');
+
     } catch (error) {
       console.error('📱 [POPUP] ❌ Verification error:', error);
       console.error('📱 [POPUP] Error name:', error.name);
@@ -470,11 +826,16 @@
       console.error('📱 [POPUP] Error stack:', error.stack);
       progressContainer.style.display = 'none';
       showAlert(`Verification failed: ${error.message}`, 'destructive');
+
+      // Reset flags on error
+      isVerifying = false;
+      isAntiTamperCheckPending = false;
     } finally {
+      // Reset UI state only (flags already reset in try/catch blocks)
       verifyBtn.disabled = false;
       verifySpinner.style.display = 'none';
       verifyBtnText.textContent = '✓ Verify Certificate';
-      console.log('📱 [POPUP] Verification process ended');
+      console.log('📱 [POPUP] 🔓 Verification process ended');
     }
   }
 
@@ -789,6 +1150,11 @@
   });
 
   verifyBtn.addEventListener('click', async () => {
+    // Prevent multiple simultaneous calls
+    if (verifyBtn.disabled || isVerifying) {
+      console.log('📱 [POPUP] ⚠️ Button click ignored - verification in progress');
+      return;
+    }
     await verifyCertificate();
   });
 

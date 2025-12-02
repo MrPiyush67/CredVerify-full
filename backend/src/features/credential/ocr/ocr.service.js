@@ -1,6 +1,7 @@
 import Tesseract from 'tesseract.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import sharp from 'sharp';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -47,9 +48,33 @@ export async function extractTextFromImage(imageSource) {
  */
 export async function extractTextFromBase64(base64Image) {
   try {
-    // Remove data URI prefix if present
-    const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, '');
-    const buffer = Buffer.from(base64Data, 'base64');
+    // Check if it's an SVG (which needs conversion)
+    const isSVG = base64Image.includes('data:image/svg+xml');
+
+    let buffer;
+
+    if (isSVG) {
+      console.log('📊 SVG detected - converting to PNG for OCR...');
+
+      // Remove data URI prefix
+      const base64Data = base64Image.replace(/^data:image\/svg\+xml;base64,/, '');
+      const svgBuffer = Buffer.from(base64Data, 'base64');
+
+      // Convert SVG to PNG using sharp (2000px width for high quality OCR)
+      buffer = await sharp(svgBuffer)
+        .resize(2000, null, { // 2000px width, auto height
+          fit: 'inside',
+          withoutEnlargement: false,
+        })
+        .png()
+        .toBuffer();
+
+      console.log('✅ SVG converted to PNG successfully');
+    } else {
+      // Remove data URI prefix if present
+      const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, '');
+      buffer = Buffer.from(base64Data, 'base64');
+    }
 
     return await extractTextFromImage(buffer);
   } catch (error) {

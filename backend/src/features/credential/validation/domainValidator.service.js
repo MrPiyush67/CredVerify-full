@@ -1,195 +1,43 @@
 import stringSimilarity from 'string-similarity';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ============================================================================
-// TRUSTED ISSUERS - Clean Architecture (ChatGPT Recommended)
-// ============================================================================
-// This is the SINGLE SOURCE OF TRUTH for certificate issuers
-// Domain validation uses this to determine issuer name (NOT LLM)
+// LOAD TRUSTED ISSUERS FROM platforms.json (SINGLE SOURCE OF TRUTH)
 // ============================================================================
 
-const TRUSTED_ISSUERS = [
-  // Education Platforms
-  {
-    id: 'coursera',
-    name: 'Coursera',
-    aliases: ['Coursera', 'Coursera Inc', 'Coursera Inc.'],
-    domains: ['coursera.org', 'coursera.com'],
-  },
-  {
-    id: 'udemy',
-    name: 'Udemy',
-    aliases: ['Udemy', 'Udemy Inc', 'Udemy, Inc.'],
-    domains: ['udemy.com'],
-  },
-  {
-    id: 'edx',
-    name: 'edX',
-    aliases: ['edX', 'edX Inc', 'edX LLC'],
-    domains: ['edx.org'],
-  },
-  {
-    id: 'udacity',
-    name: 'Udacity',
-    aliases: ['Udacity', 'Udacity Inc'],
-    domains: ['udacity.com'],
-  },
-  {
-    id: 'linkedin-learning',
-    name: 'LinkedIn Learning',
-    aliases: ['LinkedIn Learning', 'LinkedIn', 'Lynda.com'],
-    domains: ['linkedin.com', 'lynda.com'],
-  },
-  {
-    id: 'skillshare',
-    name: 'Skillshare',
-    aliases: ['Skillshare', 'Skillshare Inc'],
-    domains: ['skillshare.com'],
-  },
-  {
-    id: 'pluralsight',
-    name: 'Pluralsight',
-    aliases: ['Pluralsight', 'Pluralsight LLC'],
-    domains: ['pluralsight.com'],
-  },
-  {
-    id: 'datacamp',
-    name: 'DataCamp',
-    aliases: ['DataCamp', 'DataCamp Inc'],
-    domains: ['datacamp.com'],
-  },
-  {
-    id: 'codecademy',
-    name: 'Codecademy',
-    aliases: ['Codecademy', 'Codecademy LLC'],
-    domains: ['codecademy.com'],
-  },
+let TRUSTED_ISSUERS = [];
+let TRUSTED_DOMAINS = [];
 
-  // Tech Companies
-  {
-    id: 'google',
-    name: 'Google',
-    aliases: ['Google', 'Google LLC', 'Google Cloud', 'Google Developers'],
-    domains: ['google.com', 'developers.google.com', 'cloud.google.com', 'grow.google'],
-  },
-  {
-    id: 'microsoft',
-    name: 'Microsoft',
-    aliases: ['Microsoft', 'Microsoft Corporation', 'Microsoft Learn'],
-    domains: ['microsoft.com', 'learn.microsoft.com'],
-  },
-  {
-    id: 'amazon',
-    name: 'Amazon Web Services',
-    aliases: ['AWS', 'Amazon Web Services', 'Amazon'],
-    domains: ['aws.amazon.com', 'amazon.com'],
-  },
-  {
-    id: 'ibm',
-    name: 'IBM',
-    aliases: ['IBM', 'International Business Machines'],
-    domains: ['ibm.com', 'skillsbuild.org'],
-  },
-  {
-    id: 'oracle',
-    name: 'Oracle',
-    aliases: ['Oracle', 'Oracle Corporation'],
-    domains: ['oracle.com', 'education.oracle.com'],
-  },
-  {
-    id: 'salesforce',
-    name: 'Salesforce',
-    aliases: ['Salesforce', 'Salesforce.com'],
-    domains: ['salesforce.com', 'trailhead.salesforce.com'],
-  },
-  {
-    id: 'cisco',
-    name: 'Cisco',
-    aliases: ['Cisco', 'Cisco Systems', 'Cisco Networking Academy'],
-    domains: ['cisco.com', 'netacad.com'],
-  },
+try {
+  const platformsPath = path.join(__dirname, './platforms.json');
+  const platformsData = JSON.parse(fs.readFileSync(platformsPath, 'utf8'));
 
-  // Indian Platforms
-  {
-    id: 'nptel',
-    name: 'NPTEL',
-    aliases: ['NPTEL', 'National Programme on Technology Enhanced Learning'],
-    domains: ['nptel.ac.in', 'onlinecourses.nptel.ac.in'],
-  },
-  {
-    id: 'swayam',
-    name: 'SWAYAM',
-    aliases: ['SWAYAM', 'Study Webs of Active Learning for Young Aspiring Minds'],
-    domains: ['swayam.gov.in', 'onlinecourses.swayam2.ac.in'],
-  },
-  {
-    id: 'internshala',
-    name: 'Internshala',
-    aliases: ['Internshala', 'Internshala Trainings'],
-    domains: ['internshala.com', 'trainings.internshala.com'],
-  },
-  {
-    id: 'unstop',
-    name: 'Unstop',
-    aliases: ['Unstop', 'Dare2Compete', 'D2C'],
-    domains: ['unstop.com', 'dare2compete.com'],
-  },
-  {
-    id: 'codealpha',
-    name: 'CodeAlpha',
-    aliases: ['CodeAlpha', 'Code Alpha'],
-    domains: ['codealpha.tech'],
-  },
-  {
-    id: 'skillsforall',
-    name: 'Cisco Skills For All',
-    aliases: ['Skills For All', 'Cisco Skills For All', 'SkillsForAll'],
-    domains: ['skillsforall.com'],
-  },
-  {
-    id: 'naukri',
-    name: 'Naukri Learning',
-    aliases: ['Naukri', 'Naukri Learning', 'Naukri.com'],
-    domains: ['naukri.com', 'naukrilearning.com'],
-  },
+  TRUSTED_ISSUERS = platformsData.platforms.map(platform => ({
+    id: platform.id,
+    name: platform.name,
+    domains: platform.domains,
+    category: platform.category,
+  }));
 
-  // AI/ML Platforms
-  {
-    id: 'deeplearning-ai',
-    name: 'DeepLearning.AI',
-    aliases: ['DeepLearning.AI', 'deeplearning.ai', 'Deep Learning AI'],
-    domains: ['deeplearning.ai'],
-  },
-  {
-    id: 'kaggle',
-    name: 'Kaggle',
-    aliases: ['Kaggle', 'Kaggle Inc'],
-    domains: ['kaggle.com'],
-  },
+  TRUSTED_DOMAINS = TRUSTED_ISSUERS.flatMap(issuer => issuer.domains);
 
-  // Coding Platforms
-  {
-    id: 'hackerrank',
-    name: 'HackerRank',
-    aliases: ['HackerRank', 'Hacker Rank'],
-    domains: ['hackerrank.com'],
-  },
-  {
-    id: 'leetcode',
-    name: 'LeetCode',
-    aliases: ['LeetCode', 'Leet Code'],
-    domains: ['leetcode.com'],
-  },
-];
-
-// Legacy TRUSTED_DOMAINS array (kept for backward compatibility)
-const TRUSTED_DOMAINS = TRUSTED_ISSUERS.flatMap(issuer => issuer.domains);
+  console.log(`✅ Loaded ${TRUSTED_ISSUERS.length} trusted issuers from platforms.json`);
+} catch (error) {
+  console.error('❌ Failed to load platforms.json:', error.message);
+  throw new Error('Failed to initialize domain validator: ' + error.message);
+}
 
 // ============================================================================
-// NEW CLEAN ARCHITECTURE FUNCTIONS
+// DOMAIN VALIDATION FUNCTIONS
 // ============================================================================
 
 /**
- * Resolve issuer from URL (ChatGPT recommended - SINGLE SOURCE OF TRUTH)
+ * Resolve issuer from URL (SINGLE SOURCE OF TRUTH from platforms.json)
  * This is what your verification flow should use (NOT LLM extraction)
  * @param {string} pageUrl - Certificate page URL
  * @returns {object|null} - Issuer object or null
@@ -200,18 +48,41 @@ export function resolveIssuerFromUrl(pageUrl) {
   try {
     const urlObj = new URL(pageUrl);
     const hostname = urlObj.hostname.toLowerCase().replace(/^www\./, '');
+    const pathname = urlObj.pathname.toLowerCase();
+    const fullPath = hostname + pathname;
 
     // Find matching issuer
     for (const issuer of TRUSTED_ISSUERS) {
       for (const domain of issuer.domains) {
-        if (hostname === domain || hostname.endsWith(`.${domain}`)) {
-          return {
-            id: issuer.id,
-            name: issuer.name,
-            domain: domain,
-            aliases: issuer.aliases,
-            isTrusted: true,
-          };
+        // Check if domain contains path (e.g., "linkedin.com/learning")
+        if (domain.includes('/')) {
+          // Path-based matching - must match domain AND path
+          const normalizedDomain = domain.toLowerCase();
+
+          if (fullPath.startsWith(normalizedDomain) ||
+            fullPath === normalizedDomain ||
+            fullPath.startsWith(normalizedDomain + '/')) {
+            return {
+              id: issuer.id,
+              name: issuer.name,
+              domain: domain,
+              category: issuer.category,
+              isTrusted: true,
+              requiresPath: true,
+            };
+          }
+        } else {
+          // Hostname-only matching (traditional)
+          if (hostname === domain || hostname.endsWith(`.${domain}`)) {
+            return {
+              id: issuer.id,
+              name: issuer.name,
+              domain: domain,
+              category: issuer.category,
+              isTrusted: true,
+              requiresPath: false,
+            };
+          }
         }
       }
     }
@@ -390,7 +261,14 @@ export function getTrustedDomains() {
  * @returns {object} - { isValid, isTrusted, issuer, confidence, reason }
  */
 export function validateDomainAndGetIssuer(pageUrl) {
-  const issuer = resolveIssuerFromUrl(pageUrl);
+  // Auto-fix: Add https:// if protocol is missing (LLM often extracts URLs without protocol)
+  let normalizedUrl = pageUrl;
+  if (pageUrl && !pageUrl.match(/^https?:\/\//i)) {
+    normalizedUrl = `https://${pageUrl}`;
+    console.log(`⚠️  URL missing protocol, auto-fixed: ${pageUrl} -> ${normalizedUrl}`);
+  }
+
+  const issuer = resolveIssuerFromUrl(normalizedUrl);
 
   if (issuer) {
     return {
@@ -408,7 +286,7 @@ export function validateDomainAndGetIssuer(pageUrl) {
   }
 
   // Not in whitelist
-  const domain = extractDomain(pageUrl);
+  const domain = extractDomain(normalizedUrl);
   return {
     isValid: false,
     isTrusted: false,

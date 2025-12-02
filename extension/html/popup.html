@@ -76,30 +76,9 @@
       </button>
     </div>
 
-    <!-- Divider -->
-    <div class="divider"></div>
-
-    <!-- Settings -->
-    <details>
-      <summary style="cursor: pointer; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">
-        ⚙️ Settings
-      </summary>
-      <div class="card" style="margin-top: 0.5rem;">
-        <div class="card-title">API Endpoint</div>
-        <div style="display: flex; gap: 0.5rem;">
-          <input type="text" id="endpointInput" placeholder="http://localhost:3001/api/verify-certificate"
-            style="flex: 1; padding: 0.5rem; border: 1px solid hsl(var(--border)); border-radius: var(--radius-md); font-size: 0.875rem;" />
-          <button id="saveEndpointBtn" class="button button-secondary">
-            Save
-          </button>
-        </div>
-        <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-top: 0.5rem;">
-          Default: http://localhost:3001/api/verify-certificate
-        </div>
-      </div>
-    </details>
   </div>
 
+  <script src="../config.js"></script>
   <script src="../js/popup.js"></script>
 </body>
 

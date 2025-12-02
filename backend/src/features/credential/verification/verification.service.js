@@ -138,18 +138,27 @@ export function determineVerificationStatus(finalScore, nameConfidence, domainCo
  * @returns {Promise<object>} - Processed certificate data
  */
 export async function processCertificateImage(params) {
-  const { userId, imageData, sourceUrl, imageType = 'base64' } = params;
+  const { userId, imageData, sourceUrl, imageType = 'base64', testMode, testUserName } = params;
 
   try {
     // ========================================
-    // Step 1: Get user's legal name from database
+    // Step 1: Get user's legal name from database (or test mode)
     // ========================================
     console.log('Step 1/7: Fetching user legal name...');
-    const user = await User.findById(userId).select('name');
-    if (!user) {
-      throw new Error('User not found');
+    let legalName;
+
+    if (testMode) {
+      // Test mode: use provided test name
+      legalName = testUserName || 'Test User';
+      console.log(`[TEST MODE] Using test name: ${legalName}`);
+    } else {
+      // Production mode: fetch from database
+      const user = await User.findById(userId).select('name');
+      if (!user) {
+        throw new Error('User not found');
+      }
+      legalName = user.name;
     }
-    const legalName = user.name;
 
     // ========================================
     // Step 2: OCR - Extract text from image
@@ -228,6 +237,56 @@ export async function processCertificateImage(params) {
     const llmMetadata = await extractCertificateMetadata(ocrText);
 
     // ========================================
+    // Step 5.5: DUAL DOMAIN VALIDATION (Certificate URL)
+    // ========================================
+    console.log('Step 5.5/7: Validating certificate verification URL...');
+    let certificateUrlValidation = null;
+
+    if (llmMetadata.certificateUrl) {
+      console.log('Certificate URL found:', llmMetadata.certificateUrl);
+      certificateUrlValidation = validateDomainAndGetIssuer(llmMetadata.certificateUrl);
+
+      // Early rejection: Certificate URL doesn't match trusted domain
+      if (!certificateUrlValidation.isTrusted) {
+        console.warn('⚠️ Certificate URL domain is not trusted:', certificateUrlValidation.domain);
+        return {
+          success: false,
+          error: 'CERTIFICATE_URL_MISMATCH',
+          message: 'Certificate verification URL is not from a trusted platform',
+          verification: {
+            status: 'FAILED',
+            finalScore: 0,
+            autoApproved: false,
+            confidence: { name: 0, domain: 0, metadata: 0 },
+          },
+          nameValidation: {
+            legalName: legalName,
+          },
+          domainValidation: {
+            sourceUrl,
+            domain: domainValidation.domain,
+            isTrusted: domainValidation.isTrusted,
+            issuer: domainValidation.issuer,
+          },
+          certificateUrlValidation: {
+            url: llmMetadata.certificateUrl,
+            domain: certificateUrlValidation.domain,
+            isTrusted: false,
+            reason: certificateUrlValidation.reason,
+          },
+        };
+      }
+
+      // Check if certificate URL domain matches pageUrl domain
+      if (certificateUrlValidation.domain !== domainValidation.domain) {
+        console.warn('⚠️ Domain mismatch - PageUrl:', domainValidation.domain, 'Certificate URL:', certificateUrlValidation.domain);
+        // This is a warning but not automatic rejection - could be subdomain variation
+      }
+    } else {
+      console.log('ℹ️ No certificate URL found on certificate image');
+    }
+
+    // ========================================
     // Step 6: Build final extracted data
     // ========================================
     console.log('Step 6/7: Building final certificate data...');
@@ -238,6 +297,7 @@ export async function processCertificateImage(params) {
       recipientName: nameMatch.bestMatch,
       issuerName: domainValidation.issuer.name,
       verificationLink: sourceUrl,
+      certificateUrl: llmMetadata.certificateUrl || null, // URL found on certificate
 
       // Non-critical fields - from LLM
       courseTitle: llmMetadata.courseTitle || llmMetadata.certificateName || 'Certificate',  // Support both old and new field names
@@ -345,8 +405,8 @@ async function saveCertificate(userId, processedData, fileData) {
     issueDate: extractedData.issueDate ? new Date(extractedData.issueDate) : new Date(),
     type: 'certificate',
     credentialId: extractedData.certificateId,
-    nsqfLevel: extractedData.NSQFLevel,
-    totalHours: extractedData.learningHours,
+    ...(extractedData.NSQFLevel && extractedData.NSQFLevel >= 1 && { nsqfLevel: extractedData.NSQFLevel }),
+    ...(extractedData.learningHours && extractedData.learningHours > 0 && { totalHours: extractedData.learningHours }),
     skills: extractedData.skills || [],
     description: extractedData.description,
     file: fileData,
@@ -374,21 +434,10 @@ async function saveCertificate(userId, processedData, fileData) {
  * @returns {Promise<object>} - Saved credential and processing result
  */
 export async function verifyCertificateComplete(params) {
-  const { userId, imageData, sourceUrl, imageType, fileData } = params;
+  const { userId, processedData, fileData } = params;
 
-  // Process image
-  const processedData = await processCertificateImage({
-    userId,
-    imageData,
-    sourceUrl,
-    imageType,
-  });
-
-  // Save to database
+  // Save to database using already processed data
   const credential = await saveCertificate(userId, processedData, fileData);
 
-  return {
-    credential,
-    processingResult: processedData,
-  };
+  return credential;
 }

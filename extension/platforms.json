@@ -15,7 +15,8 @@
       "category": "mooc",
       "domains": [
         "udemy.com",
-        "www.udemy.com"
+        "www.udemy.com",
+        "ude.my"
       ]
     },
     {
@@ -50,7 +51,8 @@
       "name": "FutureLearn",
       "category": "mooc",
       "domains": [
-        "futurelearn.com"
+        "futurelearn.com",
+        "www.futurelearn.com"
       ]
     },
     {
@@ -58,8 +60,7 @@
       "name": "LinkedIn Learning",
       "category": "mooc",
       "domains": [
-        "linkedin.com",
-        "learning.linkedin.com"
+        "linkedin.com/learning"
       ]
     },
     {
@@ -104,11 +105,20 @@
       ]
     },
     {
+      "id": "ncvt_mis",
+      "name": "NCVT MIS",
+      "category": "indian_government",
+      "domains": [
+        "ncvtmis.gov.in"
+      ]
+    },
+    {
       "id": "skill_india_digital",
       "name": "Skill India Digital",
       "category": "indian_government",
       "domains": [
-        "skillindiadigital.gov.in"
+        "skillindiadigital.gov.in",
+        "courses.skillindiadigital.gov.in"
       ]
     },
     {

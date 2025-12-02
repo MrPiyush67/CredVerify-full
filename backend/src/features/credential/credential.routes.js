@@ -1,5 +1,6 @@
 import express from 'express';
 import { protect } from '../../core/middleware/auth.js';
+import { optionalAuth } from '../../core/middleware/optionalAuth.js';
 import { isCredentialist, isValidant } from '../../core/middleware/roleGuard.js';
 import {
   uploadCredential,
@@ -34,7 +35,9 @@ router.get('/credentials/trusted-domains', getTrustedDomainsList);
 router.post('/credentials/from-extension', protect, createCredentialFromExtension);
 
 // Certificate verification endpoints (OCR + LLM pipeline)
-router.post('/credentials/verify-certificate', protect, verifyCertificate);
+// Note: verify-certificate supports testMode for training/testing
+// Uses optionalAuth middleware to handle both authenticated requests and test mode
+router.post('/credentials/verify-certificate', optionalAuth, verifyCertificate);
 router.post('/credentials/extract-preview', protect, extractCertificatePreview);
 
 // Validant routes (specific routes first)
