@@ -52,43 +52,98 @@ function getPlatformInfo(url) {
   }
 }
 
+// --- LinkedIn fallback helper ---
+function checkLinkedIn(url) {
+  try {
+    const u = new URL(url);
+    const host = u.hostname.toLowerCase();
+
+    if (!host.includes('linkedin.com')) return null; // not LinkedIn — let other logic handle it
+
+    // Allow only LinkedIn Learning pages
+    if (url.includes('linkedin.com/learning')) {
+      return {
+        allowed: true,
+        platform: { name: 'LinkedIn Learning', id: 'linkedin_learning', category: 'learning' },
+        reason: null
+      };
+    }
+
+    // Block all other linkedin.com pages for verification
+    return {
+      allowed: false,
+      platform: null,
+      reason: 'LinkedIn profile certificates are not verifiable. Only LinkedIn Learning pages (linkedin.com/learning) are supported.'
+    };
+  } catch (e) {
+    // malformed URL -> treat as non-LinkedIn
+    return null;
+  }
+}
+
 // Message handler
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-
-  // Check if current domain is whitelisted
+  // ------------- checkDomain -------------
   if (request.action === 'checkDomain') {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (!tabs[0]) {
-        sendResponse({ isWhitelisted: false, domain: null });
+        sendResponse({ isWhitelisted: false, domain: null, platform: null, error: 'No active tab' });
         return;
       }
 
-      const url = tabs[0].url;
-      const isWhitelisted = isWhitelistedDomain(url);
-      const hostname = new URL(url).hostname;
-      const platform = isWhitelisted ? getPlatformInfo(url) : null;
+      const url = tabs[0].url || request.url || '';
+      const hostname = (() => { try { return new URL(url).hostname } catch { return null } })();
 
-      sendResponse({
-        isWhitelisted,
-        domain: hostname,
-        platform: platform ? {
-          name: platform.name,
-          category: platform.category,
-          id: platform.id
-        } : null
-      });
+      // LinkedIn special-case: short-circuit if it's linkedin.com
+      const linkedInResult = (typeof checkLinkedIn === 'function') ? checkLinkedIn(url) : null;
+      if (linkedInResult !== null) {
+        sendResponse({
+          isWhitelisted: !!linkedInResult.allowed,
+          domain: hostname,
+          platform: linkedInResult.platform || null,
+          error: linkedInResult.reason || null
+        });
+        return;
+      }
+
+      // Fallback to existing whitelist logic
+      try {
+        const isWhitelisted = (typeof isWhitelistedDomain === 'function') ? isWhitelistedDomain(url) : false;
+        const platform = (isWhitelisted && typeof getPlatformInfo === 'function') ? getPlatformInfo(url) : null;
+
+        sendResponse({
+          isWhitelisted,
+          domain: hostname,
+          platform: platform ? {
+            name: platform.name,
+            category: platform.category,
+            id: platform.id
+          } : null,
+          error: isWhitelisted ? null : null
+        });
+      } catch (err) {
+        console.error('Error during checkDomain:', err);
+        sendResponse({ isWhitelisted: false, domain: hostname, platform: null, error: 'Domain check failed' });
+      }
     });
-    return true;
+
+    return true; // keep channel open for async sendResponse
   }
 
-  // Verify certificate - proxy to backend
+  // ------------- verifyCertificate (proxy to backend) -------------
   if (request.action === 'verifyCertificate') {
     handleVerification(request.data)
       .then(result => sendResponse({ success: true, data: result }))
-      .catch(error => sendResponse({ success: false, error: error.message }));
+      .catch(error => {
+        console.error('handleVerification error:', error);
+        sendResponse({ success: false, error: error.message || 'Verification failed' });
+      });
     return true;
   }
+
+  // other actions can be handled below...
 });
+
 
 // Handle certificate verification
 async function handleVerification(data) {
