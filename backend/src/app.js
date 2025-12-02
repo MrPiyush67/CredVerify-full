@@ -16,6 +16,7 @@ import jobRoutes from './features/job/job.routes.js';
 import chatRoutes from './features/chat/chat.routes.js';
 import notificationRoutes from './features/notification/notification.routes.js';
 import dashboardRoutes from './features/dashboard/dashboard.routes.js';
+import platformRoutes from './features/platform/platform.routes.js';
 
 const app = express();
 
@@ -81,6 +82,7 @@ app.use('/api', [
   chatRoutes,
   notificationRoutes,
   dashboardRoutes,
+  platformRoutes,
 ]);
 
 // 404 handler

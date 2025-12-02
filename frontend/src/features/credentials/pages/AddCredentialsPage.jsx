@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, Trash2, Upload, QrCode, Hash, ChevronDown, FileText, ShieldCheck, Puzzle } from 'lucide-react';
+import { CheckCircle, Trash2, Upload, QrCode, Hash, ChevronDown, FileText, ShieldCheck, Puzzle, RefreshCw, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Input, Button, PageHeader } from '@common';
 import PlatformSelectionModal from '../components/PlatformSelectionModal.jsx';
 import PortfolioGeneratorModal from '../components/PortfolioGeneratorModal.jsx';
 import ValidantVerificationModal from '../components/ValidantVerificationModal.jsx';
 import ExtensionInstallModal from '../components/ExtensionInstallModal.jsx';
+import PlatformVerificationModal from '../components/PlatformVerificationModal.jsx';
 import credentialAPI from '../api/credentialApi.js';
 import {
   UPLOAD_METHODS,
@@ -15,14 +18,27 @@ import {
   getPlatformsByUploadMethod,
   getPlatformsByCategory
 } from '../platforms.config.js';
+import {
+  fetchPlatformProfile,
+  submitPlatformHandle,
+  deletePlatform,
+  refreshPlatformStats,
+} from '@features/platforms/redux/platformsSlice';
+import { selectUser } from '@features/auth/redux/authSlice';
 
 export default function AddCredentialsPage() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  // Redux state
+  const { profile: platformProfile, isLoading: platformLoading } = useSelector((state) => state.platforms);
+  const currentUser = useSelector(selectUser);
 
   // Profile link inputs (DSA/CP and Developer)
   const [platformInputs, setPlatformInputs] = useState({});
-  const [submittedPlatforms, setSubmittedPlatforms] = useState({});
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [verificationModal, setVerificationModal] = useState({ isOpen: false, platform: null, handle: null, platformName: null });
+  const [submittingPlatform, setSubmittingPlatform] = useState(null);
 
   // Collapsible sections
   const [openSections, setOpenSections] = useState(() =>
@@ -38,32 +54,59 @@ export default function AddCredentialsPage() {
   // Submitted credentials from upload methods
   const [submittedCredentials, setSubmittedCredentials] = useState([]);
 
+  // Fetch platform profile on mount
+  useEffect(() => {
+    dispatch(fetchPlatformProfile());
+  }, [dispatch]);
+
   const handleInputChange = (platformId, value) => {
     setPlatformInputs(prev => ({ ...prev, [platformId]: value }));
   };
 
-  const handleProfileSubmit = (platform) => {
+  const handleProfileSubmit = async (platform) => {
     const username = platformInputs[platform.id];
     if (!username?.trim()) return;
 
-    setSubmittedPlatforms(prev => ({
-      ...prev,
-      [platform.id]: {
-        url: `${platform.baseProfileUrl}${username}`,
-        username,
-        verified: true
+    setSubmittingPlatform(platform.id);
+    try {
+      await dispatch(submitPlatformHandle({ platform: platform.id, handle: username })).unwrap();
+      toast.success(`${platform.name} handle submitted successfully!`);
+      
+      // Open verification modal for platforms that need it
+      // Codeforces doesn't need verification modal (direct API)
+      if (platform.id !== 'codeforces') {
+        setVerificationModal({
+          isOpen: true,
+          platform: platform.id,
+          handle: username,
+          platformName: platform.name
+        });
       }
-    }));
+    } catch (error) {
+      toast.error(error || `Failed to submit ${platform.name} handle`);
+    } finally {
+      setSubmittingPlatform(null);
+    }
   };
 
-  const handleDelete = (platformId) => {
-    setSubmittedPlatforms(prev => {
-      const updated = { ...prev };
-      delete updated[platformId];
-      return updated;
-    });
-    setPlatformInputs(prev => ({ ...prev, [platformId]: '' }));
-    setConfirmDelete(null);
+  const handleDelete = async (platformId) => {
+    try {
+      await dispatch(deletePlatform(platformId)).unwrap();
+      toast.success('Platform removed successfully');
+      setPlatformInputs(prev => ({ ...prev, [platformId]: '' }));
+      setConfirmDelete(null);
+    } catch (error) {
+      toast.error(error || 'Failed to remove platform');
+    }
+  };
+
+  const handleRefreshStats = async (platformId) => {
+    try {
+      await dispatch(refreshPlatformStats(platformId)).unwrap();
+      toast.success('Stats refreshed successfully!');
+    } catch (error) {
+      toast.error(error || 'Failed to refresh stats');
+    }
   };
 
   const handleCredentialSubmit = (payload) => {
@@ -83,10 +126,10 @@ export default function AddCredentialsPage() {
     setSubmittedCredentials(prev => prev.filter(c => c.id !== credentialId));
   };
 
-  const handleValidantSubmit = async (formData) => {
+  const handleValidantSubmit = async (credentialData) => {
     try {
       // Call API to upload credential
-      const response = await credentialAPI.uploadCredential(formData);
+      const response = await credentialAPI.uploadCredential(credentialData);
 
       if (response.success) {
         const credential = response.data.credential;
@@ -101,21 +144,27 @@ export default function AddCredentialsPage() {
           submittedAt: credential.createdAt
         }]);
 
-        // Show success message (you can use a toast notification here)
+        toast.success('Credential uploaded successfully!');
       }
 
     } catch (error) {
-      // Show error to user (you can use a toast notification here)
-      alert('Failed to upload credential. Please try again.');
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to upload credential';
+      toast.error(errorMessage);
+      console.error('Credential upload error:', error.response?.data || error);
     }
   };
 
   const renderPlatformRow = (platform) => {
-    const isSubmitted = submittedPlatforms[platform.id];
-    const inputValue = platformInputs[platform.id] || '';
+    const platformData = platformProfile?.[platform.id];
+    const isSubmitted = platformData?.handle;
+    const isVerified = platformData?.isVerified;
+    const isPendingValidation = platformData?.pendingValidation;
+    const inputValue = platformInputs[platform.id] || platformData?.handle || '';
+    const stats = platformData?.stats;
+    
     return (
       <div key={platform.id} className="flex px-6 items-center gap-3 py-3 border-b last:border-b-0">
-        <div className="flex items-center gap-3 w-56 flex-shrink-0">
+        <div className="flex items-center gap-3 w-56 shrink-0">
           {platform.domain ? (
             <img
               src={`https://www.google.com/s2/favicons?domain=${platform.domain}&sz=128`}
@@ -126,7 +175,6 @@ export default function AddCredentialsPage() {
             <span className="text-sm font-medium">{platform.icon}</span>
           )}
           <span className="text-sm font-medium">{platform.name}</span>
-          {isSubmitted && <CheckCircle className="h-4 w-4 text-green-600" />}
         </div>
         <div className="flex-1 flex items-center gap-2">
           <div className="flex-1 relative">
@@ -143,24 +191,89 @@ export default function AddCredentialsPage() {
             />
           </div>
           {isSubmitted ? (
-            <Button
-              variant="outline"
-              size="sm"
-              type="button"
-              onClick={() => setConfirmDelete({ id: platform.id, name: platform.name })}
-              className="rounded-full px-4"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              {isPendingValidation ? (
+                <>
+                  <div className="flex items-center gap-2 px-3 py-1 bg-yellow-50 rounded-full border border-yellow-200">
+                    <Loader2 className="h-4 w-4 text-yellow-600 animate-spin" />
+                    <span className="text-xs font-medium text-yellow-700">Pending Validant Approval</span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    onClick={() => setConfirmDelete({ id: platform.id, name: platform.name })}
+                    className="rounded-full px-3"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </>
+              ) : isVerified ? (
+                <>
+                  {stats && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      type="button"
+                      onClick={() => handleRefreshStats(platform.id)}
+                      disabled={platformLoading}
+                      className="rounded-full px-4 gap-2"
+                    >
+                      <RefreshCw className={`h-4 w-4 ${platformLoading ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </Button>
+                  )}
+                  <div className="flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full border border-green-200">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-xs font-medium text-green-700">Verified</span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    onClick={() => setConfirmDelete({ id: platform.id, name: platform.name })}
+                    className="rounded-full px-3"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    size="sm"
+                    type="button"
+                    onClick={() => setVerificationModal({
+                      isOpen: true,
+                      platform: platform.id,
+                      handle: platformData.handle,
+                      platformName: platform.name
+                    })}
+                    disabled={platformLoading}
+                    className="rounded-full px-4 bg-[#116466] text-white hover:bg-[#0e4f50]"
+                  >
+                    Verify
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    onClick={() => setConfirmDelete({ id: platform.id, name: platform.name })}
+                    className="rounded-full px-3"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+            </div>
           ) : (
             <Button
               size="sm"
               type="button"
               onClick={() => handleProfileSubmit(platform)}
-              disabled={!inputValue.trim()}
+              disabled={!inputValue.trim() || submittingPlatform === platform.id}
               className="rounded-full px-4 bg-[#116466] text-white hover:bg-[#0e4f50]"
             >
-              Submit
+              {submittingPlatform === platform.id ? 'Submitting...' : 'Submit'}
             </Button>
           )}
         </div>
@@ -313,7 +426,7 @@ export default function AddCredentialsPage() {
       {/* Profile Link Sections (DSA/CP & Developer) */}
       {PROFILE_CATEGORIES.map((category, idx) => {
         const platforms = getPlatformsByCategory(category);
-        const hasSubmittedPlatforms = platforms.some(p => submittedPlatforms[p.id]);
+        const hasVerifiedPlatforms = platforms.some(p => platformProfile?.[p.id]?.isVerified);
 
         return (
           <motion.section
@@ -335,7 +448,7 @@ export default function AddCredentialsPage() {
                 />
               </button>
 
-              {category === 'DSA/CP Portfolio' && hasSubmittedPlatforms && (
+              {category === 'DSA/CP Portfolio' && hasVerifiedPlatforms && (
                 <Button
                   size="sm"
                   className="bg-green-600 text-white hover:bg-green-700"
@@ -378,9 +491,18 @@ export default function AddCredentialsPage() {
       <PortfolioGeneratorModal
         isOpen={isPortfolioModalOpen}
         onClose={() => setIsPortfolioModalOpen(false)}
-        submittedPlatforms={submittedPlatforms}
-        userName="Your Name"
-        userBio="Software Engineer"
+        platformProfile={platformProfile}
+        userName={currentUser?.name || 'Your Name'}
+        userBio={currentUser?.bio || 'Software Engineer'}
+      />
+
+      {/* Platform Verification Modal */}
+      <PlatformVerificationModal
+        isOpen={verificationModal.isOpen}
+        onClose={() => setVerificationModal({ isOpen: false, platform: null, handle: null, platformName: null })}
+        platform={verificationModal.platform}
+        handle={verificationModal.handle}
+        platformName={verificationModal.platformName}
       />
 
       {/* Validant Verification Modal */}

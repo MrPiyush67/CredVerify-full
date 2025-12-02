@@ -231,42 +231,6 @@ export const PLATFORMS = {
       baseProfileUrl: 'https://www.geeksforgeeks.org/user/',
       uploadMethod: UPLOAD_METHODS.PROFILE_LINK,
       icon: 'GFG'
-    },
-    {
-      id: 'codestudio',
-      name: 'CodeStudio (Naukri Code360)',
-      category: 'DSA/CP Portfolio',
-      domain: 'naukri.com',
-      baseProfileUrl: 'https://www.naukri.com/code360/profile/',
-      uploadMethod: UPLOAD_METHODS.PROFILE_LINK,
-      icon: 'CS'
-    },
-    {
-      id: 'interviewbit',
-      name: 'InterviewBit',
-      category: 'DSA/CP Portfolio',
-      domain: 'interviewbit.com',
-      baseProfileUrl: 'https://www.interviewbit.com/profile/',
-      uploadMethod: UPLOAD_METHODS.PROFILE_LINK,
-      icon: 'IB'
-    },
-    {
-      id: 'hackerearth',
-      name: 'HackerEarth',
-      category: 'DSA/CP Portfolio',
-      domain: 'hackerearth.com',
-      baseProfileUrl: 'https://www.hackerearth.com/@',
-      uploadMethod: UPLOAD_METHODS.PROFILE_LINK,
-      icon: 'HE'
-    },
-    {
-      id: 'topcoder',
-      name: 'TopCoder',
-      category: 'DSA/CP Portfolio',
-      domain: 'topcoder.com',
-      baseProfileUrl: 'https://www.topcoder.com/members/',
-      uploadMethod: UPLOAD_METHODS.PROFILE_LINK,
-      icon: 'TC'
     }
   ],
 
@@ -280,24 +244,6 @@ export const PLATFORMS = {
       baseProfileUrl: 'https://github.com/',
       uploadMethod: UPLOAD_METHODS.PROFILE_LINK,
       icon: null
-    },
-    {
-      id: 'gitlab',
-      name: 'GitLab',
-      category: 'Developer Portfolio',
-      domain: 'gitlab.com',
-      baseProfileUrl: 'https://gitlab.com/',
-      uploadMethod: UPLOAD_METHODS.PROFILE_LINK,
-      icon: 'GL'
-    },
-    {
-      id: 'bitbucket',
-      name: 'Bitbucket',
-      category: 'Developer Portfolio',
-      domain: 'bitbucket.org',
-      baseProfileUrl: 'https://bitbucket.org/',
-      uploadMethod: UPLOAD_METHODS.PROFILE_LINK,
-      icon: 'BB'
     }
   ]
 };

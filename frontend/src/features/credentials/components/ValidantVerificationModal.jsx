@@ -77,22 +77,24 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
 
     if (!validateForm()) return;
 
-    // Create FormData for file upload
-    const submitData = new FormData();
-    submitData.append('title', formData.title);
-    submitData.append('certificateName', formData.certificateName || formData.title);
-    submitData.append('legalNameSnapshot', formData.certificateName || formData.title);
-    submitData.append('institution', formData.institution);
-    submitData.append('type', formData.type);
-    submitData.append('issueDate', formData.issueDate);
-    submitData.append('issuer', formData.institution); // Set issuer same as institution
-    submitData.append('credentialistComments', formData.credentialistComments);
-    submitData.append('status', 'draft'); // Initially draft
-    submitData.append('verificationRequested', false); // Will be set to true when user requests
-    
-    if (formData.file) {
-      submitData.append('file', formData.file);
-    }
+    // Create object with credential data (not FormData since we're not handling file upload yet)
+    const submitData = {
+      title: formData.title,
+      certificateName: formData.certificateName || formData.title,
+      legalNameSnapshot: formData.certificateName || formData.title,
+      institution: formData.institution,
+      type: formData.type,
+      issueDate: formData.issueDate,
+      issuer: formData.institution, // Set issuer same as institution
+      verificationNotes: formData.credentialistComments || '', // Use verificationNotes instead
+      status: 'draft', // Initially draft
+      verificationRequested: false, // Will be set to true when user requests
+      file: {
+        fileName: formData.file?.name || '',
+        fileType: formData.file?.type || '',
+        url: '', // Will be set after actual upload implementation
+      }
+    };
 
     onSubmit(submitData);
     handleClose();
@@ -144,7 +146,7 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
 
           {/* Info Banner */}
           <div className="mx-6 mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex gap-3">
-            <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
             <div className="text-sm text-blue-800">
               <p className="font-medium mb-1">How it works:</p>
               <ol className="list-decimal list-inside space-y-1 text-blue-700">
