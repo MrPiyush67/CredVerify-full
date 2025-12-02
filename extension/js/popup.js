@@ -416,6 +416,27 @@
 
       if (!response.success) {
         console.error('📱 [POPUP] ❌ Background returned error:', response.error);
+
+        // Check if it's a structured error response (early rejection)
+        if (response.data && response.data.error) {
+          // Handle early rejection responses
+          const errorType = response.data.error;
+          const errorData = response.data;
+
+          if (errorType === 'UNTRUSTED_DOMAIN') {
+            showAlert(`❌ Untrusted Domain: ${errorData.message}`, 'destructive');
+            displayEarlyRejection(errorData, 'Untrusted Domain',
+              'This certificate is from a domain not in our trusted whitelist.');
+          } else if (errorType === 'NAME_MISMATCH') {
+            showAlert(`❌ Name Mismatch: ${errorData.message}`, 'destructive');
+            displayEarlyRejection(errorData, 'Name Mismatch',
+              'The name on the certificate does not match your profile name.');
+          } else {
+            throw new Error(response.error);
+          }
+          return; // Don't continue processing
+        }
+
         throw new Error(response.error);
       }
 
@@ -464,17 +485,90 @@
     progressText.textContent = text;
   }
 
+  // Display early rejection (domain/name failures)
+  function displayEarlyRejection(errorData, title, description) {
+    const verification = errorData.verification || {};
+    const nameValidation = errorData.nameValidation || {};
+    const domainValidation = errorData.domainValidation || {};
+
+    let html = `
+      <div class="alert alert-destructive">
+        <div class="alert-title">❌ ${title}</div>
+        <div class="alert-description">${description}</div>
+      </div>
+    `;
+
+    if (nameValidation.legalName || nameValidation.recipientName) {
+      html += `
+        <div class="card">
+          <div class="card-title">👤 Name Comparison</div>
+          <div class="result-grid">
+            ${nameValidation.legalName ? `
+              <div class="result-item">
+                <span class="result-label">Your Name (Profile)</span>
+                <span class="result-value">${nameValidation.legalName}</span>
+              </div>
+            ` : ''}
+            ${nameValidation.recipientName ? `
+              <div class="result-item">
+                <span class="result-label">Name on Certificate</span>
+                <span class="result-value">${nameValidation.recipientName}</span>
+              </div>
+            ` : ''}
+            ${nameValidation.confidence !== undefined ? `
+              <div class="result-item">
+                <span class="result-label">Match Confidence</span>
+                <span class="badge badge-destructive">${nameValidation.confidence}%</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Reason</span>
+                <span class="result-value">${nameValidation.reason}</span>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    if (domainValidation.domain) {
+      html += `
+        <div class="card">
+          <div class="card-title">🌐 Domain Information</div>
+          <div class="result-grid">
+            <div class="result-item">
+              <span class="result-label">Domain</span>
+              <span class="result-value">${domainValidation.domain}</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Status</span>
+              <span class="badge badge-destructive">Not Trusted</span>
+            </div>
+            ${domainValidation.reason ? `
+              <div class="result-item" style="grid-column: 1 / -1;">
+                <span class="result-label">Reason</span>
+                <span class="result-value">${domainValidation.reason}</span>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    verificationResult.innerHTML = html;
+    verificationResult.style.display = 'block';
+  }
+
   // Display verification result
   function displayVerificationResult(result) {
-    // Handle both old and new response structures
-    const processing = result.processing || result;
-    const data = processing.extractedData || {};
-    const verification = processing.verification || {};
+    // Handle new clean architecture response
+    const data = result.extractedData || {};
+    const verification = result.verification || {};
+    const nameValidation = result.nameValidation || {};
+    const domainValidation = result.domainValidation || {};
 
-    // Handle new weighted verification system
-    const verificationStatus = verification?.status || (result.isVerified ? 'VERIFIED' : 'REJECTED');
-    const finalScore = verification?.finalScore || 0;
-    const recommendations = processing?.recommendations || [];
+    const verificationStatus = verification.status || 'UNKNOWN';
+    const finalScore = verification.finalScore || 0;
+    const recommendations = result.recommendations || [];
 
     // Determine alert type and message based on status
     let alertType, alertTitle, alertDescription;
@@ -540,28 +634,28 @@
       <div class="card">
         <div class="card-title">📋 Extracted Information</div>
         <div class="result-grid">
-          ${data.personName ? `
+          ${data.recipientName ? `
             <div class="result-item">
-              <span class="result-label">Person Name</span>
-              <span class="result-value">${data.personName}</span>
-            </div>
-          ` : ''}
-          ${data.companyName ? `
-            <div class="result-item">
-              <span class="result-label">Company</span>
-              <span class="result-value">${data.companyName}</span>
-            </div>
-          ` : ''}
-          ${data.courseName ? `
-            <div class="result-item">
-              <span class="result-label">Course</span>
-              <span class="result-value">${data.courseName}</span>
+              <span class="result-label">📛 Recipient Name</span>
+              <span class="result-value">${data.recipientName}</span>
             </div>
           ` : ''}
           ${data.issuerName ? `
             <div class="result-item">
-              <span class="result-label">Issued By</span>
+              <span class="result-label">🏢 Issuer</span>
               <span class="result-value">${data.issuerName}</span>
+            </div>
+          ` : ''}
+          ${data.courseTitle ? `
+            <div class="result-item">
+              <span class="result-label">📜 Course/Certificate</span>
+              <span class="result-value">${data.courseTitle}</span>
+            </div>
+          ` : ''}
+          ${data.duration ? `
+            <div class="result-item">
+              <span class="result-label">Duration</span>
+              <span class="result-value">${data.duration}</span>
             </div>
           ` : ''}
           ${data.certificateId ? `
@@ -582,42 +676,43 @@
       <div class="card">
         <div class="card-title">🔍 Verification Details</div>
         <div class="result-grid">
-          ${result.nameValidation ? `
+          ${nameValidation.legalName ? `
             <div class="result-item">
-              <span class="result-label">Name Match</span>
-              <span class="badge ${result.nameValidation.match ? 'badge-success' : 'badge-warning'}">
-                ${result.nameValidation.confidence}% - ${result.nameValidation.reason}
+              <span class="result-label">Your Name</span>
+              <span class="result-value">${nameValidation.legalName}</span>
+            </div>
+          ` : ''}
+          ${nameValidation.certificateName ? `
+            <div class="result-item">
+              <span class="result-label">Name on Certificate</span>
+              <span class="result-value">${nameValidation.certificateName}</span>
+            </div>
+          ` : ''}
+          ${nameValidation.confidence !== undefined ? `
+            <div class="result-item">
+              <span class="result-label">Name Match Confidence</span>
+              <span class="badge ${nameValidation.confidence >= 85 ? 'badge-success' : nameValidation.confidence >= 70 ? 'badge-warning' : 'badge-destructive'}">
+                ${nameValidation.confidence}%
               </span>
             </div>
           ` : ''}
-          ${result.domainValidation ? `
+          ${domainValidation.issuer ? `
+            <div class="result-item">
+              <span class="result-label">Issuer Platform</span>
+              <span class="result-value">${domainValidation.issuer.name}</span>
+            </div>
+          ` : ''}
+          ${domainValidation.domain ? `
+            <div class="result-item">
+              <span class="result-label">Domain</span>
+              <span class="result-value">${domainValidation.domain}</span>
+            </div>
+          ` : ''}
+          ${domainValidation.isTrusted !== undefined ? `
             <div class="result-item">
               <span class="result-label">Domain Status</span>
-              <span class="badge ${result.domainValidation.isTrusted ? 'badge-success' : 'badge-warning'}">
-                ${result.domainValidation.isTrusted ? 'Whitelisted' : 'Not Whitelisted'}
-              </span>
-            </div>
-            <div class="result-item">
-              <span class="result-label">Domain Confidence</span>
-              <span class="result-value">${result.domainValidation.confidence}%</span>
-            </div>
-          ` : verification ? `
-            <div class="result-item">
-              <span class="result-label">Domain Match</span>
-              <span class="badge ${verification.domainMatch ? 'badge-success' : 'badge-destructive'}">
-                ${verification.domainMatch ? 'Matched' : 'Not Matched'}
-              </span>
-            </div>
-            <div class="result-item">
-              <span class="result-label">Whitelisted Domain</span>
-              <span class="badge ${verification.isWhitelistedDomain ? 'badge-success' : 'badge-destructive'}">
-                ${verification.isWhitelistedDomain ? 'Yes' : 'No'}
-              </span>
-            </div>
-            <div class="result-item">
-              <span class="result-label">Company Match Score</span>
-              <span class="result-value">
-                ${Math.round((verification.companyMatchScore || 0) * 100)}%
+              <span class="badge ${domainValidation.isTrusted ? 'badge-success' : 'badge-destructive'}">
+                ${domainValidation.isTrusted ? 'Trusted' : 'Untrusted'}
               </span>
             </div>
           ` : ''}
