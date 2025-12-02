@@ -19,6 +19,16 @@
       ]
     },
     {
+      "id": "unstop",
+      "name": "Unstop",
+      "category": "hackathon_challenges_and_learning_platform",
+      "domains": [
+        "unstop.com",
+        "unstop.ai",
+        "dare2compete.com"
+      ]
+    },
+    {
       "id": "edx",
       "name": "edX",
       "category": "mooc",

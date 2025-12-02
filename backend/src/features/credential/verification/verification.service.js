@@ -1,8 +1,7 @@
 import { extractTextFromBase64, extractTextFromUrl } from '../ocr/ocr.service.js';
-import { extractCertificateData } from '../llm/llm.service.js';
-import { postProcessCertificateData, validateExtractedData } from '../processing/postProcessor.service.js';
-import { fuzzyMatchName } from '../validation/nameMatcher.service.js';
-import { validateDomain } from '../validation/domainValidator.service.js';
+import { extractCertificateMetadata } from '../llm/llm.service.js';
+import { findBestNameMatchFromOcr } from '../validation/nameMatcher.service.js';
+import { validateDomainAndGetIssuer } from '../validation/domainValidator.service.js';
 import Credential from '../credential.model.js';
 import User from '../../user/user.model.js';
 
@@ -133,6 +132,8 @@ export function determineVerificationStatus(finalScore, nameConfidence, domainCo
 
 /**
  * Process certificate image and extract structured data
+ * CLEAN ARCHITECTURE (ChatGPT Recommended)
+ * Flow: OCR → Name Match → Domain Validation → LLM Metadata → Build Final Data
  * @param {object} params - { userId, imageData, sourceUrl, imageType }
  * @returns {Promise<object>} - Processed certificate data
  */
@@ -140,15 +141,20 @@ export async function processCertificateImage(params) {
   const { userId, imageData, sourceUrl, imageType = 'base64' } = params;
 
   try {
+    // ========================================
     // Step 1: Get user's legal name from database
+    // ========================================
+    console.log('Step 1/7: Fetching user legal name...');
     const user = await User.findById(userId).select('name');
     if (!user) {
       throw new Error('User not found');
     }
     const legalName = user.name;
 
+    // ========================================
     // Step 2: OCR - Extract text from image
-    console.log('Step 1/6: Extracting text via OCR...');
+    // ========================================
+    console.log('Step 2/7: Extracting text via OCR...');
     let ocrText;
     if (imageType === 'base64') {
       ocrText = await extractTextFromBase64(imageData);
@@ -162,59 +168,121 @@ export async function processCertificateImage(params) {
       throw new Error('OCR failed to extract meaningful text from image');
     }
 
-    // Step 3: LLM - Extract structured data
-    console.log('Step 2/6: Extracting structured data via LLM...');
-    const { data: rawData, method } = await extractCertificateData(ocrText);
+    // ========================================
+    // Step 3: Domain Validation (BEFORE LLM)
+    // ========================================
+    console.log('Step 3/7: Validating source domain...');
+    const domainValidation = validateDomainAndGetIssuer(sourceUrl);
 
-    // Step 4: Post-processing
-    console.log('Step 3/6: Post-processing extracted data...');
-    const cleanedData = postProcessCertificateData(rawData);
-
-    // Step 5: Validate minimum required fields
-    console.log('Step 4/6: Validating extracted data...');
-    const validation = validateExtractedData(cleanedData);
-    if (!validation.isValid) {
-      throw new Error(`Missing required fields: ${validation.missingFields.join(', ')}`);
+    // Early rejection: Unknown domain
+    if (!domainValidation.isTrusted) {
+      return {
+        success: false,
+        error: 'UNTRUSTED_DOMAIN',
+        message: domainValidation.reason,
+        verification: {
+          status: 'REJECTED',
+          finalScore: 0,
+          autoApproved: false,
+          requiresReview: false,
+          reason: 'Certificate from untrusted source',
+        },
+        domainValidation,
+      };
     }
 
-    // Log warnings for missing optional fields
-    if (validation.warnings && validation.warnings.length > 0) {
-      console.warn('⚠️  Warnings:', validation.warnings.join(', '));
+    // ========================================
+    // Step 4: Name Matching (BEFORE LLM)
+    // ========================================
+    console.log('Step 4/7: Matching name from OCR with legal name...');
+    const nameMatch = findBestNameMatchFromOcr(ocrText, legalName);
+
+    // Early rejection: Name mismatch
+    if (nameMatch.confidence < 85) {
+      return {
+        success: false,
+        error: 'NAME_MISMATCH',
+        message: 'Name on certificate does not match your profile',
+        verification: {
+          status: 'REJECTED',
+          finalScore: 0,
+          autoApproved: false,
+          requiresReview: false,
+          reason: nameMatch.reason,
+        },
+        nameValidation: {
+          legalName,
+          recipientName: nameMatch.bestMatch,
+          match: false,
+          confidence: nameMatch.confidence,
+          reason: nameMatch.reason,
+        },
+        domainValidation,
+      };
     }
 
-    // Step 6: Name matching
-    console.log('Step 5/7: Matching certificate name with user legal name...');
-    const nameMatch = fuzzyMatchName(legalName, cleanedData.personName);
+    // ========================================
+    // Step 5: LLM - Extract metadata ONLY
+    // ========================================
+    console.log('Step 5/7: Extracting certificate metadata via LLM...');
+    const llmMetadata = await extractCertificateMetadata(ocrText);
 
-    // Step 7: Domain validation
-    console.log('Step 6/7: Validating source domain...');
-    const domainValidation = validateDomain(sourceUrl, cleanedData.issuerName);
+    // ========================================
+    // Step 6: Build final extracted data
+    // ========================================
+    console.log('Step 6/7: Building final certificate data...');
 
-    // Step 8: Calculate weighted final score and determine verification status
-    console.log('Step 7/7: Calculating final verification score...');
+    // Use YOUR code's decisions, NOT LLM's
+    const extractedData = {
+      // Critical fields - from YOUR validation (NOT LLM)
+      recipientName: nameMatch.bestMatch,
+      issuerName: domainValidation.issuer.name,
+      verificationLink: sourceUrl,
+
+      // Non-critical fields - from LLM
+      courseTitle: llmMetadata.courseTitle || llmMetadata.certificateName || 'Certificate',  // Support both old and new field names
+      duration: llmMetadata.duration,
+      learningHours: llmMetadata.learningHours,
+      grade: llmMetadata.grade,
+      NSQFLevel: llmMetadata.NSQFLevel,
+      issueDate: llmMetadata.issueDate,
+      completionDate: llmMetadata.completionDate,
+      skills: llmMetadata.skills || [],
+      description: llmMetadata.description,
+
+      // Certificate ID: can try to extract from OCR (optional)
+      certificateId: null, // Can add regex extraction if needed
+    };
+
+    // ========================================
+    // Step 7: Calculate verification score
+    // ========================================
+    console.log('Step 7/7: Calculating verification score...');
+
     const scoreResult = calculateFinalVerificationScore(
       nameMatch.confidence,
       domainValidation.confidence,
-      validation.isValid
+      true // metadata is valid (we have required fields)
     );
 
     const verificationDecision = determineVerificationStatus(
       scoreResult.finalScore,
       nameMatch.confidence,
       domainValidation.confidence,
-      validation.isValid
+      true
     );
 
     console.log(`✅ Verification complete: ${verificationDecision.status} (Score: ${scoreResult.finalScore}%)`);
 
-    // Compile final result
-    const result = {
+    // ========================================
+    // Step 8: Return final result
+    // ========================================
+    return {
       success: true,
-      extractionMethod: method,
+      extractionMethod: 'clean-architecture',
       ocrText,
-      extractedData: cleanedData,
+      extractedData,
 
-      // Verification decision (NEW)
       verification: {
         status: verificationDecision.status,
         finalScore: scoreResult.finalScore,
@@ -226,32 +294,28 @@ export async function processCertificateImage(params) {
 
       nameValidation: {
         legalName,
-        certificateName: cleanedData.personName,
-        match: nameMatch.match,
+        recipientName: extractedData.recipientName,
+        match: true,
         confidence: nameMatch.confidence,
         reason: nameMatch.reason,
+        candidates: nameMatch.candidates,
       },
+
       domainValidation: {
         sourceUrl,
         domain: domainValidation.domain,
         isValid: domainValidation.isValid,
         isTrusted: domainValidation.isTrusted,
+        issuer: domainValidation.issuer,
         confidence: domainValidation.confidence,
         reason: domainValidation.reason,
       },
 
       recommendations: verificationDecision.recommendations,
-      warnings: [],
+      warnings: verificationDecision.status === 'REVIEW_REQUIRED'
+        ? ['Manual review recommended - moderate confidence']
+        : [],
     };
-
-    // Add legacy warnings for backward compatibility
-    if (verificationDecision.status === 'REVIEW_REQUIRED') {
-      result.warnings.push('Manual review required - moderate confidence score');
-    } else if (verificationDecision.status === 'REJECTED') {
-      result.warnings.push('Verification failed - confidence score too low');
-    }
-
-    return result;
   } catch (error) {
     console.error('Certificate processing error:', error);
     throw error;
@@ -265,59 +329,43 @@ export async function processCertificateImage(params) {
  * @param {object} fileData - { url, fileName, fileType, storageId }
  * @returns {Promise<object>} - Saved credential
  */
-export async function saveCertificate(userId, processedData, fileData) {
-  try {
-    const { extractedData, nameValidation, domainValidation, verification } = processedData;
+async function saveCertificate(userId, processedData, fileData) {
+  const { extractedData, nameValidation, domainValidation, verification } = processedData;
 
-    const credentialData = {
-      user: userId,
-      legalNameSnapshot: nameValidation.legalName,
-      certificateName: extractedData.personName,
-      nameMatchConfidence: nameValidation.confidence,
+  const credentialData = {
+    user: userId,
+    legalNameSnapshot: nameValidation.legalName,
+    certificateName: extractedData.recipientName,
+    nameMatchConfidence: nameValidation.confidence,
+    verificationStatus: verification.status,
+    finalVerificationScore: verification.finalScore,
+    autoApproved: verification.autoApproved,
+    title: extractedData.courseTitle || 'Untitled Certificate',
+    issuer: extractedData.issuerName || 'Unknown Issuer',
+    issueDate: extractedData.issueDate ? new Date(extractedData.issueDate) : new Date(),
+    type: 'certificate',
+    credentialId: extractedData.certificateId,
+    nsqfLevel: extractedData.NSQFLevel,
+    totalHours: extractedData.learningHours,
+    skills: extractedData.skills || [],
+    description: extractedData.description,
+    file: fileData,
+    sourceUrl: domainValidation.sourceUrl,
+    sourceDomain: domainValidation.domain,
+    isDomainTrusted: domainValidation.isTrusted,
+    isIssuerVerified: domainValidation.isValid && domainValidation.isTrusted,
+    isPublic: false,
+    meta: {
+      extractionMethod: processedData.extractionMethod,
+      ocrText: processedData.ocrText,
+      rawExtractedData: extractedData,
+      nameMatch: nameValidation,
+      domainValidation: domainValidation,
+      processedAt: new Date(),
+    },
+  };
 
-      // New verification fields
-      verificationStatus: verification.status,
-      finalVerificationScore: verification.finalScore,
-      autoApproved: verification.autoApproved,
-
-      title: extractedData.certificateName || 'Untitled Certificate',
-      issuer: extractedData.issuerName || 'Unknown Issuer',
-      issueDate: extractedData.issueDate ? new Date(extractedData.issueDate) : new Date(),
-
-      type: 'certificate',
-      credentialId: extractedData.certificateId,
-
-      nsqfLevel: extractedData.NSQFLevel,
-      totalHours: extractedData.learningHours,
-
-      skills: extractedData.skills || [],
-      description: extractedData.description,
-
-      file: fileData,
-
-      sourceUrl: domainValidation.sourceUrl,
-      sourceDomain: domainValidation.domain,
-      isDomainTrusted: domainValidation.isTrusted,
-      isIssuerVerified: domainValidation.isValid && domainValidation.isTrusted,
-
-      isPublic: false,
-
-      meta: {
-        extractionMethod: processedData.extractionMethod,
-        ocrText: processedData.ocrText,
-        rawExtractedData: extractedData,
-        nameMatch: nameValidation,
-        domainValidation: domainValidation,
-        processedAt: new Date(),
-      },
-    };
-
-    const credential = await Credential.create(credentialData);
-    return credential;
-  } catch (error) {
-    console.error('Error saving certificate:', error);
-    throw error;
-  }
+  return await Credential.create(credentialData);
 }
 
 /**

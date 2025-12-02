@@ -1,5 +1,132 @@
 import stringSimilarity from 'string-similarity';
 
+// ============================================================================
+// NEW CLEAN ARCHITECTURE - OCR-based Name Matching (ChatGPT Recommended)
+// ============================================================================
+
+/**
+ * Find best name match from OCR text (ChatGPT recommended approach)
+ * Extracts name candidates from OCR text and finds best match with legal name
+ * This should be called BEFORE LLM extraction
+ * 
+ * @param {string} ocrText - Raw OCR text from certificate
+ * @param {string} legalName - User's legal name from database
+ * @returns {object} - { bestMatch, confidence, reason, candidates }
+ */
+export function findBestNameMatchFromOcr(ocrText, legalName) {
+  if (!ocrText || !legalName) {
+    return {
+      bestMatch: null,
+      confidence: 0,
+      reason: 'Missing input data',
+      candidates: [],
+    };
+  }
+
+  const candidates = new Set();
+
+  // ========================================
+  // Step 1: Extract name-like patterns from OCR text
+  // ========================================
+
+  const lines = ocrText.split(/\n/);
+
+  // Pattern 1: Look for capitalized name patterns (2-4 words)
+  for (const line of lines) {
+    // Match 2-4 capitalized words (typical name pattern)
+    const matches = line.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}\b/g);
+    if (matches) {
+      matches.forEach((match) => {
+        const trimmed = match.trim();
+        // Filter out common non-name words
+        const excludeWords = ['Certificate', 'Completion', 'Achievement', 'Instructors', 'Instructor', 'Course', 'Date', 'By', 'From', 'Issued', 'Authorized'];
+        const hasExcluded = excludeWords.some(word => trimmed.includes(word));
+        if (!hasExcluded && trimmed.split(' ').length >= 2) {
+          candidates.add(trimmed);
+        }
+      });
+    }
+  }
+
+  // Pattern 2: Names after common certificate phrases
+  const nameIndicators = [
+    /(?:awarded to|presented to|certifies that|hereby certifies that)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3})/i,
+    /(?:this is to certify that|is awarded to)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3})/i,
+    /([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3})\s+has\s+(?:successfully\s+)?completed/i,
+  ];
+
+  for (const pattern of nameIndicators) {
+    const match = ocrText.match(pattern);
+    if (match && match[1]) {
+      candidates.add(match[1].trim());
+    }
+  }
+
+  // Pattern 3: Add legal name variants as candidates
+  const legalParts = legalName.split(/\s+/).filter(p => p.length > 0);
+  if (legalParts.length >= 2) {
+    // Add "First Last" variant
+    candidates.add(`${legalParts[0]} ${legalParts[legalParts.length - 1]}`);
+    // Add full name
+    candidates.add(legalName.trim());
+  }
+
+  // ========================================
+  // Step 2: Find best match using fuzzy matching
+  // ========================================
+
+  const candidateArray = Array.from(candidates);
+
+  if (candidateArray.length === 0) {
+    return {
+      bestMatch: null,
+      confidence: 0,
+      reason: 'No name-like candidates found in certificate',
+      candidates: [],
+    };
+  }
+
+  // Use string-similarity to find best match
+  const { bestMatch, ratings } = stringSimilarity.findBestMatch(
+    legalName.toLowerCase(),
+    candidateArray.map(c => c.toLowerCase())
+  );
+
+  // Get the original casing from candidateArray
+  const bestMatchIndex = ratings.findIndex(r => r.target === bestMatch.target);
+  const bestMatchOriginal = candidateArray[bestMatchIndex];
+
+  const confidence = Math.round(bestMatch.rating * 100);
+
+  // ========================================
+  // Step 3: Determine match quality
+  // ========================================
+
+  let reason;
+  if (confidence >= 90) {
+    reason = 'Very strong name match';
+  } else if (confidence >= 80) {
+    reason = 'Good name match with minor differences';
+  } else if (confidence >= 70) {
+    reason = 'Acceptable match, possible middle name variation';
+  } else if (confidence >= 60) {
+    reason = 'Weak match, possible typo or name variation';
+  } else {
+    reason = 'Low similarity, likely different person';
+  }
+
+  return {
+    bestMatch: bestMatchOriginal,
+    confidence,
+    reason,
+    candidates: candidateArray,
+  };
+}
+
+// ============================================================================
+// LEGACY FUNCTIONS (Keep for backward compatibility)
+// ============================================================================
+
 /**
  * Compare certificate name with user's legal name
  * @param {string} legalName - User's legal name from database

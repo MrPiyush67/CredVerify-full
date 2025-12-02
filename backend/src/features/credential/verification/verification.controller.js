@@ -34,6 +34,20 @@ export async function verifyCertificate(req, res) {
       imageType,
     });
 
+    // Handle early rejections (domain/name validation failures)
+    if (!processedData.success) {
+      return res.status(400).json({
+        success: false,
+        message: processedData.message || 'Certificate verification failed',
+        error: processedData.error,
+        data: {
+          verification: processedData.verification,
+          nameValidation: processedData.nameValidation,
+          domainValidation: processedData.domainValidation,
+        },
+      });
+    }
+
     // Auto-save if VERIFIED and autoSave is true
     const shouldAutoSave = autoSave && processedData.verification?.status === 'VERIFIED';
 

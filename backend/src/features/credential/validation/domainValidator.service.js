@@ -1,48 +1,244 @@
 import stringSimilarity from 'string-similarity';
 
-// Whitelist of trusted certificate issuers (matches extension backend)
-const TRUSTED_DOMAINS = [
-  // Education platforms
-  'coursera.org',
-  'udacity.com',
-  'edx.org',
-  'udemy.com',
-  'linkedin.com',
-  'skillshare.com',
-  'pluralsight.com',
-  'datacamp.com',
-  'codecademy.com',
+// ============================================================================
+// TRUSTED ISSUERS - Clean Architecture (ChatGPT Recommended)
+// ============================================================================
+// This is the SINGLE SOURCE OF TRUTH for certificate issuers
+// Domain validation uses this to determine issuer name (NOT LLM)
+// ============================================================================
 
-  // Tech companies
-  'google.com',
-  'microsoft.com',
-  'amazon.com',
-  'ibm.com',
-  'oracle.com',
-  'salesforce.com',
-  'cisco.com',
+const TRUSTED_ISSUERS = [
+  // Education Platforms
+  {
+    id: 'coursera',
+    name: 'Coursera',
+    aliases: ['Coursera', 'Coursera Inc', 'Coursera Inc.'],
+    domains: ['coursera.org', 'coursera.com'],
+  },
+  {
+    id: 'udemy',
+    name: 'Udemy',
+    aliases: ['Udemy', 'Udemy Inc', 'Udemy, Inc.'],
+    domains: ['udemy.com'],
+  },
+  {
+    id: 'edx',
+    name: 'edX',
+    aliases: ['edX', 'edX Inc', 'edX LLC'],
+    domains: ['edx.org'],
+  },
+  {
+    id: 'udacity',
+    name: 'Udacity',
+    aliases: ['Udacity', 'Udacity Inc'],
+    domains: ['udacity.com'],
+  },
+  {
+    id: 'linkedin-learning',
+    name: 'LinkedIn Learning',
+    aliases: ['LinkedIn Learning', 'LinkedIn', 'Lynda.com'],
+    domains: ['linkedin.com', 'lynda.com'],
+  },
+  {
+    id: 'skillshare',
+    name: 'Skillshare',
+    aliases: ['Skillshare', 'Skillshare Inc'],
+    domains: ['skillshare.com'],
+  },
+  {
+    id: 'pluralsight',
+    name: 'Pluralsight',
+    aliases: ['Pluralsight', 'Pluralsight LLC'],
+    domains: ['pluralsight.com'],
+  },
+  {
+    id: 'datacamp',
+    name: 'DataCamp',
+    aliases: ['DataCamp', 'DataCamp Inc'],
+    domains: ['datacamp.com'],
+  },
+  {
+    id: 'codecademy',
+    name: 'Codecademy',
+    aliases: ['Codecademy', 'Codecademy LLC'],
+    domains: ['codecademy.com'],
+  },
 
-  // Indian platforms
-  'nptel.ac.in',
-  'swayam.gov.in',
-  'internshala.com',
-  'unstop.com',
-  'codealpha.tech',
-  'skillsforall.com',
-  'naukri.com',
+  // Tech Companies
+  {
+    id: 'google',
+    name: 'Google',
+    aliases: ['Google', 'Google LLC', 'Google Cloud', 'Google Developers'],
+    domains: ['google.com', 'developers.google.com', 'cloud.google.com', 'grow.google'],
+  },
+  {
+    id: 'microsoft',
+    name: 'Microsoft',
+    aliases: ['Microsoft', 'Microsoft Corporation', 'Microsoft Learn'],
+    domains: ['microsoft.com', 'learn.microsoft.com'],
+  },
+  {
+    id: 'amazon',
+    name: 'Amazon Web Services',
+    aliases: ['AWS', 'Amazon Web Services', 'Amazon'],
+    domains: ['aws.amazon.com', 'amazon.com'],
+  },
+  {
+    id: 'ibm',
+    name: 'IBM',
+    aliases: ['IBM', 'International Business Machines'],
+    domains: ['ibm.com', 'skillsbuild.org'],
+  },
+  {
+    id: 'oracle',
+    name: 'Oracle',
+    aliases: ['Oracle', 'Oracle Corporation'],
+    domains: ['oracle.com', 'education.oracle.com'],
+  },
+  {
+    id: 'salesforce',
+    name: 'Salesforce',
+    aliases: ['Salesforce', 'Salesforce.com'],
+    domains: ['salesforce.com', 'trailhead.salesforce.com'],
+  },
+  {
+    id: 'cisco',
+    name: 'Cisco',
+    aliases: ['Cisco', 'Cisco Systems', 'Cisco Networking Academy'],
+    domains: ['cisco.com', 'netacad.com'],
+  },
 
-  // Others
-  'deeplearning.ai',
-  'kaggle.com',
-  'hackerrank.com',
-  'leetcode.com',
+  // Indian Platforms
+  {
+    id: 'nptel',
+    name: 'NPTEL',
+    aliases: ['NPTEL', 'National Programme on Technology Enhanced Learning'],
+    domains: ['nptel.ac.in', 'onlinecourses.nptel.ac.in'],
+  },
+  {
+    id: 'swayam',
+    name: 'SWAYAM',
+    aliases: ['SWAYAM', 'Study Webs of Active Learning for Young Aspiring Minds'],
+    domains: ['swayam.gov.in', 'onlinecourses.swayam2.ac.in'],
+  },
+  {
+    id: 'internshala',
+    name: 'Internshala',
+    aliases: ['Internshala', 'Internshala Trainings'],
+    domains: ['internshala.com', 'trainings.internshala.com'],
+  },
+  {
+    id: 'unstop',
+    name: 'Unstop',
+    aliases: ['Unstop', 'Dare2Compete', 'D2C'],
+    domains: ['unstop.com', 'dare2compete.com'],
+  },
+  {
+    id: 'codealpha',
+    name: 'CodeAlpha',
+    aliases: ['CodeAlpha', 'Code Alpha'],
+    domains: ['codealpha.tech'],
+  },
+  {
+    id: 'skillsforall',
+    name: 'Cisco Skills For All',
+    aliases: ['Skills For All', 'Cisco Skills For All', 'SkillsForAll'],
+    domains: ['skillsforall.com'],
+  },
+  {
+    id: 'naukri',
+    name: 'Naukri Learning',
+    aliases: ['Naukri', 'Naukri Learning', 'Naukri.com'],
+    domains: ['naukri.com', 'naukrilearning.com'],
+  },
+
+  // AI/ML Platforms
+  {
+    id: 'deeplearning-ai',
+    name: 'DeepLearning.AI',
+    aliases: ['DeepLearning.AI', 'deeplearning.ai', 'Deep Learning AI'],
+    domains: ['deeplearning.ai'],
+  },
+  {
+    id: 'kaggle',
+    name: 'Kaggle',
+    aliases: ['Kaggle', 'Kaggle Inc'],
+    domains: ['kaggle.com'],
+  },
+
+  // Coding Platforms
+  {
+    id: 'hackerrank',
+    name: 'HackerRank',
+    aliases: ['HackerRank', 'Hacker Rank'],
+    domains: ['hackerrank.com'],
+  },
+  {
+    id: 'leetcode',
+    name: 'LeetCode',
+    aliases: ['LeetCode', 'Leet Code'],
+    domains: ['leetcode.com'],
+  },
 ];
 
+// Legacy TRUSTED_DOMAINS array (kept for backward compatibility)
+const TRUSTED_DOMAINS = TRUSTED_ISSUERS.flatMap(issuer => issuer.domains);
+
+// ============================================================================
+// NEW CLEAN ARCHITECTURE FUNCTIONS
+// ============================================================================
+
 /**
- * Extract domain from URL
- * @param {string} url - Full URL
- * @returns {string|null} - Domain or null
+ * Resolve issuer from URL (ChatGPT recommended - SINGLE SOURCE OF TRUTH)
+ * This is what your verification flow should use (NOT LLM extraction)
+ * @param {string} pageUrl - Certificate page URL
+ * @returns {object|null} - Issuer object or null
  */
+export function resolveIssuerFromUrl(pageUrl) {
+  if (!pageUrl) return null;
+
+  try {
+    const urlObj = new URL(pageUrl);
+    const hostname = urlObj.hostname.toLowerCase().replace(/^www\./, '');
+
+    // Find matching issuer
+    for (const issuer of TRUSTED_ISSUERS) {
+      for (const domain of issuer.domains) {
+        if (hostname === domain || hostname.endsWith(`.${domain}`)) {
+          return {
+            id: issuer.id,
+            name: issuer.name,
+            domain: domain,
+            aliases: issuer.aliases,
+            isTrusted: true,
+          };
+        }
+      }
+    }
+
+    return null; // Not a trusted issuer
+  } catch (error) {
+    console.error('Error parsing URL:', error);
+    return null;
+  }
+}
+
+/**
+ * Get all trusted issuers (for frontend/extension)
+ * @returns {array} - Array of issuer objects
+ */
+export function getTrustedIssuers() {
+  return TRUSTED_ISSUERS.map(issuer => ({
+    id: issuer.id,
+    name: issuer.name,
+    domains: issuer.domains,
+  }));
+}
+
+// ============================================================================
+// LEGACY FUNCTIONS (Keep for backward compatibility, but use new ones above)
+// ============================================================================
+
 export function extractDomain(url) {
   if (!url) return null;
 
@@ -181,4 +377,46 @@ export function addTrustedDomain(domain) {
  */
 export function getTrustedDomains() {
   return [...TRUSTED_DOMAINS];
+}
+
+// ============================================================================
+// NEW VALIDATION FUNCTION (Use this in verification flow)
+// ============================================================================
+
+/**
+ * Validate domain and get issuer info (ChatGPT recommended approach)
+ * This combines domain validation + issuer resolution in one call
+ * @param {string} pageUrl - Certificate page URL
+ * @returns {object} - { isValid, isTrusted, issuer, confidence, reason }
+ */
+export function validateDomainAndGetIssuer(pageUrl) {
+  const issuer = resolveIssuerFromUrl(pageUrl);
+
+  if (issuer) {
+    return {
+      isValid: true,
+      isTrusted: true,
+      issuer: {
+        id: issuer.id,
+        name: issuer.name,
+        domain: issuer.domain,
+      },
+      domain: issuer.domain,
+      confidence: 100, // Whitelisted = 100% confidence
+      reason: `Trusted issuer: ${issuer.name}`,
+    };
+  }
+
+  // Not in whitelist
+  const domain = extractDomain(pageUrl);
+  return {
+    isValid: false,
+    isTrusted: false,
+    issuer: null,
+    domain: domain,
+    confidence: 0,
+    reason: domain
+      ? `Domain "${domain}" is not in trusted whitelist`
+      : 'Invalid or missing URL',
+  };
 }
