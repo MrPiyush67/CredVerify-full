@@ -1,7 +1,7 @@
 import express from 'express';
 
 const app = express();
-const PORT = 6000;
+const PORT = 3002;
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });

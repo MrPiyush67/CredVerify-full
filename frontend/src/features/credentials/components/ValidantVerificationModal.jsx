@@ -77,27 +77,48 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
 
     if (!validateForm()) return;
 
-    // Create object with credential data (not FormData since we're not handling file upload yet)
-    const submitData = {
-      title: formData.title,
-      certificateName: formData.certificateName || formData.title,
-      legalNameSnapshot: formData.certificateName || formData.title,
-      institution: formData.institution,
-      type: formData.type,
-      issueDate: formData.issueDate,
-      issuer: formData.institution, // Set issuer same as institution
-      verificationNotes: formData.credentialistComments || '', // Use verificationNotes instead
-      status: 'draft', // Initially draft
-      verificationRequested: false, // Will be set to true when user requests
-      file: {
-        fileName: formData.file?.name || '',
-        fileType: formData.file?.type || '',
-        url: '', // Will be set after actual upload implementation
-      }
+    // Convert file to base64 for backend
+    const reader = new FileReader();
+    
+    reader.onload = async () => {
+      const base64Data = reader.result; // This includes the data:image/xxx;base64, prefix
+      
+      // Prepare credential data as JSON (not FormData)
+      const credentialData = {
+        title: formData.title,
+        certificateName: formData.certificateName || formData.title,
+        legalNameSnapshot: formData.certificateName || formData.title,
+        institution: formData.institution,
+        issuer: formData.institution,
+        type: formData.type,
+        issueDate: formData.issueDate,
+        verificationNotes: formData.credentialistComments || '',
+        status: 'draft',
+        verificationRequested: false,
+        // Store file as base64 data URL
+        fileBase64: base64Data,
+        fileName: formData.file.name,
+        fileType: formData.file.type,
+        fileSize: formData.file.size,
+      };
+
+      console.log('📤 Submitting credential for validant verification');
+      console.log('Title:', credentialData.title);
+      console.log('Institution:', credentialData.institution);
+      console.log('File:', formData.file.name);
+      console.log('File size:', formData.file.size, 'bytes');
+
+      onSubmit(credentialData);
+      handleClose();
     };
 
-    onSubmit(submitData);
-    handleClose();
+    reader.onerror = (error) => {
+      console.error('❌ Error reading file:', error);
+      setErrors(prev => ({ ...prev, file: 'Failed to read file' }));
+    };
+
+    // Read file as data URL (base64)
+    reader.readAsDataURL(formData.file);
   };
 
   const handleClose = () => {

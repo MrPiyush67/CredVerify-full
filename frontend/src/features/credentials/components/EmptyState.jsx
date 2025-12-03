@@ -2,7 +2,10 @@ import { motion } from 'framer-motion';
 import { CheckCircle, Plus } from 'lucide-react';
 import { Card, Button } from '@common';
 
+import { useNavigate } from 'react-router-dom';
+
 export default function EmptyState({ onAddCredential }) {
+  const navigate = useNavigate();
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -20,7 +23,7 @@ export default function EmptyState({ onAddCredential }) {
               Add your first credential to get started with verification
             </p>
           </div>
-          <Button onClick={onAddCredential} className="mt-2 gap-2">
+          <Button onClick={() => navigate('/credentials/add')} className="mt-2 gap-2">
             <Plus className="h-4 w-4" />
             Add Your First Credential
           </Button>

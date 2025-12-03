@@ -13,6 +13,7 @@ const NotificationsPage = lazy(() => import('@features/notifications/pages/Notif
 const DashboardPage = lazy(() => import('@features/dashboard/pages/DashboardPage.jsx'));
 const CredentialsPage = lazy(() => import('@features/credentials/pages/CredentialsPage.jsx'));
 const AddCredentialsPage = lazy(() => import('@features/credentials/pages/AddCredentialsPage.jsx'));
+const UploadMethodsGuidePage = lazy(() => import('@features/credentials/pages/UploadMethodsGuidePage.jsx'));
 const RequestsPage = lazy(() => import('@features/verification/pages/RequestsPage.jsx'));
 const IssueCredentialsPage = lazy(() => import('@features/verification/pages/IssueCredentialsPage.jsx'));
 const JobsPage = lazy(() => import('@features/jobs/pages/JobsPage.jsx'));
@@ -42,6 +43,7 @@ export default function AppRoutes() {
       <Route element={<ProtectedRoute requiredRole="credentialist" />}>
         <Route path="/credentials" element={<CredentialsPage />} />
         <Route path="/credentials/add" element={<AddCredentialsPage />} />
+        <Route path="/credentials/upload-guide" element={<UploadMethodsGuidePage />} />
       </Route>
 
       {/* Validant-only routes */}

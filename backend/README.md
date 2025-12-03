@@ -6,7 +6,7 @@ A modern, feature-based backend architecture for the MicroCredentials platform u
 
 ### Feature-Based Structure
 Each domain (user, credentialist, validant, curator, credential, chat) is encapsulated in its own feature module with:
-- **Model**: Mongoose schema
+- **Model**: Mongoose    schema
 - **Service**: Business logic layer
 - **Controller**: HTTP request handlers
 - **Routes**: Express route definitions

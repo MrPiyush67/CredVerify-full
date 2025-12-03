@@ -10,6 +10,9 @@ const DigilockerAccountSchema = new mongoose.Schema(
     idToken: { type: String },
     userInfo: { type: Object },
     lastSyncedAt: { type: Date },
+    // Cache documents to avoid URL length issues
+    cachedDocuments: { type: Array },
+    documentsCachedAt: { type: Date },
   },
   { timestamps: true }
 );

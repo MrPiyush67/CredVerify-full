@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getCredentials, getPendingCredentials, getCredential, createCredential, updateCredential, deleteCredential, verifyCredential, rejectCredential, getCredentialStats } from '../api/credentialsApi';
+import { getCredentials, getPendingCredentials, getCredential, createCredential, updateCredential, deleteCredential, verifyCredential, rejectCredential, getCredentialStats, requestVerification } from '../api/credentialsApi';
 
 // Async thunks
 export const fetchCredentials = createAsyncThunk(
@@ -115,6 +115,18 @@ export const fetchCredentialStats = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch stats');
+    }
+  }
+);
+
+export const requestCredentialVerification = createAsyncThunk(
+  'credentials/requestVerification',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await requestVerification(id);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to request verification');
     }
   }
 );
@@ -324,6 +336,29 @@ const credentialsSlice = createSlice({
         state.stats = action.payload?.data?.stats || action.payload?.stats || action.payload?.data || null;
       })
       .addCase(fetchCredentialStats.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Request verification
+      .addCase(requestCredentialVerification.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(requestCredentialVerification.fulfilled, (state, action) => {
+        state.loading = false;
+        const credential = action.payload?.data?.credential || action.payload?.credential || action.payload?.data;
+        if (credential) {
+          const index = state.credentials.findIndex(c => c._id === credential._id);
+          if (index !== -1) {
+            state.credentials[index] = credential;
+          }
+          if (state.selectedCredential?._id === credential._id) {
+            state.selectedCredential = credential;
+          }
+        }
+      })
+      .addCase(requestCredentialVerification.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

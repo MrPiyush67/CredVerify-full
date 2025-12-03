@@ -82,7 +82,7 @@ const protectWithRedirect = async (req, res, next) => {
     if (!token) {
       console.log('❌ DigiLocker auth failed: No token provided');
       console.log('   Redirecting to login page...');
-      return res.redirect(`${frontendUrl}/auth/login?error=login_required&redirect=/credentials&message=Please+login+to+connect+DigiLocker`);
+      return res.redirect(`${frontendUrl}/auth/login?error=login_required&redirect=/credentials/add&message=Please+login+to+connect+DigiLocker`);
     }
 
     // Verify token
@@ -92,7 +92,7 @@ const protectWithRedirect = async (req, res, next) => {
     if (!decoded) {
       console.log('❌ DigiLocker auth failed: Invalid or expired token');
       console.log('   Redirecting to login page...');
-      return res.redirect(`${frontendUrl}/auth/login?error=session_expired&redirect=/credentials&message=Session+expired.+Please+login+again`);
+      return res.redirect(`${frontendUrl}/auth/login?error=session_expired&redirect=/credentials/add&message=Session+expired.+Please+login+again`);
     }
 
     console.log('✅ Token verified for user ID:', decoded.id);
@@ -161,7 +161,7 @@ router.get(
       console.error('\n❌❌❌ DigiLocker auth error:', error);
       console.error('Error stack:', error.stack);
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-      res.redirect(`${frontendUrl}/credentials?error=digilocker_auth_failed&message=${encodeURIComponent(error.message)}`);
+      res.redirect(`${frontendUrl}/credentials/add?error=digilocker_auth_failed&message=${encodeURIComponent(error.message)}`);
     }
   })
 );
@@ -173,10 +173,16 @@ router.get(
     const { code, state, error, error_description } = req.query;
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     
+    console.log('\n========================================');
+    console.log('🔄 DIGILOCKER CALLBACK RECEIVED');
+    console.log('========================================');
+    console.log('Code:', code ? code.substring(0, 20) + '...' : 'N/A');
+    console.log('State:', state ? state.substring(0, 20) + '...' : 'N/A');
+    
     // Handle OAuth errors from DigiLocker
     if (error) {
       console.error('❌ DigiLocker OAuth error:', error, error_description);
-      return res.redirect(`${frontendUrl}/credentials?error=${error}`);
+      return res.redirect(`${frontendUrl}/credentials/add?error=${error}`);
     }
     
     const cookieState = req.cookies?.digistate;
@@ -184,24 +190,24 @@ router.get(
     // Validate OAuth response
     if (!code) {
       console.error('❌ No authorization code received');
-      return res.redirect(`${frontendUrl}/credentials?error=no_code`);
+      return res.redirect(`${frontendUrl}/credentials/add?error=no_code`);
     }
     
     if (!state || !cookieState) {
       console.error('❌ Missing state parameter or cookie');
-      return res.redirect(`${frontendUrl}/credentials?error=missing_state`);
+      return res.redirect(`${frontendUrl}/credentials/add?error=missing_state`);
     }
     
     if (state !== cookieState) {
       console.error('❌ State mismatch - possible CSRF attack');
-      return res.redirect(`${frontendUrl}/credentials?error=state_mismatch`);
+      return res.redirect(`${frontendUrl}/credentials/add?error=state_mismatch`);
     }
 
     // Extract user ID from state
     const [randomPart, userId] = state.split(':');
     if (!userId) {
       console.error('❌ Invalid state format - no userId');
-      return res.redirect(`${frontendUrl}/credentials?error=invalid_state`);
+      return res.redirect(`${frontendUrl}/credentials/add?error=invalid_state`);
     }
     
     console.log('✅ DigiLocker callback received for user:', userId);
@@ -215,16 +221,21 @@ router.get(
       redirect_uri: redirectUri,
     });
 
+    console.log('🔑 Exchanging code for tokens...');
     const tokenResp = await axios.post(tokenUrl, body.toString(), {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
 
     const { access_token, refresh_token, token_type, expires_in, id_token } = tokenResp.data;
+    console.log('✅ Tokens received');
 
+    console.log('👤 Fetching user info...');
     const userInfoResp = await axios.get(config.digilocker.userInfoUrl, {
       headers: { Authorization: `${token_type} ${access_token}` },
     });
+    console.log('✅ User info received:', userInfoResp.data?.name);
 
+    // Update DigiLocker account
     await DigilockerAccount.findOneAndUpdate(
       { userId },
       {
@@ -239,11 +250,57 @@ router.get(
       { upsert: true, new: true }
     );
 
-    console.log('✅ DigiLocker account linked successfully for user:', userId);
+    console.log('✅ DigiLocker account linked successfully');
 
-    // Redirect back to frontend route with success flag
-    res.clearCookie('digistate');
-    res.redirect(`${frontendUrl}/credentials?digilocker=connected`);
+    // Fetch available documents
+    console.log('📄 [BACKEND] Fetching documents from DigiLocker...');
+    try {
+      const filesResp = await axios.get(config.digilocker.filesUrl, {
+        headers: { Authorization: `${token_type} ${access_token}` },
+      });
+
+      const documents = filesResp.data?.files || filesResp.data || [];
+      console.log('📄 [BACKEND] Found', documents.length, 'documents from DigiLocker');
+      console.log('📄 [BACKEND] Documents list:', documents.map(d => ({ name: d.name, uri: d.uri })));
+
+      // Store documents in DigiLocker account for retrieval via API
+      await DigilockerAccount.findOneAndUpdate(
+        { userId },
+        {
+          cachedDocuments: documents,
+          documentsCachedAt: new Date(),
+        }
+      );
+      console.log('✅ [BACKEND] Cached documents in database');
+
+      // Option 1: Try to pass via URL (might fail for large payloads)
+      const docsParam = encodeURIComponent(JSON.stringify(documents));
+      const maxUrlLength = 2000; // Safe URL length
+      
+      console.log('📦 [BACKEND] Encoded documents length:', docsParam.length);
+      console.log('🔗 [BACKEND] Will redirect to:', `${frontendUrl}/credentials?digilocker=connected`);
+      
+      res.clearCookie('digistate');
+      
+      // If URL would be too long, just redirect without docs param
+      // Frontend will fetch via API instead
+      if (docsParam.length > maxUrlLength) {
+        console.log('⚠️ [BACKEND] Documents too large for URL params, frontend will fetch via API');
+        console.log('✅ [BACKEND] Redirecting to frontend (docs will be fetched via API)...');
+        console.log('========================================\n');
+        return res.redirect(`${frontendUrl}/credentials/add?digilocker=connected`);
+      }
+      
+      console.log('✅ [BACKEND] Redirecting to frontend with documents in URL...');
+      console.log('========================================\n');
+      
+      // Redirect to frontend with documents data
+      return res.redirect(`${frontendUrl}/credentials/add?digilocker=connected&docs=${docsParam}`);
+    } catch (err) {
+      console.error('❌ [BACKEND] Failed to fetch documents:', err.message);
+      res.clearCookie('digistate');
+      return res.redirect(`${frontendUrl}/credentials/add?digilocker=connected`);
+    }
   })
 );
 
@@ -252,14 +309,50 @@ router.get(
   '/files',
   protect,
   asyncHandler(async (req, res) => {
+    console.log('\n📄 [BACKEND] /files endpoint called');
+    console.log('User ID:', req.user._id);
+    
     const account = await DigilockerAccount.findOne({ userId: req.user._id });
-    if (!account || !account.accessToken) return res.status(404).json({ message: 'Digilocker not connected' });
+    if (!account || !account.accessToken) {
+      console.log('❌ [BACKEND] DigiLocker not connected');
+      return res.status(404).json({ message: 'Digilocker not connected' });
+    }
 
-    const filesResp = await axios.get(config.digilocker.filesUrl, {
-      headers: { Authorization: `${account.tokenType} ${account.accessToken}` },
-    });
+    // Check if we have cached documents (less than 5 minutes old)
+    const cacheAge = account.documentsCachedAt 
+      ? Date.now() - account.documentsCachedAt.getTime() 
+      : Infinity;
+    
+    if (account.cachedDocuments && cacheAge < 5 * 60 * 1000) {
+      console.log('✅ [BACKEND] Returning cached documents (', account.cachedDocuments.length, 'docs)');
+      return res.json({ files: account.cachedDocuments });
+    }
 
-    res.json({ files: filesResp.data?.files || filesResp.data || [] });
+    // Otherwise fetch fresh from DigiLocker
+    console.log('🔄 [BACKEND] Fetching fresh documents from DigiLocker...');
+    try {
+      const filesResp = await axios.get(config.digilocker.filesUrl, {
+        headers: { Authorization: `${account.tokenType} ${account.accessToken}` },
+      });
+
+      const files = filesResp.data?.files || filesResp.data || [];
+      console.log('✅ [BACKEND] Fetched', files.length, 'documents');
+      
+      // Update cache
+      account.cachedDocuments = files;
+      account.documentsCachedAt = new Date();
+      await account.save();
+
+      res.json({ files });
+    } catch (error) {
+      console.error('❌ [BACKEND] Failed to fetch documents:', error.message);
+      // If fetch fails but we have old cache, return it
+      if (account.cachedDocuments) {
+        console.log('⚠️ [BACKEND] Returning stale cached documents');
+        return res.json({ files: account.cachedDocuments });
+      }
+      throw error;
+    }
   })
 );
 
@@ -268,44 +361,146 @@ router.post(
   '/import',
   protect,
   asyncHandler(async (req, res) => {
+    console.log('\n========================================')
+    console.log('📥 📥 📥 IMPORT DOCUMENTS ENDPOINT CALLED 📥 📥 📥');
+    console.log('========================================')
+    console.log('User ID:', req.user._id);
+    console.log('User Email:', req.user.email);
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('Files array:', req.body.files);
+    
     const { files } = req.body; // array of file metadata or URIs
-    if (!Array.isArray(files) || files.length === 0) return res.status(400).json({ message: 'No files provided' });
+    if (!Array.isArray(files) || files.length === 0) {
+      console.log('❌ No files provided in request');
+      return res.status(400).json({ message: 'No files provided' });
+    }
+
+    console.log('📄 Number of files to import:', files.length);
 
     const account = await DigilockerAccount.findOne({ userId: req.user._id });
-    if (!account || !account.accessToken) return res.status(404).json({ message: 'Digilocker not connected' });
+    if (!account || !account.accessToken) {
+      console.log('❌ DigiLocker account not connected');
+      return res.status(404).json({ message: 'Digilocker not connected' });
+    }
+
+    console.log('✅ DigiLocker account found');
 
     // Import Credential model
     const { default: Credential } = await import('../credential/credential.model.js');
 
     const created = [];
+    const errors = [];
+    
+    console.log('\n🔄 [BACKEND IMPORT] Starting to process', files.length, 'documents...');
+    
     for (const f of files) {
-      // Map Digilocker document to Credential schema
-      const doc = await Credential.create({
-        user: req.user._id,
-        legalNameSnapshot: req.user.name || account.userInfo?.name || 'Unknown',
-        certificateName: account.userInfo?.name || req.user.name || 'Unknown',
-        title: f.name || f.doctype || f.documentType || 'Digilocker Document',
-        issuer: 'Digilocker (Government of India)',
-        issueDate: f.date ? new Date(f.date) : new Date(),
-        type: 'other',
-        sourceUrl: f.uri || f.link || '',
-        sourceDomain: 'digilocker.gov.in',
-        isDomainTrusted: true,
-        isIssuerVerified: true,
-        status: 'verified',
-        verificationStatus: 'VERIFIED',
-        finalVerificationScore: 100,
-        autoApproved: true,
-        meta: {
-          source: 'digilocker',
-          digilockerFileId: f.uri || f.file_id || null,
-          originalData: f,
-        },
-      });
-      created.push(doc);
+      try {
+        console.log('\n========================================');
+        console.log('📄 [BACKEND IMPORT] Processing document:', f.name || f.doctype);
+        console.log('========================================');
+        console.log('📎 PDF File Reference:', f.documentFile || 'NOT SPECIFIED');
+        console.log('📊 File Size:', f.size || 'Unknown');
+        console.log('🔗 Document URI:', f.uri);
+        console.log('📁 Category:', f.category);
+        
+        // Check if credential already exists to avoid duplicates
+        const existingCred = await Credential.findOne({
+          user: req.user._id,
+          'meta.digilockerFileId': f.uri
+        });
+        
+        if (existingCred) {
+          console.log('⚠️ Credential already exists for this document, skipping...');
+          console.log('   Existing ID:', existingCred._id.toString());
+          console.log('   ℹ️ NOTE: PDF files are NOT uploaded to our server');
+          console.log('   ℹ️ They remain in DigiLocker and are referenced via URI');
+          created.push(existingCred);
+          continue;
+        }
+        
+        console.log('💡 IMPORTANT: PDF File Handling:');
+        console.log('   • PDF file reference:', f.documentFile);
+        console.log('   • PDFs are NOT uploaded to our backend');
+        console.log('   • PDFs remain stored in DigiLocker');
+        console.log('   • We only store metadata and DigiLocker URI:', f.uri);
+        console.log('   • To view PDF, user would need to fetch from DigiLocker API');
+        
+        // Map Digilocker document to Credential schema
+        const credentialData = {
+          user: req.user._id,
+          legalNameSnapshot: req.user.name || account.userInfo?.name || 'Unknown',
+          certificateName: account.userInfo?.name || req.user.name || 'Unknown',
+          title: f.name || f.doctype || f.documentType || 'Digilocker Document',
+          issuer: f.issuer || f.issuerName || 'DigiLocker (Government of India)',
+          issueDate: f.date ? new Date(f.date) : new Date(),
+          type: f.category === 'skill' ? 'certificate' : (f.category === 'education' ? 'certificate' : 'other'),
+          credentialId: f.uri || '',
+          sourceUrl: f.uri || f.link || '',
+          sourceDomain: 'digilocker.gov.in',
+          isDomainTrusted: true,
+          isIssuerVerified: true,
+          status: 'verified',
+          verificationStatus: 'VERIFIED',
+          finalVerificationScore: 100,
+          autoApproved: true,
+          nsqfLevel: f.nsqfLevel || undefined,
+          description: f.description || '',
+          skills: [],
+          meta: {
+            source: 'digilocker',
+            digilockerFileId: f.uri || f.file_id || null,
+            originalData: f,
+            schemeName: f.schemeName || '',
+            category: f.category || '',
+            documentFile: f.documentFile || null, // Store PDF reference
+          },
+        };
+        
+        console.log('📝 Creating NEW credential with data:');
+        console.log('   Title:', credentialData.title);
+        console.log('   Issuer:', credentialData.issuer);
+        console.log('   User:', credentialData.user.toString());
+        console.log('   Status:', credentialData.status);
+        console.log('   Verification Status:', credentialData.verificationStatus);
+        console.log('   Issue Date:', credentialData.issueDate);
+        console.log('   Type:', credentialData.type);
+        console.log('   📎 PDF Reference in meta:', credentialData.meta.documentFile);
+        
+        const doc = await Credential.create(credentialData);
+        console.log('✅ [BACKEND IMPORT] Credential created in DB:', doc._id.toString());
+        console.log('   Title:', doc.title);
+        console.log('   Status:', doc.status);
+        console.log('   Verification Status:', doc.verificationStatus);
+        console.log('   📎 PDF stored in meta:', doc.meta?.documentFile);
+        
+        // Verify it was actually saved by fetching it back
+        const verified = await Credential.findById(doc._id);
+        if (!verified) {
+          throw new Error('Credential created but not found in database');
+        }
+        console.log('✅ [BACKEND IMPORT] Verified credential exists in database');
+        console.log('========================================');
+        
+        created.push(doc);
+      } catch (err) {
+        console.error('❌ Failed to create credential for', f.name, ':', err.message);
+        console.error('   Full error:', err);
+        errors.push({ file: f.name, error: err.message });
+      }
     }
 
-    res.json({ message: 'Imported successfully', count: created.length, credentials: created });
+    console.log('\n========================================');
+    console.log('📊 Import Summary:');
+    console.log('  Successfully imported:', created.length);
+    console.log('  Failed:', errors.length);
+    console.log('========================================\n');
+
+    res.json({ 
+      message: 'Import completed', 
+      count: created.length, 
+      credentials: created,
+      errors: errors.length > 0 ? errors : undefined
+    });
   })
 );
 
