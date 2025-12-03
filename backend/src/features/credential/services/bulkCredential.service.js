@@ -87,18 +87,10 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
         certificateId,
       });
 
-      // Upload PDF to ImageKit
-      const sanitizedCred = credentialName.replace(/[^a-z0-9]/gi, '_');
-      const sanitizedName = name.replace(/[^a-z0-9]/gi, '_');
-      const fileName = `${sanitizedCred}_${sanitizedName}_${Date.now()}.pdf`;
-
-      const uploadRes = await uploadCredentialFile(pdfBuffer, {
-        fileName,
-        userName: name,
-        issuer: 'CredVerify',
-        tags: ['certificate', 'pdf'],
-        mimeType: 'application/pdf'
-      });
+      // Save PDF to local directory as backup
+      const filename = `${credentialName.replace(/[^a-z0-9]/gi, '_')}_${name.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.pdf`;
+      const filepath = path.join(certsDir, filename);
+      await fs.writeFile(filepath, pdfBuffer);
 
       // 2. Send email with PDF attachment
       let emailSent = false;
@@ -113,13 +105,6 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
           recipientName: name,
           credentialName,
           pdfBuffer,
-          profileUrl: `${process.env.CLIENT_URL || 'http://localhost:5173'}/profile`,
-          newUser: isNewUser ? {
-            email,
-            realName: name,
-            username: user.username,
-            password: 'CredVerify@123'
-          } : undefined,
         });
 
         console.log(`✅ Email sent successfully to ${email}`);
@@ -133,23 +118,8 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
         emailError = err;
       }
 
-      // 3. Update credential with hosted PDF URL and storageId
-      if (uploadRes?.url) {
-        credential.pdfPath = uploadRes.url; // store URL in existing field
-        credential.file = {
-          url: uploadRes.url,
-          fileName: uploadRes.fileName,
-          fileType: 'application/pdf',
-          storageId: uploadRes.fileId,
-          uploadedAt: new Date(),
-        };
-        credential.meta = {
-          ...(credential.meta || {}),
-          certificateFileId: uploadRes.fileId,
-          certificateFileName: uploadRes.fileName,
-          certificateStorage: 'imagekit'
-        };
-      }
+      // 3. Update credential with PDF path
+      credential.pdfPath = filepath;
       await credential.save();
 
       // Add to results with email status
@@ -157,7 +127,7 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
         name,
         email,
         status: emailSent ? 'sent' : 'pdf_only',
-        pdfPath: uploadRes?.url,
+        pdfPath: filepath,
         certificateId,
         verificationUrl: `https://credverify.vercel.app/verify/${certificateId}`,
         isNewUser, // Flag to indicate if a new account was created

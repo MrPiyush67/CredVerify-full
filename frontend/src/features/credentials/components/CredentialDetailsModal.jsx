@@ -1,8 +1,14 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle, Clock, XCircle, ExternalLink, Calendar, User, FileText, Award, Hash, Globe, Lock, Shield } from 'lucide-react';
+import { X, CheckCircle, Clock, XCircle, ExternalLink, Calendar, User, FileText, Award, Hash, Globe, Lock, Shield, Send } from 'lucide-react';
 import { Button, Badge, Loader } from '@common';
+import { useDispatch } from 'react-redux';
+import { requestCredentialVerification } from '../redux/credentialsSlice';
+import toast from 'react-hot-toast';
 
-export default function CredentialDetailsModal({ isOpen, onClose, credential, loading }) {
+export default function CredentialDetailsModal({ isOpen, onClose, credential, loading, onSuccess }) {
+  const dispatch = useDispatch();
+  const [submittingVerification, setSubmittingVerification] = useState(false);
   if (!credential && !loading) return null;
 
   return (
@@ -302,9 +308,31 @@ export default function CredentialDetailsModal({ isOpen, onClose, credential, lo
 
                   {/* Actions */}
                   <div className="flex gap-3 pt-4">
-                    <Button onClick={onClose} className="flex-1">
+                    <Button onClick={onClose} variant="outline" className="flex-1">
                       Close
                     </Button>
+                    {credential.status === 'draft' && (
+                      <Button 
+                        onClick={async () => {
+                          setSubmittingVerification(true);
+                          try {
+                            await dispatch(requestCredentialVerification(credential._id)).unwrap();
+                            toast.success('Verification request submitted successfully!');
+                            onSuccess?.();
+                            onClose();
+                          } catch (error) {
+                            toast.error(error || 'Failed to submit verification request');
+                          } finally {
+                            setSubmittingVerification(false);
+                          }
+                        }}
+                        disabled={submittingVerification}
+                        className="flex-1 bg-teal-500 hover:bg-teal-600 text-white gap-2"
+                      >
+                        <Send className="h-4 w-4" />
+                        {submittingVerification ? 'Submitting...' : 'Request Verification'}
+                      </Button>
+                    )}
                   </div>
                 </div>
               ) : (

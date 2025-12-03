@@ -8,7 +8,7 @@ const platformProfileSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-
+    
     // DSA/CP Platforms
     leetcode: {
       handle: { type: String, trim: true },
@@ -233,6 +233,9 @@ const platformProfileSchema = new mongoose.Schema(
   }
 );
 
+// Compound index for user lookup
+platformProfileSchema.index({ user: 1 });
+
 // Method to generate verification code (letters only)
 platformProfileSchema.methods.generateVerificationCode = function (platform) {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -245,7 +248,7 @@ platformProfileSchema.methods.generateVerificationCode = function (platform) {
 
   this[platform].verificationCode = code;
   this[platform].verificationExpiry = expiry;
-
+  
   return code;
 };
 

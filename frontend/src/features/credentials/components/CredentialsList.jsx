@@ -4,6 +4,7 @@ import { CheckCircle, Clock, XCircle, Eye, ChevronLeft, ChevronRight, MoreVertic
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@common';
 import { useDispatch } from 'react-redux';
 import { removeCredential, editCredential } from '../redux/credentialsSlice';
+import toast from 'react-hot-toast';
 
 const getStatusIcon = (status) => {
   switch (status) {
@@ -45,13 +46,42 @@ export default function CredentialsList({ credentials, onViewDetails, pagination
   const handleDelete = async (credential, e) => {
     e.stopPropagation();
     setOpenMenuId(null);
-    if (window.confirm(`Are you sure you want to delete "${credential.title}"?`)) {
-      try {
-        await dispatch(removeCredential(credential._id)).unwrap();
-      } catch (error) {
-        console.error('Failed to delete credential:', error);
-      }
-    }
+    
+    toast((t) => (
+      <div className="flex items-center gap-3">
+        <div className="flex-1">
+          <p className="font-medium text-gray-900">Delete credential?</p>
+          <p className="text-sm text-gray-600 mt-1">
+            Remove "{credential.title}" permanently
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={async () => {
+              try {
+                await dispatch(removeCredential(credential._id)).unwrap();
+                toast.success('Credential deleted successfully', { id: t.id });
+              } catch (error) {
+                console.error('Failed to delete credential:', error);
+                toast.error('Failed to delete credential', { id: t.id });
+              }
+            }}
+            className="px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors"
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: 5000,
+      icon: '🗑️',
+    });
   };
 
   const handleDownload = (credential, e) => {

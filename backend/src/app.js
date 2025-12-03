@@ -17,6 +17,7 @@ import chatRoutes from './features/chat/chat.routes.js';
 import notificationRoutes from './features/notification/notification.routes.js';
 import dashboardRoutes from './features/dashboard/dashboard.routes.js';
 import platformRoutes from './features/platform/platform.routes.js';
+import digilockerRoutes from './features/digilocker/routes.js';
 
 const app = express();
 
@@ -84,6 +85,9 @@ app.use('/api', [
   dashboardRoutes,
   platformRoutes,
 ]);
+
+// Mount Digilocker routes separately to handle specific middleware
+app.use('/api/digilocker', digilockerRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -6,7 +6,7 @@ A modern, feature-based backend architecture for the MicroCredentials platform u
 
 ### Feature-Based Structure
 Each domain (user, credentialist, validant, curator, credential, chat) is encapsulated in its own feature module with:
-- **Model**: Mongoose schema
+- **Model**: Mongoose    schema
 - **Service**: Business logic layer
 - **Controller**: HTTP request handlers
 - **Routes**: Express route definitions
@@ -126,6 +126,12 @@ src/
 - `GET /api/credentials/verified` - Get verified credentials
 - `GET /api/credentials/stats` - Get credential stats
 
+### Digilocker Integration
+- `GET /api/digilocker/auth` - Start Digilocker OAuth flow (requires auth)
+- `GET /api/digilocker/callback` - OAuth callback handler
+- `GET /api/digilocker/files` - Fetch user's Digilocker files (requires auth)
+- `POST /api/digilocker/import` - Import selected files to credentials (requires auth)
+
 ### Chat
 - `POST /api/chat/conversations` - Start conversation
 - `GET /api/chat/conversations` - Get my conversations
@@ -187,6 +193,23 @@ npm run format
 ## 📝 Environment Variables
 
 See `.env.example` for all required environment variables.
+
+### Digilocker Sandbox Setup
+
+To enable Digilocker integration:
+
+1. Register for sandbox access at https://sandbox.digilocker.gov.in/
+2. Create a new application and get your `CLIENT_ID` and `CLIENT_SECRET`
+3. Set the redirect URI to `http://localhost:5000/api/digilocker/callback` (or your production URL)
+4. Add these variables to your `.env` file:
+   ```
+   DIGILOCKER_CLIENT_ID=your_sandbox_client_id
+   DIGILOCKER_CLIENT_SECRET=your_sandbox_client_secret
+   DIGILOCKER_REDIRECT_URI=http://localhost:5000/api/digilocker/callback
+   FRONTEND_URL=http://localhost:5173
+   ```
+
+**Note**: The integration uses Digilocker **Sandbox** environment for testing. For production, you'll need to update the URLs in `src/core/config/env.js` to use the production Digilocker endpoints.
 
 ## 🤝 Contributing
 

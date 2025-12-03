@@ -19,20 +19,20 @@ const generateCertificateHTML = async ({
   instructorName = 'Admin',
   certificateId = null,
 }) => {
-  const formattedDate = new Date(issueDate).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
+  const formattedDate = new Date(issueDate).toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
   }).replace(',', '');
-
+  
   // Generate or use provided certificate ID for verification
   const verificationId = certificateId || new mongoose.Types.ObjectId().toString();
   const certificateUrl = `https://localhost:5173/verify/${verificationId}`;
-
+  
   // Read the template image and convert to base64
   const templatePath = path.join(__dirname, '../../../../frontend/public/credantial-template/Certificatetemplatenocontent.png');
   let templateImageBase64 = '';
-
+  
   try {
     const imageBuffer = await fs.readFile(templatePath);
     templateImageBase64 = `data:image/png;base64,${imageBuffer.toString('base64')}`;
@@ -261,7 +261,7 @@ export const generateCertificatePDF = async (data) => {
     });
 
     const page = await browser.newPage();
-
+    
     // Set content and wait for fonts/images to load
     await page.setContent(html, { waitUntil: 'networkidle0' });
 

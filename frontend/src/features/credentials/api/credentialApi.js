@@ -9,16 +9,31 @@ import logger from '@utils/logger.js';
  */
 export const uploadCredential = async (credentialData) => {
   try {
-    logger.debug('Uploading credential', { title: credentialData.title });
+    console.log('📤📤📤 UPLOADING CREDENTIAL 📤📤📤');
+    console.log('Uploading credential data:', {
+      title: credentialData.title,
+      issuer: credentialData.issuer,
+      hasFile: !!credentialData.fileBase64,
+      fileName: credentialData.fileName
+    });
+    
+    logger.debug('Uploading credential', { 
+      title: credentialData.title,
+    });
     
     const response = await axiosClient.post(ENDPOINTS.CREDENTIALS.CREATE, credentialData);
 
+    console.log('✅ Credential uploaded successfully!');
+    console.log('Response:', response.data);
+    
     logger.debug('Credential uploaded successfully', {
       credentialId: response.data?.data?.credential?._id
     });
 
     return response.data;
   } catch (error) {
+    console.error('❌ Failed to upload credential:', error);
+    console.error('Error details:', error.response?.data);
     logger.error('Failed to upload credential', { 
       error: error.response?.data?.message || error.message,
       details: error.response?.data
@@ -34,16 +49,37 @@ export const uploadCredential = async (credentialData) => {
  */
 export const getMyCredentials = async (filters = {}) => {
   try {
+    console.log('\n🔍🔍🔍 FETCHING MY CREDENTIALS 🔍🔍🔍');
+    console.log('Filters:', filters);
     logger.debug('Fetching my credentials', { filters });
     
     const response = await axiosClient.get(ENDPOINTS.CREDENTIALS.LIST, { params: filters });
 
+    console.log('✅ Credentials API Response:', response.data);
+    console.log('📊 Credentials count:', response.data?.data?.credentials?.length || 0);
+    console.log('📄 Credentials:', response.data?.data?.credentials);
+    
+    // Log DigiLocker credentials specifically
+    const digilockerCreds = response.data?.data?.credentials?.filter(c => c.meta?.source === 'digilocker');
+    console.log('📦 DigiLocker credentials:', digilockerCreds?.length || 0);
+    if (digilockerCreds && digilockerCreds.length > 0) {
+      console.log('📦 DigiLocker credential details:');
+      digilockerCreds.forEach((cred, index) => {
+        console.log(`  ${index + 1}. ${cred.title}`);
+        console.log(`     - ID: ${cred._id}`);
+        console.log(`     - Status: ${cred.status}`);
+        console.log(`     - Verification: ${cred.verificationStatus}`);
+        console.log(`     - PDF: ${cred.meta?.documentFile || 'N/A'}`);
+      });
+    }
+    
     logger.debug('Credentials fetched successfully', {
       count: response.data?.data?.credentials?.length || 0
     });
 
     return response.data;
   } catch (error) {
+    console.error('❌ Failed to fetch credentials:', error);
     logger.error('Failed to fetch credentials', { error: error.message });
     throw error;
   }

@@ -38,7 +38,6 @@ export const createCredential = async (userId, credentialData) => {
   if (credentialData.fileBase64) {
     try {
       console.log('📤 [IMAGEKIT] Uploading file to ImageKit...');
-
       // Convert base64 to buffer
       const base64Data = credentialData.fileBase64.replace(/^data:image\/[a-z]+;base64,/, '').replace(/^data:application\/pdf;base64,/, '');
       const buffer = Buffer.from(base64Data, 'base64');
@@ -182,7 +181,6 @@ export const requestVerification = async (userId, credentialId) => {
   // 2. Credential has external source (DigiLocker, etc.) with sourceUrl
   const hasFile = credential.file && credential.file.url;
   const hasExternalSource = credential.sourceUrl && credential.sourceDomain;
-
   if (!hasFile && !hasExternalSource) {
     throw new Error('Please upload credential file or connect from verified source (DigiLocker) before requesting verification');
   }

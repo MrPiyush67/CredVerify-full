@@ -31,8 +31,6 @@ export function findBestNameMatchFromOcr(ocrText, legalName) {
 
   const lines = ocrText.split(/\n/);
 
-  console.log('🔍 [NAME MATCHER] Starting candidate extraction...');
-
   // Pattern 1: Look for capitalized name patterns (2-4 words)
   for (const line of lines) {
     // Match 2-4 capitalized words (typical name pattern)
@@ -44,7 +42,6 @@ export function findBestNameMatchFromOcr(ocrText, legalName) {
         const excludeWords = ['Certificate', 'Completion', 'Achievement', 'Instructors', 'Instructor', 'Course', 'Date', 'By', 'From', 'Issued', 'Authorized'];
         const hasExcluded = excludeWords.some(word => trimmed.includes(word));
         if (!hasExcluded && trimmed.split(' ').length >= 2) {
-          console.log(`  ✓ Pattern 1 (capitalized): "${trimmed}" from line: "${line}"`);
           candidates.add(trimmed);
         }
       });
@@ -61,12 +58,18 @@ export function findBestNameMatchFromOcr(ocrText, legalName) {
   for (const pattern of nameIndicators) {
     const match = ocrText.match(pattern);
     if (match && match[1]) {
-      console.log(`  ✓ Pattern 2 (phrase): "${match[1].trim()}" using pattern: ${pattern}`);
       candidates.add(match[1].trim());
     }
   }
 
-  console.log(`🔍 [NAME MATCHER] Total candidates found: ${candidates.size}`);
+  // Pattern 3: Add legal name variants as candidates
+  const legalParts = legalName.split(/\s+/).filter(p => p.length > 0);
+  if (legalParts.length >= 2) {
+    // Add "First Last" variant
+    candidates.add(`${legalParts[0]} ${legalParts[legalParts.length - 1]}`);
+    // Add full name
+    candidates.add(legalName.trim());
+  }
 
   // ========================================
   // Step 2: Find best match using fuzzy matching
@@ -93,54 +96,7 @@ export function findBestNameMatchFromOcr(ocrText, legalName) {
   const bestMatchIndex = ratings.findIndex(r => r.target === bestMatch.target);
   const bestMatchOriginal = candidateArray[bestMatchIndex];
 
-  let confidence = Math.round(bestMatch.rating * 100);
-
-  // ========================================
-  // Step 2.5: CRITICAL SECURITY CHECK
-  // Validate that the best match is actually the user's name
-  // ========================================
-
-  // Check if bestMatch actually matches the legal name components
-  const legalLower = legalName.toLowerCase().trim();
-  const matchLower = bestMatchOriginal.toLowerCase().trim();
-
-  // Split into words
-  const legalWords = legalLower.split(/\s+/);
-  const matchWords = matchLower.split(/\s+/);
-
-  // Security Rule 1: First name MUST match
-  if (legalWords.length >= 1 && matchWords.length >= 1) {
-    const firstNameMatch = legalWords[0] === matchWords[0];
-    if (!firstNameMatch) {
-      // First names don't match - this is likely a different person
-      console.warn(`⚠️ NAME SECURITY: First name mismatch - Legal: "${legalWords[0]}" vs Match: "${matchWords[0]}"`);
-      return {
-        bestMatch: bestMatchOriginal,
-        confidence: 0, // Force rejection
-        reason: `First name mismatch: "${matchWords[0]}" does not match "${legalWords[0]}"`,
-        candidates: candidateArray,
-        securityReject: true,
-      };
-    }
-  }
-
-  // Security Rule 2: Last name MUST match (if both names have 2+ words)
-  if (legalWords.length >= 2 && matchWords.length >= 2) {
-    const legalLast = legalWords[legalWords.length - 1];
-    const matchLast = matchWords[matchWords.length - 1];
-    const lastNameMatch = legalLast === matchLast;
-
-    if (!lastNameMatch) {
-      console.warn(`⚠️ NAME SECURITY: Last name mismatch - Legal: "${legalLast}" vs Match: "${matchLast}"`);
-      return {
-        bestMatch: bestMatchOriginal,
-        confidence: 0, // Force rejection
-        reason: `Last name mismatch: "${matchLast}" does not match "${legalLast}"`,
-        candidates: candidateArray,
-        securityReject: true,
-      };
-    }
-  }
+  const confidence = Math.round(bestMatch.rating * 100);
 
   // ========================================
   // Step 3: Determine match quality

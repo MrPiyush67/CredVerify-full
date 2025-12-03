@@ -36,3 +36,7 @@ export const rejectCredential = (id, reason) => {
 export const getCredentialStats = () => {
   return axiosClient.get(ENDPOINTS.CREDENTIALS.STATS);
 };
+
+export const requestVerification = (id) => {
+  return axiosClient.post(ENDPOINTS.CREDENTIALS.REQUEST_VERIFICATION(id));
+};

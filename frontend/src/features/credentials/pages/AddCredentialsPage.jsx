@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
+<<<<<<< HEAD
 import { CheckCircle, Trash2, Upload, Link as LinkIcon, ChevronDown, FileText, ShieldCheck, Puzzle, RefreshCw, Loader2, QrCode } from 'lucide-react';
+=======
+import { CheckCircle, Trash2, Upload, QrCode, Hash, ChevronDown, FileText, ShieldCheck, Puzzle, RefreshCw, Loader2, FolderKey, BookOpen } from 'lucide-react';
+>>>>>>> 2b02db5f216f698519d2fa4ba8c962d18e475be5
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Input, Button, PageHeader } from '@common';
@@ -11,6 +15,7 @@ import PortfolioGeneratorModal from '../components/PortfolioGeneratorModal.jsx';
 import ValidantVerificationModal from '../components/ValidantVerificationModal.jsx';
 import ExtensionInstallModal from '../components/ExtensionInstallModal.jsx';
 import PlatformVerificationModal from '../components/PlatformVerificationModal.jsx';
+import DigilockerModal from '../components/DigilockerModal.jsx';
 import credentialAPI from '../api/credentialApi.js';
 import {
   UPLOAD_METHODS,
@@ -52,6 +57,7 @@ export default function AddCredentialsPage() {
   const [isPortfolioModalOpen, setIsPortfolioModalOpen] = useState(false);
   const [isValidantModalOpen, setIsValidantModalOpen] = useState(false);
   const [isExtensionModalOpen, setIsExtensionModalOpen] = useState(false);
+  const [isDigilockerModalOpen, setIsDigilockerModalOpen] = useState(false);
 
   // Submitted credentials from upload methods
   const [submittedCredentials, setSubmittedCredentials] = useState([]);
@@ -60,6 +66,31 @@ export default function AddCredentialsPage() {
   useEffect(() => {
     dispatch(fetchPlatformProfile());
   }, [dispatch]);
+
+  // Check for DigiLocker callback on page load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const digilockerParam = params.get('digilocker');
+    const docsParam = params.get('docs');
+    
+    console.log('\n========================================');
+    console.log('🔍 [AddCredentialsPage] Checking URL params on mount');
+    console.log('========================================');
+    console.log('   Full URL:', window.location.href);
+    console.log('   Search params:', window.location.search);
+    console.log('   digilocker param:', digilockerParam);
+    console.log('   docs param present:', !!docsParam);
+    console.log('   docs param length:', docsParam?.length || 0);
+    if (docsParam) {
+      console.log('   docs param preview:', docsParam.substring(0, 100) + '...');
+    }
+    console.log('========================================\n');
+    
+    if (digilockerParam === 'connected') {
+      console.log('✅ [AddCredentialsPage] DigiLocker callback detected - opening modal');
+      setIsDigilockerModalOpen(true);
+    }
+  }, []);
 
   const handleInputChange = (platformId, value) => {
     setPlatformInputs(prev => ({ ...prev, [platformId]: value }));
@@ -124,7 +155,38 @@ export default function AddCredentialsPage() {
   };
 
   const handleCredentialDelete = (credentialId) => {
-    setSubmittedCredentials(prev => prev.filter(c => c.id !== credentialId));
+    const credential = submittedCredentials.find(c => c.id === credentialId);
+    
+    toast((t) => (
+      <div className="flex items-center gap-3">
+        <div className="flex-1">
+          <p className="font-medium text-gray-900">Delete credential?</p>
+          <p className="text-sm text-gray-600 mt-1">
+            Remove "{credential?.platformName}" from your credentials
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              setSubmittedCredentials(prev => prev.filter(c => c.id !== credentialId));
+              toast.success('Credential removed successfully', { id: t.id });
+            }}
+            className="px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors"
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: 5000,
+      icon: '🗑️',
+    });
   };
 
   const handleValidantSubmit = async (credentialData) => {
@@ -284,10 +346,29 @@ export default function AddCredentialsPage() {
 
   return (
     <div className="container mx-auto px-4 max-w-7xl">
-      <PageHeader
-        title="Add Credentials"
-        description="Select your upload method below and choose the platform to verify your credentials"
-      />
+      <div className="flex items-center justify-between mb-6">
+        <PageHeader
+          title="Add Credentials"
+          description="Select your upload method below and choose the platform to verify your credentials"
+        />
+        <div className="flex items-center gap-3 shrink-0">
+          <Button
+            variant="outline"
+            onClick={() => navigate('/credentials/upload-guide')}
+            className="flex items-center gap-2 border-[#116466] text-[#116466] hover:bg-[#116466]/5"
+          >
+            <BookOpen className="h-5 w-5" />
+            How it Works
+          </Button>
+          <Button
+            onClick={() => setIsDigilockerModalOpen(true)}
+            className="bg-[#116466] text-white hover:bg-[#0e4f50] flex items-center gap-2"
+          >
+            <FolderKey className="h-5 w-5" />
+            Add with Digilocker
+          </Button>
+        </div>
+      </div>
 
       <motion.section
         initial={{ opacity: 0, y: 20 }}
@@ -380,8 +461,8 @@ export default function AddCredentialsPage() {
               {submittedCredentials.map((credential) => (
                 <div key={credential.id} className="flex items-center justify-between px-6 py-4 hover:bg-gray-50">
                   <div className="flex items-center gap-4">
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-green-100 text-green-600">
-                      <CheckCircle className="h-5 w-5" />
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[#116466]/10 text-[#116466]">
+                      <FileText className="h-5 w-5" />
                     </span>
                     <div>
                       <div className="font-medium">{credential.platformName}</div>
@@ -532,6 +613,16 @@ export default function AddCredentialsPage() {
       <ExtensionInstallModal
         isOpen={isExtensionModalOpen}
         onClose={() => setIsExtensionModalOpen(false)}
+      />
+
+      {/* Digilocker Modal */}
+      {console.log('🎯 [AddCredentialsPage] Rendering DigilockerModal, isOpen:', isDigilockerModalOpen)}
+      <DigilockerModal
+        isOpen={isDigilockerModalOpen}
+        onClose={() => {
+          console.log('🚪 [AddCredentialsPage] Closing DigilockerModal');
+          setIsDigilockerModalOpen(false);
+        }}
       />
     </div>
   );
