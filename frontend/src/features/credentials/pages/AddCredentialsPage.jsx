@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, Trash2, Upload, QrCode, Hash, ChevronDown, FileText, ShieldCheck, Puzzle, RefreshCw, Loader2 } from 'lucide-react';
+import { CheckCircle, Trash2, Upload, QrCode, Hash, ChevronDown, FileText, ShieldCheck, Puzzle, RefreshCw, Loader2, FolderKey } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Input, Button, PageHeader } from '@common';
@@ -10,6 +10,7 @@ import PortfolioGeneratorModal from '../components/PortfolioGeneratorModal.jsx';
 import ValidantVerificationModal from '../components/ValidantVerificationModal.jsx';
 import ExtensionInstallModal from '../components/ExtensionInstallModal.jsx';
 import PlatformVerificationModal from '../components/PlatformVerificationModal.jsx';
+import DigilockerModal from '../components/DigilockerModal.jsx';
 import credentialAPI from '../api/credentialApi.js';
 import {
   UPLOAD_METHODS,
@@ -50,6 +51,7 @@ export default function AddCredentialsPage() {
   const [isPortfolioModalOpen, setIsPortfolioModalOpen] = useState(false);
   const [isValidantModalOpen, setIsValidantModalOpen] = useState(false);
   const [isExtensionModalOpen, setIsExtensionModalOpen] = useState(false);
+  const [isDigilockerModalOpen, setIsDigilockerModalOpen] = useState(false);
 
   // Submitted credentials from upload methods
   const [submittedCredentials, setSubmittedCredentials] = useState([]);
@@ -283,10 +285,19 @@ export default function AddCredentialsPage() {
 
   return (
     <div className="container mx-auto px-4 max-w-7xl">
-      <PageHeader
-        title="Add Credentials"
-        description="Select your upload method below and choose the platform to verify your credentials"
-      />
+      <div className="flex items-center justify-between mb-6">
+        <PageHeader
+          title="Add Credentials"
+          description="Select your upload method below and choose the platform to verify your credentials"
+        />
+        <Button
+          onClick={() => setIsDigilockerModalOpen(true)}
+          className="bg-[#116466] text-white hover:bg-[#0e4f50] flex items-center gap-2 shrink-0"
+        >
+          <FolderKey className="h-5 w-5" />
+          Add with Digilocker
+        </Button>
+      </div>
 
       <motion.section
         initial={{ opacity: 0, y: 20 }}
@@ -543,6 +554,12 @@ export default function AddCredentialsPage() {
       <ExtensionInstallModal
         isOpen={isExtensionModalOpen}
         onClose={() => setIsExtensionModalOpen(false)}
+      />
+
+      {/* Digilocker Modal */}
+      <DigilockerModal
+        isOpen={isDigilockerModalOpen}
+        onClose={() => setIsDigilockerModalOpen(false)}
       />
     </div>
   );

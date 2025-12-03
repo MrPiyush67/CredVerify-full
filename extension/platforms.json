@@ -246,16 +246,6 @@
       ]
     },
     {
-      "id": "forge",
-      "name": "Forge",
-      "category": "coding_platform",
-      "domains": [
-        "theforage.com",
-        "www.theforage.com",
-        "forage-uploads-prod.s3.amazonaws.com"
-      ]
-    },
-    {
       "id": "aws_training",
       "name": "AWS Certification",
       "category": "cloud_vendor",

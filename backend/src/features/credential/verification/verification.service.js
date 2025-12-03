@@ -132,7 +132,8 @@ export function determineVerificationStatus(finalScore, nameConfidence, domainCo
 
 /**
  * Process certificate image and extract structured data
- * IMPROVED FLOW: OCR → LLM Extraction → Name Validation → Domain Validation
+ * CLEAN ARCHITECTURE (ChatGPT Recommended)
+ * Flow: OCR → Name Match → Domain Validation → LLM Metadata → Build Final Data
  * @param {object} params - { userId, imageData, sourceUrl, imageType }
  * @returns {Promise<object>} - Processed certificate data
  */
@@ -143,7 +144,7 @@ export async function processCertificateImage(params) {
     // ========================================
     // Step 1: Get user's legal name from database (or test mode)
     // ========================================
-    console.log('Step 1/6: Fetching user legal name...');
+    console.log('Step 1/7: Fetching user legal name...');
     let legalName;
 
     if (testMode) {
@@ -162,7 +163,7 @@ export async function processCertificateImage(params) {
     // ========================================
     // Step 2: OCR - Extract text from image
     // ========================================
-    console.log('Step 2/6: Extracting text via OCR...');
+    console.log('Step 2/7: Extracting text via OCR...');
     let ocrText;
     if (imageType === 'base64') {
       ocrText = await extractTextFromBase64(imageData);
@@ -176,15 +177,10 @@ export async function processCertificateImage(params) {
       throw new Error('OCR failed to extract meaningful text from image');
     }
 
-    // Debug: Show raw OCR text
-    console.log('========== RAW OCR TEXT START ==========');
-    console.log(ocrText);
-    console.log('========== RAW OCR TEXT END ==========');
-
     // ========================================
-    // Step 3: Domain Validation
+    // Step 3: Domain Validation (BEFORE LLM)
     // ========================================
-    console.log('Step 3/6: Validating source domain...');
+    console.log('Step 3/7: Validating source domain...');
     const domainValidation = validateDomainAndGetIssuer(sourceUrl);
 
     // Early rejection: Unknown domain
@@ -205,153 +201,45 @@ export async function processCertificateImage(params) {
     }
 
     // ========================================
-    // Step 4: LLM - Extract metadata INCLUDING recipient name
+    // Step 4: Name Matching (BEFORE LLM)
     // ========================================
-    console.log('Step 4/6: Extracting certificate metadata via LLM...');
-    const llmMetadata = await extractCertificateMetadata(ocrText);
+    console.log('Step 4/7: Matching name from OCR with legal name...');
+    const nameMatch = findBestNameMatchFromOcr(ocrText, legalName);
 
-    // Debug LLM metadata
-    try {
-      console.log('LLM metadata extracted:', JSON.stringify({
-        recipientName: llmMetadata.recipientName || null,
-        certificateUrl: llmMetadata.certificateUrl || null,
-        certificateName: llmMetadata.certificateName || llmMetadata.courseTitle || null,
-        issueDate: llmMetadata.issueDate || null,
-        completionDate: llmMetadata.completionDate || null,
-        grade: llmMetadata.grade || null
-      }, null, 2));
-    } catch (e) {
-      console.log('LLM metadata debug error:', e);
-    }
-
-    // ========================================
-    // Step 5: Validate LLM-extracted name against legal name
-    // ========================================
-    console.log('Step 5/6: Validating extracted name against legal name...');
-
-    if (!llmMetadata.recipientName) {
+    // Early rejection: Name mismatch
+    if (nameMatch.confidence < 85) {
       return {
         success: false,
-        error: 'NAME_NOT_FOUND',
-        message: 'Could not extract recipient name from certificate',
+        error: 'NAME_MISMATCH',
+        message: 'Name on certificate does not match your profile',
         verification: {
           status: 'REJECTED',
           finalScore: 0,
           autoApproved: false,
           requiresReview: false,
-          reason: 'Recipient name not found on certificate',
+          reason: nameMatch.reason,
         },
         nameValidation: {
           legalName,
-          recipientName: null,
+          recipientName: nameMatch.bestMatch,
           match: false,
-          confidence: 0,
-          reason: 'LLM could not extract recipient name',
+          confidence: nameMatch.confidence,
+          reason: nameMatch.reason,
         },
         domainValidation,
       };
     }
 
-    // Validate the LLM-extracted name against legal name
-    const extractedNameLower = llmMetadata.recipientName.toLowerCase().trim();
-    const legalNameLower = legalName.toLowerCase().trim();
-
-    // Split into words for comparison
-    const extractedWords = extractedNameLower.split(/\s+/);
-    const legalWords = legalNameLower.split(/\s+/);
-
-    let nameConfidence = 0;
-    let nameMatchReason = '';
-    let nameMatch = false;
-
-    // Security Rule 1: First name MUST match
-    if (extractedWords.length >= 1 && legalWords.length >= 1) {
-      const firstNameMatch = extractedWords[0] === legalWords[0];
-
-      if (!firstNameMatch) {
-        console.warn(`⚠️ NAME SECURITY: First name mismatch - Legal: "${legalWords[0]}" vs Certificate: "${extractedWords[0]}"`);
-        return {
-          success: false,
-          error: 'NAME_MISMATCH',
-          message: 'Name on certificate does not match your profile',
-          verification: {
-            status: 'REJECTED',
-            finalScore: 0,
-            autoApproved: false,
-            requiresReview: false,
-            reason: `First name mismatch: "${extractedWords[0]}" does not match "${legalWords[0]}"`,
-          },
-          nameValidation: {
-            legalName,
-            recipientName: llmMetadata.recipientName,
-            match: false,
-            confidence: 0,
-            reason: `First name mismatch: "${extractedWords[0]}" does not match "${legalWords[0]}"`,
-          },
-          domainValidation,
-        };
-      }
-    }
-
-    // Security Rule 2: Last name MUST match (if both names have 2+ words)
-    if (extractedWords.length >= 2 && legalWords.length >= 2) {
-      const extractedLast = extractedWords[extractedWords.length - 1];
-      const legalLast = legalWords[legalWords.length - 1];
-      const lastNameMatch = extractedLast === legalLast;
-
-      if (!lastNameMatch) {
-        console.warn(`⚠️ NAME SECURITY: Last name mismatch - Legal: "${legalLast}" vs Certificate: "${extractedLast}"`);
-        return {
-          success: false,
-          error: 'NAME_MISMATCH',
-          message: 'Name on certificate does not match your profile',
-          verification: {
-            status: 'REJECTED',
-            finalScore: 0,
-            autoApproved: false,
-            requiresReview: false,
-            reason: `Last name mismatch: "${extractedLast}" does not match "${legalLast}"`,
-          },
-          nameValidation: {
-            legalName,
-            recipientName: llmMetadata.recipientName,
-            match: false,
-            confidence: 0,
-            reason: `Last name mismatch: "${extractedLast}" does not match "${legalLast}"`,
-          },
-          domainValidation,
-        };
-      }
-    }
-
-    // Calculate confidence using string similarity
-    const stringSimilarity = (await import('string-similarity')).default;
-    const similarity = stringSimilarity.compareTwoStrings(extractedNameLower, legalNameLower);
-    nameConfidence = Math.round(similarity * 100);
-
-    if (nameConfidence >= 90) {
-      nameMatch = true;
-      nameMatchReason = 'Excellent name match';
-    } else if (nameConfidence >= 75) {
-      nameMatch = true;
-      nameMatchReason = 'Good name match (possible middle name variation)';
-    } else if (nameConfidence >= 60) {
-      nameMatch = true;
-      nameMatchReason = 'Acceptable match with variations';
-    } else {
-      nameMatch = false;
-      nameMatchReason = 'Name similarity too low';
-    }
-
-    console.log(`✅ Name validation passed: "${llmMetadata.recipientName}" matches "${legalName}" (${nameConfidence}%)`);
+    // ========================================
+    // Step 5: LLM - Extract metadata ONLY
+    // ========================================
+    console.log('Step 5/7: Extracting certificate metadata via LLM...');
+    const llmMetadata = await extractCertificateMetadata(ocrText);
 
     // ========================================
-    // Step 5.5: Certificate URL validation
+    // Step 5.5: DUAL DOMAIN VALIDATION (Certificate URL)
     // ========================================
-    // ========================================
-    // Step 5.5: Certificate URL validation
-    // ========================================
-    console.log('Step 5.5/6: Validating certificate verification URL...');
+    console.log('Step 5.5/7: Validating certificate verification URL...');
     let certificateUrlValidation = null;
 
     if (llmMetadata.certificateUrl) {
@@ -372,11 +260,7 @@ export async function processCertificateImage(params) {
             confidence: { name: 0, domain: 0, metadata: 0 },
           },
           nameValidation: {
-            legalName,
-            recipientName: llmMetadata.recipientName,
-            match: nameMatch,
-            confidence: nameConfidence,
-            reason: nameMatchReason,
+            legalName: legalName,
           },
           domainValidation: {
             sourceUrl,
@@ -398,31 +282,25 @@ export async function processCertificateImage(params) {
         console.warn('⚠️ Domain mismatch - PageUrl:', domainValidation.domain, 'Certificate URL:', certificateUrlValidation.domain);
         // This is a warning but not automatic rejection - could be subdomain variation
       }
-      // Debug certificate URL validation details
-      try {
-        console.log('Certificate URL validation:', JSON.stringify(certificateUrlValidation, null, 2));
-      } catch (e) {
-        console.log('Certificate URL validation debug error:', e);
-      }
     } else {
       console.log('ℹ️ No certificate URL found on certificate image');
     }
 
     // ========================================
-    // Step 6: Build final extracted data and calculate score
+    // Step 6: Build final extracted data
     // ========================================
-    console.log('Step 6/6: Building final certificate data and calculating score...');
+    console.log('Step 6/7: Building final certificate data...');
 
-    // Use LLM-extracted data
+    // Use YOUR code's decisions, NOT LLM's
     const extractedData = {
-      // Critical fields - from LLM and validation
-      recipientName: llmMetadata.recipientName,
+      // Critical fields - from YOUR validation (NOT LLM)
+      recipientName: nameMatch.bestMatch,
       issuerName: domainValidation.issuer.name,
       verificationLink: sourceUrl,
-      certificateUrl: llmMetadata.certificateUrl || null,
+      certificateUrl: llmMetadata.certificateUrl || null, // URL found on certificate
 
       // Non-critical fields - from LLM
-      courseTitle: llmMetadata.courseTitle || llmMetadata.certificateName || 'Certificate',
+      courseTitle: llmMetadata.courseTitle || llmMetadata.certificateName || 'Certificate',  // Support both old and new field names
       duration: llmMetadata.duration,
       learningHours: llmMetadata.learningHours,
       grade: llmMetadata.grade,
@@ -431,39 +309,37 @@ export async function processCertificateImage(params) {
       completionDate: llmMetadata.completionDate,
       skills: llmMetadata.skills || [],
       description: llmMetadata.description,
-      certificateId: null,
+
+      // Certificate ID: can try to extract from OCR (optional)
+      certificateId: null, // Can add regex extraction if needed
     };
 
-    // Calculate verification score
+    // ========================================
+    // Step 7: Calculate verification score
+    // ========================================
+    console.log('Step 7/7: Calculating verification score...');
+
     const scoreResult = calculateFinalVerificationScore(
-      nameConfidence,
+      nameMatch.confidence,
       domainValidation.confidence,
       true // metadata is valid (we have required fields)
     );
 
     const verificationDecision = determineVerificationStatus(
       scoreResult.finalScore,
-      nameConfidence,
+      nameMatch.confidence,
       domainValidation.confidence,
       true
     );
 
-    // Debug score breakdown
-    try {
-      console.log('Score breakdown:', JSON.stringify(scoreResult, null, 2));
-      console.log('Domain validation details:', JSON.stringify(domainValidation, null, 2));
-    } catch (e) {
-      console.log('Score debug error:', e);
-    }
-
     console.log(`✅ Verification complete: ${verificationDecision.status} (Score: ${scoreResult.finalScore}%)`);
 
     // ========================================
-    // Step 7: Return final result
+    // Step 8: Return final result
     // ========================================
     return {
       success: true,
-      extractionMethod: 'llm-first-validation',
+      extractionMethod: 'clean-architecture',
       ocrText,
       extractedData,
 
@@ -478,10 +354,11 @@ export async function processCertificateImage(params) {
 
       nameValidation: {
         legalName,
-        recipientName: llmMetadata.recipientName,
-        match: nameMatch,
-        confidence: nameConfidence,
-        reason: nameMatchReason,
+        recipientName: extractedData.recipientName,
+        match: true,
+        confidence: nameMatch.confidence,
+        reason: nameMatch.reason,
+        candidates: nameMatch.candidates,
       },
 
       domainValidation: {
