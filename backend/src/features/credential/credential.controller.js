@@ -1,8 +1,8 @@
 import { asyncHandler } from '../../core/utils/asyncHandler.js';
 import { sendSuccess } from '../../core/utils/response.js';
 import { MESSAGES } from '../../core/constants/messages.js';
-import * as credentialService from './credential.service.js';
-import * as bulkCredentialService from './bulkCredential.service.js';
+import * as credentialService from './services/credential.service.js';
+import * as bulkCredentialService from './services/bulkCredential.service.js';
 
 // @desc    Upload a credential
 // @route   POST /api/credentials
@@ -197,7 +197,7 @@ export const previewCertificate = asyncHandler(async (req, res) => {
 export const issueBulkCredentials = asyncHandler(async (req, res) => {
   const { credentialData, recipients } = req.body;
   const validantId = req.user._id;
-  
+
   // Validate input
   if (!credentialData || !recipients || !Array.isArray(recipients) || recipients.length === 0) {
     return res.status(400).json({

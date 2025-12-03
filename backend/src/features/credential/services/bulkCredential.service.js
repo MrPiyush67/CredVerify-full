@@ -1,8 +1,8 @@
-import { generateCertificatePDF } from '../../core/utils/certificateGenerator.js';
-import { sendCredentialEmail } from '../../core/utils/emailService.js';
-import { uploadCredentialFile } from '../../core/utils/imagekitService.js';
-import Credential from './credential.model.js';
-import User from '../user/user.model.js';
+import { generateCertificatePDF } from '../../../core/utils/certificateGenerator.js';
+import { sendCredentialEmail } from '../../../core/utils/emailService.js';
+import { uploadCredentialFile } from '../../../core/utils/imagekitService.js';
+import Credential from '../credential.model.js';
+import User from '../../user/user.model.js';
 // Removed local filesystem persistence; using ImageKit upload instead
 
 /**

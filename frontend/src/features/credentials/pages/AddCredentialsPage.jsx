@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, Trash2, Upload, QrCode, Hash, ChevronDown, FileText, ShieldCheck, Puzzle, RefreshCw, Loader2 } from 'lucide-react';
+import { CheckCircle, Trash2, Upload, Link as LinkIcon, ChevronDown, FileText, ShieldCheck, Puzzle, RefreshCw, Loader2, QrCode } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Input, Button, PageHeader } from '@common';
-import PlatformSelectionModal from '../components/PlatformSelectionModal.jsx';
+import CertificateQrUploadModal from '../components/CertificateQrUploadModal.jsx';
+import LinkVerificationModal from '../components/LinkVerificationModal.jsx';
 import PortfolioGeneratorModal from '../components/PortfolioGeneratorModal.jsx';
 import ValidantVerificationModal from '../components/ValidantVerificationModal.jsx';
 import ExtensionInstallModal from '../components/ExtensionInstallModal.jsx';
@@ -46,7 +47,8 @@ export default function AddCredentialsPage() {
   );
 
   // Upload method modals
-  const [activeUploadMethod, setActiveUploadMethod] = useState(null);
+  const [isCertificateQrModalOpen, setIsCertificateQrModalOpen] = useState(false);
+  const [isLinkVerificationModalOpen, setIsLinkVerificationModalOpen] = useState(false);
   const [isPortfolioModalOpen, setIsPortfolioModalOpen] = useState(false);
   const [isValidantModalOpen, setIsValidantModalOpen] = useState(false);
   const [isExtensionModalOpen, setIsExtensionModalOpen] = useState(false);
@@ -71,7 +73,7 @@ export default function AddCredentialsPage() {
     try {
       await dispatch(submitPlatformHandle({ platform: platform.id, handle: username })).unwrap();
       toast.success(`${platform.name} handle submitted successfully!`);
-      
+
       // Open verification modal for platforms that need it
       // Codeforces doesn't need verification modal (direct API)
       if (platform.id !== 'codeforces') {
@@ -118,8 +120,7 @@ export default function AddCredentialsPage() {
       submittedAt: new Date().toISOString()
     }]);
 
-    // Close modal
-    setActiveUploadMethod(null);
+    // Modal closes itself on success
   };
 
   const handleCredentialDelete = (credentialId) => {
@@ -161,7 +162,7 @@ export default function AddCredentialsPage() {
     const isPendingValidation = platformData?.pendingValidation;
     const inputValue = platformInputs[platform.id] || platformData?.handle || '';
     const stats = platformData?.stats;
-    
+
     return (
       <div key={platform.id} className="flex px-6 items-center gap-3 py-3 border-b last:border-b-0">
         <div className="flex items-center gap-3 w-56 shrink-0">
@@ -295,7 +296,7 @@ export default function AddCredentialsPage() {
         className="mb-8"
       >
         <h2 className="text-xl font-semibold mb-4 text-[#116466]">Upload Methods</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <button
             onClick={() => setIsExtensionModalOpen(true)}
             className="text-left border rounded-lg p-6 hover:bg-gray-50 hover:border-[#116466] transition-all"
@@ -331,51 +332,34 @@ export default function AddCredentialsPage() {
           </button>
 
           <button
-            onClick={() => setActiveUploadMethod(UPLOAD_METHODS.PDF)}
+            onClick={() => setIsCertificateQrModalOpen(true)}
             className="text-left border rounded-lg p-6 hover:bg-gray-50 hover:border-[#116466] transition-all"
           >
             <div className="flex flex-col gap-3">
               <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[#116466] text-white">
-                <Upload className="h-6 w-6" />
+                <QrCode className='h-6 w-6' />
               </span>
               <div>
-                <div className="font-semibold text-lg mb-1">{UPLOAD_METHODS.PDF}</div>
+                <div className="font-semibold text-lg mb-1">Certificate/QR Upload</div>
                 <div className="text-sm text-muted-foreground">
-                  Upload certificate PDFs from HackerRank, IGNOU, FutureSkills Prime, etc.
+                  Upload certificate image or PDF with QR code for verification
                 </div>
               </div>
             </div>
           </button>
 
           <button
-            onClick={() => setActiveUploadMethod(UPLOAD_METHODS.QR_CODE)}
+            onClick={() => setIsLinkVerificationModalOpen(true)}
             className="text-left border rounded-lg p-6 hover:bg-gray-50 hover:border-[#116466] transition-all"
           >
             <div className="flex flex-col gap-3">
               <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[#116466] text-white">
-                <QrCode className="h-6 w-6" />
+                <LinkIcon className="h-6 w-6" />
               </span>
               <div>
-                <div className="font-semibold text-lg mb-1">{UPLOAD_METHODS.QR_CODE}</div>
+                <div className="font-semibold text-lg mb-1">Link Verification</div>
                 <div className="text-sm text-muted-foreground">
-                  Scan QR codes from Skill India, NSDC, DigiLocker certificates
-                </div>
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setActiveUploadMethod(UPLOAD_METHODS.CREDENTIAL_ID)}
-            className="text-left border rounded-lg p-6 hover:bg-gray-50 hover:border-[#116466] transition-all"
-          >
-            <div className="flex flex-col gap-3">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[#116466] text-white">
-                <Hash className="h-6 w-6" />
-              </span>
-              <div>
-                <div className="font-semibold text-lg mb-1">{UPLOAD_METHODS.CREDENTIAL_ID}</div>
-                <div className="text-sm text-muted-foreground">
-                  Enter certificate IDs from NPTEL, HackerRank, eSkill India, etc.
+                  Enter verification link from Coursera, NPTEL, HackerRank, etc.
                 </div>
               </div>
             </div>
@@ -478,12 +462,17 @@ export default function AddCredentialsPage() {
         );
       })}
 
-      {/* Platform Selection Modal */}
-      <PlatformSelectionModal
-        isOpen={!!activeUploadMethod}
-        onClose={() => setActiveUploadMethod(null)}
-        uploadMethod={activeUploadMethod}
-        platforms={activeUploadMethod ? getPlatformsByUploadMethod(activeUploadMethod) : []}
+      {/* Certificate/QR Upload Modal */}
+      <CertificateQrUploadModal
+        isOpen={isCertificateQrModalOpen}
+        onClose={() => setIsCertificateQrModalOpen(false)}
+        onSubmit={handleCredentialSubmit}
+      />
+
+      {/* Link Verification Modal */}
+      <LinkVerificationModal
+        isOpen={isLinkVerificationModalOpen}
+        onClose={() => setIsLinkVerificationModalOpen(false)}
         onSubmit={handleCredentialSubmit}
       />
 

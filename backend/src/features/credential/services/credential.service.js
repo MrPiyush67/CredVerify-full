@@ -1,28 +1,82 @@
-import Credential from './credential.model.js';
-import { createNotification } from '../notification/notification.service.js';
-import PlatformProfile from '../platform/platform.model.js';
+import Credential from '../credential.model.js';
+import { createNotification } from '../../notification/notification.service.js';
+import PlatformProfile from '../../platform/platform.model.js';
 
 export const createCredential = async (userId, credentialData) => {
+  console.log('🔵 [CREATE CREDENTIAL] Starting credential creation');
+  console.log('📝 Credential data:', {
+    title: credentialData.title,
+    issuer: credentialData.issuer,
+    hasFile: !!credentialData.fileBase64,
+    fileName: credentialData.fileName
+  });
+
   // Validate required fields
   if (!credentialData.title) {
+    console.error('❌ Missing title');
     throw new Error('Credential title is required');
   }
   if (!credentialData.issuer) {
+    console.error('❌ Missing issuer');
     throw new Error('Issuer is required');
   }
   if (!credentialData.issueDate) {
+    console.error('❌ Missing issue date');
     throw new Error('Issue date is required');
   }
   if (!credentialData.legalNameSnapshot) {
+    console.error('❌ Missing legal name snapshot');
     throw new Error('Legal name snapshot is required');
   }
   if (!credentialData.certificateName) {
+    console.error('❌ Missing certificate name');
     throw new Error('Certificate name is required');
+  }
+
+  // Handle file upload if fileBase64 is provided
+  let fileData = null;
+  if (credentialData.fileBase64) {
+    try {
+      console.log('📤 [IMAGEKIT] Uploading file to ImageKit...');
+
+      // Convert base64 to buffer
+      const base64Data = credentialData.fileBase64.replace(/^data:image\/[a-z]+;base64,/, '').replace(/^data:application\/pdf;base64,/, '');
+      const buffer = Buffer.from(base64Data, 'base64');
+
+      // Upload to ImageKit
+      const uploadResult = await uploadCredentialFile(buffer, {
+        fileName: credentialData.fileName || `credential-${Date.now()}.jpg`,
+        userName: credentialData.certificateName || 'unknown',
+        issuer: credentialData.issuer || 'unknown',
+        tags: ['credential', 'validant-verification'],
+      });
+
+      fileData = {
+        url: uploadResult.url,
+        fileName: uploadResult.fileName,
+        fileType: credentialData.fileType || uploadResult.fileType,
+        storageId: uploadResult.fileId,
+        uploadedAt: new Date(),
+      };
+
+      console.log('✅ File uploaded to ImageKit:', uploadResult.url);
+    } catch (uploadError) {
+      console.error('❌ ImageKit upload failed:', uploadError);
+      throw new Error(`Failed to upload file: ${uploadError.message}`);
+    }
+  }
+
+  // Remove fileBase64 and temporary fields from credential data
+  const { fileBase64, fileName, fileType, fileSize, ...cleanCredentialData } = credentialData;
+
+  // Add file data if uploaded
+  if (fileData) {
+    cleanCredentialData.file = fileData;
   }
 
   const credential = await Credential.create({
     user: userId,
-    ...credentialData,
+    ...cleanCredentialData,
   });
 
   // Create notification for successful credential upload
@@ -123,9 +177,14 @@ export const requestVerification = async (userId, credentialId) => {
     throw new Error('Verification already requested');
   }
 
-  // Must have file uploaded
-  if (!credential.file || !credential.file.url) {
-    throw new Error('Please upload credential file before requesting verification');
+  // Allow verification request if:
+  // 1. File is uploaded, OR
+  // 2. Credential has external source (DigiLocker, etc.) with sourceUrl
+  const hasFile = credential.file && credential.file.url;
+  const hasExternalSource = credential.sourceUrl && credential.sourceDomain;
+
+  if (!hasFile && !hasExternalSource) {
+    throw new Error('Please upload credential file or connect from verified source (DigiLocker) before requesting verification');
   }
 
   credential.verificationRequested = true;
@@ -260,7 +319,7 @@ export const verifyCredential = async (validantId, credentialId, verificationNot
   }
 
   await credential.save();
-  
+
   // If this is a platform credential, mark the platform as verified
   if (credential.meta?.verificationType === 'platform_profile' && credential.meta?.platformId) {
     const platformProfile = await PlatformProfile.findOne({ user: credential.user._id });
@@ -305,7 +364,7 @@ export const rejectCredential = async (validantId, credentialId, rejectionReason
   credential.verificationRequested = false;
 
   await credential.save();
-  
+
   // If this is a platform credential, mark the platform as rejected
   if (credential.meta?.verificationType === 'platform_profile' && credential.meta?.platformId) {
     const platformProfile = await PlatformProfile.findOne({ user: credential.user._id });

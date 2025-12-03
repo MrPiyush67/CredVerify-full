@@ -24,6 +24,11 @@ import {
   getTrustedDomainsList,
   extractCertificatePreview,
 } from './verification/verification.controller.js';
+import {
+  manualVerification,
+  testQrExtraction,
+  uploadCertificateImage,
+} from './verification/manualVerification.controller.js';
 
 const router = express.Router();
 
@@ -39,6 +44,10 @@ router.post('/credentials/from-extension', protect, createCredentialFromExtensio
 // Uses optionalAuth middleware to handle both authenticated requests and test mode
 router.post('/credentials/verify-certificate', optionalAuth, verifyCertificate);
 router.post('/credentials/extract-preview', protect, extractCertificatePreview);
+
+// Manual verification endpoints (QR code + web scraping)
+router.post('/credentials/manual-verify', protect, isCredentialist, uploadCertificateImage, manualVerification);
+router.post('/credentials/test-qr', protect, uploadCertificateImage, testQrExtraction);
 
 // Validant routes (specific routes first)
 router.get('/credentials/pending', protect, isValidant, getPendingCredentials);

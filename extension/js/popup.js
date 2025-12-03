@@ -187,16 +187,40 @@
         func: () => {
           const imgs = Array.from(document.querySelectorAll('img'));
           const out = [];
+          console.log(`Found ${imgs.length} total images on page`);
+
           imgs.forEach((img, idx) => {
-            if (img.src && img.width >= 200 && img.height >= 150) {
+            // Get actual rendered dimensions instead of natural dimensions
+            const rect = img.getBoundingClientRect();
+            const renderedWidth = rect.width;
+            const renderedHeight = rect.height;
+
+            // Skip images that haven't loaded or are not visible
+            if (renderedWidth === 0 || renderedHeight === 0) {
+              console.log(`⚠️ Skipping image ${idx}: zero dimensions (not loaded/visible)`);
+              return;
+            }
+
+            console.log(`Image ${idx}: ${renderedWidth}x${renderedHeight} - ${img.src.substring(0, 50)}...`);
+
+            if (img.src && renderedWidth >= 400 && renderedHeight >= 200) {
               try {
                 out.push({
                   url: new URL(img.src, document.baseURI).href,
-                  domIndex: idx // simple DOM position signature
+                  domIndex: idx, // simple DOM position signature
+                  width: renderedWidth,
+                  height: renderedHeight
                 });
-              } catch { }
+                console.log(`✅ Included image ${idx}: ${renderedWidth}x${renderedHeight}`);
+              } catch (e) {
+                console.log(`❌ Error processing image ${idx}:`, e);
+              }
+            } else {
+              console.log(`❌ Filtered out image ${idx}: ${renderedWidth}x${renderedHeight} (too small)`);
             }
           });
+
+          console.log(`Returning ${out.length} filtered images`);
           return out;
         }
       });

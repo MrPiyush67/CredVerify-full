@@ -1,7 +1,7 @@
-import { extractTextFromBase64, extractTextFromUrl } from '../ocr/ocr.service.js';
-import { extractCertificateMetadata } from '../llm/llm.service.js';
-import { findBestNameMatchFromOcr } from '../validation/nameMatcher.service.js';
-import { validateDomainAndGetIssuer } from '../validation/domainValidator.service.js';
+import { extractTextFromBase64, extractTextFromUrl } from './ocr.service.js';
+import { extractCertificateMetadata } from './llm.service.js';
+import { findBestNameMatchFromOcr } from './nameMatcher.service.js';
+import { validateDomainAndGetIssuer } from './domainValidator.service.js';
 import Credential from '../credential.model.js';
 import User from '../../user/user.model.js';
 
