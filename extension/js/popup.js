@@ -22,11 +22,13 @@
   // ===========================================
   // STATE
   // ===========================================
-  let authToken = null;
   let currentUser = null;
   let currentPageUrl = '';
   let selectedImageUrl = null;
   let selectedImageBlob = null;
+  let currentTabId = null;
+  let selectedImageDomIndex = null;
+
 
   // Anti-tamper: baseline fingerprint of the selected image
   let baselineImageHash = null;
@@ -54,7 +56,10 @@
 
     // Get current page
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tabs[0]) currentPageUrl = tabs[0].url;
+    if (tabs[0]) {
+      currentPageUrl = tabs[0].url;
+      currentTabId = tabs[0].id;
+    }
 
     // Check domain and collect images
     await checkDomain();
@@ -180,15 +185,19 @@
       const results = await chrome.scripting.executeScript({
         target: { tabId: tabs[0].id },
         func: () => {
-          const images = new Set();
-          document.querySelectorAll('img').forEach(img => {
+          const imgs = Array.from(document.querySelectorAll('img'));
+          const out = [];
+          imgs.forEach((img, idx) => {
             if (img.src && img.width >= 200 && img.height >= 150) {
               try {
-                images.add(new URL(img.src, document.baseURI).href);
+                out.push({
+                  url: new URL(img.src, document.baseURI).href,
+                  domIndex: idx // simple DOM position signature
+                });
               } catch { }
             }
           });
-          return Array.from(images);
+          return out;
         }
       });
 
@@ -206,61 +215,95 @@
     }
   }
 
+
   function displayImages(images) {
     imageList.innerHTML = '';
     imageCount.textContent = images.length;
 
-    images.forEach((url, index) => {
-      const item = document.createElement('div');
-      item.style.cssText = `
-        display: flex;
-        gap: 0.75rem;
-        padding: 0.5rem;
-        border: 2px solid hsl(var(--border));
-        border-radius: var(--radius-md);
-        margin-bottom: 0.5rem;
-        cursor: pointer;
-        transition: all var(--transition-base);
-      `;
-
-      item.innerHTML = `
-        <img
-          src="${url}"
-          style="width: 80px; height: 60px; object-fit: cover; border-radius: var(--radius-sm);"
-          onerror="this.style.display='none'"
-        />
-        <div style="flex: 1; font-size: 0.75rem; color: hsl(var(--muted-foreground)); overflow: hidden; text-overflow: ellipsis;">
-          Image ${index + 1}
+    if (images.length === 0) {
+      imageList.innerHTML = `
+        <div class="image-empty-state">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🖼️</div>
+          <div style="font-size: var(--text-sm); color: hsl(var(--muted-foreground)); text-align: center;">
+            No certificate images found on this page
+          </div>
+          <div style="font-size: var(--text-xs); color: hsl(var(--muted-foreground)); text-align: center; margin-top: 0.25rem;">
+            Try refreshing the page or navigating to a page with certificate images
+          </div>
         </div>
       `;
+      imageSelectionCard.style.display = 'block';
+      return;
+    }
 
-      item.addEventListener('click', () => selectImage(url, item));
+    images.forEach((imgObj, index) => {
+      const { url, width, height } = imgObj;
+      const item = document.createElement('div');
+      item.className = 'image-item';
+
+      // Create image element to get dimensions if not provided
+      const img = new Image();
+      img.onload = () => {
+        const actualWidth = img.naturalWidth;
+        const actualHeight = img.naturalHeight;
+        const dimensions = width && height ? `${width}×${height}` : `${actualWidth}×${actualHeight}`;
+
+        item.innerHTML = `
+          <img
+            src="${url}"
+            alt="Certificate ${index + 1}"
+            class="image-thumbnail"
+            onerror="this.parentElement.innerHTML='<div class=\\'image-placeholder\\'>📷</div>'"
+          />
+          <div class="image-info">
+            <div class="image-label">Image ${index + 1}</div>
+            <div class="image-meta">${dimensions}px</div>
+          </div>
+        `;
+      };
+
+      img.onerror = () => {
+        item.innerHTML = `
+          <div class="image-placeholder">📷</div>
+          <div class="image-info">
+            <div class="image-label">Image ${index + 1}</div>
+            <div class="image-meta">Failed to load</div>
+          </div>
+        `;
+      };
+
+      img.src = url;
+
+      item.addEventListener('click', () => selectImage(imgObj, item));
       imageList.appendChild(item);
     });
 
     imageSelectionCard.style.display = 'block';
 
-    // Auto-select if only one
     if (images.length === 1) {
       selectImage(images[0], imageList.firstChild);
     }
   }
 
-  async function selectImage(url, element) {
-    // Highlight selected
-    imageList.querySelectorAll('div').forEach(el => {
-      el.style.borderColor = 'hsl(var(--border))';
-      el.style.backgroundColor = 'transparent';
+
+  async function selectImage(imgObj, element) {
+    const { url, domIndex } = imgObj;
+
+    // Remove selected class from all items
+    imageList.querySelectorAll('.image-item').forEach(el => {
+      el.classList.remove('selected');
     });
-    element.style.borderColor = 'hsl(var(--primary))';
-    element.style.backgroundColor = 'hsl(var(--primary) / 0.05)';
+
+    // Add selected class to clicked item
+    element.classList.add('selected');
 
     selectedImageUrl = url;
+    selectedImageDomIndex = domIndex;
     selectedImageBlob = null;
     baselineImageHash = null;
     baselineImageTimestamp = null;
 
-    // Fetch blob & lock anti-tamper baseline if possible
+    // (you can keep your hash-based anti-tamper here if you want, or drop it)
     try {
       const response = await fetch(url, { mode: 'cors', cache: 'no-store' });
       if (response.ok) {
@@ -272,16 +315,15 @@
       }
     } catch (err) {
       console.warn('Error fetching image for baseline hash:', err);
-      selectedImageBlob = null; // Backend can still fetch using imageUrl
+      selectedImageBlob = null;
       baselineImageHash = null;
       baselineImageTimestamp = null;
     }
 
-    // Show preview
     certificatePreview.innerHTML = `
-      <img src="${url}" class="certificate-image" />
-      <div class="badge badge-success">Certificate selected</div>
-    `;
+    <img src="${url}" class="certificate-image" />
+    <div class="badge badge-success">Certificate selected</div>
+  `;
     certificatePreview.classList.add('has-image');
     verifyBtn.disabled = false;
   }
@@ -417,6 +459,86 @@
   }
 
   // ===========================================
+  // PAGE REFRESH + IMAGE EXISTENCE CHECK
+  // ===========================================
+  async function refreshAndConfirmImageStillThere() {
+    if (!currentTabId || !selectedImageUrl) return false;
+
+    // 1) Reload the tab (bypass cache)
+    await new Promise((resolve) => {
+      chrome.tabs.reload(currentTabId, { bypassCache: true }, () => resolve());
+    });
+
+    // 2) Wait for the tab to truly be 'complete'
+    //    (polling is more reliable here than hoping we catch an onUpdated event)
+    const waitForComplete = async (timeoutMs = 15000) => {
+      const start = Date.now();
+      while (Date.now() - start < timeoutMs) {
+        try {
+          const tab = await chrome.tabs.get(currentTabId);
+          if (tab && tab.status === 'complete') return true;
+        } catch (e) {
+          // tab might have gone away, treat as fail
+          break;
+        }
+        await new Promise(r => setTimeout(r, 200));
+      }
+      return false;
+    };
+
+    const loaded = await waitForComplete();
+    if (!loaded) {
+      showAlert('Could not confirm page reload. Please try again.', 'destructive');
+      resetSelection();
+      return false;
+    }
+
+    // 3) Give the page a short extra delay so images/JS content can render
+    await new Promise(r => setTimeout(r, 800)); // tweak 500–1500ms as needed
+
+    // 4) Re-scan images on the *reloaded* page
+    const results = await chrome.scripting.executeScript({
+      target: { tabId: currentTabId },
+      func: () => {
+        const imgs = Array.from(document.querySelectorAll('img'));
+        return imgs
+          .map((img, idx) => ({
+            url: img.src ? new URL(img.src, document.baseURI).href : null,
+            domIndex: idx
+          }))
+          .filter(i => i.url);
+      }
+    });
+
+    const images = results[0]?.result || [];
+
+    // 5) Check if the same URL appears anywhere
+    const sameUrlExists = images.some(i => i.url === selectedImageUrl);
+
+    // Optional stricter check (if you’re tracking selectedImageDomIndex):
+    const sameSpotExists = typeof selectedImageDomIndex === 'number'
+      ? images.some(i => i.url === selectedImageUrl && i.domIndex === selectedImageDomIndex)
+      : null;
+
+    if (!sameUrlExists) {
+      showAlert(
+        'Certificate image is no longer present on the page. It may have been changed. Please reload and reselect.',
+        'destructive'
+      );
+      resetSelection();
+      return false;
+    }
+
+    // If you want to enforce same position:
+    // if (sameSpotExists === false) {
+    //   showAlert('Certificate appears to have moved. Please reselect to be safe.', 'warning');
+    // }
+
+    return true;
+  }
+
+
+  // ===========================================
   // VERIFICATION
   // ===========================================
   async function verifyCertificate() {
@@ -432,6 +554,16 @@
     verifyBtnText.textContent = 'Verifying...';
 
     try {
+      // page refresh + existence check
+      showProgress(5, 'Reloading page and validating certificate...');
+      const stillThere = await refreshAndConfirmImageStillThere();
+      if (!stillThere) {
+        isVerifying = false;
+        verifySpinner.style.display = 'none';
+        verifyBtnText.textContent = '✓ Verify Certificate';
+        return;
+      }
+
       // Step 1: Anti-tamper check
       showProgress(10, 'Running anti-tamper check...');
       const antiTamperOk = await runAntiTamperCheck();

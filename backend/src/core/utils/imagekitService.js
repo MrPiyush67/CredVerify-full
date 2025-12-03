@@ -34,10 +34,26 @@ export const uploadCredentialFile = async (fileBuffer, metadata = {}) => {
     // Generate unique filename
     const timestamp = Date.now();
     const fileName = metadata.fileName || `credential_${timestamp}`;
+    const mimeType = metadata.mimeType || (fileName.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'application/octet-stream');
+
+    // Ensure we send a supported type to SDK (base64 string is safest)
+    let uploadFile;
+    if (typeof fileBuffer === 'string') {
+      // assume already base64 or URL
+      uploadFile = fileBuffer;
+    } else if (Buffer.isBuffer(fileBuffer)) {
+      const base64 = fileBuffer.toString('base64');
+      uploadFile = `data:${mimeType};base64,${base64}`;
+    } else if (fileBuffer instanceof Uint8Array) {
+      const base64 = Buffer.from(fileBuffer).toString('base64');
+      uploadFile = `data:${mimeType};base64,${base64}`;
+    } else {
+      throw new Error('Unsupported fileBuffer type for ImageKit upload');
+    }
 
     // Prepare upload parameters
     const uploadParams = {
-      file: fileBuffer,
+      file: uploadFile,
       fileName: fileName,
       folder: folderPath,
       tags: [
