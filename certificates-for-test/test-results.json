@@ -1,0 +1,1002 @@
+{
+  "timestamp": "2025-12-02T13:59:25.608Z",
+  "totalTests": 14,
+  "summary": {
+    "successful": 14,
+    "failed": 0,
+    "verified": 14,
+    "reviewRequired": 0,
+    "rejected": 0
+  },
+  "results": [
+    {
+      "index": 0,
+      "certificate": "./PinkyGupta.jpeg",
+      "sourceUrl": "https://www.coursera.org/account/accomplishments/verify/T2BC9B306UHQ",
+      "expectedName": "Pinky Gupta",
+      "success": true,
+      "processingTime": 8197,
+      "verification": {
+        "status": "VERIFIED",
+        "finalScore": 100,
+        "autoApproved": true,
+        "requiresReview": false,
+        "reason": "High confidence match on all parameters",
+        "confidence": {
+          "name": 100,
+          "domain": 100,
+          "metadata": 100,
+          "weights": {
+            "NAME": 0.6,
+            "DOMAIN": 0.3,
+            "METADATA": 0.1
+          }
+        }
+      },
+      "extractedData": {
+        "recipientName": "Pinky Gupta",
+        "issuerName": "Coursera",
+        "verificationLink": "https://www.coursera.org/account/accomplishments/verify/T2BC9B306UHQ",
+        "certificateUrl": "https://coursera.org/verify/T2BC9B306UHQ",
+        "courseTitle": "Leadership Skills",
+        "duration": null,
+        "learningHours": null,
+        "grade": null,
+        "NSQFLevel": null,
+        "issueDate": "2025-03-12",
+        "completionDate": "2025-03-12",
+        "skills": [
+          "Leadership Skills"
+        ],
+        "description": "An online non-credit course authorized by IIMA - IIM Ahmedabad and offered through Coursera.",
+        "certificateId": null
+      },
+      "nameValidation": {
+        "legalName": "Pinky Gupta",
+        "recipientName": "Pinky Gupta",
+        "match": true,
+        "confidence": 100,
+        "reason": "Very strong name match",
+        "candidates": [
+          "Pinky Gupta",
+          "Leadership Skills",
+          "Vishal Gupta",
+          "Organizational Behavior Aen",
+          "Management Ahmedabad",
+          "po AN"
+        ]
+      },
+      "domainValidation": {
+        "sourceUrl": "https://www.coursera.org/account/accomplishments/verify/T2BC9B306UHQ",
+        "domain": "coursera.org",
+        "isValid": true,
+        "isTrusted": true,
+        "issuer": {
+          "id": "coursera",
+          "name": "Coursera",
+          "domain": "coursera.org"
+        },
+        "confidence": 100,
+        "reason": "Trusted issuer: Coursera"
+      }
+    },
+    {
+      "index": 1,
+      "certificate": "./PrajjwalMaurya.jpg",
+      "sourceUrl": "https://www.udemy.com/certificate/UC-858c158b-6121-47ab-9f2f-b5480f832d8a/",
+      "expectedName": "Prajjwal Maurya",
+      "success": true,
+      "processingTime": 8897,
+      "verification": {
+        "status": "VERIFIED",
+        "finalScore": 100,
+        "autoApproved": true,
+        "requiresReview": false,
+        "reason": "High confidence match on all parameters",
+        "confidence": {
+          "name": 100,
+          "domain": 100,
+          "metadata": 100,
+          "weights": {
+            "NAME": 0.6,
+            "DOMAIN": 0.3,
+            "METADATA": 0.1
+          }
+        }
+      },
+      "extractedData": {
+        "recipientName": "Prajjwal Maurya",
+        "issuerName": "Udemy",
+        "verificationLink": "https://www.udemy.com/certificate/UC-858c158b-6121-47ab-9f2f-b5480f832d8a/",
+        "certificateUrl": "ude.my/UC-858c158b-6121-47ab-912f-b5480832d8a",
+        "courseTitle": "Certificate of Completion",
+        "duration": "66 total hours",
+        "learningHours": 66,
+        "grade": null,
+        "NSQFLevel": null,
+        "issueDate": "2023-08-08",
+        "completionDate": "2023-08-08",
+        "skills": [],
+        "description": "Certificate of completion issued by Udemy for a program instructed by Dr. Angela Yu and Prajjwal Maurya, totaling 66 hours.",
+        "certificateId": null
+      },
+      "nameValidation": {
+        "legalName": "Prajjwal Maurya",
+        "recipientName": "Prajjwal Maurya",
+        "match": true,
+        "confidence": 100,
+        "reason": "Very strong name match",
+        "candidates": [
+          "Reference Number",
+          "Angela Yu",
+          "Prajjwal Maurya"
+        ]
+      },
+      "domainValidation": {
+        "sourceUrl": "https://www.udemy.com/certificate/UC-858c158b-6121-47ab-9f2f-b5480f832d8a/",
+        "domain": "udemy.com",
+        "isValid": true,
+        "isTrusted": true,
+        "issuer": {
+          "id": "udemy",
+          "name": "Udemy",
+          "domain": "udemy.com"
+        },
+        "confidence": 100,
+        "reason": "Trusted issuer: Udemy"
+      }
+    },
+    {
+      "index": 2,
+      "certificate": "./Rajagopal.jpg",
+      "sourceUrl": "https://www.udemy.com/certificate/UC-858c158b-6121-47ab-9f2f-b5480f832d8a/",
+      "expectedName": "Rajagopal T K P",
+      "success": true,
+      "processingTime": 6823,
+      "verification": {
+        "status": "VERIFIED",
+        "finalScore": 100,
+        "autoApproved": true,
+        "requiresReview": false,
+        "reason": "High confidence match on all parameters",
+        "confidence": {
+          "name": 100,
+          "domain": 100,
+          "metadata": 100,
+          "weights": {
+            "NAME": 0.6,
+            "DOMAIN": 0.3,
+            "METADATA": 0.1
+          }
+        }
+      },
+      "extractedData": {
+        "recipientName": "Rajagopal T K P",
+        "issuerName": "Udemy",
+        "verificationLink": "https://www.udemy.com/certificate/UC-858c158b-6121-47ab-9f2f-b5480f832d8a/",
+        "certificateUrl": null,
+        "courseTitle": "Automotive Sensor & Actuator Technology - A Beginner Course",
+        "duration": "1.5 total hours",
+        "learningHours": 1.5,
+        "grade": null,
+        "NSQFLevel": null,
+        "issueDate": "2021-07-05",
+        "completionDate": "2021-07-05",
+        "skills": [
+          "Automotive Sensor Technology",
+          "Actuator Technology"
+        ],
+        "description": "Certificate of Completion for successfully completing an online course in Automotive Sensor & Actuator Technology.",
+        "certificateId": null
+      },
+      "nameValidation": {
+        "legalName": "Rajagopal T K P",
+        "recipientName": "Rajagopal T K P",
+        "match": true,
+        "confidence": 100,
+        "reason": "Very strong name match",
+        "candidates": [
+          "Automotive Sensor",
+          "Actuator Technology",
+          "Prasanthfumar Patan",
+          "Rajagopal P",
+          "Rajagopal T K P"
+        ]
+      },
+      "domainValidation": {
+        "sourceUrl": "https://www.udemy.com/certificate/UC-858c158b-6121-47ab-9f2f-b5480f832d8a/",
+        "domain": "udemy.com",
+        "isValid": true,
+        "isTrusted": true,
+        "issuer": {
+          "id": "udemy",
+          "name": "Udemy",
+          "domain": "udemy.com"
+        },
+        "confidence": 100,
+        "reason": "Trusted issuer: Udemy"
+      }
+    },
+    {
+      "index": 3,
+      "certificate": "./Siddharth(1).jpg",
+      "sourceUrl": "https://unstop.com/certificate-preview/61b0ea94-afa7-41bb-a39c-fd8174abb007",
+      "expectedName": "Siddharth Kumar Gupta",
+      "success": true,
+      "processingTime": 10206,
+      "verification": {
+        "status": "VERIFIED",
+        "finalScore": 100,
+        "autoApproved": true,
+        "requiresReview": false,
+        "reason": "High confidence match on all parameters",
+        "confidence": {
+          "name": 100,
+          "domain": 100,
+          "metadata": 100,
+          "weights": {
+            "NAME": 0.6,
+            "DOMAIN": 0.3,
+            "METADATA": 0.1
+          }
+        }
+      },
+      "extractedData": {
+        "recipientName": "Siddharth Kumar Gupta",
+        "issuerName": "Unstop",
+        "verificationLink": "https://unstop.com/certificate-preview/61b0ea94-afa7-41bb-a39c-fd8174abb007",
+        "certificateUrl": null,
+        "courseTitle": "Online Quiz of NationBuilding Case Study Competition 2025",
+        "duration": null,
+        "learningHours": null,
+        "grade": null,
+        "NSQFLevel": null,
+        "issueDate": null,
+        "completionDate": "2025-01-05",
+        "skills": [
+          "Case Study Analysis",
+          "Nation Building"
+        ],
+        "description": "Certificate of Participation for an online quiz of NationBuilding Case Study Competition.",
+        "certificateId": null
+      },
+      "nameValidation": {
+        "legalName": "Siddharth Kumar Gupta",
+        "recipientName": "Siddharth Kumar Gupta",
+        "match": true,
+        "confidence": 100,
+        "reason": "Very strong name match",
+        "candidates": [
+          "Siddharth Gupta",
+          "Online Quiz",
+          "Study Competition",
+          "Ordinary People",
+          "Extraordinary Impact Re",
+          "Siddharth Gupta for\nparticipating",
+          "Siddharth Kumar Gupta"
+        ]
+      },
+      "domainValidation": {
+        "sourceUrl": "https://unstop.com/certificate-preview/61b0ea94-afa7-41bb-a39c-fd8174abb007",
+        "domain": "unstop.com",
+        "isValid": true,
+        "isTrusted": true,
+        "issuer": {
+          "id": "unstop",
+          "name": "Unstop",
+          "domain": "unstop.com"
+        },
+        "confidence": 100,
+        "reason": "Trusted issuer: Unstop"
+      }
+    },
+    {
+      "index": 4,
+      "certificate": "./Siddharth(2).jpg",
+      "sourceUrl": "https://unstop.com/certificate-preview/7e1b8d8d-c377-4ec1-b5a2-cd600665ea91",
+      "expectedName": "Siddharth Kumar Gupta",
+      "success": true,
+      "processingTime": 5534,
+      "verification": {
+        "status": "VERIFIED",
+        "finalScore": 100,
+        "autoApproved": true,
+        "requiresReview": false,
+        "reason": "High confidence match on all parameters",
+        "confidence": {
+          "name": 100,
+          "domain": 100,
+          "metadata": 100,
+          "weights": {
+            "NAME": 0.6,
+            "DOMAIN": 0.3,
+            "METADATA": 0.1
+          }
+        }
+      },
+      "extractedData": {
+        "recipientName": "Siddharth Kumar Gupta",
+        "issuerName": "Unstop",
+        "verificationLink": "https://unstop.com/certificate-preview/7e1b8d8d-c377-4ec1-b5a2-cd600665ea91",
+        "certificateUrl": null,
+        "courseTitle": "Ideathon - Ideate'23: Breaking the Barriers of SAMWAD'23",
+        "duration": "",
+        "learningHours": null,
+        "grade": "",
+        "NSQFLevel": null,
+        "issueDate": "",
+        "completionDate": "",
+        "skills": [
+          "Ideation",
+          "Problem Solving",
+          "Teamwork",
+          "Innovation"
+        ],
+        "description": "Certificate of Participation for Siddharth Gupta in Ideathon - Ideate'23: Breaking the Barriers of SAMWAD'23, organized by Maulana Azad National Institute of Technology (MANIT), Bhopal.",
+        "certificateId": null
+      },
+      "nameValidation": {
+        "legalName": "Siddharth Kumar Gupta",
+        "recipientName": "Siddharth Kumar Gupta",
+        "match": true,
+        "confidence": 100,
+        "reason": "Very strong name match",
+        "candidates": [
+          "Siddharth Gupta",
+          "Maulana Azad National Institute",
+          "Siddharth Gupta\nfrom Maulana",
+          "Siddharth Kumar Gupta"
+        ]
+      },
+      "domainValidation": {
+        "sourceUrl": "https://unstop.com/certificate-preview/7e1b8d8d-c377-4ec1-b5a2-cd600665ea91",
+        "domain": "unstop.com",
+        "isValid": true,
+        "isTrusted": true,
+        "issuer": {
+          "id": "unstop",
+          "name": "Unstop",
+          "domain": "unstop.com"
+        },
+        "confidence": 100,
+        "reason": "Trusted issuer: Unstop"
+      }
+    },
+    {
+      "index": 5,
+      "certificate": "./ShubhamGupta.jpg",
+      "sourceUrl": "https://verify.edx.org/cert/bf43f0b105b2435395590ef9edffca0e",
+      "expectedName": "Shubham Gupta",
+      "success": true,
+      "processingTime": 10034,
+      "verification": {
+        "status": "VERIFIED",
+        "finalScore": 100,
+        "autoApproved": true,
+        "requiresReview": false,
+        "reason": "High confidence match on all parameters",
+        "confidence": {
+          "name": 100,
+          "domain": 100,
+          "metadata": 100,
+          "weights": {
+            "NAME": 0.6,
+            "DOMAIN": 0.3,
+            "METADATA": 0.1
+          }
+        }
+      },
+      "extractedData": {
+        "recipientName": "Shubham Gupta",
+        "issuerName": "edX",
+        "verificationLink": "https://verify.edx.org/cert/bf43f0b105b2435395590ef9edffca0e",
+        "certificateUrl": "https://verify.edx.org/cert/bfd310b105624353955090dcal",
+        "courseTitle": "CS101.1x: Introduction to Computer Programming Part 1",
+        "duration": null,
+        "learningHours": null,
+        "grade": "passing grade",
+        "NSQFLevel": null,
+        "issueDate": "2014-09-23",
+        "completionDate": null,
+        "skills": [
+          "Computer Programming"
+        ],
+        "description": "Successfully completed CS101.1x: Introduction to Computer Programming Part 1 with a passing grade, offered by IITBombayX through edX.",
+        "certificateId": null
+      },
+      "nameValidation": {
+        "legalName": "Shubham Gupta",
+        "recipientName": "Shubham Gupta",
+        "match": true,
+        "confidence": 100,
+        "reason": "Very strong name match",
+        "candidates": [
+          "Deepak Phatak",
+          "Supratik Chakraborty",
+          "Computer Programming Part",
+          "Indian Institute",
+          "Technology Bombay",
+          "Shubham Gupta"
+        ]
+      },
+      "domainValidation": {
+        "sourceUrl": "https://verify.edx.org/cert/bf43f0b105b2435395590ef9edffca0e",
+        "domain": "edx.org",
+        "isValid": true,
+        "isTrusted": true,
+        "issuer": {
+          "id": "edx",
+          "name": "edX",
+          "domain": "edx.org"
+        },
+        "confidence": 100,
+        "reason": "Trusted issuer: edX"
+      }
+    },
+    {
+      "index": 6,
+      "certificate": "./Nancy.svg",
+      "sourceUrl": "https://www.udacity.com/certificate/5GCUYWZS",
+      "expectedName": "Nancy AI Aswad",
+      "success": true,
+      "processingTime": 5687,
+      "verification": {
+        "status": "VERIFIED",
+        "finalScore": 100,
+        "autoApproved": true,
+        "requiresReview": false,
+        "reason": "High confidence match on all parameters",
+        "confidence": {
+          "name": 100,
+          "domain": 100,
+          "metadata": 100,
+          "weights": {
+            "NAME": 0.6,
+            "DOMAIN": 0.3,
+            "METADATA": 0.1
+          }
+        }
+      },
+      "extractedData": {
+        "recipientName": "Nancy AI Aswad",
+        "issuerName": "Udacity",
+        "verificationLink": "https://www.udacity.com/certificate/5GCUYWZS",
+        "certificateUrl": "confirm.udacity.com/5GCUYWZS",
+        "courseTitle": "NANODEGREE PROGRAM",
+        "duration": null,
+        "learningHours": null,
+        "grade": null,
+        "NSQFLevel": null,
+        "issueDate": "2022-05-20",
+        "completionDate": "2022-05-20",
+        "skills": [],
+        "description": "Udacity has confirmed the participation of this individual in this program.",
+        "certificateId": null
+      },
+      "nameValidation": {
+        "legalName": "Nancy AI Aswad",
+        "recipientName": "Nancy AI Aswad",
+        "match": true,
+        "confidence": 100,
+        "reason": "Very strong name match",
+        "candidates": [
+          "Nancy Aswad",
+          "Nancy AI Aswad"
+        ]
+      },
+      "domainValidation": {
+        "sourceUrl": "https://www.udacity.com/certificate/5GCUYWZS",
+        "domain": "udacity.com",
+        "isValid": true,
+        "isTrusted": true,
+        "issuer": {
+          "id": "udacity",
+          "name": "Udacity",
+          "domain": "udacity.com"
+        },
+        "confidence": 100,
+        "reason": "Trusted issuer: Udacity"
+      }
+    },
+    {
+      "index": 7,
+      "certificate": "./Ali.jpg",
+      "sourceUrl": "https://www.futurelearn.com/certificates/0381o0b",
+      "expectedName": "Ali Tavakoli",
+      "success": true,
+      "processingTime": 8472,
+      "verification": {
+        "status": "VERIFIED",
+        "finalScore": 100,
+        "autoApproved": true,
+        "requiresReview": false,
+        "reason": "High confidence match on all parameters",
+        "confidence": {
+          "name": 100,
+          "domain": 100,
+          "metadata": 100,
+          "weights": {
+            "NAME": 0.6,
+            "DOMAIN": 0.3,
+            "METADATA": 0.1
+          }
+        }
+      },
+      "extractedData": {
+        "recipientName": "Ali Tavakoli",
+        "issuerName": "FutureLearn",
+        "verificationLink": "https://www.futurelearn.com/certificates/0381o0b",
+        "certificateUrl": "futurelearn.com/proof-of-learning/certificate-of-achievement",
+        "courseTitle": "HOW TO CREATE GREAT ONLINE CONTENT",
+        "duration": "2 weeks, 2 hours per week",
+        "learningHours": 4,
+        "grade": null,
+        "NSQFLevel": null,
+        "issueDate": null,
+        "completionDate": null,
+        "skills": [
+          "Content creation",
+          "Audience targeting",
+          "Message delivery",
+          "Tone of voice",
+          "Writing style",
+          "Content formatting"
+        ],
+        "description": "On this course, you've learnt the value of delivering the right message to the right audience at the right time and considered the importance of tone, style and format.",
+        "certificateId": null
+      },
+      "nameValidation": {
+        "legalName": "Ali Tavakoli",
+        "recipientName": "Ali Tavakoli",
+        "match": true,
+        "confidence": 100,
+        "reason": "Very strong name match",
+        "candidates": [
+          "Ir Future",
+          "Ali Tavakoli",
+          "Mag Pickard",
+          "Load Educator",
+          "of Achievement\nAli Tavakoli"
+        ]
+      },
+      "domainValidation": {
+        "sourceUrl": "https://www.futurelearn.com/certificates/0381o0b",
+        "domain": "futurelearn.com",
+        "isValid": true,
+        "isTrusted": true,
+        "issuer": {
+          "id": "futurelearn",
+          "name": "FutureLearn",
+          "domain": "futurelearn.com"
+        },
+        "confidence": 100,
+        "reason": "Trusted issuer: FutureLearn"
+      }
+    },
+    {
+      "index": 8,
+      "certificate": "./DivyaHarjai.jpg",
+      "sourceUrl": "https://www.linkedin.com/learning/certificates/02b61c9f8c4472db86e44ced400e546ed4ab7f3080611d924c7fac224886a6e8",
+      "expectedName": "Divya Harjai",
+      "success": true,
+      "processingTime": 7267,
+      "verification": {
+        "status": "VERIFIED",
+        "finalScore": 100,
+        "autoApproved": true,
+        "requiresReview": false,
+        "reason": "High confidence match on all parameters",
+        "confidence": {
+          "name": 100,
+          "domain": 100,
+          "metadata": 100,
+          "weights": {
+            "NAME": 0.6,
+            "DOMAIN": 0.3,
+            "METADATA": 0.1
+          }
+        }
+      },
+      "extractedData": {
+        "recipientName": "Divya Harjai",
+        "issuerName": "LinkedIn Learning",
+        "verificationLink": "https://www.linkedin.com/learning/certificates/02b61c9f8c4472db86e44ced400e546ed4ab7f3080611d924c7fac224886a6e8",
+        "certificateUrl": null,
+        "courseTitle": "Project Management Foundations",
+        "duration": "",
+        "learningHours": null,
+        "grade": "",
+        "NSQFLevel": null,
+        "issueDate": "",
+        "completionDate": "2023-07-12",
+        "skills": [
+          "Project Management"
+        ],
+        "description": "Certificate of completion for the Project Management Foundations course.",
+        "certificateId": null
+      },
+      "nameValidation": {
+        "legalName": "Divya Harjai",
+        "recipientName": "Divya Harjai",
+        "match": true,
+        "confidence": 100,
+        "reason": "Very strong name match",
+        "candidates": [
+          "Project Management Foundations",
+          "Divya Harjai",
+          "Project Management",
+          "Content Strategy"
+        ]
+      },
+      "domainValidation": {
+        "sourceUrl": "https://www.linkedin.com/learning/certificates/02b61c9f8c4472db86e44ced400e546ed4ab7f3080611d924c7fac224886a6e8",
+        "domain": "linkedin.com/learning",
+        "isValid": true,
+        "isTrusted": true,
+        "issuer": {
+          "id": "linkedin_learning",
+          "name": "LinkedIn Learning",
+          "domain": "linkedin.com/learning"
+        },
+        "confidence": 100,
+        "reason": "Trusted issuer: LinkedIn Learning"
+      }
+    },
+    {
+      "index": 9,
+      "certificate": "./Anisha.png",
+      "sourceUrl": "https://www.datacamp.com/certificate/DEA0016641598038",
+      "expectedName": "Anisha Balachandran",
+      "success": true,
+      "processingTime": 7983,
+      "verification": {
+        "status": "VERIFIED",
+        "finalScore": 100,
+        "autoApproved": true,
+        "requiresReview": false,
+        "reason": "High confidence match on all parameters",
+        "confidence": {
+          "name": 100,
+          "domain": 100,
+          "metadata": 100,
+          "weights": {
+            "NAME": 0.6,
+            "DOMAIN": 0.3,
+            "METADATA": 0.1
+          }
+        }
+      },
+      "extractedData": {
+        "recipientName": "Anisha Balachandran",
+        "issuerName": "DataCamp",
+        "verificationLink": "https://www.datacamp.com/certificate/DEA0016641598038",
+        "certificateUrl": null,
+        "courseTitle": "Associate Data Engineer",
+        "duration": "",
+        "learningHours": null,
+        "grade": "",
+        "NSQFLevel": null,
+        "issueDate": "2024-07-18",
+        "completionDate": "2024-07-18",
+        "skills": [],
+        "description": "Certification for Anisha Balachandran as an Associate Data Engineer by DataCamp.",
+        "certificateId": null
+      },
+      "nameValidation": {
+        "legalName": "Anisha Balachandran",
+        "recipientName": "Anisha Balachandran",
+        "match": true,
+        "confidence": 100,
+        "reason": "Very strong name match",
+        "candidates": [
+          "Anisha Balachandran",
+          "Associate Data Engineer",
+          "Jonathan Cornelissen"
+        ]
+      },
+      "domainValidation": {
+        "sourceUrl": "https://www.datacamp.com/certificate/DEA0016641598038",
+        "domain": "datacamp.com",
+        "isValid": true,
+        "isTrusted": true,
+        "issuer": {
+          "id": "datacamp",
+          "name": "DataCamp",
+          "domain": "datacamp.com"
+        },
+        "confidence": 100,
+        "reason": "Trusted issuer: DataCamp"
+      }
+    },
+    {
+      "index": 10,
+      "certificate": "./Shivansh.jpg",
+      "sourceUrl": "https://www.mygreatlearning.com/certificate/SGVRGYWQ",
+      "expectedName": "Shivansh Shukla",
+      "success": true,
+      "processingTime": 7835,
+      "verification": {
+        "status": "VERIFIED",
+        "finalScore": 100,
+        "autoApproved": true,
+        "requiresReview": false,
+        "reason": "High confidence match on all parameters",
+        "confidence": {
+          "name": 100,
+          "domain": 100,
+          "metadata": 100,
+          "weights": {
+            "NAME": 0.6,
+            "DOMAIN": 0.3,
+            "METADATA": 0.1
+          }
+        }
+      },
+      "extractedData": {
+        "recipientName": "Shivansh Shukla",
+        "issuerName": "Great Learning",
+        "verificationLink": "https://www.mygreatlearning.com/certificate/SGVRGYWQ",
+        "certificateUrl": null,
+        "courseTitle": "HR Analytics Course",
+        "duration": "",
+        "learningHours": 0,
+        "grade": "",
+        "NSQFLevel": 0,
+        "issueDate": "2025-01-01",
+        "completionDate": "2025-01-01",
+        "skills": [
+          "HR Analytics"
+        ],
+        "description": "Certificate of completion for successfully finishing an online course on HR Analytics.",
+        "certificateId": null
+      },
+      "nameValidation": {
+        "legalName": "Shivansh Shukla",
+        "recipientName": "Shivansh Shukla",
+        "match": true,
+        "confidence": 100,
+        "reason": "Very strong name match",
+        "candidates": [
+          "Subramanian Great Learning Academy",
+          "Academic Director January",
+          "Shivansh Shukla"
+        ]
+      },
+      "domainValidation": {
+        "sourceUrl": "https://www.mygreatlearning.com/certificate/SGVRGYWQ",
+        "domain": "mygreatlearning.com",
+        "isValid": true,
+        "isTrusted": true,
+        "issuer": {
+          "id": "great_learning",
+          "name": "Great Learning",
+          "domain": "mygreatlearning.com"
+        },
+        "confidence": 100,
+        "reason": "Trusted issuer: Great Learning"
+      }
+    },
+    {
+      "index": 11,
+      "certificate": "./Rakshitha.jpg",
+      "sourceUrl": "https://archive.nptel.ac.in/noc/Ecertificate/?q=NPTEL20EE15S1PC967439",
+      "expectedName": "Rakshitha R S",
+      "success": true,
+      "processingTime": 11140,
+      "verification": {
+        "status": "VERIFIED",
+        "finalScore": 100,
+        "autoApproved": true,
+        "requiresReview": false,
+        "reason": "High confidence match on all parameters",
+        "confidence": {
+          "name": 100,
+          "domain": 100,
+          "metadata": 100,
+          "weights": {
+            "NAME": 0.6,
+            "DOMAIN": 0.3,
+            "METADATA": 0.1
+          }
+        }
+      },
+      "extractedData": {
+        "recipientName": "Rakshitha R S",
+        "issuerName": "NPTEL",
+        "verificationLink": "https://archive.nptel.ac.in/noc/Ecertificate/?q=NPTEL20EE15S1PC967439",
+        "certificateUrl": "https://nptel.ac.in/noc",
+        "courseTitle": "Principles of Signals and Systems",
+        "duration": "12 weeks",
+        "learningHours": null,
+        "grade": "62%",
+        "NSQFLevel": null,
+        "issueDate": null,
+        "completionDate": "2020-04-30",
+        "skills": [],
+        "description": "Certificate for completing the NPTEL online course 'Principles of Signals and Systems'.",
+        "certificateId": null
+      },
+      "nameValidation": {
+        "legalName": "Rakshitha R S",
+        "recipientName": "Rakshitha R S",
+        "match": true,
+        "confidence": 100,
+        "reason": "Very strong name match",
+        "candidates": [
+          "Roll No",
+          "Online Certificati Ny",
+          "Hegde Prof",
+          "Satyaki Roy",
+          "Continuing Education Jan",
+          "Hom\nRAKSHITHAR",
+          "Rakshitha S",
+          "Rakshitha R S"
+        ]
+      },
+      "domainValidation": {
+        "sourceUrl": "https://archive.nptel.ac.in/noc/Ecertificate/?q=NPTEL20EE15S1PC967439",
+        "domain": "nptel.ac.in",
+        "isValid": true,
+        "isTrusted": true,
+        "issuer": {
+          "id": "nptel",
+          "name": "NPTEL",
+          "domain": "nptel.ac.in"
+        },
+        "confidence": 100,
+        "reason": "Trusted issuer: NPTEL"
+      }
+    },
+    {
+      "index": 12,
+      "certificate": "./Anubhav.jpg",
+      "sourceUrl": "https://ncvtmis.gov.in/Pages/Certification/Validate.aspx?Key=190940000072330",
+      "expectedName": "Anubhav Gupta",
+      "success": true,
+      "processingTime": 20678,
+      "verification": {
+        "status": "VERIFIED",
+        "finalScore": 100,
+        "autoApproved": true,
+        "requiresReview": false,
+        "reason": "High confidence match on all parameters",
+        "confidence": {
+          "name": 100,
+          "domain": 100,
+          "metadata": 100,
+          "weights": {
+            "NAME": 0.6,
+            "DOMAIN": 0.3,
+            "METADATA": 0.1
+          }
+        }
+      },
+      "extractedData": {
+        "recipientName": "Anubhav Gupta",
+        "issuerName": "NCVT MIS",
+        "verificationLink": "https://ncvtmis.gov.in/Pages/Certification/Validate.aspx?Key=190940000072330",
+        "certificateUrl": null,
+        "courseTitle": "National Trade Certificate - Electrician",
+        "duration": "4 semesters",
+        "learningHours": null,
+        "grade": null,
+        "NSQFLevel": null,
+        "issueDate": "2019-11-22",
+        "completionDate": "2019-11-22",
+        "skills": [
+          "Electrical system installation",
+          "Wiring and cabling",
+          "Troubleshooting electrical faults",
+          "Maintenance of electrical equipment",
+          "Adherence to electrical safety standards"
+        ],
+        "description": "This National Trade Certificate in Electrician trade is awarded by the National Council for Vocational Training, Ministry of Skill Development and Entrepreneurship, Government of India, upon successful completion of 4 semesters of training and passing the All India Trade Test.",
+        "certificateId": null
+      },
+      "nameValidation": {
+        "legalName": "Anubhav Gupta",
+        "recipientName": "Anubhav Gupta",
+        "match": true,
+        "confidence": 100,
+        "reason": "Very strong name match",
+        "candidates": [
+          "Roll No",
+          "Adyerctandt Shri",
+          "Son Wite",
+          "Industrial Training Centre",
+          "Kanpur Nagar",
+          "Training Duration",
+          "Admini Sein Aug",
+          "All India Trade Testa",
+          "Mont Ti",
+          "Member Secretary",
+          "National Counil For Vocational",
+          "Anubhav Gupta"
+        ]
+      },
+      "domainValidation": {
+        "sourceUrl": "https://ncvtmis.gov.in/Pages/Certification/Validate.aspx?Key=190940000072330",
+        "domain": "ncvtmis.gov.in",
+        "isValid": true,
+        "isTrusted": true,
+        "issuer": {
+          "id": "ncvt_mis",
+          "name": "NCVT MIS",
+          "domain": "ncvtmis.gov.in"
+        },
+        "confidence": 100,
+        "reason": "Trusted issuer: NCVT MIS"
+      }
+    },
+    {
+      "index": 13,
+      "certificate": "./Pranav.png",
+      "sourceUrl": "https://courses.skillindiadigital.gov.in/api/custom_api/view_certificate/e6c33ea6910347a583755ea7cb718550",
+      "expectedName": "Pranav Raj",
+      "success": true,
+      "processingTime": 4758,
+      "verification": {
+        "status": "VERIFIED",
+        "finalScore": 100,
+        "autoApproved": true,
+        "requiresReview": false,
+        "reason": "High confidence match on all parameters",
+        "confidence": {
+          "name": 100,
+          "domain": 100,
+          "metadata": 100,
+          "weights": {
+            "NAME": 0.6,
+            "DOMAIN": 0.3,
+            "METADATA": 0.1
+          }
+        }
+      },
+      "extractedData": {
+        "recipientName": "Pranav Raj",
+        "issuerName": "Skill India Digital",
+        "verificationLink": "https://courses.skillindiadigital.gov.in/api/custom_api/view_certificate/e6c33ea6910347a583755ea7cb718550",
+        "certificateUrl": null,
+        "courseTitle": "Python Programming",
+        "duration": "40 Hours 0 Minutes",
+        "learningHours": 40,
+        "grade": null,
+        "NSQFLevel": 0,
+        "issueDate": null,
+        "completionDate": "2024-06-18",
+        "skills": [
+          "Python Programming",
+          "Python"
+        ],
+        "description": "Pranav Raj successfully participated in the online skilling course on Python Programming, offered by NSDC through Skill India Digital Hub.",
+        "certificateId": null
+      },
+      "nameValidation": {
+        "legalName": "Pranav Raj",
+        "recipientName": "Pranav Raj",
+        "match": true,
+        "confidence": 100,
+        "reason": "Very strong name match",
+        "candidates": [
+          "Pranav Raj",
+          "Python Programming",
+          "Skill India Digital Hub",
+          "Pranav Raj\nhas successfully"
+        ]
+      },
+      "domainValidation": {
+        "sourceUrl": "https://courses.skillindiadigital.gov.in/api/custom_api/view_certificate/e6c33ea6910347a583755ea7cb718550",
+        "domain": "skillindiadigital.gov.in",
+        "isValid": true,
+        "isTrusted": true,
+        "issuer": {
+          "id": "skill_india_digital",
+          "name": "Skill India Digital",
+          "domain": "skillindiadigital.gov.in"
+        },
+        "confidence": 100,
+        "reason": "Trusted issuer: Skill India Digital"
+      }
+    }
+  ]
+}

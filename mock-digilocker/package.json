@@ -1,0 +1,22 @@
+{
+  "name": "mock-digilocker-server",
+  "version": "1.0.0",
+  "description": "Mock DigiLocker Server for testing OAuth flow locally",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["digilocker", "mock", "oauth", "sandbox"],
+  "author": "CredVerify Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

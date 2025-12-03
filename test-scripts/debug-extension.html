@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extension Debug Tool</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 6px;
+    }
+
+    .section h2 {
+      color: #444;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 13px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .log {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      max-height: 500px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .log .success { color: #4ec9b0; }
+    .log .error { color: #f48771; }
+    .log .info { color: #9cdcfe; }
+    .log .warning { color: #dcdcaa; }
+
+    .status {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+
+    .status.idle { background: #e7f3ff; color: #0066cc; }
+    .status.loading { background: #fff4e6; color: #cc7a00; }
+    .status.success { background: #e6f7e6; color: #008000; }
+    .status.error { background: #ffe6e6; color: #cc0000; }
+
+    .result-card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+
+    .result-card h3 {
+      margin-bottom: 10px;
+      color: #333;
+      font-size: 16px;
+    }
+
+    .result-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .result-item:last-child {
+      border-bottom: none;
+    }
+
+    .result-label {
+      color: #666;
+      font-weight: 500;
+    }
+
+    .result-value {
+      color: #333;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge.success { background: #d4edda; color: #155724; }
+    .badge.warning { background: #fff3cd; color: #856404; }
+    .badge.error { background: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Extension Debug Tool</h1>
+    <p class="subtitle">Test the certificate verification flow without the extension</p>
+
+    <!-- Status -->
+    <div id="status" class="status idle">Ready to test</div>
+
+    <!-- Configuration -->
+    <div class="section">
+      <h2>1️⃣ Configuration</h2>
+      
+      <div class="input-group">
+        <label>Backend URL</label>
+        <input type="text" id="backendUrl" value="http://127.0.0.1:5000" />
+      </div>
+
+      <div class="input-group">
+        <label>Auth Token (Get from test-1-auth.js or extension)</label>
+        <input type="text" id="authToken" placeholder="Paste auth token here..." />
+      </div>
+    </div>
+
+    <!-- Certificate Input -->
+    <div class="section">
+      <h2>2️⃣ Certificate Data</h2>
+      
+      <div class="input-group">
+        <label>Certificate Page URL</label>
+        <input type="text" id="pageUrl" value="https://www.coursera.org/account/accomplishments/verify/OUD4PJJPOHVH" />
+      </div>
+
+      <div class="input-group">
+        <label>Certificate Image URL</label>
+        <input type="text" id="imageUrl" placeholder="Paste direct image URL or leave empty to use base64..." />
+      </div>
+
+      <div class="input-group">
+        <label>OR: Paste Base64 Image Data (from test-data.json)</label>
+        <textarea id="base64Data" placeholder="Paste base64 image data..."></textarea>
+      </div>
+
+      <button onclick="testVerification()">🚀 Test Verification</button>
+    </div>
+
+    <!-- Result -->
+    <div class="section">
+      <h2>3️⃣ Result</h2>
+      <div id="resultContainer"></div>
+    </div>
+
+    <!-- Console Log -->
+    <div class="section">
+      <h2>4️⃣ Console Log</h2>
+      <div id="log" class="log">Waiting for test...</div>
+    </div>
+  </div>
+
+  <script>
+    const logEl = document.getElementById('log');
+    const statusEl = document.getElementById('status');
+    const resultEl = document.getElementById('resultContainer');
+
+    function log(message, type = 'info') {
+      const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+      const className = type;
+      logEl.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function setStatus(message, type) {
+      statusEl.textContent = message;
+      statusEl.className = `status ${type}`;
+    }
+
+    async function testVerification() {
+      logEl.innerHTML = '';
+      resultEl.innerHTML = '';
+      
+      log('🧪 Starting verification test...', 'info');
+      setStatus('Testing...', 'loading');
+
+      try {
+        // Get inputs
+        const backendUrl = document.getElementById('backendUrl').value.trim();
+        const authToken = document.getElementById('authToken').value.trim();
+        const pageUrl = document.getElementById('pageUrl').value.trim();
+        const imageUrl = document.getElementById('imageUrl').value.trim();
+        const base64Data = document.getElementById('base64Data').value.trim();
+
+        // Validate
+        if (!authToken) {
+          throw new Error('Auth token is required! Run test-1-auth.js to get one.');
+        }
+
+        if (!base64Data && !imageUrl) {
+          throw new Error('Either base64 data or image URL is required!');
+        }
+
+        log('✅ Configuration validated', 'success');
+        log(`Backend: ${backendUrl}`, 'info');
+        log(`Token: ${authToken.substring(0, 20)}...`, 'info');
+        log(`Page URL: ${pageUrl}`, 'info');
+
+        // Prepare image data
+        let imageData = null;
+
+        if (base64Data) {
+          log('Using base64 data from input', 'info');
+          imageData = base64Data;
+        } else if (imageUrl) {
+          log(`Fetching image from: ${imageUrl}`, 'info');
+          const imgResponse = await fetch(imageUrl);
+          if (!imgResponse.ok) {
+            throw new Error(`Failed to fetch image: ${imgResponse.status}`);
+          }
+          const blob = await imgResponse.blob();
+          log(`✅ Image fetched: ${Math.round(blob.size / 1024)} KB`, 'success');
+          
+          const arrayBuffer = await blob.arrayBuffer();
+          imageData = btoa(
+            new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+          );
+          log(`✅ Converted to base64: ${imageData.length} chars`, 'success');
+        }
+
+        // Prepare request
+        const requestBody = {
+          imageData: imageData,
+          sourceUrl: pageUrl,
+          imageType: 'base64'
+        };
+
+        log('📤 Sending verification request...', 'info');
+        log(`Endpoint: ${backendUrl}/api/credentials/verify-certificate`, 'info');
+
+        const startTime = Date.now();
+
+        const response = await fetch(`${backendUrl}/api/credentials/verify-certificate`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        });
+
+        const duration = Date.now() - startTime;
+        log(`📥 Response received in ${duration}ms`, 'info');
+        log(`Status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.message || 'Verification failed');
+        }
+
+        log('✅ Verification successful!', 'success');
+        setStatus('Success!', 'success');
+
+        // Display result
+        displayResult(result.data);
+
+      } catch (error) {
+        log(`❌ Error: ${error.message}`, 'error');
+        setStatus(`Error: ${error.message}`, 'error');
+        console.error(error);
+      }
+    }
+
+    function displayResult(data) {
+      const verification = data.verification || {};
+      const extracted = data.extractedData || {};
+      const nameVal = data.nameValidation || {};
+      const domainVal = data.domainValidation || {};
+
+      let html = '';
+
+      // Status
+      const status = verification.status || 'UNKNOWN';
+      const score = verification.finalScore || 0;
+      const badgeClass = status === 'VERIFIED' ? 'success' : status === 'REVIEW_REQUIRED' ? 'warning' : 'error';
+
+      html += `
+        <div class="result-card">
+          <h3>🎯 Verification Status</h3>
+          <div class="result-item">
+            <span class="result-label">Status:</span>
+            <span class="badge ${badgeClass}">${status}</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Final Score:</span>
+            <span class="result-value">${score}%</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Reason:</span>
+            <span class="result-value">${verification.reason || 'N/A'}</span>
+          </div>
+        </div>
+      `;
+
+      // Extracted Data
+      html += `
+        <div class="result-card">
+          <h3>📋 Extracted Information</h3>
+          <div class="result-item">
+            <span class="result-label">Person Name:</span>
+            <span class="result-value">${extracted.personName || 'N/A'}</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Course:</span>
+            <span class="result-value">${extracted.courseName || 'N/A'}</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Issuer:</span>
+            <span class="result-value">${extracted.issuerName || 'N/A'}</span>
+          </div>
+          <div class="result-item">
+            <span class="result-label">Certificate ID:</span>
+            <span class="result-value">${extracted.certificateId || 'N/A'}</span>
+          </div>
+        </div>
+      `;
+
+      // Confidence
+      if (verification.confidence) {
+        html += `
+          <div class="result-card">
+            <h3>📊 Confidence Breakdown</h3>
+            <div class="result-item">
+              <span class="result-label">Name Match (60%):</span>
+              <span class="result-value">${verification.confidence.name}%</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Domain (30%):</span>
+              <span class="result-value">${verification.confidence.domain}%</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Metadata (10%):</span>
+              <span class="result-value">${verification.confidence.metadata}%</span>
+            </div>
+          </div>
+        `;
+      }
+
+      resultEl.innerHTML = html;
+      log('📊 Result displayed', 'success');
+    }
+
+    // Load test data if available
+    window.addEventListener('load', async () => {
+      try {
+        const response = await fetch('./test-data.json');
+        if (response.ok) {
+          const testData = await response.json();
+          if (testData.token) {
+            document.getElementById('authToken').value = testData.token;
+            log('✅ Auto-loaded auth token from test-data.json', 'success');
+          }
+          if (testData.certificate?.base64) {
+            document.getElementById('base64Data').value = testData.certificate.base64;
+            log('✅ Auto-loaded base64 from test-data.json', 'success');
+          }
+          if (testData.certificate?.pageUrl) {
+            document.getElementById('pageUrl').value = testData.certificate.pageUrl;
+          }
+        }
+      } catch (error) {
+        log('⚠️  Could not auto-load test-data.json', 'warning');
+      }
+    });
+  </script>
+</body>
+</html>

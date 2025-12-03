@@ -1,0 +1,17 @@
+{
+  "type": "module",
+  "scripts": {
+    "zip-extension": "powershell -Command \"Compress-Archive -Path 'extension/*' -DestinationPath 'frontend/public/credverify-extension.zip' -Force\"",
+    "open-extensions": "powershell -Command \"& 'C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe' 'brave://extensions'\"",
+    "update-extension": "npm run zip-extension && npm run open-extensions",
+    "watch-update": "nodemon --watch extension --exec \"npm run update-extension\"",
+    "platforms:list": "node scripts/platforms-manager.js list",
+    "platforms:stats": "node scripts/platforms-manager.js stats",
+    "platforms:add": "node scripts/platforms-manager.js add",
+    "platforms:search": "node scripts/platforms-manager.js search"
+  },
+  "dependencies": {
+    "form-data": "^4.0.5",
+    "node-fetch": "^3.3.2"
+  }
+}
