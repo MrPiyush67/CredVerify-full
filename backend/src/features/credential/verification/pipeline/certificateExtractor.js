@@ -88,11 +88,20 @@ export async function extractCertificateImagesFromPage(scrapedData) {
 
     console.log(`📊 [CERT-EXTRACTOR] Found ${allImages.length} total images on page`);
 
+    // Log ALL images before filtering
+    console.log(`\n🔍 [CERT-EXTRACTOR] ALL IMAGES FOUND:`);
+    allImages.forEach((img, i) => {
+      console.log(`   ${i + 1}. ${img.width}x${img.height}px - ${img.src.substring(0, 100)}...`);
+    });
+    console.log('');
+
     // STEP 2: Filter by minimum size (height >= 200px AND width >= 400px)
     const sizeFiltered = allImages.filter((img) => {
       const valid = img.height >= 200 && img.width >= 400;
-      if (valid) {
-        console.log(`  ✅ Size valid: ${img.width}x${img.height}`);
+      if (!valid) {
+        console.log(`  ❌ Size too small: ${img.width}x${img.height}px (need ≥400x200) - ${img.src.substring(0, 80)}`);
+      } else {
+        console.log(`  ✅ Size valid: ${img.width}x${img.height}px - ${img.src.substring(0, 80)}`);
       }
       return valid;
     });
@@ -104,6 +113,8 @@ export async function extractCertificateImagesFromPage(scrapedData) {
     // calculate required height based on aspect ratio
     const MIN_ASPECT_RATIO = 1.0;  // width/height (e.g., 1.0 = square)
     const MAX_ASPECT_RATIO = 3.0;  // width/height (e.g., 3.0 = wide landscape)
+
+    console.log(`\n🔍 [CERT-EXTRACTOR] Applying aspect ratio filter (${MIN_ASPECT_RATIO} to ${MAX_ASPECT_RATIO}):`);
 
     const aspectRatioFiltered = sizeFiltered.filter((img) => {
       const { width, height } = img;
@@ -117,9 +128,9 @@ export async function extractCertificateImagesFromPage(scrapedData) {
       const actualRatio = (width / height).toFixed(2);
 
       if (isValid) {
-        console.log(`  ✅ Valid: ${width}x${height} (ratio ${actualRatio}) - height range ${Math.round(minHeight)}-${Math.round(maxHeight)}px`);
+        console.log(`  ✅ PASS: ${width}x${height}px (ratio ${actualRatio}) - ${img.src.substring(0, 60)}`);
       } else {
-        console.log(`  ❌ Invalid: ${width}x${height} (ratio ${actualRatio}) - height ${height} outside range ${Math.round(minHeight)}-${Math.round(maxHeight)}px`);
+        console.log(`  ❌ FAIL: ${width}x${height}px (ratio ${actualRatio}) - height ${height} outside ${Math.round(minHeight)}-${Math.round(maxHeight)}px - ${img.src.substring(0, 60)}`);
       }
 
       return isValid;

@@ -81,12 +81,16 @@ export async function extractUrlFromImage(imageBuffer) {
     }
 
     console.log(`📝 [QR-EXTRACT] QR data: ${extractedData}`);
+    console.log(`📏 [QR-EXTRACT] Data length: ${extractedData.length} characters`);
+    console.log(`🔤 [QR-EXTRACT] Data type: ${typeof extractedData}`);
 
     // Validate that it's a URL
     try {
       new URL(extractedData);
+      console.log('✅ [QR-EXTRACT] Valid URL format');
     } catch (error) {
-      throw new Error(`QR code does not contain a valid URL. Found: "${extractedData}"`);
+      console.error(`❌ [QR-EXTRACT] Invalid URL format: ${error.message}`);
+      throw new Error(`QR code does not contain a valid URL. Found: "${extractedData.substring(0, 100)}${extractedData.length > 100 ? '...' : ''}"`);
     }
 
     return extractedData;

@@ -72,9 +72,20 @@ export const uploadCertificateImage = multer({
  *          }
  */
 export const manualVerification = asyncHandler(async (req, res) => {
-  const { link, autoSave = true } = req.body;
+  const { link, autoSave = true, testMode, testUserName } = req.body;
   const uploadedFile = req.file;
-  const userId = req.user._id;
+
+  // Support test mode (no auth required)
+  // Handle string values from FormData
+  const isTestMode = testMode === true || testMode === 'true';
+  const userId = isTestMode ? 'test-user-id' : req.user?._id;
+
+  if (!isTestMode && !req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required (or use testMode: true)',
+    });
+  }
 
   // Validate input
   if (!uploadedFile && !link) {
@@ -85,8 +96,9 @@ export const manualVerification = asyncHandler(async (req, res) => {
   }
 
   console.log('🟢 [MANUAL-VERIFY-CONTROLLER] Starting verification...');
-  console.log(`   User: ${req.user.name} (${userId})`);
+  console.log(`   User: ${isTestMode ? testUserName : req.user.name} (${userId})`);
   console.log(`   Input type: ${uploadedFile ? 'QR Image' : 'Direct Link'}`);
+  console.log(`   Test mode: ${isTestMode ? 'Yes' : 'No'}`);
 
   try {
     // Call the orchestrator
@@ -95,7 +107,8 @@ export const manualVerification = asyncHandler(async (req, res) => {
       link,
       certificateImage: uploadedFile?.buffer,
       autoSave,
-      testMode: false,
+      testMode: isTestMode,
+      testUserName,
     });
 
     // Handle early rejections (untrusted domain)

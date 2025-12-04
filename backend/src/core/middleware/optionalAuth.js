@@ -9,9 +9,13 @@ import User from '../../features/user/user.model.js';
  */
 export const optionalAuth = asyncHandler(async (req, res, next) => {
   // Check if request has testMode enabled
-  const { testMode } = req.body;
+  // Support both regular JSON body and multer form data
+  const { testMode } = req.body || {};
 
-  if (testMode) {
+  // Also check if testMode was passed as string from FormData
+  const isTestMode = testMode === true || testMode === 'true';
+
+  if (isTestMode) {
     // Allow test mode requests without authentication
     console.log('⚠️ Request using testMode - bypassing authentication');
     return next();

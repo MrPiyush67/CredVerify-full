@@ -46,7 +46,9 @@ router.post('/credentials/verify-certificate', optionalAuth, verifyCertificate);
 router.post('/credentials/extract-preview', protect, extractCertificatePreview);
 
 // Manual verification endpoints (QR code + web scraping)
-router.post('/credentials/manual-verify', protect, isCredentialist, uploadCertificateImage, manualVerification);
+// Note: manual-verify supports testMode for training/testing
+// Uses optionalAuth middleware to handle both authenticated requests and test mode
+router.post('/credentials/manual-verify', uploadCertificateImage, optionalAuth, manualVerification);
 router.post('/credentials/test-qr', protect, uploadCertificateImage, testQrExtraction);
 
 // Validant routes (specific routes first)

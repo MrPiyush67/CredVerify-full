@@ -2,6 +2,8 @@ import Tesseract from 'tesseract.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import sharp from 'sharp';
+import axios from "axios";
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -88,11 +90,25 @@ export async function extractTextFromBase64(base64Image) {
  * @param {string} imageUrl - URL of the image
  * @returns {Promise<string>} - Extracted text
  */
+
 export async function extractTextFromUrl(imageUrl) {
   try {
-    return await extractTextFromImage(imageUrl);
+    // 1. Download image into buffer
+    const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
+    const buffer = Buffer.from(response.data);
+
+    // 2. Preprocess (upscale, sharpen, grayscale)
+    const processed = await sharp(buffer)
+      .resize(2000)               // upscale for better OCR
+      .grayscale()                // remove color
+      .sharpen()                  // enhance edges
+      .normalize()                // improve contrast
+      .toBuffer();
+
+    // 3. Run OCR
+    return await extractTextFromImage(processed);
   } catch (error) {
-    console.error('URL OCR Error:', error);
+    console.error("URL OCR Error:", error);
     throw new Error(`URL OCR extraction failed: ${error.message}`);
   }
 }
