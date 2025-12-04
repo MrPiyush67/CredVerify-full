@@ -1,51 +1,51 @@
+/**
+ * DigiLocker OAuth 2.0 Mock Server - Routes
+ * Mimics real DigiLocker OAuth flow: https://digilocker.meripehchaan.gov.in/public/oauth2/1
+ * 
+ * Real DigiLocker API endpoints:
+ * - /authorize - OAuth authorization endpoint
+ * - /token - Token exchange endpoint  
+ * - /files - User documents list
+ * 
+ * To integrate with real DigiLocker:
+ * 1. Replace base URL with https://digilocker.meripehchaan.gov.in
+ * 2. Update client_id and client_secret with government-issued credentials
+ * 3. Ensure redirect_uri is whitelisted in DigiLocker developer portal
+ */
 import express from 'express';
 import { config } from '../config/index.js';
 import { validateCredentials, getUserById } from '../data/users.js';
 import { getDocumentsByUserId } from '../data/documents.js';
-import { 
-  generateAuthCode, 
-  validateAuthCode, 
-  deleteAuthCode, 
-  generateAccessToken 
+import {
+  generateAuthCode,
+  validateAuthCode,
+  deleteAuthCode,
+  generateAccessToken
 } from '../utils/tokenManager.js';
 import { validateOAuthParams, validateClientCredentials } from '../utils/validators.js';
 import { getLoginPage } from '../templates/login.js';
-import { getConsentPageMinimal as getConsentPageClean, getLoginFailedPage } from '../templates/consent-minimal.js';
+import { getConsentPageClean } from '../templates/consent-clean.js';
 import { getInvalidRequestPage, getInvalidClientPage } from '../templates/errors.js';
 import { getDocumentSelectionPage } from '../templates/documentSelection.js';
 
 const router = express.Router();
 
-// 1. Authorization endpoint (OAuth Step 1)
+// OAuth Step 1: Authorization endpoint - matches /public/oauth2/1/authorize
 router.get('/authorize', (req, res) => {
-  console.log('\n========================================');
-  console.log('🔐 AUTHORIZE ENDPOINT CALLED');
-  console.log('========================================');
-  console.log('Query params:', req.query);
-  console.log('Headers:', req.headers);
-  
   const { response_type, client_id, redirect_uri, state, scope } = req.query;
 
-  // Validate required parameters
+  // Validate required OAuth parameters
   const validation = validateOAuthParams({ response_type, client_id, redirect_uri });
   if (!validation.valid) {
-    console.log('❌ Missing required parameters');
     return res.status(400).send(getInvalidRequestPage());
   }
 
-  // Validate client_id
-  console.log('🔍 Validating client_id...');
-  console.log('Received:', client_id);
-  console.log('Expected:', config.validClientId);
-  
+  // Validate client_id matches registered application
   if (client_id !== config.validClientId) {
-    console.log('❌ Client ID mismatch!');
     return res.status(401).send(getInvalidClientPage(config.validClientId));
   }
 
-  // Show login page
-  console.log('✅ All validations passed. Sending login page...');
-  console.log('========================================\n');
+  // Show login page with pre-filled test credentials
   res.send(getLoginPage(
     client_id,
     redirect_uri,
@@ -56,74 +56,44 @@ router.get('/authorize', (req, res) => {
   ));
 });
 
-// 2. Login endpoint (validates credentials and shows consent)
+// OAuth Step 2: Login validation and consent
 router.post('/login', (req, res) => {
-  console.log('\n🔑 LOGIN ENDPOINT CALLED');
-  console.log('Request body:', req.body);
-  console.log('Content-Type:', req.headers['content-type']);
-
   const { email, password, client_id, redirect_uri, state, scope } = req.body;
 
-  // Validate credentials
+  // Validate user credentials
   const user = validateCredentials(email, password);
   if (!user) {
-    console.log('❌ Invalid credentials for email:', email);
-    return res.send(getLoginFailedPage(client_id, redirect_uri, state, scope));
+    return res.status(401).send('<h1>Login Failed</h1><p>Invalid credentials</p>');
   }
 
-  console.log('✅ User authenticated:', user.name);
-
-  // Get document count
-  const documents = getDocumentsByUserId(user.userId);
-  console.log('📄 User has', documents.length, 'documents');
-
-  // Show consent screen
-  const html = getConsentPageClean(user, client_id, redirect_uri, state);
-  console.log('📄 Consent page HTML length:', html.length);
-  res.setHeader('Content-Type', 'text/html');
-  res.send(html);
+  // Show consent screen with document permissions
+  res.send(getConsentPageClean(user, client_id, redirect_uri, state));
 });
 
-// 3. Approve endpoint (generates auth code with all documents)
+// OAuth Step 3: User approves access - generate authorization code
 router.post('/approve', (req, res) => {
-  console.log('\n========================================');
-  console.log('✅ [DIGILOCKER] APPROVE ENDPOINT CALLED');
-  console.log('========================================');
-  console.log('Request body:', req.body);
-
   const { redirect_uri, state, userId } = req.body;
 
-  // Get all user documents
+  // Get all user documents from DigiLocker
   const documents = getDocumentsByUserId(userId);
-  console.log('📄 [DIGILOCKER] User has', documents.length, 'documents');
-  console.log('📄 [DIGILOCKER] Documents:', documents.map(d => ({ name: d.name, uri: d.uri })));
-  console.log('✅ [DIGILOCKER] Approving access with all', documents.length, 'documents');
 
-  // Generate authorization code with ALL documents
+  // Generate authorization code with document access
   const code = generateAuthCode(redirect_uri, userId, documents);
-  console.log('🔑 [DIGILOCKER] Generated auth code:', code.substring(0, 20) + '...');
 
-  // Redirect back to application
+  // Redirect to application callback with auth code
   const url = new URL(redirect_uri);
   url.searchParams.set('code', code);
   if (state) url.searchParams.set('state', state);
 
-  console.log('🔀 [DIGILOCKER] Redirecting to backend callback:', url.toString());
-  console.log('========================================\n');
   res.redirect(url.toString());
 });
 
-// 4. Token endpoint (exchanges code for access token)
+// OAuth Step 4: Token exchange - matches /public/oauth2/1/token
 router.post('/token', (req, res) => {
-  console.log('\n🎫 TOKEN ENDPOINT CALLED');
-  console.log('Request body:', req.body);
-  console.log('Content-Type:', req.headers['content-type']);
-
   const { grant_type, code, client_id, client_secret, redirect_uri } = req.body;
 
   // Validate grant type
   if (grant_type !== 'authorization_code') {
-    console.log('❌ Invalid grant type:', grant_type);
     return res.status(400).json({
       error: 'unsupported_grant_type',
       error_description: 'Only authorization_code grant type is supported'
@@ -139,42 +109,36 @@ router.post('/token', (req, res) => {
   );
 
   if (!clientValidation.valid) {
-    console.log('❌ Invalid client credentials');
     return res.status(401).json({
       error: 'invalid_client',
       error_description: clientValidation.error
     });
   }
 
-  // Validate authorization code
+  // Validate and exchange authorization code
   const authValidation = validateAuthCode(code, redirect_uri);
 
   if (!authValidation.valid) {
-    console.log('❌ Invalid auth code:', authValidation.error);
     return res.status(400).json({
       error: 'invalid_grant',
       error_description: authValidation.error
     });
   }
 
-  // Generate access token
+  // Generate access token for API calls
   const { accessToken, refreshToken } = generateAccessToken(authValidation.userId);
-  console.log('🔑 Generated tokens for user:', authValidation.userId);
 
-  // Delete used authorization code
+  // Delete used authorization code (one-time use)
   deleteAuthCode(code);
 
-  // Return token response
-  const tokenResponse = {
+  // Return OAuth token response
+  res.json({
     access_token: accessToken,
     token_type: 'Bearer',
     expires_in: 3600,
     refresh_token: refreshToken,
     scope: 'profile documents'
-  };
-
-  console.log('✅ Token response sent');
-  res.json(tokenResponse);
+  });
 });
 
 export default router;

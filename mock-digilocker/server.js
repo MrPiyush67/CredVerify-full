@@ -32,18 +32,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-console.log('🚀 Setting up routes...');
-
 // Routes
 app.use('/public/oauth2/1', oauthRoutes);
-console.log('✅ OAuth routes mounted on /public/oauth2/1');
-
 app.use('/public/oauth2/1', apiRoutes);
-console.log('✅ API routes mounted on /public/oauth2/1');
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  console.log('🏥 Health check called');
   res.json({
     status: 'ok',
     service: 'Mock DigiLocker Server',
@@ -55,7 +49,6 @@ app.get('/health', (req, res) => {
 
 // Home page
 app.get('/', (req, res) => {
-  console.log('🏠 Home page requested');
   const html = getHomePage(
     PORT,
     config.mockUser.email,
@@ -63,7 +56,6 @@ app.get('/', (req, res) => {
     config.validClientId,
     config.validClientSecret
   );
-  console.log('📄 Home page HTML length:', html.length);
   res.setHeader('Content-Type', 'text/html');
   res.send(html);
 });

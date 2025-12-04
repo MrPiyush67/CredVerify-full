@@ -7,17 +7,11 @@ const router = express.Router();
 
 // User info endpoint
 router.get('/user_info', requireAuth, (req, res) => {
-  console.log('\n👤 USER INFO ENDPOINT CALLED');
-  console.log('User ID:', req.userId);
-
   const user = getUserById(req.userId);
 
   if (!user) {
-    console.log('❌ User not found:', req.userId);
     return res.status(404).json({ error: 'user_not_found' });
   }
-
-  console.log('✅ Returning user info for:', user.name);
   res.json({
     sub: user.userId,
     name: user.name,
@@ -29,11 +23,7 @@ router.get('/user_info', requireAuth, (req, res) => {
 
 // Files/Documents endpoint
 router.get('/files', requireAuth, (req, res) => {
-  console.log('\n📄 FILES ENDPOINT CALLED');
-  console.log('User ID:', req.userId);
-
   const documents = getDocumentsByUserId(req.userId);
-  console.log('📄 Found', documents.length, 'documents');
 
   res.json({
     files: documents,
@@ -43,23 +33,16 @@ router.get('/files', requireAuth, (req, res) => {
 
 // Download document endpoint
 router.post('/files/download', requireAuth, (req, res) => {
-  console.log('\n⬇️ DOWNLOAD ENDPOINT CALLED');
-  console.log('User ID:', req.userId);
-  console.log('Request body:', req.body);
-
   const { uri } = req.body;
 
   const doc = getDocumentByUri(req.userId, uri);
 
   if (!doc) {
-    console.log('❌ Document not found:', uri);
     return res.status(404).json({
       error: 'document_not_found',
       error_description: 'The requested document was not found'
     });
   }
-
-  console.log('✅ Serving document:', doc.name);
 
   // Generate fake PDF content (in real scenario, this would be actual PDF bytes)
   const fakePdfContent = `Mock PDF Content for: ${doc.name}\nIssuer: ${doc.issuer}\nDate: ${doc.date}`;
