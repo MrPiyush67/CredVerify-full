@@ -11,8 +11,6 @@ export const getConversations = async () => {
   try {
     logger.debug('Fetching conversations');
     const response = await axiosClient.get('chat/conversations');
-
-    
     logger.debug('Conversations fetched successfully', {
       count: response.data?.data?.length || 0,
       sample: response.data?.data?.[0] || null
