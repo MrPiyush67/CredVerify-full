@@ -1,9 +1,19 @@
+import path from 'path';
+import fs from 'fs/promises';
+import { fileURLToPath } from 'url';
 import { generateCertificatePDF } from '../../../core/utils/certificateGenerator.js';
 import { sendCredentialEmail } from '../../../core/utils/emailService.js';
 import { uploadCredentialFile } from '../../../core/utils/imagekitService.js';
 import Credential from '../credential.model.js';
 import User from '../../user/user.model.js';
-// Removed local filesystem persistence; using ImageKit upload instead
+
+// Set up directory for certificate storage
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const certsDir = path.join(__dirname, '../../../../certificates');
+
+// Ensure certificates directory exists
+await fs.mkdir(certsDir, { recursive: true }).catch(console.error);
 
 /**
  * Issue bulk credentials to multiple recipients
