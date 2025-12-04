@@ -334,4 +334,4 @@ MIT License - see [LICENSE](./LICENSE) file
 
 ---
 
-**Built with ❤️ using modern web technologies and blockchain**
+**Built with  using modern web technologies and blockchain**
