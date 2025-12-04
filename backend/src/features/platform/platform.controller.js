@@ -127,6 +127,14 @@ function getVerificationInstructions(platform, handle, code) {
       step5: 'Return and verify',
       note: 'Optional to keep the code',
     },
+    codeforces: {
+      step1: 'Go to https://codeforces.com/settings/social',
+      step2: 'Edit your profile settings',
+      step3: `Add this code to your "First Name", "Last Name", or "Organization" field: ${code}`,
+      step4: 'Save changes',
+      step5: 'Click the "Verify" button below',
+      note: 'You can remove the code after verification',
+    },
   };
   
   return baseInstructions[platform] || {

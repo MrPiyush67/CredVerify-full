@@ -143,16 +143,21 @@ const platformsSlice = createSlice({
         if (action.payload.profile) {
           state.profile = action.payload.profile;
         }
-        state.verificationData = {
-          code: action.payload.code,
-          platform: action.payload.platform,
-          handle: action.payload.handle,
-          expiresAt: action.payload.expiresAt,
-          instructions: action.payload.instructions,
-        };
-        state.successMessage = action.payload.code 
-          ? 'Verification code generated' 
-          : 'Platform verified automatically';
+        // Only set verificationData if code exists (not for auto-verified platforms like Codeforces)
+        if (action.payload.code) {
+          state.verificationData = {
+            code: action.payload.code,
+            platform: action.payload.platform,
+            handle: action.payload.handle,
+            expiresAt: action.payload.expiresAt,
+            instructions: action.payload.instructions,
+          };
+          state.successMessage = 'Verification code generated';
+        } else {
+          // Auto-verified platform (like Codeforces)
+          state.verificationData = null;
+          state.successMessage = 'Platform verified automatically';
+        }
       })
       .addCase(requestPlatformVerification.rejected, (state, action) => {
         state.isLoading = false;

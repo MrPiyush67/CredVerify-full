@@ -47,7 +47,7 @@ export const getStats = asyncHandler(async (req, res) => {
 
 // @desc    Get all validants
 // @route   GET /api/validants
-// @access  Private
+// @access  Public
 export const getAllValidants = asyncHandler(async (req, res) => {
   const validants = await validantService.getAllValidants();
   return sendSuccess(res, 200, 'Validants fetched successfully', { validants });
@@ -55,10 +55,11 @@ export const getAllValidants = asyncHandler(async (req, res) => {
 
 // @desc    Get validant by ID
 // @route   GET /api/validants/:id
-// @access  Private
+// @access  Public
 export const getValidantById = asyncHandler(async (req, res) => {
   const validant = await validantService.getValidantById(req.params.id);
-  return sendSuccess(res, 200, 'Validant fetched successfully', { validant });
+  // Return in format expected by frontend: { user }
+  return sendSuccess(res, 200, 'Validant fetched successfully', { user: validant });
 });
 
 // @desc    Get validant settings

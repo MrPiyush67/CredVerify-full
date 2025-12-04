@@ -24,22 +24,59 @@ export const generateCode = () => {
   return code;
 };
 
-// ===== CODEFORCES (Official API) =====
-export const verifyCodeforces = async (handle) => {
+// ===== CODEFORCES (API-based verification) =====
+export const verifyCodeforces = async (handle, verificationCode) => {
   try {
-    // Fetch user info
-    const userResponse = await axios.get(`https://codeforces.com/api/user.info?handles=${handle}`);
-    if (userResponse.data.status !== 'OK' || userResponse.data.result.length === 0) {
-      return { success: false, message: 'User not found' };
+    if (!handle || typeof handle !== 'string' || handle.trim() === '') {
+      return { success: false, message: 'Invalid handle provided' };
+    }
+    
+    // Fetch user info from API for stats
+    const userResponse = await axios.get(`https://codeforces.com/api/user.info?handles=${handle}`, {
+      timeout: 10000,
+    });
+    
+    if (userResponse.data.status !== 'OK') {
+      return { success: false, message: userResponse.data.comment || 'User not found' };
+    }
+    
+    if (!userResponse.data.result || userResponse.data.result.length === 0) {
+      return { success: false, message: 'User not found on Codeforces' };
     }
     
     const user = userResponse.data.result[0];
+    
+    // If verification code is provided, check for it in API fields
+    if (verificationCode) {
+      const firstName = user.firstName || '';
+      const lastName = user.lastName || '';
+      const organization = user.organization || '';
+      
+      console.log(`[Codeforces] Checking for code: ${verificationCode}`);
+      console.log(`[Codeforces] First Name: "${firstName}"`);
+      console.log(`[Codeforces] Last Name: "${lastName}"`);
+      console.log(`[Codeforces] Organization: "${organization}"`);
+      
+      // Check if verification code exists in any of these fields
+      const combinedFields = `${firstName} ${lastName} ${organization}`;
+      if (!combinedFields.includes(verificationCode)) {
+        console.log(`[Codeforces] Code not found in profile fields`);
+        return { 
+          success: false, 
+          message: 'Verification code not found. Please add it to your First Name, Last Name, or Organization field in Codeforces settings.' 
+        };
+      }
+      
+      console.log(`[Codeforces] Verification code found!`);
+    }
     
     // Fetch submission history to calculate active days and contests
     let contestsAttended = 0;
     let activeDays = 0;
     try {
-      const submissionsResponse = await axios.get(`https://codeforces.com/api/user.status?handle=${handle}&from=1&count=10000`);
+      const submissionsResponse = await axios.get(`https://codeforces.com/api/user.status?handle=${handle}&from=1&count=10000`, {
+        timeout: 10000,
+      });
       if (submissionsResponse.data.status === 'OK') {
         const submissions = submissionsResponse.data.result;
         
@@ -76,7 +113,11 @@ export const verifyCodeforces = async (handle) => {
       },
     };
   } catch (error) {
-    return { success: false, message: 'Invalid handle or API error' };
+    console.error('[Codeforces] Verification error:', error.message);
+    if (error.response?.data?.comment) {
+      return { success: false, message: error.response.data.comment };
+    }
+    return { success: false, message: 'Invalid handle or Codeforces API error. Please check your handle and try again.' };
   }
 };
 
@@ -453,35 +494,53 @@ export const verifyGitHubBio = async (handle, verificationCode) => {
   }
 };
 
-// ===== HACKEREARTH =====
+// ===== HACKERRANK =====
 export const verifyHackerRank = async (handle, verificationCode) => {
   try {
+    if (!verificationCode) {
+      return { success: false, message: 'Verification code is required' };
+    }
+
     const url = `https://www.hackerrank.com/${handle}`;
     console.log(`\n[HackerRank] Verifying handle: ${handle}`);
     console.log(`[HackerRank] Fetching from: ${url}`);
     console.log(`[HackerRank] Looking for code: ${verificationCode}`);
     
-    const response = await axios.get(url, axiosConfig);
+    const response = await axios.get(url, {
+      ...axiosConfig,
+      timeout: 15000, // 15 second timeout
+    });
     
     if (response.status === 404) {
-      return { success: false, message: 'User not found on HackerRank' };
+      return { success: false, message: 'User not found on HackerRank. Please check your handle and try again.' };
     }
     
     if (response.status !== 200) {
       console.error(`[HackerRank] HTTP ${response.status} received`);
-      return { success: false, message: `Failed to fetch profile (HTTP ${response.status})` };
+      return { success: false, message: `Failed to fetch profile (HTTP ${response.status}). Please try again later.` };
     }
     
     const $ = cheerio.load(response.data);
     
-    // Check full page text
+    // Check multiple locations for verification code
     const pageText = $.root().text() || $('body').text() || '';
-    console.log(`[HackerRank] Page text length: ${pageText.length} characters`);
-    console.log(`[HackerRank] Page text preview: ${pageText.substring(0, 200)}...`);
-    console.log(`[HackerRank] Code found: ${pageText.includes(verificationCode)}`);
+    const firstName = $('.profile-name').text().trim();
+    const bio = $('.profile-bio').text().trim();
+    const about = $('.profile-about').text().trim();
     
-    if (!pageText.includes(verificationCode)) {
-      return { success: false, message: 'Verification code not found in profile page' };
+    const combinedText = `${pageText} ${firstName} ${bio} ${about}`.toLowerCase();
+    const codeToFind = verificationCode.toLowerCase();
+    
+    console.log(`[HackerRank] Page text length: ${pageText.length} characters`);
+    console.log(`[HackerRank] First name: ${firstName}`);
+    console.log(`[HackerRank] Bio: ${bio}`);
+    console.log(`[HackerRank] Code found: ${combinedText.includes(codeToFind)}`);
+    
+    if (!combinedText.includes(codeToFind)) {
+      return { 
+        success: false, 
+        message: 'Verification code not found in your profile. Please add the code to your HackerRank profile (First Name, Bio, or About section) and try again.' 
+      };
     }
 
     return {
@@ -493,6 +552,9 @@ export const verifyHackerRank = async (handle, verificationCode) => {
     };
   } catch (error) {
     console.error(`[HackerRank] Error verifying profile:`, error.message);
+    if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+      return { success: false, message: 'Request timed out. HackerRank server is not responding. Please try again later.' };
+    }
     return { success: false, message: `Failed to verify HackerRank profile: ${error.message}` };
   }
 };

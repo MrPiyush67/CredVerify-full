@@ -45,18 +45,7 @@ export const requestVerification = async (userId, platform) => {
     throw new Error('Please submit your handle first');
   }
   
-  // Codeforces doesn't need verification code (uses API directly)
-  if (platform === 'codeforces') {
-    const result = await platformVerifiers.codeforces(profile[platform].handle);
-    if (result.success) {
-      profile[platform].isVerified = true;
-      profile[platform].stats = result.stats;
-      profile[platform].lastFetched = new Date();
-      await profile.save();
-      return { verified: true, profile };
-    }
-    throw new Error(result.message);
-  }
+  // Generate verification code for all platforms including Codeforces
   
   // Generate verification code
   const code = profile.generateVerificationCode(platform);
@@ -80,7 +69,11 @@ export const verifyPlatformOwnership = async (userId, platform) => {
   }
   
   if (!profile[platform].handle) {
-    throw new Error('Handle not found');
+    throw new Error('Handle not found. Please submit your handle first');
+  }
+  
+  if (!profile[platform].verificationCode) {
+    throw new Error('No verification code found. Please request a verification code first');
   }
   
   if (!profile.isVerificationValid(platform)) {
@@ -162,10 +155,8 @@ export const refreshPlatformStats = async (userId, platform) => {
     throw new Error(`Verifier not implemented for ${platform}`);
   }
   
-  // For Codeforces, no verification code needed
-  const result = platform === 'codeforces'
-    ? await verifier(profile[platform].handle)
-    : await verifier(profile[platform].handle, null);
+  // Refresh stats without verification code (pass null for code parameter)
+  const result = await verifier(profile[platform].handle, null);
   
   if (result.success && result.stats) {
     profile[platform].stats = result.stats;

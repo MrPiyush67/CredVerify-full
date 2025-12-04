@@ -56,10 +56,13 @@ export default function PlatformVerificationModal({
     setStep('verifying');
     try {
       await dispatch(verifyPlatformOwnership(platform)).unwrap();
+      setStep('success');
       toast.success('Platform verified successfully!');
-      // Close modal immediately and refresh profile
-      onClose();
-      await dispatch(fetchPlatformProfile());
+      // Refresh profile and close modal after a short delay
+      setTimeout(async () => {
+        await dispatch(fetchPlatformProfile());
+        onClose();
+      }, 2000);
     } catch (err) {
       setStep('error');
       toast.error(err || 'Verification failed');
@@ -87,7 +90,7 @@ export default function PlatformVerificationModal({
       geeksforgeeks: 'Display Name, Name, or About',
       hackerrank: 'First Name, Bio, or About',
       atcoder: 'Affiliation, Name, or Bio',
-      codeforces: 'No verification needed (API-based)',
+      codeforces: 'First Name, Last Name, or Organization',
     };
     return fields[platform] || 'Name, Bio, or About';
   };

@@ -46,17 +46,13 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
     if (role === 'credentialist' || role === 'credentialists') {
       dispatch(fetchUsers());
     } else if (role === 'validant' || role === 'validants') {
-      // Only fetch if user has permission
-      if (userRole === 'validant') {
-        dispatch(fetchAdmins());
-      }
+      // Fetch validants for all users (public profiles)
+      dispatch(fetchAdmins());
     } else if (role === 'curator' || role === 'curators') {
-      // Only fetch if user has permission
-      if (userRole === 'validant') {
-        dispatch(fetchEmployers());
-      }
+      // Fetch curators for all users (public profiles)
+      dispatch(fetchEmployers());
     }
-  }, [dispatch, role, userRole]);
+  }, [dispatch, role]);
 
   // Get the appropriate data and loading state for the role
   const { items, isLoading } = useMemo(() => {

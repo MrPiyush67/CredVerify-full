@@ -35,16 +35,13 @@ export default function usePlatformHandlers() {
       ).unwrap();
       toast.success(`${platform.name} handle submitted successfully!`);
 
-      // Open verification modal for platforms that need it
-      // Codeforces doesn't need verification modal (direct API)
-      if (platform.id !== 'codeforces') {
-        setVerificationModal({
-          isOpen: true,
-          platform: platform.id,
-          handle: username,
-          platformName: platform.name,
-        });
-      }
+      // Open verification modal for all platforms
+      setVerificationModal({
+        isOpen: true,
+        platform: platform.id,
+        handle: username,
+        platformName: platform.name,
+      });
     } catch (error) {
       toast.error(error || `Failed to submit ${platform.name} handle`);
     } finally {

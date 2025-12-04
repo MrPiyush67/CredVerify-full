@@ -148,21 +148,25 @@ export const getVerificationStats = async (userId) => {
   };
 };
 
-// Get all validants (for display/search)
+// Get all validants (for display/search) - only public validants
 export const getAllValidants = async (filters = {}) => {
-  const validants = await User.find({ role: 'validant', ...filters })
+  const validants = await User.find({ role: 'validant', isPublic: true, ...filters })
     .select('-passwordHash')
     .sort({ createdAt: -1 });
 
   return validants;
 };
 
-// Get validant by ID
+// Get validant by ID (public profile only)
 export const getValidantById = async (validantId) => {
   const validant = await User.findById(validantId).select('-passwordHash');
 
   if (!validant || validant.role !== 'validant') {
     throw new Error('Validant not found');
+  }
+
+  if (!validant.isPublic) {
+    throw new Error('This validant profile is not public');
   }
 
   return validant;

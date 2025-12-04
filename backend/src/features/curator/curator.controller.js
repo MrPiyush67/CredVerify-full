@@ -4,7 +4,7 @@ import * as curatorService from './curator.service.js';
 
 // @desc    Get all curators
 // @route   GET /api/curators
-// @access  Private
+// @access  Public
 export const getAllCurators = asyncHandler(async (req, res) => {
   const curators = await curatorService.getAllCurators();
   return sendSuccess(res, 200, 'Curators fetched successfully', { curators });
@@ -12,10 +12,11 @@ export const getAllCurators = asyncHandler(async (req, res) => {
 
 // @desc    Get curator by ID
 // @route   GET /api/curators/:id
-// @access  Private
+// @access  Public
 export const getCuratorById = asyncHandler(async (req, res) => {
   const curator = await curatorService.getCuratorById(req.params.id);
-  return sendSuccess(res, 200, 'Curator fetched successfully', { curator });
+  // Return in format expected by frontend: { user }
+  return sendSuccess(res, 200, 'Curator fetched successfully', { user: curator });
 });
 
 // @desc    Get curator settings

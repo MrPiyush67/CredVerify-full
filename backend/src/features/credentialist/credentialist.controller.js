@@ -4,7 +4,7 @@ import * as credentialistService from './credentialist.service.js';
 
 // @desc    Get all credentialists (public profiles only)
 // @route   GET /api/credentialists
-// @access  Private
+// @access  Public
 export const getAllCredentialists = asyncHandler(async (req, res) => {
   const profiles = await credentialistService.getAllCredentialists();
   return sendSuccess(res, 200, 'Credentialists fetched successfully', { profiles });
@@ -12,14 +12,16 @@ export const getAllCredentialists = asyncHandler(async (req, res) => {
 
 // @desc    Get credentialist by ID (respects privacy settings)
 // @route   GET /api/credentialists/:id
-// @access  Private
+// @access  Public
 export const getCredentialistById = asyncHandler(async (req, res) => {
+  // req.user will be undefined if not authenticated
   const profile = await credentialistService.getCredentialistById(
     req.params.id,
-    req.user._id,
-    req.user.role
+    req.user?._id,
+    req.user?.role
   );
-  return sendSuccess(res, 200, 'Credentialist fetched successfully', { profile });
+  // Return in format expected by frontend: { user }
+  return sendSuccess(res, 200, 'Credentialist fetched successfully', { user: profile });
 });
 
 // @desc    Get credentialist settings
