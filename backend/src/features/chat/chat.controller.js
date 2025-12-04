@@ -72,11 +72,17 @@ export const sendMessageDirect = asyncHandler(async (req, res) => {
     return sendError(res, 400, 'Recipient ID and message content are required');
   }
 
-  // Get or create conversation
+  console.log(`💬 [CHAT API] User ${req.user._id} sending message to recipient ${recipientId}`);
+
+  // Get or create conversation (only between these 2 users)
   const conversation = await chatService.getOrCreateConversation(req.user._id, recipientId);
 
-  // Send message
+  console.log(`📋 [CHAT API] Using conversation ${conversation._id} with participants:`, conversation.participants);
+
+  // Send message (will only go to this specific conversation)
   const message = await chatService.sendMessage(conversation._id, req.user._id, content);
+
+  console.log(`✅ [CHAT API] Message sent successfully to recipient ${recipientId}`);
 
   return sendSuccess(res, 201, MESSAGES.CHAT.MESSAGE_SENT, { message });
 });

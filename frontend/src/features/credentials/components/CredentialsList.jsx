@@ -34,12 +34,28 @@ export default function CredentialsList({ credentials, onViewDetails, pagination
 
   const handleTogglePublic = async (credential, isPublic) => {
     try {
+      console.log('[TOGGLE VISIBILITY]', {
+        credentialId: credential._id,
+        credentialTitle: credential.title,
+        status: credential.status,
+        currentIsPublic: credential.isPublic,
+        newIsPublic: isPublic,
+        updateData: { isPublic }
+      });
+      
       await dispatch(editCredential({
         id: credential._id,
         data: { isPublic }
       })).unwrap();
+      
+      toast.success(`Credential ${isPublic ? 'made public' : 'made private'}`);
     } catch (error) {
-      console.error('Failed to toggle public status:', error);
+      console.error('[TOGGLE VISIBILITY ERROR]', {
+        credentialId: credential._id,
+        error: error,
+        errorMessage: error.message || error
+      });
+      toast.error(error.message || error || 'Failed to toggle visibility');
     }
   };
 
@@ -149,41 +165,22 @@ export default function CredentialsList({ credentials, onViewDetails, pagination
           <motion.div key={credential._id} variants={item}>
             <Card className="h-full hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer" onClick={() => onViewDetails(credential)}>
               {/* Image Preview Section */}
-              <div className="relative h-48 bg-linear-to-br from-gray-50 to-gray-100 overflow-hidden">
+              <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
                 {credential.file?.url ? (
                   <div className="relative w-full h-full">
                     {credential.file.fileType?.includes('image') ? (
                       <img
                         src={credential.file.url}
                         alt={credential.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
                         onError={(e) => {
                           e.target.style.display = 'none';
                           e.target.nextElementSibling.style.display = 'flex';
                         }}
                       />
                     ) : credential.file.fileType?.includes('pdf') ? (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-linear-to-br from-red-50 to-orange-50">
-                        <FileText className="h-16 w-16 text-red-500 mb-2" />
-                        <span className="text-sm font-medium text-red-700">PDF Document</span>
-                      </div>
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-linear-to-br from-blue-50 to-indigo-50">
-                        <FileText className="h-16 w-16 text-blue-500 mb-2" />
-                        <span className="text-sm font-medium text-blue-700">Document</span>
-                      </div>
-                    )}
-                    <div className="w-full h-full flex-col items-center justify-center bg-linear-to-br from-gray-100 to-gray-200" style={{ display: 'none' }}>
-                      <FileText className="h-16 w-16 text-gray-400 mb-2" />
-                      <span className="text-sm font-medium text-gray-500">No Preview</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-linear-to-br from-teal-50 to-blue-50">
-                    {/* Demo PDF preview */}
-                    <div className="relative w-full h-full">
                       <iframe
-                        src="https://www.orimi.com/pdf-test.pdf#page=1&view=FitH"
+                        src={`${credential.file.url}#view=FitH`}
                         className="w-full h-full border-0"
                         title={credential.title}
                         onError={(e) => {
@@ -191,16 +188,26 @@ export default function CredentialsList({ credentials, onViewDetails, pagination
                           e.target.nextElementSibling.style.display = 'flex';
                         }}
                       />
-                      <div className="w-full h-full flex-col items-center justify-center bg-linear-to-br from-gray-100 to-gray-200" style={{ display: 'none' }}>
-                        <FileText className="h-16 w-16 text-gray-400 mb-2" />
-                        <span className="text-sm font-medium text-gray-500">Preview Unavailable</span>
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#116466]/10 to-[#0d9488]/10">
+                        <FileText className="h-16 w-16 text-[#116466] mb-2" />
+                        <span className="text-sm font-medium text-[#116466]">Document</span>
                       </div>
+                    )}
+                    <div className="w-full h-full flex-col items-center justify-center bg-gradient-to-br from-[#116466]/10 to-[#0d9488]/10" style={{ display: 'none' }}>
+                      <FileText className="h-16 w-16 text-[#116466] mb-2" />
+                      <span className="text-sm font-medium text-[#116466]">No Preview</span>
                     </div>
+                  </div>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#116466]/10 to-[#0d9488]/10">
+                    <FileText className="h-20 w-20 text-[#116466] mb-3" />
+                    <span className="text-sm font-medium text-[#116466]">No Document Attached</span>
                   </div>
                 )}
                 
                 {/* Overlay gradient for better text visibility */}
-                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 
                 {/* More Options - Positioned on image */}
                 <div className="absolute top-2 right-2 z-10">
@@ -278,11 +285,18 @@ export default function CredentialsList({ credentials, onViewDetails, pagination
               {/* Card Content */}
               <CardContent className="p-4 space-y-3">
                 <div>
-                  <h3 className="font-semibold text-base line-clamp-1 text-gray-900">
-                    {credential.title}
-                  </h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-base line-clamp-1 text-gray-900 flex-1">
+                      {credential.title}
+                    </h3>
+                    {/* Status Badge */}
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border shrink-0 ${getStatusColor(credential.status)}`}>
+                      {getStatusIcon(credential.status)}
+                      <span className="capitalize">{credential.status || 'draft'}</span>
+                    </span>
+                  </div>
                   {credential.issuer && (
-                    <p className="text-sm text-gray-600 line-clamp-1 mt-1">
+                    <p className="text-sm text-gray-600 line-clamp-1">
                       {credential.issuer}
                     </p>
                   )}
@@ -306,14 +320,14 @@ export default function CredentialsList({ credentials, onViewDetails, pagination
                       e.stopPropagation();
                       handleTogglePublic(credential, !credential.isPublic);
                     }}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
-                      credential.isPublic ? 'bg-teal-600' : 'bg-gray-300'
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#116466] focus:ring-offset-2 ${
+                      credential.isPublic ? 'bg-[#116466]' : 'bg-gray-300'
                     }`}
                     role="switch"
                     aria-checked={credential.isPublic}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-all duration-300 ease-in-out ${
                         credential.isPublic ? 'translate-x-6' : 'translate-x-1'
                       }`}
                     />

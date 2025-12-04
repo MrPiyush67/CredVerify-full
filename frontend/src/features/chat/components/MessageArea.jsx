@@ -60,9 +60,16 @@ export default function MessageArea() {
 
     const recipient = activeConversation.data.otherParticipant;
     if (!recipient) {
-      console.error('No recipient found');
+      console.error('❌ [CHAT] No recipient found in active conversation');
       return;
     }
+
+    console.log(`📤 [CHAT] Sending message to:`, {
+      recipientId: recipient._id,
+      recipientName: recipient.name,
+      recipientRole: recipient.role,
+      conversationId: activeConversation.id
+    });
 
     const messageData = {
       recipientId: recipient._id,
