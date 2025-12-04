@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, FileText, CheckCircle, Calendar, Building2 } from 'lucide-react';
+import { X, FileText, Check, Calendar, Building2 } from 'lucide-react';
 import { Button } from '@common';
 import toast from 'react-hot-toast';
 
@@ -130,7 +130,7 @@ export default function DigilockerDocumentSelector({ documents, onImport, onClos
                       ${isSelected ? 'bg-[#116466] border-[#116466]' : 'border-gray-300'}
                     `}>
                       {isSelected && (
-                        <CheckCircle className="w-5 h-5 text-white" fill="currentColor" />
+                        <Check className="w-4 h-4 text-white stroke-[3]" />
                       )}
                     </div>
 

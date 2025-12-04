@@ -38,7 +38,7 @@ const PlatformStatusRow = ({ name, status, domain }) => (
 
 const Donut = ({ value, total, color = '#116466', label, difficulty }) => {
   const pct = Math.min(100, Math.round((value / total) * 100));
-  const circumference = 2 * Math.PI * 30;
+  const circumference = 2 * Math.PI * 45;
   const strokeDash = (pct / 100) * circumference;
 
   const difficultyColors = {
@@ -48,22 +48,22 @@ const Donut = ({ value, total, color = '#116466', label, difficulty }) => {
   };
 
   return (
-    <div className="flex items-center justify-between p-4 border-b last:border-b-0">
-      <div className="flex items-center gap-4">
-        <svg width={80} height={80} className="shrink-0">
-          <circle cx={40} cy={40} r={30} stroke="#e5e7eb" strokeWidth={10} fill="none" />
-          <circle cx={40} cy={40} r={30} stroke={color} strokeWidth={10} fill="none"
+    <div className="flex items-center justify-between p-6 border-b last:border-b-0">
+      <div className="flex items-center gap-6">
+        <svg width={120} height={120} className="shrink-0">
+          <circle cx={60} cy={60} r={45} stroke="#e5e7eb" strokeWidth={14} fill="none" />
+          <circle cx={60} cy={60} r={45} stroke={color} strokeWidth={14} fill="none"
             strokeDasharray={`${strokeDash} ${circumference - strokeDash}`}
             strokeLinecap="round"
-            transform="rotate(-90 40 40)" />
-          <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="text-lg font-bold fill-[#116466]">{value}</text>
+            transform="rotate(-90 60 60)" />
+          <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-[#116466]">{value}</text>
         </svg>
         <div>
-          <div className="text-base font-semibold text-gray-800">{label}</div>
+          <div className="text-lg font-semibold text-gray-800">{label}</div>
           {difficulty && (
-            <div className="flex gap-2 mt-1">
+            <div className="flex gap-3 mt-2">
               {Object.entries(difficulty).map(([level, count]) => (
-                <span key={level} className="text-xs" style={{ color: difficultyColors[level] }}>
+                <span key={level} className="text-sm font-medium" style={{ color: difficultyColors[level] }}>
                   {level}: {count}
                 </span>
               ))}
@@ -71,9 +71,9 @@ const Donut = ({ value, total, color = '#116466', label, difficulty }) => {
           )}
         </div>
       </div>
-      <div className="text-right">
-        <div className="text-2xl font-bold text-[#116466]">{pct}%</div>
-        <div className="text-xs text-gray-500">of {total}</div>
+      <div className="text-right shrink-0 min-w-[80px]">
+        <div className="text-3xl font-bold text-[#116466] truncate">{pct}%</div>
+        <div className="text-sm text-gray-500 truncate">of {total}</div>
       </div>
     </div>
   );
@@ -99,9 +99,19 @@ const BarChart = ({ data }) => {
   );
 };
 
-const Heatmap = ({ months = ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'] }) => {
+const Heatmap = ({ activeDays = 0, months = ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'] }) => {
+  // Generate more realistic heatmap based on active days
   const generateHeatmapData = () => {
-    return Array.from({ length: 28 }).map(() => Math.floor(Math.random() * 5));
+    if (activeDays === 0) return Array.from({ length: 28 }).map(() => 0);
+    
+    // Distribute active days across the heatmap with some variation
+    const avgPerDay = activeDays / 168; // 6 months * 28 days
+    return Array.from({ length: 28 }).map(() => {
+      const random = Math.random();
+      if (random < 0.3) return 0; // 30% chance of no activity
+      if (random < 0.6) return Math.min(4, Math.floor(avgPerDay * (0.5 + Math.random())));
+      return Math.min(4, Math.floor(avgPerDay * (1 + Math.random())));
+    });
   };
 
   return (
@@ -114,7 +124,7 @@ const Heatmap = ({ months = ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'] }) => {
             <div className="grid grid-cols-7 gap-1">
               {data.map((intensity, i) => {
                 const shades = ['#f0fdfa', '#99f6e4', '#5eead4', '#2dd4bf', '#14b8a6'];
-                return <div key={i} className="h-2.5 w-2.5 rounded-sm hover:ring-2 ring-[#116466] transition-all" style={{ background: shades[intensity] }} title={`${intensity} contributions`} />;
+                return <div key={i} className="h-2.5 w-2.5 rounded-sm hover:ring-2 ring-[#116466] transition-all cursor-pointer" style={{ background: shades[intensity] }} title={`${intensity} contributions`} />;
               })}
             </div>
           </div>
@@ -124,28 +134,77 @@ const Heatmap = ({ months = ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'] }) => {
   );
 };
 
-const AwardBadges = ({ awards }) => (
-  <div className="grid grid-cols-4 md:grid-cols-5 gap-4 p-5">
-    {awards.map((a, idx) => (
-      <div key={a.name} className="flex flex-col items-center group">
-        <div className={`h-14 w-14 rounded-xl border-2 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform ${idx === 0 ? 'bg-yellow-50 border-yellow-400' :
-            idx === 1 ? 'bg-gray-50 border-gray-400' :
-              idx === 2 ? 'bg-orange-50 border-orange-400' :
-                'bg-teal-50 border-teal-400'
-          }`}>
-          <Award className={`h-7 w-7 ${idx === 0 ? 'text-yellow-600' :
-              idx === 1 ? 'text-gray-600' :
-                idx === 2 ? 'text-orange-600' :
-                  'text-teal-600'
-            }`} />
-        </div>
-        <span className="text-[10px] mt-2 font-semibold text-gray-700 text-center leading-tight">{a.name}</span>
-      </div>
-    ))}
-  </div>
-);
+const AwardBadges = ({ awards }) => {
+  const platformBadges = {
+    leetcode: { bg: '#FDB515', icon: '⚡', name: 'LeetCode' },
+    codeforces: { bg: '#1F8ACB', icon: '🏆', name: 'Codeforces' },
+    codechef: { bg: '#B3804A', icon: '👨‍🍳', name: 'CodeChef' },
+    github: { bg: '#24292e', icon: '⭐', name: 'GitHub' },
+    hackerrank: { bg: '#00EA64', icon: '💚', name: 'HackerRank' },
+    atcoder: { bg: '#000000', icon: '⚔️', name: 'AtCoder' },
+    geeksforgeeks: { bg: '#2F8D46', icon: '🎯', name: 'GeeksforGeeks' },
+  };
 
-export default function PortfolioPreview({ portfolioData, userName = 'Your Name', userBio = 'Software Engineer' }) {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-5">
+      {awards.map((a) => {
+        const platformKey = a.name.toLowerCase().replace(/\s+/g, '');
+        const badge = platformBadges[platformKey] || { bg: '#116466', icon: '✨', name: a.name };
+        const isProfessional = a.category === 'professional' || a.isProfessional;
+        
+        return (
+          <div key={a.name} className="group">
+            <div className="relative bg-white border-2 border-gray-200 rounded-xl p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+              {/* Professional badge ribbon */}
+              {isProfessional && (
+                <div className="absolute -top-2 -right-2 z-10">
+                  <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-900 text-[9px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1">
+                    <span>⭐</span>
+                    <span>PRO</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Platform badge */}
+              <div className="flex flex-col items-center text-center">
+                {/* Icon circle */}
+                <div 
+                  className="w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3 shadow-lg transform group-hover:scale-110 transition-transform duration-300"
+                  style={{ backgroundColor: badge.bg }}
+                >
+                  {badge.icon}
+                </div>
+                
+                {/* Platform name */}
+                <h4 className="text-sm font-bold text-gray-800 mb-1 line-clamp-1">{badge.name}</h4>
+                
+                {/* Stats preview */}
+                {a.stats && Object.keys(a.stats).length > 0 && (
+                  <div className="w-full mt-2 pt-2 border-t border-gray-100">
+                    <div className="flex items-center justify-center gap-1 text-[10px] text-gray-600">
+                      <span className="font-semibold">{Object.values(a.stats)[0]}</span>
+                      <span>{Object.keys(a.stats)[0]}</span>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Verified checkmark */}
+                <div className="mt-2 flex items-center gap-1 text-[10px] text-teal-600 font-semibold">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span>Verified</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const PortfolioPreview = React.forwardRef(({ portfolioData, userName = 'Your Name', userBio = 'Software Engineer', userAvatar = null }, ref) => {
   // Use provided data with fallbacks to empty/zero values
   const platforms = portfolioData?.platforms || [];
   const githubHandle = portfolioData?.githubHandle || null;
@@ -161,7 +220,9 @@ export default function PortfolioPreview({ portfolioData, userName = 'Your Name'
     ? portfolioData.dsaTopics 
     : [];
 
-  const contests = portfolioData?.contests || { codechef: 0, codeforces: 0 };
+  const contests = portfolioData?.contests || {};
+  const totalContests = Object.values(contests).reduce((sum, val) => sum + (val || 0), 0);
+  const contestEntries = Object.entries(contests).filter(([_, count]) => count > 0);
   const awards = portfolioData?.awards || [];
 
   const ratingHistory = portfolioData?.ratingHistory && portfolioData.ratingHistory.length > 0 
@@ -175,6 +236,7 @@ export default function PortfolioPreview({ portfolioData, userName = 'Your Name'
   const contestRating = portfolioData?.contestRating || 0;
   const maxContestRating = portfolioData?.maxContestRating || 0;
   const contestRank = portfolioData?.contestRank || 'N/A';
+  const contributions = portfolioData?.contributions || 0;
 
   return (
     <div className="bg-white p-6 rounded-lg">
@@ -182,9 +244,25 @@ export default function PortfolioPreview({ portfolioData, userName = 'Your Name'
         {/* Left Column */}
         <div className="md:col-span-3 space-y-6">
           <div className="rounded-xl border-2 border-gray-200 bg-white p-6 flex flex-col items-center text-center shadow-sm">
-            <div className="h-28 w-28 rounded-full bg-linear-to-br from-[#116466] to-[#0d9488] mb-4 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-              {userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-            </div>
+            {/* Profile Avatar */}
+            {userAvatar ? (
+              <div className="h-28 w-28 rounded-full mb-4 overflow-hidden shadow-lg border-4 border-[#116466]">
+                <img 
+                  src={userAvatar} 
+                  alt={userName}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to initials if image fails to load
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerHTML = `<div class="h-full w-full bg-gradient-to-br from-[#116466] to-[#0d9488] flex items-center justify-center text-white text-3xl font-bold">${userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}</div>`;
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="h-28 w-28 rounded-full bg-gradient-to-br from-[#116466] to-[#0d9488] mb-4 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                {userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+              </div>
+            )}
             <h2 className="font-bold text-xl text-gray-800">{userName}</h2>
             <p className="text-sm text-gray-600 mt-2 leading-relaxed">{userBio}</p>
             <div className="mt-4 w-full">
@@ -255,50 +333,48 @@ export default function PortfolioPreview({ portfolioData, userName = 'Your Name'
           </div>
         </div>
 
-        {/* Main Middle Column */}
-        <div className="md:col-span-6 space-y-6">
+        {/* Main Middle Column - Adjusted for better layout */}
+        <div className="md:col-span-5 space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <StatCard label="Total Questions" value={totalQuestions} icon={BarChart3} />
             <StatCard label="Total Active Days" value={activeDays} icon={TrendingUp} />
-          </div>
-
-          <div className="rounded-xl border-2 border-gray-200 bg-white shadow-sm overflow-hidden">
-            <div className="p-4 border-b bg-gray-50">
-              <h3 className="font-bold text-gray-700">Contribution Activity</h3>
-            </div>
-            {totalQuestions > 0 ? (
-              <Heatmap />
-            ) : (
-              <div className="p-6 text-center text-sm text-gray-500">
-                No contribution data available yet
-              </div>
-            )}
           </div>
 
           <div className="rounded-xl border-2 border-gray-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-gray-800">Total Contests</h3>
               <span className="text-xs bg-[#116466]/10 text-[#116466] px-3 py-1 rounded-full font-semibold">
-                {(contests.codechef || 0) + (contests.codeforces || 0)}
+                {totalContests}
               </span>
             </div>
 
             <div className="flex gap-6 text-sm flex-wrap">
-              {contests.codechef > 0 && (
-                <div className="flex items-center gap-2 bg-orange-50 px-3 py-2 rounded-lg">
-                  <span className="h-3 w-3 rounded-full bg-orange-500" />
-                  <span className="font-medium text-gray-700">CodeChef</span>
-                  <span className="font-bold text-orange-600">{contests.codechef}</span>
-                </div>
-              )}
-              {contests.codeforces > 0 && (
-                <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-lg">
-                  <span className="h-3 w-3 rounded-full bg-blue-500" />
-                  <span className="font-medium text-gray-700">CodeForces</span>
-                  <span className="font-bold text-blue-600">{contests.codeforces}</span>
-                </div>
-              )}
-              {contests.codechef === 0 && contests.codeforces === 0 && (
+              {contestEntries.length > 0 ? (
+                contestEntries.map(([platform, count]) => {
+                  const platformColors = {
+                    leetcode: { bg: 'bg-yellow-50', text: 'text-yellow-600', dot: 'bg-yellow-500' },
+                    codechef: { bg: 'bg-orange-50', text: 'text-orange-600', dot: 'bg-orange-500' },
+                    codeforces: { bg: 'bg-blue-50', text: 'text-blue-600', dot: 'bg-blue-500' },
+                    atcoder: { bg: 'bg-purple-50', text: 'text-purple-600', dot: 'bg-purple-500' },
+                    hackerrank: { bg: 'bg-green-50', text: 'text-green-600', dot: 'bg-green-500' },
+                  };
+                  const platformNames = {
+                    leetcode: 'LeetCode',
+                    codechef: 'CodeChef',
+                    codeforces: 'CodeForces',
+                    atcoder: 'AtCoder',
+                    hackerrank: 'HackerRank',
+                  };
+                  const colors = platformColors[platform] || { bg: 'bg-gray-50', text: 'text-gray-600', dot: 'bg-gray-500' };
+                  return (
+                    <div key={platform} className={`flex items-center gap-2 ${colors.bg} px-3 py-2 rounded-lg`}>
+                      <span className={`h-3 w-3 rounded-full ${colors.dot}`} />
+                      <span className="font-medium text-gray-700">{platformNames[platform] || platform}</span>
+                      <span className={`font-bold ${colors.text}`}>{count}</span>
+                    </div>
+                  );
+                })
+              ) : (
                 <div className="text-sm text-gray-500">No contest data available</div>
               )}
             </div>
@@ -316,61 +392,73 @@ export default function PortfolioPreview({ portfolioData, userName = 'Your Name'
               )}
             </div>
             {ratingHistory.length > 0 && ratingHistory[0] > 0 ? (
-              <div className="h-64 relative bg-linear-to-b from-gray-50 to-white rounded-lg p-4">
+              <div className="h-72 relative bg-gradient-to-b from-gray-50 to-white rounded-lg p-4">
               {(() => {
                 const data = ratingHistory;
-                const W = 420, H = 200;
-                const pad = { l: 36, r: 12, t: 16, b: 28 };
+                const W = 480, H = 240;
+                const pad = { l: 50, r: 20, t: 30, b: 40 };
                 const plotW = W - pad.l - pad.r;
                 const plotH = H - pad.t - pad.b;
                 const min = Math.min(...data);
                 const max = Math.max(...data);
                 const yMin = min - Math.max(10, Math.round((max - min) * 0.1));
                 const yMax = max + Math.max(10, Math.round((max - min) * 0.1));
-                const xScale = (i) => pad.l + (i / (data.length - 1)) * plotW;
-                const yScale = (v) => pad.t + (1 - (v - yMin) / (yMax - yMin)) * plotH;
+                const xScale = (i) => data.length > 1 ? pad.l + (i / (data.length - 1)) * plotW : pad.l + plotW / 2;
+                const yScale = (v) => (yMax - yMin) > 0 ? pad.t + (1 - (v - yMin) / (yMax - yMin)) * plotH : pad.t + plotH / 2;
                 const pathD = 'M ' + data.map((r, i) => `${xScale(i)},${yScale(r)}`).join(' L ');
                 const areaD = pathD + ` L ${pad.l + plotW},${pad.t + plotH} L ${pad.l},${pad.t + plotH} Z`;
-                const gridLines = Array.from({ length: 5 }).map((_, idx) => {
-                  const y = pad.t + (idx / 4) * plotH;
-                  const v = Math.round(yMax - (idx / 4) * (yMax - yMin));
+                const gridLines = Array.from({ length: 6 }).map((_, idx) => {
+                  const y = pad.t + (idx / 5) * plotH;
+                  const v = Math.round(yMax - (idx / 5) * (yMax - yMin));
                   return { y, v };
                 });
                 const delta = data.length > 1 ? data[data.length - 1] - data[data.length - 2] : 0;
+                const currentRating = data[data.length - 1];
                 return (
-                  <svg width="100%" height="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="drop-shadow-sm">
+                  <svg width="100%" height="100%" viewBox={`0 0 ${W} ${H}`} className="drop-shadow-sm">
                     <defs>
                       <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                         <stop offset="0%" stopColor="#116466" />
                         <stop offset="100%" stopColor="#14b8a6" />
                       </linearGradient>
                       <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.18" />
-                        <stop offset="100%" stopColor="#14b8a6" stopOpacity="0.02" />
+                        <stop offset="0%" stopColor="#14b8a6" stopOpacity="0.2" />
+                        <stop offset="100%" stopColor="#14b8a6" stopOpacity="0.05" />
                       </linearGradient>
                     </defs>
+                    {/* Grid lines */}
                     {gridLines.map((g, i) => (
                       <g key={i}>
-                        <line x1={pad.l} x2={pad.l + plotW} y1={g.y} y2={g.y} stroke="#e5e7eb" strokeDasharray="4 4" />
-                        <text x={pad.l - 8} y={g.y + 4} textAnchor="end" fontSize="10" fill="#6b7280">{g.v}</text>
+                        <line x1={pad.l} x2={pad.l + plotW} y1={g.y} y2={g.y} stroke="#e5e7eb" strokeWidth="1" strokeDasharray="3 3" />
+                        <text x={pad.l - 10} y={g.y + 4} textAnchor="end" fontSize="11" fill="#6b7280" fontWeight="500">{g.v}</text>
                       </g>
                     ))}
-                    <line x1={pad.l} x2={pad.l + plotW} y1={pad.t + plotH} y2={pad.t + plotH} stroke="#e5e7eb" />
+                    {/* X axis */}
+                    <line x1={pad.l} x2={pad.l + plotW} y1={pad.t + plotH} y2={pad.t + plotH} stroke="#9ca3af" strokeWidth="2" />
+                    {/* Y axis */}
+                    <line x1={pad.l} x2={pad.l} y1={pad.t} y2={pad.t + plotH} stroke="#9ca3af" strokeWidth="2" />
+                    {/* Area fill */}
                     <path d={areaD} fill="url(#areaGradient)" />
-                    <motion.path d={pathD} stroke="url(#lineGradient)" strokeWidth="3.5" fill="none" strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: 'easeInOut' }} />
+                    {/* Line */}
+                    <motion.path d={pathD} stroke="url(#lineGradient)" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: 'easeInOut' }} />
+                    {/* Data points */}
                     {data.map((r, i) => (
                       <g key={i}>
-                        <circle cx={xScale(i)} cy={yScale(r)} r="4.5" fill="#116466" />
-                        <title>{r}</title>
+                        <circle cx={xScale(i)} cy={yScale(r)} r="5" fill="#ffffff" stroke="#116466" strokeWidth="2" />
+                        <title>Rating: {r}</title>
                       </g>
                     ))}
+                    {/* Current rating badge */}
                     <g>
-                      <rect x={W - 132} y={pad.t + 6} width="120" height="46" rx="8" fill="#ffffff" stroke="#e5e7eb" />
-                      <text x={W - 72} y={pad.t + 26} textAnchor="middle" fontSize="16" fontWeight="700" fill="#116466">{data[data.length - 1]}</text>
-                      <text x={W - 72} y={pad.t + 42} textAnchor="middle" fontSize="10" fill="#6b7280">
-                        Current • {delta >= 0 ? '+' : ''}{delta}
+                      <rect x={W - 140} y={pad.t + 10} width="120" height="54" rx="10" fill="#ffffff" stroke="#116466" strokeWidth="2" />
+                      <text x={W - 80} y={pad.t + 34} textAnchor="middle" fontSize="20" fontWeight="700" fill="#116466">{currentRating}</text>
+                      <text x={W - 80} y={pad.t + 50} textAnchor="middle" fontSize="10" fill="#6b7280" fontWeight="600">
+                        Current ({delta >= 0 ? '+' : ''}{delta})
                       </text>
                     </g>
+                    {/* Axis labels */}
+                    <text x={pad.l + plotW / 2} y={H - 5} textAnchor="middle" fontSize="11" fill="#6b7280" fontWeight="600">Contest Timeline</text>
+                    <text x="15" y={pad.t + plotH / 2} textAnchor="middle" fontSize="11" fill="#6b7280" fontWeight="600" transform={`rotate(-90 15 ${pad.t + plotH / 2})`}>Rating</text>
                   </svg>
                 );
               })()}
@@ -397,28 +485,10 @@ export default function PortfolioPreview({ portfolioData, userName = 'Your Name'
               </div>
             )}
           </div>
-
-          <div className="rounded-xl border-2 border-gray-200 bg-white shadow-sm overflow-hidden">
-            <div className="p-4 border-b bg-gray-50">
-              <h3 className="font-bold text-gray-700">DSA Topic Analysis</h3>
-            </div>
-            {dsaTopics.length > 0 ? (
-              <>
-                <BarChart data={dsaTopics} />
-                <div className="p-4 border-t bg-gray-50 text-center">
-                  <div className="text-xs text-gray-600">Based on {totalQuestions} total problems solved</div>
-                </div>
-              </>
-            ) : (
-              <div className="p-6 text-center text-sm text-gray-500">
-                No topic data available yet
-              </div>
-            )}
-          </div>
         </div>
 
-        {/* Right Column */}
-        <div className="md:col-span-3 space-y-6">
+        {/* Right Column - Wider for better visibility */}
+        <div className="md:col-span-4 space-y-6">
           <div className="rounded-xl border-2 border-gray-200 bg-white shadow-sm overflow-hidden">
             <div className="p-4 border-b bg-gray-50">
               <h3 className="font-bold text-gray-700">Problems Solved</h3>
@@ -460,4 +530,8 @@ export default function PortfolioPreview({ portfolioData, userName = 'Your Name'
       </div>
     </div>
   );
-}
+});
+
+PortfolioPreview.displayName = 'PortfolioPreview';
+
+export default PortfolioPreview;

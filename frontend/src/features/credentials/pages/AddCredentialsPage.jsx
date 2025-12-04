@@ -41,6 +41,7 @@ export default function AddCredentialsPage() {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [verificationModal, setVerificationModal] = useState({ isOpen: false, platform: null, handle: null, platformName: null });
   const [submittingPlatform, setSubmittingPlatform] = useState(null);
+  const [refreshingPlatform, setRefreshingPlatform] = useState(null);
 
   // Collapsible sections
   const [openSections, setOpenSections] = useState(() =>
@@ -130,11 +131,14 @@ export default function AddCredentialsPage() {
   };
 
   const handleRefreshStats = async (platformId) => {
+    setRefreshingPlatform(platformId);
     try {
       await dispatch(refreshPlatformStats(platformId)).unwrap();
       toast.success('Stats refreshed successfully!');
     } catch (error) {
       toast.error(error || 'Failed to refresh stats');
+    } finally {
+      setRefreshingPlatform(null);
     }
   };
 
@@ -217,7 +221,7 @@ export default function AddCredentialsPage() {
     const platformData = platformProfile?.[platform.id];
     const isSubmitted = platformData?.handle;
     const isVerified = platformData?.isVerified;
-    const isPendingValidation = platformData?.pendingValidation;
+    const isPendingValidation = platformData?.pendingValidation && !platformData?.isVerified;
     const inputValue = platformInputs[platform.id] || platformData?.handle || '';
     const stats = platformData?.stats;
 
@@ -275,10 +279,10 @@ export default function AddCredentialsPage() {
                       size="sm"
                       type="button"
                       onClick={() => handleRefreshStats(platform.id)}
-                      disabled={platformLoading}
+                      disabled={refreshingPlatform === platform.id}
                       className="rounded-full px-4 gap-2"
                     >
-                      <RefreshCw className={`h-4 w-4 ${platformLoading ? 'animate-spin' : ''}`} />
+                      <RefreshCw className={`h-4 w-4 ${refreshingPlatform === platform.id ? 'animate-spin' : ''}`} />
                       Refresh
                     </Button>
                   )}
@@ -356,13 +360,6 @@ export default function AddCredentialsPage() {
             <BookOpen className="h-5 w-5" />
             How it Works
           </Button>
-          <Button
-            onClick={() => setIsDigilockerModalOpen(true)}
-            className="bg-[#116466] text-white hover:bg-[#0e4f50] flex items-center gap-2"
-          >
-            <FolderKey className="h-5 w-5" />
-            Add with Digilocker
-          </Button>
         </div>
       </div>
 
@@ -374,6 +371,18 @@ export default function AddCredentialsPage() {
       >
         <h2 className="text-xl font-semibold mb-4 text-[#116466]">Upload Methods</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <button
+            onClick={() => setIsDigilockerModalOpen(true)}
+            className="text-left border rounded-lg p-6 hover:bg-gray-50 hover:border-[#116466] transition-all"
+          >
+            <div className="flex flex-col gap-3">
+              <div className="bg-[#116466]/10 w-12 h-12 rounded-lg flex items-center justify-center">
+                <FolderKey className="h-6 w-6 text-[#116466]" />
+              </div>
+              <h3 className="font-semibold text-gray-900">DigiLocker</h3>
+              <p className="text-sm text-gray-600">Import verified documents directly from your DigiLocker account</p>
+            </div>
+          </button>
           <button
             onClick={() => setIsExtensionModalOpen(true)}
             className="text-left border rounded-lg p-6 hover:bg-gray-50 hover:border-[#116466] transition-all"
@@ -560,6 +569,7 @@ export default function AddCredentialsPage() {
         platformProfile={platformProfile}
         userName={currentUser?.name || 'Your Name'}
         userBio={currentUser?.bio || 'Software Engineer'}
+        userAvatar={currentUser?.avatar || null}
       />
 
       {/* Platform Verification Modal */}

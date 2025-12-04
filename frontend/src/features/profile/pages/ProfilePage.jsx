@@ -91,7 +91,7 @@ export default function ProfilePage() {
 
       <BentoGrid>
         {/* Row 1 & 2 */}
-        <IdentityCard user={user} />
+        <IdentityCard user={user} isOwnProfile={isOwnProfile} />
         <RoleDetailsCard user={user} roleProfile={roleProfile} />
         <ContactCard user={user} />
         <SkillsCard skills={user.skills} />
