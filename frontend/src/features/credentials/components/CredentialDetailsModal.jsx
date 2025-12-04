@@ -21,16 +21,20 @@ export default function CredentialDetailsModal({ isOpen, onClose, credential, lo
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-50"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
           />
 
           {/* Modal */}
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div
+            className="fixed inset-0 flex items-center justify-center z-50 p-4"
+            onClick={onClose}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-card rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+              className="bg-card rounded-l-lg rounded-tr-3xl rounded-br-3xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto scrollbar-thin"
             >
               {/* Header */}
               <div className="flex items-center justify-between p-6 border-b">
@@ -88,7 +92,7 @@ export default function CredentialDetailsModal({ isOpen, onClose, credential, lo
                     <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide border-b pb-2">
                       Core Information
                     </h4>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {credential.type && (
                         <div className="flex items-start gap-3">
@@ -189,7 +193,7 @@ export default function CredentialDetailsModal({ isOpen, onClose, credential, lo
                       <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide border-b pb-2">
                         Source Information
                       </h4>
-                      
+
                       <div className="grid grid-cols-1 gap-4">
                         {credential.sourceUrl && (
                           <div className="flex items-start gap-3">
@@ -233,7 +237,7 @@ export default function CredentialDetailsModal({ isOpen, onClose, credential, lo
                       <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide border-b pb-2">
                         Owner Information
                       </h4>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex items-start gap-3">
                           <User className="h-5 w-5 text-muted-foreground mt-0.5" />
@@ -312,7 +316,7 @@ export default function CredentialDetailsModal({ isOpen, onClose, credential, lo
                       Close
                     </Button>
                     {credential.status === 'draft' && (
-                      <Button 
+                      <Button
                         onClick={async () => {
                           setSubmittingVerification(true);
                           try {

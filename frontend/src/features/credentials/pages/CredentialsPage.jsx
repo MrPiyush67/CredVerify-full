@@ -14,7 +14,7 @@ export default function CredentialsPage() {
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
   const credentials = useSelector(selectCredentials);
-  
+
   // Only credentialists can add credentials
   const canAddCredential = user?.role === 'credentialist';
   const loading = useSelector(selectCredentialsLoading);

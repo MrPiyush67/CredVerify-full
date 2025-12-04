@@ -5,6 +5,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import toast from 'react-hot-toast';
 import PortfolioPreview from './PortfolioPreview.jsx';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function PortfolioGeneratorModal({
   isOpen,
@@ -17,8 +18,6 @@ export default function PortfolioGeneratorModal({
 }) {
   const portfolioRef = useRef(null);
   const [isExporting, setIsExporting] = useState(false);
-
-  if (!isOpen) return null;
 
   // Generate portfolio data from platform profile
   const generatePortfolioData = () => {
@@ -298,60 +297,76 @@ export default function PortfolioGeneratorModal({
   }; const portfolioData = generatePortfolioData();
 
   return (
-    <div className="fixed inset-0 z-50">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl w-[95%] max-w-7xl max-h-[90vh] overflow-hidden border flex flex-col">
-        {/* Header */}
-        <div className="p-4 border-b bg-gray-50 flex items-center justify-between sticky top-0 z-10">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800">
-              {mode === 'credential' ? 'Platform Credential Generator' : 'DSA Portfolio Preview'}
-            </h3>
-            <p className="text-sm text-gray-600">
-              {mode === 'credential'
-                ? 'Generate a verifiable credential from your platform achievements'
-                : 'Review and download your competitive programming portfolio'}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              onClick={handleDownloadPDF}
-              disabled={isExporting}
-              className="gap-2 bg-[#116466] text-white hover:bg-[#0e4f50]"
-            >
-              <Download className="h-4 w-4" />
-              {isExporting ? 'Exporting...' : 'Download PDF'}
-            </Button>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-              disabled={isExporting}
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={onClose}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="relative bg-white rounded-lg shadow-xl w-full max-w-7xl max-h-[90vh] overflow-hidden border flex flex-col scrollbar-thin"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-4 border-b bg-gray-50 flex items-center justify-between sticky top-0 z-10">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  {mode === 'credential' ? 'Platform Credential Generator' : 'DSA Portfolio Preview'}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {mode === 'credential'
+                    ? 'Generate a verifiable credential from your platform achievements'
+                    : 'Review and download your competitive programming portfolio'}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  onClick={handleDownloadPDF}
+                  disabled={isExporting}
+                  className="gap-2 bg-[#116466] text-white hover:bg-[#0e4f50]"
+                >
+                  <Download className="h-4 w-4" />
+                  {isExporting ? 'Exporting...' : 'Download PDF'}
+                </Button>
+                <button
+                  onClick={onClose}
+                  className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                  disabled={isExporting}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
 
-        {/* Portfolio Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
-          <div ref={portfolioRef}>
-            <PortfolioPreview
-              portfolioData={portfolioData}
-              userName={userName}
-              userBio={userBio}
-              userAvatar={userAvatar}
-            />
-          </div>
-        </div>
+            {/* Portfolio Content - Scrollable */}
+            <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+              <div ref={portfolioRef}>
+                <PortfolioPreview
+                  portfolioData={portfolioData}
+                  userName={userName}
+                  userBio={userBio}
+                  userAvatar={userAvatar}
+                />
+              </div>
+            </div>
 
-        {/* Footer */}
-        <div className="p-4 border-t bg-gray-50 text-center">
-          <p className="text-xs text-gray-500">
-            <span className="font-semibold">Note:</span> Portfolio data is generated from your verified platform profiles.
-          </p>
+            {/* Footer */}
+            <div className="p-4 border-t bg-gray-50 text-center">
+              <p className="text-xs text-gray-500">
+                <span className="font-semibold">Note:</span> Portfolio data is generated from your verified platform profiles.
+              </p>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }

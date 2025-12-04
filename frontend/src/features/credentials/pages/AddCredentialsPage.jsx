@@ -131,11 +131,11 @@ export default function AddCredentialsPage() {
           title="Add Credentials"
           description="Select your upload method below and choose the platform to verify your credentials"
         />
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-3 shrink-0 shadow-md">
           <Button
             variant="outline"
             onClick={() => navigate('/credentials/upload-guide')}
-            className="flex items-center gap-2 border-[#116466] text-[#116466] hover:bg-[#116466]/5"
+            className="flex items-center gap-2 border-[#116466] text-[#116466] hover:bg-[#116466]/5 "
           >
             <BookOpen className="h-5 w-5" />
             How it Works
@@ -225,7 +225,7 @@ export default function AddCredentialsPage() {
               {category === 'DSA/CP Portfolio' && hasVerifiedPlatforms && (
                 <Button
                   size="sm"
-                  className="bg-green-600 text-white hover:bg-green-700"
+                  className="bg-green-600 text-white hover:bg-green-700 shadow-md"
                   onClick={() => openModal('portfolio')}
                 >
                   Generate Portfolio

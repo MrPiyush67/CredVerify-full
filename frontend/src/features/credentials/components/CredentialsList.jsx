@@ -201,7 +201,7 @@ export default function CredentialsList({ credentials, onViewDetails, pagination
                   <div className="relative">
                     <button
                       onClick={(e) => handleMenuToggle(credential._id, e)}
-                      className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full shadow-lg transition-all duration-200 hover:scale-110"
+                      className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full shadow-md transition-all duration-200 hover:scale-110"
                       title="More options"
                     >
                       <MoreVertical className="h-4 w-4 text-gray-700" />
