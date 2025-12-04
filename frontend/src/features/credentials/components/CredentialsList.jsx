@@ -34,27 +34,14 @@ export default function CredentialsList({ credentials, onViewDetails, pagination
 
   const handleTogglePublic = async (credential, isPublic) => {
     try {
-      console.log('[TOGGLE VISIBILITY]', {
-        credentialId: credential._id,
-        credentialTitle: credential.title,
-        status: credential.status,
-        currentIsPublic: credential.isPublic,
-        newIsPublic: isPublic,
-        updateData: { isPublic }
-      });
-      
       await dispatch(editCredential({
         id: credential._id,
         data: { isPublic }
       })).unwrap();
-      
+
       toast.success(`Credential ${isPublic ? 'made public' : 'made private'}`);
     } catch (error) {
-      console.error('[TOGGLE VISIBILITY ERROR]', {
-        credentialId: credential._id,
-        error: error,
-        errorMessage: error.message || error
-      });
+      console.error('Failed to toggle visibility:', error.message || error);
       toast.error(error.message || error || 'Failed to toggle visibility');
     }
   };
@@ -62,7 +49,7 @@ export default function CredentialsList({ credentials, onViewDetails, pagination
   const handleDelete = async (credential, e) => {
     e.stopPropagation();
     setOpenMenuId(null);
-    
+
     toast((t) => (
       <div className="flex items-center gap-3">
         <div className="flex-1">
@@ -112,7 +99,7 @@ export default function CredentialsList({ credentials, onViewDetails, pagination
     e.stopPropagation();
     setOpenMenuId(null);
     const shareUrl = `${window.location.origin}/credentials/${credential._id}`;
-    
+
     if (navigator.share) {
       try {
         await navigator.share({
@@ -205,10 +192,10 @@ export default function CredentialsList({ credentials, onViewDetails, pagination
                     <span className="text-sm font-medium text-[#116466]">No Document Attached</span>
                   </div>
                 )}
-                
+
                 {/* Overlay gradient for better text visibility */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                
+
                 {/* More Options - Positioned on image */}
                 <div className="absolute top-2 right-2 z-10">
                   <div className="relative">
@@ -240,7 +227,7 @@ export default function CredentialsList({ credentials, onViewDetails, pagination
                               <span>Download</span>
                             </button>
                           )}
-                          
+
                           <button
                             onClick={(e) => handleShare(credential, e)}
                             className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center gap-3 text-gray-700 transition-colors"
@@ -248,9 +235,9 @@ export default function CredentialsList({ credentials, onViewDetails, pagination
                             <Share2 className="h-4 w-4" />
                             <span>Share</span>
                           </button>
-                          
+
                           <div className="border-t border-gray-100 my-1"></div>
-                          
+
                           <button
                             onClick={(e) => handleDelete(credential, e)}
                             className="w-full px-4 py-2.5 text-left text-sm hover:bg-red-50 flex items-center gap-3 text-red-600 transition-colors"
@@ -320,16 +307,14 @@ export default function CredentialsList({ credentials, onViewDetails, pagination
                       e.stopPropagation();
                       handleTogglePublic(credential, !credential.isPublic);
                     }}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#116466] focus:ring-offset-2 ${
-                      credential.isPublic ? 'bg-[#116466]' : 'bg-gray-300'
-                    }`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#116466] focus:ring-offset-2 ${credential.isPublic ? 'bg-[#116466]' : 'bg-gray-300'
+                      }`}
                     role="switch"
                     aria-checked={credential.isPublic}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-all duration-300 ease-in-out ${
-                        credential.isPublic ? 'translate-x-6' : 'translate-x-1'
-                      }`}
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-all duration-300 ease-in-out ${credential.isPublic ? 'translate-x-6' : 'translate-x-1'
+                        }`}
                     />
                   </button>
                 </div>

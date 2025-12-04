@@ -7,39 +7,21 @@ import toast from 'react-hot-toast';
 export default function DigilockerDocumentSelector({ documents, onImport, onClose, isLoading }) {
   const [selectedDocs, setSelectedDocs] = useState([]);
 
-  console.log('\n========================================');
-  console.log('📱 [FRONTEND] DigilockerDocumentSelector RENDERED');
-  console.log('========================================');
-  console.log('📄 Total documents received:', documents?.length || 0);
-  console.log('📄 Documents:', documents);
-  console.log('📝 Selected documents:', selectedDocs.length);
-  console.log('⏳ Is loading:', isLoading);
-  console.log('========================================\n');
-
   const toggleDocument = (doc) => {
-    console.log('🔘 [SELECTOR] Toggling document:', doc.name);
     setSelectedDocs(prev => {
       const isSelected = prev.some(d => d.uri === doc.uri);
       const newSelection = isSelected
         ? prev.filter(d => d.uri !== doc.uri)
         : [...prev, doc];
-      console.log('📝 [SELECTOR] New selection count:', newSelection.length);
       return newSelection;
     });
   };
 
   const handleImport = () => {
     if (selectedDocs.length === 0) {
-      console.warn('⚠️ [SELECTOR] No documents selected');
       toast.error('Please select at least one document');
       return;
     }
-    console.log('\n========================================');
-    console.log('🚀 [SELECTOR] IMPORT BUTTON CLICKED');
-    console.log('========================================');
-    console.log('📄 Selected documents:', selectedDocs.length);
-    console.log('📄 Documents to import:', selectedDocs.map(d => ({ name: d.name, uri: d.uri })));
-    console.log('========================================\n');
     onImport(selectedDocs);
   };
 
@@ -107,7 +89,7 @@ export default function DigilockerDocumentSelector({ documents, onImport, onClos
           <div className="max-h-[60vh] overflow-y-auto space-y-3 pr-2">
             {documents.map((doc) => {
               const isSelected = selectedDocs.some(d => d.uri === doc.uri);
-              
+
               return (
                 <motion.div
                   key={doc.uri}
@@ -117,8 +99,8 @@ export default function DigilockerDocumentSelector({ documents, onImport, onClos
                   onClick={() => toggleDocument(doc)}
                   className={`
                     relative p-4 rounded-xl border-2 cursor-pointer transition-all
-                    ${isSelected 
-                      ? 'border-[#116466] bg-[#116466]/5 shadow-md' 
+                    ${isSelected
+                      ? 'border-[#116466] bg-[#116466]/5 shadow-md'
                       : 'border-gray-200 hover:border-[#14b8a6] hover:bg-gray-50'
                     }
                   `}
@@ -147,7 +129,7 @@ export default function DigilockerDocumentSelector({ documents, onImport, onClos
                       <h3 className="font-semibold text-gray-900 text-base mb-2">
                         {doc.name || doc.doctype || 'Document'}
                       </h3>
-                      
+
                       <div className="flex flex-wrap gap-3 text-sm text-gray-600">
                         {doc.issuerName && (
                           <div className="flex items-center gap-1.5">

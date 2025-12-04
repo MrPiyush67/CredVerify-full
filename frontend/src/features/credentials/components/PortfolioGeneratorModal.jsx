@@ -79,14 +79,14 @@ export default function PortfolioGeneratorModal({
     if (gfgStats) {
       totalSolved += gfgStats.problemsSolved || 0;
     }
-    
+
     // AtCoder stats
     const atcoderStats = platformProfile?.atcoder?.isVerified ? platformProfile.atcoder.stats : null;
     if (atcoderStats) {
       // Add any problems solved if available
       totalSolved += atcoderStats.problemsSolved || 0;
     }
-    
+
     // HackerRank stats
     const hackerrankStats = platformProfile?.hackerrank?.isVerified ? platformProfile.hackerrank.stats : null;
     if (hackerrankStats) {
@@ -104,20 +104,20 @@ export default function PortfolioGeneratorModal({
       platforms,
       githubHandle,
       problems: {
-        fundamentals: { 
-          value: easySolved, 
-          total: easySolved > 0 ? Math.max(300, easySolved) : 300, 
-          difficulty: { Easy: easySolved, Medium: 0, Hard: 0 } 
+        fundamentals: {
+          value: easySolved,
+          total: easySolved > 0 ? Math.max(300, easySolved) : 300,
+          difficulty: { Easy: easySolved, Medium: 0, Hard: 0 }
         },
-        dsa: { 
-          value: totalSolved, 
-          total: totalSolved > 0 ? Math.max(1500, totalSolved) : 1500, 
-          difficulty: { Easy: easySolved, Medium: mediumSolved, Hard: hardSolved } 
+        dsa: {
+          value: totalSolved,
+          total: totalSolved > 0 ? Math.max(1500, totalSolved) : 1500,
+          difficulty: { Easy: easySolved, Medium: mediumSolved, Hard: hardSolved }
         },
-        cp: { 
-          value: totalSolved, 
-          total: totalSolved > 0 ? Math.max(250, totalSolved) : 250, 
-          difficulty: { Easy: easySolved, Medium: mediumSolved, Hard: hardSolved } 
+        cp: {
+          value: totalSolved,
+          total: totalSolved > 0 ? Math.max(250, totalSolved) : 250,
+          difficulty: { Easy: easySolved, Medium: mediumSolved, Hard: hardSolved }
         },
       },
       dsaTopics: totalSolved > 0 ? [
@@ -130,9 +130,9 @@ export default function PortfolioGeneratorModal({
         { label: 'Stacks & Queues', value: Math.floor(totalSolved * 0.08) },
         { label: 'Searching & Sorting', value: Math.floor(totalSolved * 0.09) },
       ] : [],
-      contests: { 
+      contests: {
         leetcode: leetcodeStats?.contestsAttended || 0,
-        codechef: ccStats?.contestsAttended || 0, 
+        codechef: ccStats?.contestsAttended || 0,
         codeforces: cfStats?.contestsAttended || 0,
         atcoder: atcoderStats?.contestsAttended || 0,
       },
@@ -143,12 +143,12 @@ export default function PortfolioGeneratorModal({
         .map(p => {
           const platformKey = p.name.toLowerCase().replace(/\s+/g, '');
           const stats = platformProfile[platformKey]?.stats || {};
-          
+
           // Check if platform has any non-zero stats
-          const hasValidStats = Object.values(stats).some(val => 
+          const hasValidStats = Object.values(stats).some(val =>
             typeof val === 'number' && val > 0
           );
-          
+
           return hasValidStats ? {
             name: p.name,
             category: 'platform',
@@ -201,77 +201,39 @@ export default function PortfolioGeneratorModal({
   };
 
   const handleDownloadPDF = async () => {
-    console.log('\n========== PDF EXPORT STARTED ==========');
-    console.log('[PDF Export] Timestamp:', new Date().toISOString());
-    console.log('[PDF Export] User:', userName);
-    console.log('[PDF Export] Mode:', mode);
-    
+    console.log('Starting PDF export...');
+
     if (!portfolioRef.current) {
-      console.error('[PDF Export] ❌ ERROR: portfolioRef.current is null or undefined');
+      console.error('Portfolio preview not ready');
       toast.error('Portfolio preview not ready. Please try again.');
       return;
     }
 
-    console.log('[PDF Export] ✅ Portfolio ref exists');
     setIsExporting(true);
-    console.log('[PDF Export] Export state set to true');
-    
+
     try {
       const element = portfolioRef.current;
-      
-      console.log('[PDF Export] Step 1: Getting element reference...');
-      console.log('[PDF Export] Element type:', element.tagName);
-      console.log('[PDF Export] Element classes:', element.className);
-      console.log('[PDF Export] Element dimensions:', {
-        scrollWidth: element.scrollWidth,
-        scrollHeight: element.scrollHeight,
-        offsetWidth: element.offsetWidth,
-        offsetHeight: element.offsetHeight,
-        clientWidth: element.clientWidth,
-        clientHeight: element.clientHeight,
-      });
-      
-      console.log('[PDF Export] Step 2: Cloning element...');
       const clonedElement = element.cloneNode(true);
-      console.log('[PDF Export] ✅ Element cloned successfully');
-      
-      console.log('[PDF Export] Step 3: Appending clone to document body...');
       document.body.appendChild(clonedElement);
       clonedElement.style.position = 'absolute';
       clonedElement.style.left = '-9999px';
       clonedElement.style.top = '0';
-      console.log('[PDF Export] ✅ Clone appended and styled');
-      
-      console.log('[PDF Export] Step 4: Fixing oklch colors...');
-      let colorFixCount = 0;
-      // Function to convert oklch colors to rgb (fallback to transparent if cannot parse)
+
+      // Fix oklch colors
       const fixColors = (el) => {
         const styles = window.getComputedStyle(el);
         ['color', 'backgroundColor', 'borderColor'].forEach(prop => {
           const value = styles[prop];
           if (value && value.includes('oklch')) {
             el.style[prop] = 'transparent';
-            colorFixCount++;
           }
         });
-        
+
         Array.from(el.children).forEach(fixColors);
       };
-      
+
       fixColors(clonedElement);
-      console.log(`[PDF Export] ✅ Fixed ${colorFixCount} oklch color instances`);
-      
-      console.log('[PDF Export] Step 5: Capturing with html2canvas...');
-      console.log('[PDF Export] html2canvas config:', {
-        scale: 3,
-        useCORS: true,
-        allowTaint: false,
-        logging: false,
-        backgroundColor: '#ffffff',
-        width: clonedElement.scrollWidth,
-        height: clonedElement.scrollHeight,
-      });
-      
+
       // Capture the cloned element as a high-quality image
       const canvas = await html2canvas(clonedElement, {
         scale: 3, // Higher quality
@@ -286,116 +248,54 @@ export default function PortfolioGeneratorModal({
         scrollX: 0,
         scrollY: 0,
       });
-      
-      console.log('[PDF Export] ✅ html2canvas completed successfully');
-      console.log('[PDF Export] Canvas created:', {
-        width: canvas.width,
-        height: canvas.height,
-        aspect: (canvas.width / canvas.height).toFixed(2),
-      });
-      
-      console.log('[PDF Export] Step 6: Removing cloned element...');
-      document.body.removeChild(clonedElement);
-      console.log('[PDF Export] ✅ Cloned element removed');
 
-      console.log('[PDF Export] Step 7: Converting canvas to JPEG...');
+      document.body.removeChild(clonedElement);
+
       const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      console.log('[PDF Export] Image data length:', imgData.length);
-      console.log('[PDF Export] Image data prefix:', imgData.substring(0, 50));
-      
-      console.log('[PDF Export] Step 8: Validating image data...');
+
       if (!imgData || imgData === 'data:,') {
-        console.error('[PDF Export] ❌ ERROR: Invalid image data');
-        console.error('[PDF Export] imgData value:', imgData);
         throw new Error('Failed to generate image from portfolio');
       }
-      console.log('[PDF Export] ✅ Image data is valid');
-      
-      console.log('[PDF Export] Step 9: Calculating PDF dimensions...');
+
       // Create PDF with proper dimensions
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
-      console.log('[PDF Export] Image dimensions:', { imgWidth, imgHeight });
-      
-      // Calculate if we need portrait or landscape
+
       const isLandscape = imgWidth > imgHeight;
-      console.log('[PDF Export] Orientation:', isLandscape ? 'landscape' : 'portrait');
-      
-      console.log('[PDF Export] Step 10: Creating jsPDF instance...');
-      console.log('[PDF Export] Checking jsPDF availability:', typeof jsPDF);
       const pdf = new jsPDF({
         orientation: isLandscape ? 'landscape' : 'portrait',
         unit: 'px',
         format: 'a4',
         compress: true
       });
-      console.log('[PDF Export] ✅ jsPDF instance created');
-      
+
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      console.log('[PDF Export] PDF page dimensions:', { pdfWidth, pdfHeight });
-      
+
       // Scale image to fit page width while maintaining aspect ratio
       const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
       const scaledWidth = imgWidth * ratio;
       const scaledHeight = imgHeight * ratio;
-      console.log('[PDF Export] Scaling calculations:', { ratio, scaledWidth, scaledHeight });
-      
+
       // Center the image on the page
       const xOffset = (pdfWidth - scaledWidth) / 2;
       const yOffset = (pdfHeight - scaledHeight) / 2;
-      console.log('[PDF Export] Centering offsets:', { xOffset, yOffset });
-      
-      console.log('[PDF Export] Step 11: Adding image to PDF...');
-      console.log('[PDF Export] Image params:', {
-        format: 'JPEG',
-        x: xOffset,
-        y: yOffset,
-        width: scaledWidth,
-        height: scaledHeight,
-        compression: 'FAST'
-      });
-      
+
       // Add the full image to PDF
       pdf.addImage(imgData, 'JPEG', xOffset, yOffset, scaledWidth, scaledHeight, undefined, 'FAST');
-      console.log('[PDF Export] ✅ Image added to PDF');
-      
-      console.log('[PDF Export] Step 12: Saving PDF file...');
+
       const filename = `DSA_Portfolio_${userName.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`;
-      console.log('[PDF Export] Filename:', filename);
       pdf.save(filename);
-      
-      console.log('[PDF Export] ✅✅✅ PDF SAVED SUCCESSFULLY!');
-      console.log('[PDF Export] Final filename:', filename);
-      console.log('========== PDF EXPORT COMPLETED ==========\n');
+
+      console.log('PDF exported successfully');
       toast.success('Portfolio downloaded successfully!');
     } catch (error) {
-      console.error('\n========== PDF EXPORT FAILED ==========');
-      console.error('[PDF Export] ❌ ERROR TYPE:', error.constructor.name);
-      console.error('[PDF Export] ❌ ERROR MESSAGE:', error.message);
-      console.error('[PDF Export] ❌ ERROR STACK:', error.stack);
-      console.error('[PDF Export] ❌ Full error object:', error);
-      
-      // Check specific library errors
-      if (error.message.includes('html2canvas')) {
-        console.error('[PDF Export] ❌ html2canvas error detected');
-        console.error('[PDF Export] Check if html2canvas is properly imported');
-      }
-      if (error.message.includes('jsPDF')) {
-        console.error('[PDF Export] ❌ jsPDF error detected');
-        console.error('[PDF Export] Check if jsPDF is properly imported');
-      }
-      
-      console.error('========== ERROR DETAILS END ==========\n');
+      console.error('PDF export failed:', error.message);
       toast.error(`Failed to export PDF: ${error.message || 'Unknown error'}. Please try again.`);
     } finally {
-      console.log('[PDF Export] Cleanup: Setting isExporting to false');
       setIsExporting(false);
-      console.log('[PDF Export] Cleanup complete');
     }
-  };
-
-  const portfolioData = generatePortfolioData();
+  }; const portfolioData = generatePortfolioData();
 
   return (
     <div className="fixed inset-0 z-50">
@@ -408,8 +308,8 @@ export default function PortfolioGeneratorModal({
               {mode === 'credential' ? 'Platform Credential Generator' : 'DSA Portfolio Preview'}
             </h3>
             <p className="text-sm text-gray-600">
-              {mode === 'credential' 
-                ? 'Generate a verifiable credential from your platform achievements' 
+              {mode === 'credential'
+                ? 'Generate a verifiable credential from your platform achievements'
                 : 'Review and download your competitive programming portfolio'}
             </p>
           </div>

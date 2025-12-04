@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, Trash2, Upload, QrCode, Hash, ChevronDown, FileText, ShieldCheck, Puzzle, RefreshCw, Loader2, FolderKey, BookOpen, LinkIcon } from 'lucide-react';
+import { ChevronDown, FileText, Trash2, BookOpen, QrCode, ShieldCheck, Puzzle, FolderKey, LinkIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Input, Button, PageHeader } from '@common';
+import { Button, PageHeader } from '@common';
 import CertificateQrUploadModal from '../components/CertificateQrUploadModal.jsx';
 import LinkVerificationModal from '../components/LinkVerificationModal.jsx';
 import PortfolioGeneratorModal from '../components/PortfolioGeneratorModal.jsx';
@@ -12,20 +12,13 @@ import ValidantVerificationModal from '../components/ValidantVerificationModal.j
 import ExtensionInstallModal from '../components/ExtensionInstallModal.jsx';
 import PlatformVerificationModal from '../components/PlatformVerificationModal.jsx';
 import DigilockerModal from '../components/DigilockerModal.jsx';
+import PlatformRow from '../components/PlatformRow.jsx';
+import UploadMethodCard from '../components/UploadMethodCard.jsx';
+import usePlatformHandlers from '../hooks/usePlatformHandlers.js';
+import useUploadModals from '../hooks/useUploadModals.js';
 import credentialAPI from '../api/credentialApi.js';
-import {
-  UPLOAD_METHODS,
-  PLATFORMS,
-  PROFILE_CATEGORIES,
-  getPlatformsByUploadMethod,
-  getPlatformsByCategory
-} from '../platforms.config.js';
-import {
-  fetchPlatformProfile,
-  submitPlatformHandle,
-  deletePlatform,
-  refreshPlatformStats,
-} from '@features/platforms/redux/platformsSlice';
+import { PROFILE_CATEGORIES, getPlatformsByCategory } from '../platforms.config.js';
+import { fetchPlatformProfile } from '@features/platforms/redux/platformsSlice';
 import { selectUser } from '@features/auth/redux/authSlice';
 
 export default function AddCredentialsPage() {
@@ -36,25 +29,14 @@ export default function AddCredentialsPage() {
   const { profile: platformProfile, isLoading: platformLoading } = useSelector((state) => state.platforms);
   const currentUser = useSelector(selectUser);
 
-  // Profile link inputs (DSA/CP and Developer)
-  const [platformInputs, setPlatformInputs] = useState({});
-  const [confirmDelete, setConfirmDelete] = useState(null);
-  const [verificationModal, setVerificationModal] = useState({ isOpen: false, platform: null, handle: null, platformName: null });
-  const [submittingPlatform, setSubmittingPlatform] = useState(null);
-  const [refreshingPlatform, setRefreshingPlatform] = useState(null);
+  // Custom hooks
+  const platformHandlers = usePlatformHandlers();
+  const { openModal, closeModal, modals } = useUploadModals();
 
   // Collapsible sections
   const [openSections, setOpenSections] = useState(() =>
     Object.fromEntries(PROFILE_CATEGORIES.map(cat => [cat, true]))
   );
-
-  // Upload method modals
-  const [isCertificateQrModalOpen, setIsCertificateQrModalOpen] = useState(false);
-  const [isLinkVerificationModalOpen, setIsLinkVerificationModalOpen] = useState(false);
-  const [isPortfolioModalOpen, setIsPortfolioModalOpen] = useState(false);
-  const [isValidantModalOpen, setIsValidantModalOpen] = useState(false);
-  const [isExtensionModalOpen, setIsExtensionModalOpen] = useState(false);
-  const [isDigilockerModalOpen, setIsDigilockerModalOpen] = useState(false);
 
   // Submitted credentials from upload methods
   const [submittedCredentials, setSubmittedCredentials] = useState([]);
@@ -63,84 +45,6 @@ export default function AddCredentialsPage() {
   useEffect(() => {
     dispatch(fetchPlatformProfile());
   }, [dispatch]);
-
-  // Check for DigiLocker callback on page load
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const digilockerParam = params.get('digilocker');
-    const docsParam = params.get('docs');
-
-    console.log('\n========================================');
-    console.log('🔍 [AddCredentialsPage] Checking URL params on mount');
-    console.log('========================================');
-    console.log('   Full URL:', window.location.href);
-    console.log('   Search params:', window.location.search);
-    console.log('   digilocker param:', digilockerParam);
-    console.log('   docs param present:', !!docsParam);
-    console.log('   docs param length:', docsParam?.length || 0);
-    if (docsParam) {
-      console.log('   docs param preview:', docsParam.substring(0, 100) + '...');
-    }
-    console.log('========================================\n');
-
-    if (digilockerParam === 'connected') {
-      console.log('✅ [AddCredentialsPage] DigiLocker callback detected - opening modal');
-      setIsDigilockerModalOpen(true);
-    }
-  }, []);
-
-  const handleInputChange = (platformId, value) => {
-    setPlatformInputs(prev => ({ ...prev, [platformId]: value }));
-  };
-
-  const handleProfileSubmit = async (platform) => {
-    const username = platformInputs[platform.id];
-    if (!username?.trim()) return;
-
-    setSubmittingPlatform(platform.id);
-    try {
-      await dispatch(submitPlatformHandle({ platform: platform.id, handle: username })).unwrap();
-      toast.success(`${platform.name} handle submitted successfully!`);
-
-      // Open verification modal for platforms that need it
-      // Codeforces doesn't need verification modal (direct API)
-      if (platform.id !== 'codeforces') {
-        setVerificationModal({
-          isOpen: true,
-          platform: platform.id,
-          handle: username,
-          platformName: platform.name
-        });
-      }
-    } catch (error) {
-      toast.error(error || `Failed to submit ${platform.name} handle`);
-    } finally {
-      setSubmittingPlatform(null);
-    }
-  };
-
-  const handleDelete = async (platformId) => {
-    try {
-      await dispatch(deletePlatform(platformId)).unwrap();
-      toast.success('Platform removed successfully');
-      setPlatformInputs(prev => ({ ...prev, [platformId]: '' }));
-      setConfirmDelete(null);
-    } catch (error) {
-      toast.error(error || 'Failed to remove platform');
-    }
-  };
-
-  const handleRefreshStats = async (platformId) => {
-    setRefreshingPlatform(platformId);
-    try {
-      await dispatch(refreshPlatformStats(platformId)).unwrap();
-      toast.success('Stats refreshed successfully!');
-    } catch (error) {
-      toast.error(error || 'Failed to refresh stats');
-    } finally {
-      setRefreshingPlatform(null);
-    }
-  };
 
   const handleCredentialSubmit = (payload) => {
     // This is where you'll connect to your backend API
@@ -191,13 +95,10 @@ export default function AddCredentialsPage() {
 
   const handleValidantSubmit = async (credentialData) => {
     try {
-      // Call API to upload credential
       const response = await credentialAPI.uploadCredential(credentialData);
 
       if (response.success) {
         const credential = response.data.credential;
-
-        // Add to local state for display
         setSubmittedCredentials(prev => [...prev, {
           id: credential._id,
           uploadMethod: 'Verify with Validant',
@@ -206,10 +107,8 @@ export default function AddCredentialsPage() {
           status: credential.status,
           submittedAt: credential.createdAt
         }]);
-
         toast.success('Credential uploaded successfully!');
       }
-
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message || 'Failed to upload credential';
       toast.error(errorMessage);
@@ -217,132 +116,13 @@ export default function AddCredentialsPage() {
     }
   };
 
-  const renderPlatformRow = (platform) => {
-    const platformData = platformProfile?.[platform.id];
-    const isSubmitted = platformData?.handle;
-    const isVerified = platformData?.isVerified;
-    const isPendingValidation = platformData?.pendingValidation && !platformData?.isVerified;
-    const inputValue = platformInputs[platform.id] || platformData?.handle || '';
-    const stats = platformData?.stats;
-
-    return (
-      <div key={platform.id} className="flex px-6 items-center gap-3 py-3 border-b last:border-b-0">
-        <div className="flex items-center gap-3 w-56 shrink-0">
-          {platform.domain ? (
-            <img
-              src={`https://www.google.com/s2/favicons?domain=${platform.domain}&sz=128`}
-              alt={`${platform.name} icon`}
-              className="h-6 w-6"
-            />
-          ) : (
-            <span className="text-sm font-medium">{platform.icon}</span>
-          )}
-          <span className="text-sm font-medium">{platform.name}</span>
-        </div>
-        <div className="flex-1 flex items-center gap-2">
-          <div className="flex-1 relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground truncate max-w-[60%]">
-              {platform.baseProfileUrl}
-            </span>
-            <Input
-              type="text"
-              placeholder={platform.placeholder || 'johndoe'}
-              value={inputValue}
-              onChange={(e) => handleInputChange(platform.id, e.target.value)}
-              disabled={isSubmitted}
-              className="pl-[calc(60%+0.5rem)] text-sm"
-            />
-          </div>
-          {isSubmitted ? (
-            <div className="flex items-center gap-2">
-              {isPendingValidation ? (
-                <>
-                  <div className="flex items-center gap-2 px-3 py-1 bg-yellow-50 rounded-full border border-yellow-200">
-                    <Loader2 className="h-4 w-4 text-yellow-600 animate-spin" />
-                    <span className="text-xs font-medium text-yellow-700">Pending Validant Approval</span>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    type="button"
-                    onClick={() => setConfirmDelete({ id: platform.id, name: platform.name })}
-                    className="rounded-full px-3"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </>
-              ) : isVerified ? (
-                <>
-                  {stats && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      type="button"
-                      onClick={() => handleRefreshStats(platform.id)}
-                      disabled={refreshingPlatform === platform.id}
-                      className="rounded-full px-4 gap-2"
-                    >
-                      <RefreshCw className={`h-4 w-4 ${refreshingPlatform === platform.id ? 'animate-spin' : ''}`} />
-                      Refresh
-                    </Button>
-                  )}
-                  <div className="flex items-center gap-2 px-3 py-1 bg-green-50 rounded-full border border-green-200">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-xs font-medium text-green-700">Verified</span>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    type="button"
-                    onClick={() => setConfirmDelete({ id: platform.id, name: platform.name })}
-                    className="rounded-full px-3"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    size="sm"
-                    type="button"
-                    onClick={() => setVerificationModal({
-                      isOpen: true,
-                      platform: platform.id,
-                      handle: platformData.handle,
-                      platformName: platform.name
-                    })}
-                    disabled={platformLoading}
-                    className="rounded-full px-4 bg-[#116466] text-white hover:bg-[#0e4f50]"
-                  >
-                    Verify
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    type="button"
-                    onClick={() => setConfirmDelete({ id: platform.id, name: platform.name })}
-                    className="rounded-full px-3"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
-            </div>
-          ) : (
-            <Button
-              size="sm"
-              type="button"
-              onClick={() => handleProfileSubmit(platform)}
-              disabled={!inputValue.trim() || submittingPlatform === platform.id}
-              className="rounded-full px-4 bg-[#116466] text-white hover:bg-[#0e4f50]"
-            >
-              {submittingPlatform === platform.id ? 'Submitting...' : 'Submit'}
-            </Button>
-          )}
-        </div>
-      </div>
-    );
-  };
+  const uploadMethods = [
+    { id: 'extension', onClick: () => openModal('extension'), icon: Puzzle, title: 'Browser Extension', description: 'Install extension to auto-extract certificates from websites' },
+    { id: 'validant', onClick: () => openModal('validant'), icon: ShieldCheck, title: 'Verify with Validant', description: 'Upload academic credentials for institutional verification' },
+    { id: 'certificate', onClick: () => openModal('certificateQr'), icon: QrCode, title: 'Certificate/QR Upload', description: 'Upload certificate image or PDF with QR code for verification' },
+    { id: 'link', onClick: () => openModal('linkVerification'), icon: LinkIcon, title: 'Link Verification', description: 'Enter verification link from Coursera, NPTEL, HackerRank, etc.' },
+    { id: 'digilocker', onClick: () => openModal('digilocker'), icon: FolderKey, title: 'DigiLocker', description: 'Import verified documents directly from your DigiLocker account' }
+  ];
 
   return (
     <div className="container mx-auto px-4 max-w-7xl">
@@ -370,86 +150,10 @@ export default function AddCredentialsPage() {
         className="mb-8"
       >
         <h2 className="text-xl font-semibold mb-4 text-[#116466]">Upload Methods</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button
-            onClick={() => setIsDigilockerModalOpen(true)}
-            className="text-left border rounded-lg p-6 hover:bg-gray-50 hover:border-[#116466] transition-all"
-          >
-            <div className="flex flex-col gap-3">
-              <div className="bg-[#116466]/10 w-12 h-12 rounded-lg flex items-center justify-center">
-                <FolderKey className="h-6 w-6 text-[#116466]" />
-              </div>
-              <h3 className="font-semibold text-gray-900">DigiLocker</h3>
-              <p className="text-sm text-gray-600">Import verified documents directly from your DigiLocker account</p>
-            </div>
-          </button>
-          <button
-            onClick={() => setIsExtensionModalOpen(true)}
-            className="text-left border rounded-lg p-6 hover:bg-gray-50 hover:border-[#116466] transition-all"
-          >
-            <div className="flex flex-col gap-3">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[#116466] text-white">
-                <Puzzle className="h-6 w-6" />
-              </span>
-              <div>
-                <div className="font-semibold text-lg mb-1">Browser Extension</div>
-                <div className="text-sm text-muted-foreground">
-                  Install extension to auto-extract certificates from websites
-                </div>
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setIsValidantModalOpen(true)}
-            className="text-left border rounded-lg p-6 hover:bg-gray-50 hover:border-[#116466] transition-all"
-          >
-            <div className="flex flex-col gap-3">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[#116466] text-white">
-                <ShieldCheck className="h-6 w-6" />
-              </span>
-              <div>
-                <div className="font-semibold text-lg mb-1">Verify with Validant</div>
-                <div className="text-sm text-muted-foreground">
-                  Upload academic credentials for institutional verification
-                </div>
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setIsCertificateQrModalOpen(true)}
-            className="text-left border rounded-lg p-6 hover:bg-gray-50 hover:border-[#116466] transition-all"
-          >
-            <div className="flex flex-col gap-3">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[#116466] text-white">
-                <QrCode className='h-6 w-6' />
-              </span>
-              <div>
-                <div className="font-semibold text-lg mb-1">Certificate/QR Upload</div>
-                <div className="text-sm text-muted-foreground">
-                  Upload certificate image or PDF with QR code for verification
-                </div>
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setIsLinkVerificationModalOpen(true)}
-            className="text-left border rounded-lg p-6 hover:bg-gray-50 hover:border-[#116466] transition-all"
-          >
-            <div className="flex flex-col gap-3">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[#116466] text-white">
-                <LinkIcon className="h-6 w-6" />
-              </span>
-              <div>
-                <div className="font-semibold text-lg mb-1">Link Verification</div>
-                <div className="text-sm text-muted-foreground">
-                  Enter verification link from Coursera, NPTEL, HackerRank, etc.
-                </div>
-              </div>
-            </div>
-          </button>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {uploadMethods.map((method) => (
+            <UploadMethodCard key={method.id} method={method} />
+          ))}
         </div>
       </motion.section>
 
@@ -522,7 +226,7 @@ export default function AddCredentialsPage() {
                 <Button
                   size="sm"
                   className="bg-green-600 text-white hover:bg-green-700"
-                  onClick={() => setIsPortfolioModalOpen(true)}
+                  onClick={() => openModal('portfolio')}
                 >
                   Generate Portfolio
                 </Button>
@@ -539,7 +243,21 @@ export default function AddCredentialsPage() {
                   className="border rounded-lg overflow-hidden"
                 >
                   <div className="divide-y bg-white">
-                    {platforms.map(renderPlatformRow)}
+                    {platforms.map((platform) => (
+                      <PlatformRow
+                        key={platform.id}
+                        platform={platform}
+                        platformData={platformProfile?.[platform.id]}
+                        inputValue={platformHandlers.platformInputs[platform.id] || platformProfile?.[platform.id]?.handle || ''}
+                        isSubmitting={platformHandlers.submittingPlatform === platform.id}
+                        isRefreshing={platformHandlers.refreshingPlatform === platform.id}
+                        onInputChange={platformHandlers.handleInputChange}
+                        onSubmit={platformHandlers.handleProfileSubmit}
+                        onDelete={platformHandlers.openDeleteConfirmation}
+                        onRefresh={platformHandlers.handleRefreshStats}
+                        onVerify={platformHandlers.openVerificationModal}
+                      />
+                    ))}
                   </div>
                 </motion.div>
               )}
@@ -550,22 +268,22 @@ export default function AddCredentialsPage() {
 
       {/* Certificate/QR Upload Modal */}
       <CertificateQrUploadModal
-        isOpen={isCertificateQrModalOpen}
-        onClose={() => setIsCertificateQrModalOpen(false)}
+        isOpen={modals.isCertificateQrOpen}
+        onClose={closeModal}
         onSubmit={handleCredentialSubmit}
       />
 
       {/* Link Verification Modal */}
       <LinkVerificationModal
-        isOpen={isLinkVerificationModalOpen}
-        onClose={() => setIsLinkVerificationModalOpen(false)}
+        isOpen={modals.isLinkVerificationOpen}
+        onClose={closeModal}
         onSubmit={handleCredentialSubmit}
       />
 
       {/* Portfolio Generator Modal */}
       <PortfolioGeneratorModal
-        isOpen={isPortfolioModalOpen}
-        onClose={() => setIsPortfolioModalOpen(false)}
+        isOpen={modals.isPortfolioOpen}
+        onClose={closeModal}
         platformProfile={platformProfile}
         userName={currentUser?.name || 'Your Name'}
         userBio={currentUser?.bio || 'Software Engineer'}
@@ -574,38 +292,38 @@ export default function AddCredentialsPage() {
 
       {/* Platform Verification Modal */}
       <PlatformVerificationModal
-        isOpen={verificationModal.isOpen}
-        onClose={() => setVerificationModal({ isOpen: false, platform: null, handle: null, platformName: null })}
-        platform={verificationModal.platform}
-        handle={verificationModal.handle}
-        platformName={verificationModal.platformName}
+        isOpen={platformHandlers.verificationModal.isOpen}
+        onClose={platformHandlers.closeVerificationModal}
+        platform={platformHandlers.verificationModal.platform}
+        handle={platformHandlers.verificationModal.handle}
+        platformName={platformHandlers.verificationModal.platformName}
       />
 
       {/* Validant Verification Modal */}
       <ValidantVerificationModal
-        isOpen={isValidantModalOpen}
-        onClose={() => setIsValidantModalOpen(false)}
+        isOpen={modals.isValidantOpen}
+        onClose={closeModal}
         onSubmit={handleValidantSubmit}
       />
 
       {/* Confirm Delete Modal for Profile Links */}
-      {confirmDelete && (
+      {platformHandlers.confirmDelete && (
         <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setConfirmDelete(null)} />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={platformHandlers.closeDeleteConfirmation} />
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl w-[90%] max-w-md border">
             <div className="p-6">
               <h3 className="text-lg font-semibold mb-3">Confirm Deletion</h3>
               <div className="mb-4 p-3 rounded-md bg-red-50 text-red-700 text-sm">
-                Your {confirmDelete.name} profile link will be removed. This action cannot be undone.
+                Your {platformHandlers.confirmDelete.name} profile link will be removed. This action cannot be undone.
               </div>
               <p className="text-sm text-muted-foreground mb-6">
                 Are you sure you want to delete this profile link?
               </p>
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setConfirmDelete(null)}>Cancel</Button>
+                <Button variant="outline" onClick={platformHandlers.closeDeleteConfirmation}>Cancel</Button>
                 <Button
                   className="bg-red-600 text-white hover:bg-red-700"
-                  onClick={() => handleDelete(confirmDelete.id)}
+                  onClick={() => platformHandlers.handleDelete(platformHandlers.confirmDelete.id)}
                 >
                   Confirm
                 </Button>
@@ -617,18 +335,14 @@ export default function AddCredentialsPage() {
 
       {/* Extension Install Modal */}
       <ExtensionInstallModal
-        isOpen={isExtensionModalOpen}
-        onClose={() => setIsExtensionModalOpen(false)}
+        isOpen={modals.isExtensionOpen}
+        onClose={closeModal}
       />
 
       {/* Digilocker Modal */}
-      {console.log('🎯 [AddCredentialsPage] Rendering DigilockerModal, isOpen:', isDigilockerModalOpen)}
       <DigilockerModal
-        isOpen={isDigilockerModalOpen}
-        onClose={() => {
-          console.log('🚪 [AddCredentialsPage] Closing DigilockerModal');
-          setIsDigilockerModalOpen(false);
-        }}
+        isOpen={modals.isDigilockerOpen}
+        onClose={closeModal}
       />
     </div>
   );

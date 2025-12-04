@@ -79,10 +79,10 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
 
     // Convert file to base64 for backend
     const reader = new FileReader();
-    
+
     reader.onload = async () => {
       const base64Data = reader.result; // This includes the data:image/xxx;base64, prefix
-      
+
       // Prepare credential data as JSON (not FormData)
       const credentialData = {
         title: formData.title,
@@ -102,18 +102,12 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
         fileSize: formData.file.size,
       };
 
-      console.log('📤 Submitting credential for validant verification');
-      console.log('Title:', credentialData.title);
-      console.log('Institution:', credentialData.institution);
-      console.log('File:', formData.file.name);
-      console.log('File size:', formData.file.size, 'bytes');
-
       onSubmit(credentialData);
       handleClose();
     };
 
     reader.onerror = (error) => {
-      console.error('❌ Error reading file:', error);
+      console.error('Error reading file:', error);
       setErrors(prev => ({ ...prev, file: 'Failed to read file' }));
     };
 
@@ -207,9 +201,8 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
               <select
                 value={formData.institution}
                 onChange={(e) => handleInputChange('institution', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.institution ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.institution ? 'border-red-500' : 'border-gray-300'
+                  }`}
               >
                 <option value="">Select your institution</option>
                 {INDIAN_INSTITUTIONS.map((inst) => (
@@ -265,9 +258,8 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
               <div className="mt-1">
                 <label
                   htmlFor="file-upload"
-                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${
-                    errors.file ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                  }`}
+                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${errors.file ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                    }`}
                 >
                   {filePreview ? (
                     <div className="flex flex-col items-center">

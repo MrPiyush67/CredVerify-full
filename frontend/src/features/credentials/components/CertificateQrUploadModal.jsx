@@ -52,7 +52,6 @@ export default function CertificateQrUploadModal({
       URL.revokeObjectURL(url);
     } catch (err) {
       // Silently fail - user can still upload the image/PDF
-      console.log('No QR code found in image');
     } finally {
       setQrProcessing(false);
     }
