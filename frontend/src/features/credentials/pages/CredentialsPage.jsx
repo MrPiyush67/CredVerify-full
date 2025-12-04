@@ -14,6 +14,9 @@ export default function CredentialsPage() {
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
   const credentials = useSelector(selectCredentials);
+  
+  // Only credentialists can add credentials
+  const canAddCredential = user?.role === 'credentialist';
   const loading = useSelector(selectCredentialsLoading);
   const error = useSelector(selectCredentialsError);
   const pagination = useSelector(selectCredentialsPagination);
@@ -53,10 +56,12 @@ export default function CredentialsPage() {
         title="Your Credentials"
         description="Manage and submit your certifications for verification"
         action={
-          <Button onClick={() => setIsUploadModalOpen(true)} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add Credential
-          </Button>
+          canAddCredential && (
+            <Button onClick={() => setIsUploadModalOpen(true)} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Add Credential
+            </Button>
+          )
         }
       />
 

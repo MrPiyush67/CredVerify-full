@@ -1,11 +1,17 @@
 import { useState } from 'react';
 import { Award, Plus, Edit2, Eye, FileText, Globe, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { selectUser } from '@features/auth/redux/authSlice';
 import { Button } from '@common';
 
 export function CredentialsCard({ credentials = [], isOwnProfile = false, className = "" }) {
   const navigate = useNavigate();
+  const currentUser = useSelector(selectUser);
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Only credentialists can add credentials
+  const canAddCredential = isOwnProfile && currentUser?.role === 'credentialist';
 
   const handleViewAll = () => {
     navigate('/credentials');
@@ -15,7 +21,13 @@ export function CredentialsCard({ credentials = [], isOwnProfile = false, classN
     navigate('/credentials');
   };
 
-  const displayCredentials = credentials.slice(0, 3);
+  // Filter credentials based on visibility
+  // Show all credentials for own profile, only public for others
+  const visibleCredentials = isOwnProfile 
+    ? credentials 
+    : credentials.filter(cred => cred.isPublic === true);
+
+  const displayCredentials = visibleCredentials.slice(0, 3);
 
   return (
     <div className={`bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden col-span-1 md:col-span-4 ${className}`}>
@@ -28,7 +40,8 @@ export function CredentialsCard({ credentials = [], isOwnProfile = false, classN
           <div>
             <h3 className="font-semibold text-gray-900 text-lg">Credentials</h3>
             <p className="text-xs text-gray-500">
-              {credentials.length} {credentials.length === 1 ? 'credential' : 'credentials'}
+              {visibleCredentials.length} {visibleCredentials.length === 1 ? 'credential' : 'credentials'}
+              {!isOwnProfile && visibleCredentials.length > 0 && ' (Public)'}
             </p>
           </div>
         </div>
@@ -46,13 +59,13 @@ export function CredentialsCard({ credentials = [], isOwnProfile = false, classN
 
       {/* Content */}
       <div className="px-6 py-6">
-        {credentials.length === 0 ? (
+        {visibleCredentials.length === 0 ? (
         <div className="text-center py-8">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
             <Award className="h-8 w-8 text-gray-400" />
           </div>
           <p className="text-gray-500 text-sm mb-4">No credentials yet</p>
-          {isOwnProfile && (
+          {canAddCredential && (
             <Button
               onClick={handleAddCredential}
               size="sm"
@@ -72,7 +85,7 @@ export function CredentialsCard({ credentials = [], isOwnProfile = false, classN
               onClick={() => navigate('/credentials')}
             >
               {/* Thumbnail */}
-              <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden shadow-sm bg-linear-to-br from-teal-50 to-green-50">
+              <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden shadow-sm bg-gradient-to-br from-teal-50 to-green-50">
                 {credential.file?.url ? (
                   credential.file.fileType?.includes('image') ? (
                     <>
@@ -143,18 +156,20 @@ export function CredentialsCard({ credentials = [], isOwnProfile = false, classN
             </div>
           ))}
 
-          {/* View All Button */}
-          <div className="pt-2">
-            <Button
-              onClick={handleViewAll}
-              variant="outline"
-              size="sm"
-              className="w-full gap-2 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-300"
-            >
-              <Eye className="h-4 w-4" />
-              {credentials.length > 3 ? `View All (${credentials.length})` : 'View All'}
-            </Button>
-          </div>
+          {/* View All Button - Only show for own profile */}
+          {isOwnProfile && (
+            <div className="pt-2">
+              <Button
+                onClick={handleViewAll}
+                variant="outline"
+                size="sm"
+                className="w-full gap-2 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-300"
+              >
+                <Eye className="h-4 w-4" />
+                {visibleCredentials.length > 3 ? `View All (${visibleCredentials.length})` : 'View All'}
+              </Button>
+            </div>
+          )}
 
           {/* Add New Button */}
           {isOwnProfile && (

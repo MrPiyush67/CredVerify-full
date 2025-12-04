@@ -93,8 +93,8 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
         type: formData.type,
         issueDate: formData.issueDate,
         verificationNotes: formData.credentialistComments || '',
-        status: 'draft',
-        verificationRequested: false,
+        status: 'pending',
+        verificationRequested: true,
         // Store file as base64 data URL
         fileBase64: base64Data,
         fileName: formData.file.name,

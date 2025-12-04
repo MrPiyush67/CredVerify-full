@@ -3,11 +3,11 @@
 package-lock.json
 yarn.lock
 
-# Environment variables
+# Environment variables (keep secrets local, never commit .env files)
 .env
-.env.local
-.env.production
-.env.development
+**/.env
+.env/
+**/.env/
 
 # Logs
 logs/

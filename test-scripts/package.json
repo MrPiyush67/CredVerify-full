@@ -1,0 +1,32 @@
+{
+  "name": "credverify-tests",
+  "version": "1.0.0",
+  "description": "Test suite for CredVerify platform",
+  "type": "module",
+  "scripts": {
+    "test": "node run-tests.js all",
+    "test:auth": "node run-tests.js auth",
+    "test:verification": "node run-tests.js verification",
+    "test:blockchain": "node run-tests.js blockchain",
+    "test:integration": "node run-tests.js integration",
+    "test:quick": "node authentication/test-auth.js && node verification/test-verification-scoring.js",
+    "test:all-certs": "node verification/test-all-certificates.js",
+    "test:single-cert": "node verification/test-single-certificate.js",
+    "test:extension-flow": "node verification/test-extension-complete-flow.js",
+    "zip-extension": "powershell -Command \"Compress-Archive -Path '../extension/*' -DestinationPath '../frontend/public/credverify-extension.zip' -Force\"",
+    "platforms:list": "node platforms/platforms-manager.js list",
+    "platforms:stats": "node platforms/platforms-manager.js stats",
+    "platforms:add": "node platforms/platforms-manager.js add",
+    "platforms:search": "node platforms/platforms-manager.js search"
+  },
+  "keywords": [
+    "testing",
+    "credverify"
+  ],
+  "author": "CredVerify Team",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "form-data": "^4.0.5"
+  }
+}

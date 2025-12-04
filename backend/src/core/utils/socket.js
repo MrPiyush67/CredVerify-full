@@ -156,10 +156,15 @@ export const getIO = () => {
 
 /**
  * Emit a new message to conversation participants
+ * This ensures messages are ONLY sent to users in the specific conversation room
  */
 export const emitNewMessage = (conversationId, message, senderId) => {
   if (!io) return;
 
+  console.log(`🔔 [SOCKET] Emitting message to conversation room: conversation:${conversationId}`);
+  console.log(`📬 [SOCKET] Message will ONLY be received by participants in this conversation`);
+
+  // Emit ONLY to the conversation room (not broadcast to all users)
   io.to(`conversation:${conversationId}`).emit('message:new', {
     message,
     conversationId,

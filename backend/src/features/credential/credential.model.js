@@ -91,10 +91,17 @@ const credentialSchema = new mongoose.Schema(
       fileType: String,   // e.g. 'image/jpeg', 'application/pdf'
       uploadedAt: { type: Date, default: Date.now },
       storageId: String,  // e.g. ImageKit fileId
+      ipfs: {
+        cid: String,
+        provider: String,
+      },
+      blockchain: {
+        txHash: String,
+      },
     },
 
     // Source + light verification
-    sourceUrl: String,     // original page URL
+    sourceUrl: String,     // original page URL (used for blockchain fingerprint)
     sourceDomain: String,  // extracted domain
 
     isDomainTrusted: {

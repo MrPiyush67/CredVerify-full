@@ -1,32 +1,35 @@
 import { uploadCredentialFile } from '../../../../core/utils/imagekitService.js';
+import { uploadToIpfs } from '../../../../core/utils/ipfsService.js';
+import { computeFingerprintFromUrl, registerOnChain } from '../../../../core/utils/blockchainService.js';
 import Credential from '../../credential.model.js';
 
 
-export async function uploadCertificateImage(imageBuffer, metadata = {}) {
-  console.log(`📤 [CREDENTIAL-SAVER] Uploading certificate to ImageKit...`);
-
-  try {
-    const uploadResult = await uploadCredentialFile(imageBuffer, {
-      fileName: metadata.fileName || `certificate-${Date.now()}.jpg`,
-      userName: metadata.userName || 'unknown',
-      issuer: metadata.issuer || 'unknown',
-      tags: metadata.tags || ['certificate', 'verified'],
-    });
-
-    console.log(`✅ [CREDENTIAL-SAVER] Image uploaded: ${uploadResult.url}`);
-
-    return {
-      url: uploadResult.url,
-      fileId: uploadResult.fileId,
-      fileName: uploadResult.fileName,
-      fileType: uploadResult.fileType || 'image/jpeg',
-    };
-
-  } catch (error) {
-    console.error(`❌ [CREDENTIAL-SAVER] ImageKit upload failed:`, error.message);
-    throw new Error(`Image upload failed: ${error.message}`);
-  }
-}
+// DEPRECATED: ImageKit upload - Now using IPFS instead
+// export async function uploadCertificateImage(imageBuffer, metadata = {}) {
+//   console.log(`📤 [CREDENTIAL-SAVER] Uploading certificate to ImageKit...`);
+//
+//   try {
+//     const uploadResult = await uploadCredentialFile(imageBuffer, {
+//       fileName: metadata.fileName || `certificate-${Date.now()}.jpg`,
+//       userName: metadata.userName || 'unknown',
+//       issuer: metadata.issuer || 'unknown',
+//       tags: metadata.tags || ['certificate', 'verified'],
+//     });
+//
+//     console.log(`✅ [CREDENTIAL-SAVER] Image uploaded: ${uploadResult.url}`);
+//
+//     return {
+//       url: uploadResult.url,
+//       fileId: uploadResult.fileId,
+//       fileName: uploadResult.fileName,
+//       fileType: uploadResult.fileType || 'image/jpeg',
+//     };
+//
+//   } catch (error) {
+//     console.error(`❌ [CREDENTIAL-SAVER] ImageKit upload failed:`, error.message);
+//     throw new Error(`Image upload failed: ${error.message}`);
+//   }
+// }
 
 export async function saveCredential(params) {
   const { userId, verificationData, certificateImage, user } = params;
@@ -84,6 +87,8 @@ export async function saveCredential(params) {
         fileType: certificateImage.fileType,
         storageId: certificateImage.fileId,
         uploadedAt: new Date(),
+        ipfs: certificateImage.ipfs || null,
+        blockchain: certificateImage.blockchain || null,
       },
 
       // Source info
@@ -110,6 +115,10 @@ export async function saveCredential(params) {
           },
           scoreBreakdown: verification.breakdown,
           recommendations: verification.recommendations,
+        },
+        blockchain: {
+          ipfs: certificateImage.ipfs || null,
+          onChainTx: certificateImage.blockchain?.txHash || null,
         },
         platform: {
           id: domainValidation.issuer?.id || 'unknown',
@@ -153,16 +162,47 @@ export async function uploadAndSaveCredential(params) {
 
   console.log(`🔄 [CREDENTIAL-SAVER] Starting complete save workflow...`);
 
-  // Step 1: Upload image
-  const uploadedImage = await uploadCertificateImage(imageBuffer, {
-    userName: user?.name || 'User',
-    issuer: verificationData.domainValidation?.issuer?.name || 'Unknown',
-    tags: [
-      'certificate',
-      verificationData.verification?.status?.toLowerCase() || 'pending',
-      verificationData.domainValidation?.issuer?.id || 'unknown',
-    ],
-  });
+  // Step 1: Upload to IPFS (primary storage)
+  console.log(`📤 [CREDENTIAL-SAVER] Uploading certificate to IPFS...`);
+
+  const fileName = `certificate-${Date.now()}.jpg`;
+  let ipfsResult = null;
+  let chainResult = null;
+  let pageUrl = null;
+
+  try {
+    ipfsResult = await uploadToIpfs(imageBuffer, fileName);
+    console.log(`✅ [CREDENTIAL-SAVER] IPFS upload successful: ${ipfsResult.cid}`);
+
+    if (ipfsResult && ipfsResult.cid) {
+      // Compute fingerprint from verification URL
+      pageUrl = verificationData.verificationUrl || verificationData.sourceUrl || '';
+      const fingerprint = computeFingerprintFromUrl(pageUrl);
+
+      if (fingerprint && pageUrl) {
+        console.log(`🔑 [CREDENTIAL-SAVER] Registering on blockchain...`);
+        console.log(`   Page URL: ${pageUrl}`);
+        console.log(`   Fingerprint: ${fingerprint}`);
+        chainResult = await registerOnChain(fingerprint, ipfsResult.cid);
+        console.log(`✅ [CREDENTIAL-SAVER] On-chain registration successful: ${chainResult.txHash}`);
+      } else {
+        console.warn('⚠️  [CREDENTIAL-SAVER] No page URL available for fingerprint generation');
+      }
+    }
+  } catch (err) {
+    console.error('❌ [CREDENTIAL-SAVER] IPFS or on-chain registration failed:', err.message || err);
+  }
+
+  // Create certificate image object with IPFS data
+  const uploadedImage = {
+    url: ipfsResult ? `https://gateway.pinata.cloud/ipfs/${ipfsResult.cid}` : '',
+    fileName: fileName,
+    fileType: 'image/jpeg',
+    fileId: ipfsResult?.cid || null,
+    ipfs: ipfsResult || null,
+    blockchain: chainResult ? { txHash: chainResult.txHash } : null,
+    pageUrl: pageUrl || null,
+  };
 
   // Step 2: Save to database
   const credential = await saveCredential({

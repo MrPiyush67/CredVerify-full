@@ -1,8 +1,10 @@
-# 🛡️ Anti-Tampering Protection - ACTIVE
+# 🛡️ Anti-Tamper Protection - Technical Documentation
 
-## ✅ Implementation Status: COMPLETE
+## ✅ Implementation Status: ACTIVE & COMPLETE
 
-Anti-tampering protection has been **successfully implemented** in the extension to prevent certificate image manipulation attacks.
+The browser extension implements **perceptual hash-based anti-tampering** to prevent certificate image manipulation attacks.
+
+> **Note**: For general extension documentation, see [EXTENSION-GUIDE.md](./EXTENSION-GUIDE.md). This document provides detailed technical implementation of the anti-tamper system.
 
 ---
 

@@ -1,4 +1,8 @@
-# DigiLocker Integration Flow Diagram
+# DigiLocker Integration - Flow Diagrams
+
+> **Note**: For general backend documentation, see [BACKEND-ARCHITECTURE.md](./BACKEND-ARCHITECTURE.md). This document provides detailed flow diagrams for the DigiLocker OAuth integration.
+
+## Complete OAuth Flow
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
