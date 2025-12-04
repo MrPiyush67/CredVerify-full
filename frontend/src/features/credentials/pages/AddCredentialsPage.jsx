@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-<<<<<<< HEAD
-import { CheckCircle, Trash2, Upload, Link as LinkIcon, ChevronDown, FileText, ShieldCheck, Puzzle, RefreshCw, Loader2, QrCode } from 'lucide-react';
-=======
-import { CheckCircle, Trash2, Upload, QrCode, Hash, ChevronDown, FileText, ShieldCheck, Puzzle, RefreshCw, Loader2, FolderKey, BookOpen } from 'lucide-react';
->>>>>>> 2b02db5f216f698519d2fa4ba8c962d18e475be5
+import { CheckCircle, Trash2, Upload, QrCode, Hash, ChevronDown, FileText, ShieldCheck, Puzzle, RefreshCw, Loader2, FolderKey, BookOpen, LinkIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Input, Button, PageHeader } from '@common';
@@ -72,7 +68,7 @@ export default function AddCredentialsPage() {
     const params = new URLSearchParams(window.location.search);
     const digilockerParam = params.get('digilocker');
     const docsParam = params.get('docs');
-    
+
     console.log('\n========================================');
     console.log('🔍 [AddCredentialsPage] Checking URL params on mount');
     console.log('========================================');
@@ -85,7 +81,7 @@ export default function AddCredentialsPage() {
       console.log('   docs param preview:', docsParam.substring(0, 100) + '...');
     }
     console.log('========================================\n');
-    
+
     if (digilockerParam === 'connected') {
       console.log('✅ [AddCredentialsPage] DigiLocker callback detected - opening modal');
       setIsDigilockerModalOpen(true);
@@ -156,7 +152,7 @@ export default function AddCredentialsPage() {
 
   const handleCredentialDelete = (credentialId) => {
     const credential = submittedCredentials.find(c => c.id === credentialId);
-    
+
     toast((t) => (
       <div className="flex items-center gap-3">
         <div className="flex-1">
