@@ -63,6 +63,18 @@ export const sendMessage = async (conversationId, userId, content) => {
     throw new Error('Conversation not found or unauthorized');
   }
 
+  // Ensure conversation has exactly 2 participants (1-on-1 chat)
+  if (conversation.participants.length !== 2) {
+    throw new Error('Invalid conversation: must have exactly 2 participants');
+  }
+
+  // Get the recipient (the other participant)
+  const recipientId = conversation.participants.find(
+    (p) => p.toString() !== userId.toString()
+  );
+
+  console.log(`📨 [CHAT] Sending message from ${userId} to ${recipientId} in conversation ${conversationId}`);
+
   // Create message
   const message = await Message.create({
     conversation: conversationId,

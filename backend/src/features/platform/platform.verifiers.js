@@ -27,21 +27,54 @@ export const generateCode = () => {
 // ===== CODEFORCES (Official API) =====
 export const verifyCodeforces = async (handle) => {
   try {
-    const response = await axios.get(`https://codeforces.com/api/user.info?handles=${handle}`);
-    if (response.data.status === 'OK' && response.data.result.length > 0) {
-      const user = response.data.result[0];
-      return {
-        success: true,
-        stats: {
-          rating: user.rating || 0,
-          maxRating: user.maxRating || 0,
-          rank: user.rank || 'unrated',
-          maxRank: user.maxRank || 'unrated',
-          contribution: user.contribution || 0,
-        },
-      };
+    // Fetch user info
+    const userResponse = await axios.get(`https://codeforces.com/api/user.info?handles=${handle}`);
+    if (userResponse.data.status !== 'OK' || userResponse.data.result.length === 0) {
+      return { success: false, message: 'User not found' };
     }
-    return { success: false, message: 'User not found' };
+    
+    const user = userResponse.data.result[0];
+    
+    // Fetch submission history to calculate active days and contests
+    let contestsAttended = 0;
+    let activeDays = 0;
+    try {
+      const submissionsResponse = await axios.get(`https://codeforces.com/api/user.status?handle=${handle}&from=1&count=10000`);
+      if (submissionsResponse.data.status === 'OK') {
+        const submissions = submissionsResponse.data.result;
+        
+        // Calculate unique contest IDs
+        const uniqueContests = new Set();
+        const uniqueDays = new Set();
+        
+        submissions.forEach(submission => {
+          if (submission.author.participantType === 'CONTESTANT') {
+            uniqueContests.add(submission.contestId);
+          }
+          // Track unique days of activity (using timestamp)
+          const date = new Date(submission.creationTimeSeconds * 1000).toDateString();
+          uniqueDays.add(date);
+        });
+        
+        contestsAttended = uniqueContests.size;
+        activeDays = uniqueDays.size;
+      }
+    } catch (error) {
+      console.log('[Codeforces] Could not fetch submissions:', error.message);
+    }
+    
+    return {
+      success: true,
+      stats: {
+        rating: user.rating || 0,
+        maxRating: user.maxRating || 0,
+        rank: user.rank || 'unrated',
+        maxRank: user.maxRank || 'unrated',
+        contribution: user.contribution || 0,
+        contestsAttended,
+        activeDays,
+      },
+    };
   } catch (error) {
     return { success: false, message: 'Invalid handle or API error' };
   }
@@ -63,6 +96,10 @@ export const fetchLeetCodeStats = async (handle) => {
               difficulty
               count
             }
+          }
+          userCalendar {
+            streak
+            totalActiveDays
           }
         }
       }
@@ -94,6 +131,8 @@ export const fetchLeetCodeStats = async (handle) => {
         hardSolved: submissions.find(s => s.difficulty === 'Hard')?.count || 0,
         ranking: data.profile.ranking || 0,
         reputation: data.profile.reputation || 0,
+        streak: data.userCalendar?.streak || 0,
+        activeDays: data.userCalendar?.totalActiveDays || 0,
       },
     };
   } catch (error) {
@@ -285,6 +324,32 @@ export const verifyCodeChef = async (handle, verificationCode) => {
     const rating = parseInt($('.rating-number').text()) || 0;
     const stars = $('.rating-stars').text().trim() || 'unrated';
     
+    // Try to extract contests attended and active days
+    let contestsAttended = 0;
+    let activeDays = 0;
+    
+    // CodeChef shows contests in various places, try to extract
+    $('.rating-data-section').each((i, elem) => {
+      const text = $(elem).text();
+      if (text.includes('Contests')) {
+        const match = text.match(/(\d+)/);
+        if (match) contestsAttended = parseInt(match[1]);
+      }
+    });
+    
+    // Look for contest/activity count in profile sections
+    $('.profile-stats-item, .contest-participated-count').each((i, elem) => {
+      const label = $(elem).find('.label, .stats-label').text().toLowerCase();
+      const value = parseInt($(elem).find('.value, .stats-value').text());
+      
+      if (label.includes('contest') && value) {
+        contestsAttended = value;
+      }
+      if (label.includes('active') && value) {
+        activeDays = value;
+      }
+    });
+    
     return {
       success: true,
       stats: {
@@ -294,6 +359,8 @@ export const verifyCodeChef = async (handle, verificationCode) => {
         countryRank: 0,
         fullySolved: 0,
         partiallySolved: 0,
+        contestsAttended,
+        activeDays,
       },
     };
   } catch (error) {
@@ -347,13 +414,35 @@ export const verifyGitHubBio = async (handle, verificationCode) => {
       return { success: false, message: 'Verification code not found in username, name, or bio' };
     }
 
+    // Try to fetch contributions from GitHub profile page
+    let contributions = 0;
+    try {
+      const profileUrl = `https://github.com/${handle}`;
+      const profilePage = await axios.get(profileUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        }
+      });
+      const $profile = cheerio.load(profilePage.data);
+      
+      // GitHub shows contribution count in various formats
+      // Look for "X contributions in the last year"
+      const contributionText = $profile('.js-yearly-contributions h2').text();
+      const match = contributionText.match(/([\d,]+)\s+contribution/);
+      if (match) {
+        contributions = parseInt(match[1].replace(/,/g, ''));
+      }
+    } catch (error) {
+      console.log('[GitHub] Could not fetch contribution count:', error.message);
+    }
+
     return {
       success: true,
       stats: {
         repos: user.public_repos || 0,
         followers: user.followers || 0,
         following: user.following || 0,
-        contributions: 0,
+        contributions,
         topLanguages: [],
       },
     };

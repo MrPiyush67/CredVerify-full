@@ -109,20 +109,7 @@ export const verifyPlatformOwnership = async (userId, platform) => {
     throw new Error(result.message);
   }
   
-  // Update profile with verification and stats
-  profile[platform].isVerified = false; // Keep as false until validant approves
-  profile[platform].stats = result.stats || {};
-  profile[platform].lastFetched = new Date();
-  profile[platform].verificationCode = null; // Clear code after successful verification
-  profile[platform].verificationExpiry = null;
-  profile[platform].pendingValidation = true; // New field to track pending validant approval
-  
-  await profile.save();
-  
-  // Get user details for credential creation
-  const user = await User.findById(userId);
-  
-  // Create a credential entry for validant review
+  // Platform names for notifications
   const platformNames = {
     leetcode: 'LeetCode',
     codeforces: 'CodeForces',
@@ -131,41 +118,31 @@ export const verifyPlatformOwnership = async (userId, platform) => {
     hackerrank: 'HackerRank',
     geeksforgeeks: 'GeeksForGeeks',
     github: 'GitHub',
+    gitlab: 'GitLab',
+    bitbucket: 'Bitbucket',
   };
   
-  const credential = await Credential.create({
-    user: userId,
-    legalNameSnapshot: user.name,
-    certificateName: profile[platform].handle,
-    title: `${platformNames[platform] || platform} Profile Verification`,
-    issuer: platformNames[platform] || platform,
-    issueDate: new Date(),
-    type: 'other',
-    credentialId: profile[platform].handle,
-    description: `Profile verification for ${platformNames[platform] || platform} handle: ${profile[platform].handle}`,
-    skills: [], // Could extract from stats
-    meta: {
-      platformId: platform,
-      platformHandle: profile[platform].handle,
-      platformStats: result.stats || {},
-      verificationType: 'platform_profile',
-    },
-    status: 'pending',
-    verificationRequested: true,
-    requestedAt: new Date(),
-  });
+  // Update profile with verification and stats - IMMEDIATELY VERIFIED
+  profile[platform].isVerified = true; // Set to true immediately when code is found
+  profile[platform].stats = result.stats || {};
+  profile[platform].lastFetched = new Date();
+  profile[platform].verificationCode = null; // Clear code after successful verification
+  profile[platform].verificationExpiry = null;
+  profile[platform].pendingValidation = false; // No need for validant approval
   
-  // Notify user that verification is pending validant approval
+  await profile.save();
+  
+  // Notify user of successful verification
   await createNotification({
     user: userId,
-    title: 'Platform Verification Submitted',
-    message: `Your ${platformNames[platform] || platform} profile verification has been submitted for validant review.`,
-    type: 'info',
+    title: '✅ Platform Verified!',
+    message: `Your ${platformNames[platform] || platform} profile has been verified successfully.`,
+    type: 'success',
     category: 'verification',
     metadata: {
       platform,
       handle: profile[platform].handle,
-      credentialId: credential._id,
+      stats: result.stats || {},
     },
   });
   

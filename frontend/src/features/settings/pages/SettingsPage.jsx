@@ -138,23 +138,23 @@ export default function SettingsPage() {
             />
           )}
 
-          {/* Danger Zone */}
+          {/* Delete Account */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            <div className="rounded-lg border border-destructive bg-card text-card-foreground shadow-sm">
+            <div className="rounded-lg border-2 border-red-500 bg-red-50 text-card-foreground shadow-sm">
               <div className="flex flex-col space-y-1.5 p-6">
-                <h3 className="text-2xl font-semibold leading-none tracking-tight text-destructive">Danger Zone</h3>
+                <h3 className="text-2xl font-bold leading-none tracking-tight text-red-600">Delete Account</h3>
               </div>
               <div className="p-6 pt-0">
-                <p className="text-sm text-muted-foreground mb-4">
-                  Irreversible actions. Please proceed with caution.
+                <p className="text-sm text-gray-700 mb-4">
+                  This action is permanent and cannot be undone. All your data will be permanently deleted.
                 </p>
                 <div className="flex gap-4">
-                  <Button variant="destructive" onClick={() => { }}>
-                    Delete Account
+                  <Button variant="destructive" className="bg-red-600 hover:bg-red-700" onClick={() => { }}>
+                    Delete My Account
                   </Button>
                 </div>
               </div>

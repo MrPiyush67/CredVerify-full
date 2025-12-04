@@ -7,7 +7,7 @@ import { ShieldCheck, Building2, User as UserIcon } from 'lucide-react';
 import { BentoCard } from './BentoGrid';
 import EditProfileModal from './EditProfileModal';
 
-export const IdentityCard = ({ user }) => {
+export const IdentityCard = ({ user, isOwnProfile = true }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showNameTooltip, setShowNameTooltip] = useState(false);
 
@@ -100,16 +100,18 @@ export const IdentityCard = ({ user }) => {
           </div>
 
           <div className="pt-2 flex gap-3 w-full max-w-xs">
-            <Button 
-              onClick={() => setIsEditModalOpen(true)}
-              className="flex-1 bg-gray-900 hover:bg-gray-800 text-white shadow-lg shadow-gray-900/20 rounded-xl h-11"
-            >
-              Edit Profile
-            </Button>
+            {isOwnProfile && (
+              <Button 
+                onClick={() => setIsEditModalOpen(true)}
+                className="flex-1 bg-gray-900 hover:bg-gray-800 text-white shadow-lg shadow-gray-900/20 rounded-xl h-11"
+              >
+                Edit Profile
+              </Button>
+            )}
             <Button 
               onClick={handleShare}
               variant="outline" 
-              className={`flex-1 border-gray-200 hover:bg-gray-50 rounded-xl h-11 gap-2 ${
+              className={`${isOwnProfile ? 'flex-1' : 'w-full'} border-gray-200 hover:bg-gray-50 rounded-xl h-11 gap-2 ${
                 !user.isPublic ? 'opacity-50 cursor-not-allowed' : ''
               }`}
               disabled={!user.isPublic}

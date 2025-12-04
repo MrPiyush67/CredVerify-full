@@ -1,6 +1,8 @@
+import mongoose from 'mongoose';
 import Credential from '../credential.model.js';
 import { createNotification } from '../../notification/notification.service.js';
 import PlatformProfile from '../../platform/platform.model.js';
+import { uploadCredentialFile } from '../../../core/utils/imagekitService.js';
 
 export const createCredential = async (userId, credentialData) => {
   console.log('🔵 [CREATE CREDENTIAL] Starting credential creation');
@@ -81,8 +83,8 @@ export const createCredential = async (userId, credentialData) => {
   // Create notification for successful credential upload
   await createNotification({
     user: userId,
-    title: 'Credential Uploaded Successfully',
-    message: `Your "${credential.title}" credential has been saved as draft.`,
+    title: 'Credential Submitted for Verification',
+    message: `Your "${credential.title}" credential has been submitted and is pending verification.`,
     type: 'success',
     category: 'credential',
     metadata: {
@@ -90,6 +92,40 @@ export const createCredential = async (userId, credentialData) => {
       credentialTitle: credential.title,
     },
   });
+
+  // If institution is specified, notify validants from that institution
+  if (credential.institution) {
+    try {
+      console.log('🔔 [NOTIFICATION] Finding validants for institution:', credential.institution);
+      const User = mongoose.model('User');
+      const validants = await User.find({
+        role: 'validant',
+        institution: credential.institution,
+      }).select('_id name email');
+
+      console.log(`📧 [NOTIFICATION] Found ${validants.length} validants for ${credential.institution}`);
+
+      // Send notification to each validant
+      for (const validant of validants) {
+        await createNotification({
+          user: validant._id,
+          title: 'New Credential Verification Request',
+          message: `A new credential "${credential.title}" from ${credential.institution} requires verification.`,
+          type: 'info',
+          category: 'verification',
+          metadata: {
+            credentialId: credential._id,
+            credentialTitle: credential.title,
+            institution: credential.institution,
+          },
+        });
+        console.log(`✅ [NOTIFICATION] Sent to validant: ${validant.name} (${validant.email})`);
+      }
+    } catch (notificationError) {
+      console.error('❌ [NOTIFICATION] Failed to notify validants:', notificationError);
+      // Don't throw error - credential was created successfully
+    }
+  }
 
   return credential;
 };
@@ -134,9 +170,24 @@ export const updateCredential = async (userId, credentialId, updates) => {
     throw new Error('Credential not found or unauthorized');
   }
 
-  // Don't allow updates if already verified
+  // Allow only visibility (isPublic) updates for verified credentials
+  // This enables users to control visibility of DigiLocker-imported credentials
   if (credential.status === 'verified') {
-    throw new Error('Cannot update verified credentials');
+    const allowedFields = ['isPublic'];
+    const attemptedFields = Object.keys(updates);
+    const hasDisallowedFields = attemptedFields.some(field => !allowedFields.includes(field));
+    
+    console.log('[UPDATE VERIFIED CREDENTIAL]', {
+      credentialId: credential._id,
+      attemptedFields,
+      hasDisallowedFields,
+      updates
+    });
+    
+    if (hasDisallowedFields) {
+      const disallowedFields = attemptedFields.filter(field => !allowedFields.includes(field));
+      throw new Error(`Cannot update verified credentials. Attempted to modify: ${disallowedFields.join(', ')}. Only visibility (isPublic) can be changed.`);
+    }
   }
 
   Object.assign(credential, updates);

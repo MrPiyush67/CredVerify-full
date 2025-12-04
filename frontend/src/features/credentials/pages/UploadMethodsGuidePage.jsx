@@ -279,7 +279,7 @@ export default function UploadMethodsGuidePage() {
               className="bg-white rounded-2xl border overflow-hidden"
             >
               {/* Method Header */}
-              <div className={`bg-linear-to-r ${method.gradient} px-8 py-6 text-white`}>
+              <div className={`bg-gradient-to-r ${method.gradient} px-8 py-6 text-white`}>
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-white/20 rounded-lg">
                     <method.icon className="h-7 w-7" />

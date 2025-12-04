@@ -80,31 +80,47 @@ export default function CredentialsGridView({
               onClick={() => onViewDetails(credential)}
             >
               {/* PDF Thumbnail */}
-              <div className="relative aspect-3/4 bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden">
+              <div className="relative aspect-3/4 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center overflow-hidden">
                 {credential.file?.url ? (
                   <div className="relative w-full h-full">
                     {credential.file.fileType?.includes('pdf') ? (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-linear-to-br from-red-50 to-red-100">
-                        <FileText className="h-16 w-16 text-red-500 mb-2" />
-                        <span className="text-xs text-red-600 font-medium">PDF Document</span>
-                      </div>
-                    ) : (
+                      <iframe
+                        src={`${credential.file.url}#view=FitH`}
+                        className="w-full h-full border-0"
+                        title={credential.title}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextElementSibling.style.display = 'flex';
+                        }}
+                      />
+                    ) : credential.file.fileType?.includes('image') ? (
                       <img
                         src={credential.file.url}
                         alt={credential.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain p-2"
                         onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.parentElement.innerHTML = `
-                            <div class="absolute inset-0 flex flex-col items-center justify-center bg-linear-to-br from-blue-50 to-blue-100">
-                              <svg class="h-16 w-16 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
-                            </div>
-                          `;
+                          e.target.style.display = 'none';
+                          e.target.nextElementSibling.style.display = 'flex';
                         }}
                       />
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#116466]/10 to-[#0d9488]/10">
+                        <FileText className="h-16 w-16 text-[#116466] mb-2" />
+                        <span className="text-xs text-[#116466] font-medium">Document</span>
+                      </div>
                     )}
+                    {/* Fallback for errors */}
+                    <div className="absolute inset-0 flex-col items-center justify-center bg-gradient-to-br from-[#116466]/10 to-[#0d9488]/10" style={{ display: 'none' }}>
+                      <FileText className="h-16 w-16 text-[#116466] mb-2" />
+                      <span className="text-xs text-[#116466] font-medium">No Preview</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#116466]/10 to-[#0d9488]/10">
+                    <FileText className="h-20 w-20 text-[#116466] mb-3" />
+                    <span className="text-sm font-medium text-[#116466]">No Document</span>
+                  </div>
+                )}
                     {/* Status Badge Overlay */}
                     <div className="absolute top-2 left-2">
                       <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${getStatusBadge(credential.status)}`}>
