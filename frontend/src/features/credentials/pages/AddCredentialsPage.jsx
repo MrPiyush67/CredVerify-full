@@ -376,23 +376,11 @@ export default function AddCredentialsPage() {
             className="text-left border rounded-lg p-6 hover:bg-gray-50 hover:border-[#116466] transition-all"
           >
             <div className="flex flex-col gap-3">
-<<<<<<< HEAD
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[#116466] text-white">
-                <FolderKey className="h-6 w-6" />
-              </span>
-              <div>
-                <div className="font-semibold text-lg mb-1">DigiLocker</div>
-                <div className="text-sm text-muted-foreground">
-                  Import verified documents directly from your DigiLocker account
-                </div>
-              </div>
-=======
               <div className="bg-[#116466]/10 w-12 h-12 rounded-lg flex items-center justify-center">
                 <FolderKey className="h-6 w-6 text-[#116466]" />
               </div>
               <h3 className="font-semibold text-gray-900">DigiLocker</h3>
               <p className="text-sm text-gray-600">Import verified documents directly from your DigiLocker account</p>
->>>>>>> 89e5d22b37a9fcd570b88dfbbc770436a9d7f88b
             </div>
           </button>
           <button
