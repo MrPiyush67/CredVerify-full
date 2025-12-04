@@ -18,8 +18,8 @@ router.patch('/curator/settings', protect, isCurator, updateSettings);
 // Stats route
 router.get('/curator/stats', protect, isCurator, getStats);
 
-// Public curator routes
-router.get('/curators', protect, getAllCurators);
-router.get('/curators/:id', protect, getCuratorById);
+// Public curator routes (no authentication required)
+router.get('/curators', getAllCurators);
+router.get('/curators/:id', getCuratorById);
 
 export default router;

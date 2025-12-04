@@ -26,8 +26,8 @@ router.post('/validant/credentials/:id/reject', protect, isValidant, rejectCrede
 // Stats
 router.get('/validant/stats', protect, isValidant, getStats);
 
-// Public validant routes
-router.get('/validants', protect, getAllValidants);
-router.get('/validants/:id', protect, getValidantById);
+// Public validant routes (no authentication required)
+router.get('/validants', getAllValidants);
+router.get('/validants/:id', getValidantById);
 
 export default router;

@@ -26,21 +26,25 @@ export const updateProfile = async (userId, updates) => {
   return profile;
 };
 
-// Get all curators (for display/search)
+// Get all curators (for display/search) - only public curators
 export const getAllCurators = async (filters = {}) => {
-  const curators = await User.find({ role: 'curator', ...filters })
+  const curators = await User.find({ role: 'curator', isPublic: true, ...filters })
     .select('-passwordHash')
     .sort({ createdAt: -1 });
 
   return curators;
 };
 
-// Get curator by ID
+// Get curator by ID (public profile only)
 export const getCuratorById = async (curatorId) => {
   const curator = await User.findById(curatorId).select('-passwordHash');
 
   if (!curator || curator.role !== 'curator') {
     throw new Error('Curator not found');
+  }
+
+  if (!curator.isPublic) {
+    throw new Error('This curator profile is not public');
   }
 
   return curator;

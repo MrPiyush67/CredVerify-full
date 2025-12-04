@@ -18,8 +18,8 @@ router.patch('/credentialist/settings', protect, isCredentialist, updateSettings
 // Stats route
 router.get('/credentialist/stats', protect, isCredentialist, getStats);
 
-// Public routes - accessible to all authenticated users
-router.get('/credentialists', protect, getAllCredentialists);
-router.get('/credentialists/:id', protect, getCredentialistById);
+// Public routes - accessible to everyone (no authentication required)
+router.get('/credentialists', getAllCredentialists);
+router.get('/credentialists/:id', getCredentialistById);
 
 export default router;
