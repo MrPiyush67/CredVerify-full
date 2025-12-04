@@ -1,11 +1,3 @@
-/**
- * Manual Verification Orchestrator
- * Coordinates the complete verification workflow for manually submitted links/QR codes
- * 
- * Input: Direct link OR certificate image with QR code
- * Output: Verified credential with confidence score
- */
-
 import { normalizeInput } from '../pipeline/inputNormalizer.js';
 import { validateDomain } from '../pipeline/domainValidator.js';
 import { extractCertificateImagesFromPage } from '../pipeline/certificateExtractor.js';
@@ -44,9 +36,7 @@ export async function verifyFromManualInput(params) {
   console.log(`${'='.repeat(60)}\n`);
 
   try {
-    // ============================================================
     // STAGE 1: Get user's legal name
-    // ============================================================
     console.log(`📍 STAGE 1: Fetching user legal name...`);
 
     let legalName;
@@ -65,9 +55,7 @@ export async function verifyFromManualInput(params) {
 
     console.log(`✅ Legal name: ${legalName}\n`);
 
-    // ============================================================
     // STAGE 2: Normalize input to verification URL
-    // ============================================================
     console.log(`📍 STAGE 2: Normalizing input to verification URL...`);
 
     let normalizedInput;
@@ -91,9 +79,7 @@ export async function verifyFromManualInput(params) {
     const verificationUrl = normalizedInput.verificationUrl;
     console.log(`✅ Verification URL: ${verificationUrl}\n`);
 
-    // ============================================================
     // STAGE 3: Validate domain
-    // ============================================================
     console.log(`📍 STAGE 3: Validating domain...`);
 
     const domainValidation = validateDomain(verificationUrl);
@@ -112,9 +98,7 @@ export async function verifyFromManualInput(params) {
 
     console.log(`✅ Trusted issuer: ${domainValidation.issuer.name}\n`);
 
-    // ============================================================
     // STAGE 4: Scrape certificate page
-    // ============================================================
     console.log(`📍 STAGE 4: Scraping certificate page...`);
 
     const scrapedData = await scrapeCertificate(verificationUrl);
@@ -123,9 +107,7 @@ export async function verifyFromManualInput(params) {
     console.log(`   Screenshot: ${scrapedData.screenshot ? scrapedData.screenshot.length + ' bytes' : 'null (pending implementation)'}`);
     console.log(`   Text: ${scrapedData.text ? scrapedData.text.length + ' characters' : 'null (pending implementation)'}\n`);
 
-    // ============================================================
     // STAGE 5: Extract certificate images from page
-    // ============================================================
     console.log(`📍 STAGE 5: Extracting certificate images...`);
 
     const imageCandidates = await extractCertificateImagesFromPage({
@@ -134,11 +116,14 @@ export async function verifyFromManualInput(params) {
       url: verificationUrl,
     });
 
-    console.log(`✅ Found ${imageCandidates.length} candidate image URL(s)\n`);
+    console.log(`✅ Found ${imageCandidates.length} candidate image URL(s)`);
 
-    // ============================================================
+    // Debug: Log the structure of candidates
+    if (imageCandidates.length > 0) {
+      console.log(`📋 First candidate structure:`, JSON.stringify(imageCandidates[0], null, 2));
+    }
+
     // STAGE 6: Download images and run OCR on each candidate
-    // ============================================================
     console.log(`📍 STAGE 6: Downloading images and running OCR...`);
 
     const ocrCandidates = [];
@@ -206,9 +191,7 @@ export async function verifyFromManualInput(params) {
 
     console.log(`✅ OCR quality check passed\n`);
 
-    // ============================================================
     // STAGE 7: LLM interpretation on each candidate
-    // ============================================================
     console.log(`📍 STAGE 7: Interpreting extracted text with LLM...`);
 
     const interpretedCandidates = [];
@@ -238,9 +221,7 @@ export async function verifyFromManualInput(params) {
 
     console.log(`✅ Successfully interpreted ${interpretedCandidates.length} candidate(s)\n`);
 
-    // ============================================================
     // STAGE 8: Name matching for each candidate
-    // ============================================================
     console.log(`📍 STAGE 8: Matching names with user profile...`);
 
     const matchedCandidates = interpretedCandidates.map((candidate, i) => {
@@ -260,10 +241,11 @@ export async function verifyFromManualInput(params) {
 
     console.log(`✅ Name matching complete\n`);
 
-    // ============================================================
     // STAGE 9: Calculate verification score
-    // ============================================================
     console.log(`📍 STAGE 9: Calculating verification score...`);
+
+    // Get the matched candidate (should only be one since we selected bestCandidate earlier)
+    const matchedCandidate = matchedCandidates[0];
 
     const verification = calculateScore({
       nameConfidence: matchedCandidate.nameValidation.confidence,
@@ -278,9 +260,7 @@ export async function verifyFromManualInput(params) {
       verification,
     };
 
-    // ============================================================
     // STAGE 10: Save credential (if auto-save enabled and verified)
-    // ============================================================
     let savedCredential = null;
 
     if (autoSave && finalCandidate.verification.status === 'VERIFIED' && !testMode) {
@@ -307,9 +287,7 @@ export async function verifyFromManualInput(params) {
       }
     }
 
-    // ============================================================
     // Return complete result
-    // ============================================================
     console.log(`${'='.repeat(60)}`);
     console.log(`✅ [MANUAL-VERIFICATION] Workflow completed successfully`);
     console.log(`${'='.repeat(60)}\n`);

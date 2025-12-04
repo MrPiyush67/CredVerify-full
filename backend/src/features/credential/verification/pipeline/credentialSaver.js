@@ -1,21 +1,7 @@
-/**
- * Credential Saver Pipeline
- * Handles image upload to ImageKit and saves verified credentials to MongoDB
- * 
- * Reuses: imagekitService.js and credential.model.js
- */
-
 import { uploadCredentialFile } from '../../../../core/utils/imagekitService.js';
 import Credential from '../../credential.model.js';
-import User from '../../../user/user.model.js';
 
-/**
- * Upload certificate image to ImageKit
- * 
- * @param {Buffer} imageBuffer - Certificate image buffer
- * @param {Object} metadata - Additional metadata for the upload
- * @returns {Promise<Object>} - { url, fileId, fileName }
- */
+
 export async function uploadCertificateImage(imageBuffer, metadata = {}) {
   console.log(`📤 [CREDENTIAL-SAVER] Uploading certificate to ImageKit...`);
 
@@ -42,15 +28,6 @@ export async function uploadCertificateImage(imageBuffer, metadata = {}) {
   }
 }
 
-/**
- * Save verified credential to MongoDB
- * 
- * @param {Object} params
- * @param {string} params.userId - User ID
- * @param {Object} params.verificationData - Complete verification result
- * @param {Object} params.certificateImage - Uploaded image data
- * @returns {Promise<Object>} - Saved credential document
- */
 export async function saveCredential(params) {
   const { userId, verificationData, certificateImage, user } = params;
 

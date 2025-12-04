@@ -1,10 +1,3 @@
-/**
- * Domain Validation Pipeline
- * Validates verification URLs against trusted platform whitelist
- * 
- * Reuses: domainValidator.service.js from /validation/
- */
-
 import {
   resolveIssuerFromUrl,
   getTrustedDomains,

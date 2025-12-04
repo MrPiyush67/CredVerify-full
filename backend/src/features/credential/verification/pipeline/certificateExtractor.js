@@ -1,31 +1,20 @@
-/**
- * Certificate Image Extraction Pipeline
- * Identifies and extracts certificate images from scraped pages or extension screenshots
- */
-
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 puppeteer.use(StealthPlugin());
 
-/**
- * Extract certificate image candidates from scraped page data
- * 
- * @param {Object} scrapedData - Data from web scraping
- * @param {Buffer} scrapedData.screenshot - Full page screenshot
- * @param {string} scrapedData.text - Page text
- * @param {string} scrapedData.url - Page URL
- * @returns {Promise<Array>} - Array of candidate images with metadata
- * 
- * Strategy:
- * 1. Navigate to URL and get all <img> tags with their URLs and sizes
- * 2. Filter by minimum size: width >= 400px AND height >= 200px
- * 3. Filter by aspect ratio based on height:
- *    - If height is 200-400px: width should be 300-1200px (ratio 0.75-3.0)
- *    - If height is 400-800px: width should be 600-2400px (ratio 0.75-3.0)
- * 4. Download filtered images and return as buffers
- * 5. Fallback to full screenshot if no suitable images found
- */
+/*
+ Extract certificate image candidates from scraped page data
+
+ Strategy:
+ 1. Navigate to URL and get all <img> tags with their URLs and sizes
+ 2. Filter by minimum size: width >= 400px AND height >= 200px
+ 3. Filter by aspect ratio based on height:
+    - If height is 200-400px: width should be 300-1200px (ratio 0.75-3.0)
+    - If height is 400-800px: width should be 600-2400px (ratio 0.75-3.0)
+ 4. Download filtered images and return as buffers
+ 5. Fallback to full screenshot if no suitable images found
+*/
 export async function extractCertificateImagesFromPage(scrapedData) {
   const { screenshot, url } = scrapedData;
 
@@ -47,130 +36,125 @@ export async function extractCertificateImagesFromPage(scrapedData) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
 
+    // Enable request interception to block unnecessary resources
+    await page.setRequestInterception(true);
+    page.on('request', (request) => {
+      const resourceType = request.resourceType();
+      // Block fonts, stylesheets, media - but ALLOW images (we need them!)
+      if (['font', 'stylesheet', 'media'].includes(resourceType)) {
+        request.abort();
+      } else {
+        request.continue();
+      }
+    });
+
     console.log(`🌐 [CERT-EXTRACTOR] Loading page: ${url}`);
-    await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
+    await page.goto(url, {
+      waitUntil: 'domcontentloaded', // Faster than networkidle0
+      timeout: 60000 // 60 seconds for JS-heavy pages like Coursera
+    });
+
+    // Wait for images to load
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
     // STEP 1: Get all image tags with URLs and sizes
     const allImages = await page.evaluate(() => {
       const images = Array.from(document.querySelectorAll('img'));
+      const seenUrls = new Set();
 
-      return images.map((img) => {
-        const rect = img.getBoundingClientRect();
-        return {
-          src: img.src,
-          alt: img.alt || '',
-          width: Math.round(rect.width),
-          height: Math.round(rect.height),
-          x: rect.x,
-          y: rect.y,
-          className: img.className || '',
-          id: img.id || '',
-        };
-      });
+      return images
+        .map((img) => {
+          const rect = img.getBoundingClientRect();
+          return {
+            src: img.src,
+            alt: img.alt || '',
+            width: img.naturalWidth || Math.round(rect.width), // Use natural width, fallback to rendered
+            height: img.naturalHeight || Math.round(rect.height), // Use natural height, fallback to rendered
+            x: rect.x,
+            y: rect.y,
+            className: img.className || '',
+            id: img.id || '',
+          };
+        })
+        .filter((img) => {
+          // Only take unique URLs - skip duplicates
+          if (seenUrls.has(img.src)) {
+            return false;
+          }
+          seenUrls.add(img.src);
+          return true;
+        });
     });
 
     console.log(`📊 [CERT-EXTRACTOR] Found ${allImages.length} total images on page`);
 
-    // STEP 2: Filter by minimum size (width >= 400px AND height >= 200px)
+    // STEP 2: Filter by minimum size (height >= 200px AND width >= 400px)
     const sizeFiltered = allImages.filter((img) => {
-      return img.width >= 400 && img.height >= 200;
+      const valid = img.height >= 200 && img.width >= 400;
+      if (valid) {
+        console.log(`  ✅ Size valid: ${img.width}x${img.height}`);
+      }
+      return valid;
     });
 
-    console.log(`📏 [CERT-EXTRACTOR] ${sizeFiltered.length} images passed size filter (≥400x200px)`);
+    console.log(`📏 [CERT-EXTRACTOR] ${sizeFiltered.length} images passed size filter (height≥200px, width≥400px)`);
 
-    // STEP 3: Filter by aspect ratio based on height
+    // STEP 3: Filter by aspect ratio
+    // Choose aspect ratio range, take width of each image,
+    // calculate required height based on aspect ratio
+    const MIN_ASPECT_RATIO = 1.0;  // width/height (e.g., 1.0 = square)
+    const MAX_ASPECT_RATIO = 3.0;  // width/height (e.g., 3.0 = wide landscape)
+
     const aspectRatioFiltered = sizeFiltered.filter((img) => {
       const { width, height } = img;
-      const ratio = width / height;
 
-      // Define acceptable width range based on height
-      let minWidth, maxWidth;
+      // Calculate expected height range based on width and aspect ratio
+      const minHeight = width / MAX_ASPECT_RATIO;  // For max ratio (widest)
+      const maxHeight = width / MIN_ASPECT_RATIO;  // For min ratio (tallest)
 
-      if (height >= 200 && height < 400) {
-        // Small certificates: height 200-400px
-        minWidth = height * 0.75;  // 150-300px
-        maxWidth = height * 3.0;   // 600-1200px
-      } else if (height >= 400 && height < 800) {
-        // Medium certificates: height 400-800px
-        minWidth = height * 0.75;  // 300-600px
-        maxWidth = height * 3.0;   // 1200-2400px
+      // Check if actual height lies within the calculated range
+      const isValid = height >= minHeight && height <= maxHeight;
+      const actualRatio = (width / height).toFixed(2);
+
+      if (isValid) {
+        console.log(`  ✅ Valid: ${width}x${height} (ratio ${actualRatio}) - height range ${Math.round(minHeight)}-${Math.round(maxHeight)}px`);
       } else {
-        // Large certificates: height >= 800px
-        minWidth = height * 0.75;
-        maxWidth = height * 3.0;
+        console.log(`  ❌ Invalid: ${width}x${height} (ratio ${actualRatio}) - height ${height} outside range ${Math.round(minHeight)}-${Math.round(maxHeight)}px`);
       }
 
-      const isValidRatio = width >= minWidth && width <= maxWidth;
-      const aspectRatio = ratio.toFixed(2);
-
-      if (isValidRatio) {
-        console.log(`  ✅ Valid: ${width}x${height} (ratio ${aspectRatio}) - range ${Math.round(minWidth)}-${Math.round(maxWidth)}px`);
-      } else {
-        console.log(`  ❌ Invalid: ${width}x${height} (ratio ${aspectRatio}) - outside range ${Math.round(minWidth)}-${Math.round(maxWidth)}px`);
-      }
-
-      return isValidRatio;
+      return isValid;
     });
 
     console.log(`✅ [CERT-EXTRACTOR] ${aspectRatioFiltered.length} images passed aspect ratio filter`);
 
-    // STEP 4: Download filtered images
-    const candidateBuffers = [];
-
-    for (let i = 0; i < aspectRatioFiltered.length && i < 5; i++) {
-      const candidate = aspectRatioFiltered[i];
-
-      try {
-        console.log(`📸 [CERT-EXTRACTOR] Downloading candidate ${i + 1}/${aspectRatioFiltered.length}: ${candidate.width}x${candidate.height}`);
-
-        // Find the element and take screenshot
-        const element = await page.evaluateHandle((src) => {
-          return document.querySelector(`img[src="${src}"]`);
-        }, candidate.src);
-
-        if (element) {
-          const buffer = await element.asElement().screenshot({ type: 'png' });
-
-          candidateBuffers.push({
-            image: buffer,
-            source: 'page-image',
-            width: candidate.width,
-            height: candidate.height,
-            metadata: {
-              alt: candidate.alt,
-              className: candidate.className,
-              src: candidate.src,
-              aspectRatio: (candidate.width / candidate.height).toFixed(2),
-            },
-          });
-
-          console.log(`  ✅ Downloaded successfully`);
-        }
-      } catch (error) {
-        console.warn(`  ⚠️  Failed to download candidate ${i + 1}:`, error.message);
-      }
-    }
-
     await browser.close();
 
-    // STEP 5: Fallback - If no suitable images found, use full page screenshot
-    if (candidateBuffers.length === 0) {
-      console.log(`⚠️  [CERT-EXTRACTOR] No suitable images found - using full page screenshot as fallback`);
-
-      candidateBuffers.push({
-        image: screenshot,
-        source: 'page-screenshot-fallback',
-        width: 1920,
-        height: 1080,
-        metadata: {
-          fallback: true,
-          reason: 'No images passed size and aspect ratio filters',
-        },
-      });
+    // STEP 4: Return image URLs (NO FALLBACK - strict filtering only)
+    if (aspectRatioFiltered.length === 0) {
+      console.log(`⚠️  [CERT-EXTRACTOR] No images passed filters - returning empty array`);
+      return [];
     }
 
-    console.log(`✅ [CERT-EXTRACTOR] Returning ${candidateBuffers.length} candidate(s)`);
-    return candidateBuffers;
+    // Return all valid images with their URLs
+    const candidateImages = aspectRatioFiltered.map((img, index) => {
+      console.log(`   ${index + 1}. ${img.width}x${img.height} - ${img.src}`);
+
+      return {
+        imageUrl: img.src,
+        source: 'page-image',
+        width: img.width,
+        height: img.height,
+        metadata: {
+          alt: img.alt,
+          className: img.className,
+          aspectRatio: (img.width / img.height).toFixed(2),
+          index: index + 1,
+        },
+      };
+    });
+
+    console.log(`✅ [CERT-EXTRACTOR] Returning ${candidateImages.length} image URL(s)`);
+    return candidateImages;
 
   } catch (error) {
     if (browser) {

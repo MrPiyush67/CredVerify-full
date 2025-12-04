@@ -1,11 +1,3 @@
-/**
- * Extension Verification Orchestrator
- * Coordinates the complete verification workflow for extension-submitted certificates
- * 
- * Input: Screenshot + URL from browser extension
- * Output: Verified credential with confidence score
- */
-
 import { normalizeInput } from '../pipeline/inputNormalizer.js';
 import { validateDomain } from '../pipeline/domainValidator.js';
 import { extractCertificateFromExtension } from '../pipeline/certificateExtractor.js';
@@ -45,9 +37,7 @@ export async function verifyFromExtension(params) {
   console.log(`${'='.repeat(60)}\n`);
 
   try {
-    // ============================================================
     // STAGE 1: Get user's legal name
-    // ============================================================
     console.log(`📍 STAGE 1: Fetching user legal name...`);
 
     let legalName;
@@ -66,9 +56,7 @@ export async function verifyFromExtension(params) {
 
     console.log(`✅ Legal name: ${legalName}\n`);
 
-    // ============================================================
     // STAGE 2: Normalize input to verification URL
-    // ============================================================
     console.log(`📍 STAGE 2: Normalizing input...`);
 
     const normalizedInput = await normalizeInput({
@@ -79,9 +67,7 @@ export async function verifyFromExtension(params) {
     const verificationUrl = normalizedInput.verificationUrl;
     console.log(`✅ Verification URL: ${verificationUrl}\n`);
 
-    // ============================================================
     // STAGE 3: Validate domain
-    // ============================================================
     console.log(`📍 STAGE 3: Validating domain...`);
 
     const domainValidation = validateDomain(verificationUrl);
@@ -100,9 +86,7 @@ export async function verifyFromExtension(params) {
 
     console.log(`✅ Trusted issuer: ${domainValidation.issuer.name}\n`);
 
-    // ============================================================
     // STAGE 4: Extract certificate image (already provided by extension)
-    // ============================================================
     console.log(`📍 STAGE 4: Processing extension screenshot...`);
 
     const candidates = await extractCertificateFromExtension({ imageData });
@@ -110,9 +94,7 @@ export async function verifyFromExtension(params) {
 
     console.log(`✅ Certificate image ready (${certificateImage.length} bytes)\n`);
 
-    // ============================================================
     // STAGE 5: OCR text extraction
-    // ============================================================
     console.log(`📍 STAGE 5: Extracting text via OCR...`);
 
     let ocrText;
@@ -133,9 +115,7 @@ export async function verifyFromExtension(params) {
 
     console.log(`✅ Extracted ${ocrText.length} characters\n`);
 
-    // ============================================================
     // STAGE 6: LLM interpretation
-    // ============================================================
     console.log(`📍 STAGE 6: Interpreting text with LLM...`);
 
     const extractedData = await interpretText(ocrText);
@@ -144,9 +124,7 @@ export async function verifyFromExtension(params) {
     console.log(`✅ Extracted recipient: ${extractedData.recipientName || 'Not found'}`);
     console.log(`✅ Metadata valid: ${metadataValid}\n`);
 
-    // ============================================================
     // STAGE 7: Name matching
-    // ============================================================
     console.log(`📍 STAGE 7: Matching name with user profile...`);
 
     const nameValidation = matchName({
@@ -157,9 +135,7 @@ export async function verifyFromExtension(params) {
 
     console.log(`✅ Name match: ${nameValidation.confidence}% - ${nameValidation.reason}\n`);
 
-    // ============================================================
     // STAGE 8: Calculate verification score
-    // ============================================================
     console.log(`📍 STAGE 8: Calculating verification score...`);
 
     const verification = calculateScore({
@@ -171,9 +147,7 @@ export async function verifyFromExtension(params) {
     console.log(`✅ Final score: ${verification.finalScore}%`);
     console.log(`✅ Status: ${verification.status}\n`);
 
-    // ============================================================
     // STAGE 9: Save credential (if auto-save enabled and verified)
-    // ============================================================
     let savedCredential = null;
 
     if (autoSave && verification.status === 'VERIFIED' && !testMode) {
@@ -200,9 +174,7 @@ export async function verifyFromExtension(params) {
       }
     }
 
-    // ============================================================
     // Return complete result
-    // ============================================================
     console.log(`${'='.repeat(60)}`);
     console.log(`✅ [EXTENSION-VERIFICATION] Workflow completed successfully`);
     console.log(`${'='.repeat(60)}\n`);

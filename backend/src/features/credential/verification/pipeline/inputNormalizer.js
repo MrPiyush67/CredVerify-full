@@ -1,8 +1,3 @@
-/**
- * Input Normalization Pipeline
- * Converts all input types (link, QR code, extension data) into a standardized verification URL
- */
-
 import { extractUrlFromImage } from '../../services/manualVerification.service.js';
 
 /**

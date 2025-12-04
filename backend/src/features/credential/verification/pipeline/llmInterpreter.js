@@ -1,10 +1,3 @@
-/**
- * LLM Interpretation Pipeline
- * Interprets OCR text using Gemini AI to extract structured certificate metadata
- * 
- * Reuses: llm.service.js from /llm/
- */
-
 import { extractCertificateMetadata } from '../../services/llm.service.js';
 
 /**
@@ -29,9 +22,15 @@ export async function interpretText(ocrText) {
   try {
     const metadata = await extractCertificateMetadata(ocrText);
 
+    console.log(`\n${'='.repeat(60)}`);
     console.log(`✅ [LLM-INTERPRETER] Successfully extracted metadata`);
-    console.log(`👤 [LLM-INTERPRETER] Recipient: ${metadata.recipientName || 'Not found'}`);
-    console.log(`📚 [LLM-INTERPRETER] Course: ${metadata.courseTitle || 'Not found'}`);
+    console.log(`${'='.repeat(60)}`);
+    console.log(`👤 Recipient Name: ${metadata.recipientName || '❌ NOT FOUND'}`);
+    console.log(`📚 Course Title:   ${metadata.courseTitle || '❌ NOT FOUND'}`);
+    console.log(`📅 Issue Date:     ${metadata.issueDate || 'Not found'}`);
+    console.log(`⏱️  Duration:       ${metadata.duration || 'Not found'}`);
+    console.log(`🎯 Skills:         ${metadata.skills?.length ? metadata.skills.join(', ') : 'Not found'}`);
+    console.log(`${'='.repeat(60)}\n`);
 
     // Validate that we at least got a recipient name
     if (!metadata.recipientName) {

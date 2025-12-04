@@ -41,8 +41,15 @@ export async function extractText(imageBuffer) {
       confidence = 30;
     }
 
-    console.log(`✅ [OCR-EXTRACTOR] Extracted ${wordCount} words (${charCount} characters)`);
-    console.log(`📊 [OCR-EXTRACTOR] Estimated confidence: ${confidence}%`);
+    console.log(`\n${'='.repeat(60)}`);
+    console.log(`✅ [OCR-EXTRACTOR] Extraction Complete`);
+    console.log(`${'='.repeat(60)}`);
+    console.log(`📊 Confidence: ${confidence}%`);
+    console.log(`📝 Words: ${wordCount} | Characters: ${charCount}`);
+    console.log(`${'='.repeat(60)}`);
+    console.log(`📄 Extracted Text:\n`);
+    console.log(text);
+    console.log(`\n${'='.repeat(60)}\n`);
 
     return {
       text,

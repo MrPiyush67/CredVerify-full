@@ -19,6 +19,7 @@ export async function extractCertificateMetadata(ocrText) {
     const geminiModel = getGeminiModel();
     const prompt = `Extract certificate metadata from the following OCR text. Return ONLY a valid JSON object with these fields:
 {
+  "recipientName": "string - MOST IMPORTANT - full name of the person who received this certificate (look for 'awarded to', 'presented to', 'this certifies that', name after these phrases)",
   "courseTitle": "string - name of the course/program/certificate",
   "duration": "string - course duration (e.g., '6 weeks', '40 hours')",
   "learningHours": "number - total learning hours as a number",
@@ -30,6 +31,14 @@ export async function extractCertificateMetadata(ocrText) {
   "description": "string - brief description",
   "certificateUrl": "string - verification URL/link if present on certificate (e.g., coursera.org/verify/ABC123)"
 }
+
+CRITICAL: The recipientName is the MOST IMPORTANT field. Look for:
+- Text after "This is to certify that"
+- Text after "Awarded to"
+- Text after "Presented to"
+- Text after "has successfully completed"
+- Any name prominently displayed on the certificate
+- Usually the largest or most emphasized text after the certificate title
 
 IMPORTANT: Look for any URLs or verification links printed on the certificate itself.
 

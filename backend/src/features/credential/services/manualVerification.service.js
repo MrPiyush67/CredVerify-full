@@ -158,12 +158,12 @@ export async function scrapeCertificate(url) {
     page.on('request', (request) => {
       const resourceType = request.resourceType();
 
-      // Block images, fonts, and stylesheets to speed up loading
-      // We only need the text content and a basic screenshot
-      if (['image', 'font', 'stylesheet', 'media'].includes(resourceType)) {
+      // Block fonts, stylesheets, media to speed up loading
+      // Keep images since certificateExtractor will need them
+      if (['font', 'stylesheet', 'media'].includes(resourceType)) {
         request.abort();
       } else {
-        // Allow: document, script, xhr, fetch, etc.
+        // Allow: document, script, xhr, fetch, images, etc.
         request.continue();
       }
     });
@@ -175,7 +175,7 @@ export async function scrapeCertificate(url) {
     // ============================================
     await page.goto(url, {
       waitUntil: 'networkidle2', // Wait until network is mostly idle
-      timeout: 30000, // 30 second timeout
+      timeout: 60000, // 60 second timeout for JS-heavy pages
     });
 
     console.log('✅ [SCRAPER] Page loaded successfully');

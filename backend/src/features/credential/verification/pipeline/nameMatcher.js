@@ -1,13 +1,4 @@
 /**
- * Name Matching Pipeline
- * Matches extracted certificate name with user's legal name using fuzzy matching
- * 
- * Reuses: nameMatcher.service.js from /validation/
- */
-
-import { findBestNameMatchFromOcr } from '../../services/nameMatcher.service.js';
-
-/**
  * Match extracted name with user's legal name
  * 
  * @param {Object} params
@@ -25,74 +16,84 @@ import { findBestNameMatchFromOcr } from '../../services/nameMatcher.service.js'
  * // Returns: { match: true, confidence: 95, reason: "Strong match", ... }
  */
 export function matchName(params) {
-  const { extractedName, legalName, ocrText } = params;
+  const { extractedName, legalName } = params;
 
-  console.log(`👤 [NAME-MATCHER] Matching names...`);
-  console.log(`   Extracted: "${extractedName}"`);
-  console.log(`   Legal:     "${legalName}"`);
+  console.log(`\n${'='.repeat(60)}`);
+  console.log(`👤 [NAME-MATCHER] Name Matching`);
+  console.log(`${'='.repeat(60)}`);
+  console.log(`LLM Extracted:  "${extractedName || '❌ NULL - LLM failed to extract'}"`);
+  console.log(`User Legal:     "${legalName}"`);
+  console.log(`${'='.repeat(60)}`);
 
-  // Use OCR-based matching (more robust)
-  const matchResult = findBestNameMatchFromOcr(ocrText, legalName);
+  // If LLM failed to extract name, fail the verification
+  if (!extractedName || extractedName === 'null' || extractedName === null) {
+    console.log(`❌ LLM extraction failed - verification cannot proceed without recipient name`);
+    console.log(`${'='.repeat(60)}\n`);
 
-  console.log(`📊 [NAME-MATCHER] Best match: "${matchResult.bestMatch}" (${matchResult.confidence}%)`);
-  console.log(`📊 [NAME-MATCHER] Reason: ${matchResult.reason}`);
-
-  // Determine if this is an acceptable match
-  const MIN_CONFIDENCE = 65; // From existing thresholds
-  const isMatch = matchResult.confidence >= MIN_CONFIDENCE;
-
-  return {
-    match: isMatch,
-    confidence: matchResult.confidence,
-    reason: matchResult.reason,
-    extractedName: matchResult.bestMatch || extractedName,
-    candidates: matchResult.candidates || [],
-    threshold: MIN_CONFIDENCE,
-  };
-}
-
-/**
- * Simple direct name comparison (fallback if OCR not available)
- * 
- * @param {string} name1 - First name
- * @param {string} name2 - Second name
- * @returns {Object} - { match, confidence, reason }
- */
-export function compareNames(name1, name2) {
-  console.log(`👤 [NAME-MATCHER] Direct comparison: "${name1}" vs "${name2}"`);
-
-  if (!name1 || !name2) {
     return {
       match: false,
       confidence: 0,
-      reason: 'Missing name for comparison',
+      reason: 'LLM failed to extract recipient name from certificate',
+      extractedName: null,
+      candidates: [],
+      threshold: 65,
     };
   }
 
-  // Normalize names (lowercase, trim)
-  const normalized1 = name1.toLowerCase().trim();
-  const normalized2 = name2.toLowerCase().trim();
+  // Direct string comparison with normalization
+  const normalize = (str) => str.toLowerCase().trim().replace(/\s+/g, ' ');
+  const normalizedExtracted = normalize(extractedName);
+  const normalizedLegal = normalize(legalName);
+
+  let confidence = 0;
+  let reason = '';
+  let isMatch = false;
 
   // Exact match
-  if (normalized1 === normalized2) {
-    return {
-      match: true,
-      confidence: 100,
-      reason: 'Exact match',
-    };
+  if (normalizedExtracted === normalizedLegal) {
+    confidence = 100;
+    reason = 'Exact name match';
+    isMatch = true;
+  }
+  // One name contains the other (e.g., "John Smith" vs "John Michael Smith")
+  else if (normalizedExtracted.includes(normalizedLegal) || normalizedLegal.includes(normalizedExtracted)) {
+    confidence = 90;
+    reason = 'Partial name match (one contains the other)';
+    isMatch = true;
+  }
+  // Split and compare words
+  else {
+    const extractedWords = normalizedExtracted.split(' ');
+    const legalWords = normalizedLegal.split(' ');
+    const matchingWords = extractedWords.filter(word => legalWords.includes(word));
+
+    if (matchingWords.length >= 2) {
+      confidence = Math.min(95, (matchingWords.length / Math.max(extractedWords.length, legalWords.length)) * 100);
+      reason = `${matchingWords.length} matching words found`;
+      isMatch = confidence >= 65;
+    } else if (matchingWords.length === 1) {
+      confidence = 40;
+      reason = 'Only 1 matching word - likely not the same person';
+      isMatch = false;
+    } else {
+      confidence = 0;
+      reason = 'No matching words - names do not match';
+      isMatch = false;
+    }
   }
 
-  // Use string-similarity for fuzzy matching
-  const stringSimilarity = require('string-similarity');
-  const similarity = stringSimilarity.compareTwoStrings(normalized1, normalized2);
-  const confidence = Math.round(similarity * 100);
-
-  const MIN_CONFIDENCE = 65;
-  const isMatch = confidence >= MIN_CONFIDENCE;
+  console.log(`\n📊 Match Result:`);
+  console.log(`   Match: ${isMatch ? '✅' : '❌'}`);
+  console.log(`   Confidence: ${confidence}%`);
+  console.log(`   Reason: ${reason}`);
+  console.log(`${'='.repeat(60)}\n`);
 
   return {
     match: isMatch,
-    confidence,
-    reason: isMatch ? `Similar names (${confidence}%)` : `Low similarity (${confidence}%)`,
+    confidence: Math.round(confidence),
+    reason,
+    extractedName,
+    candidates: [],
+    threshold: 65,
   };
 }
