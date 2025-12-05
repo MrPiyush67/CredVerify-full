@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-12-04T23:20:12.678Z",
+  "testType": "Updated Pipeline (IPFS-only)",
+  "certificate": {
+    "holder": "Jane Smith",
+    "course": "Full Stack Development",
+    "issuer": "Tech Academy",
+    "date": "2025-12-04T23:19:56.215Z",
+    "pageUrl": "https://techacademy.com/certificates/FS2025-12345"
+  },
+  "ipfs": {
+    "cid": "QmQh6P7f2pCpMtxbTtnUb9wcJY5nv8WdBQFFdTKRcZFVTG",
+    "provider": "pinata",
+    "gatewayUrl": "https://gateway.pinata.cloud/ipfs/QmQh6P7f2pCpMtxbTtnUb9wcJY5nv8WdBQFFdTKRcZFVTG"
+  },
+  "blockchain": {
+    "pageUrl": "https://techacademy.com/certificates/FS2025-12345",
+    "fingerprint": "0xc52059e0dbd3c50e6066bb58c9c9624206b5b413347a0e17d3f132c87d060a61",
+    "txHash": "0x68c88682b9e3ca8a11c86325bb27fbfba8fc1c281823862852fc08c6ea447211",
+    "blockNumber": "9770545",
+    "gasUsed": "140563"
+  },
+  "credentialStructure": {
+    "file": {
+      "url": "https://gateway.pinata.cloud/ipfs/QmQh6P7f2pCpMtxbTtnUb9wcJY5nv8WdBQFFdTKRcZFVTG",
+      "fileName": "certificate-1764890396215.json",
+      "fileType": "application/json",
+      "storageId": "QmQh6P7f2pCpMtxbTtnUb9wcJY5nv8WdBQFFdTKRcZFVTG",
+      "uploadedAt": "2025-12-04T23:20:12.666Z",
+      "ipfs": {
+        "cid": "QmQh6P7f2pCpMtxbTtnUb9wcJY5nv8WdBQFFdTKRcZFVTG",
+        "provider": "pinata"
+      },
+      "blockchain": {
+        "txHash": "0x68c88682b9e3ca8a11c86325bb27fbfba8fc1c281823862852fc08c6ea447211"
+      }
+    },
+    "pageUrl": "https://techacademy.com/certificates/FS2025-12345",
+    "sourceUrl": "https://techacademy.com/certificates/FS2025-12345",
+    "meta": {
+      "blockchain": {
+        "ipfs": {
+          "cid": "QmQh6P7f2pCpMtxbTtnUb9wcJY5nv8WdBQFFdTKRcZFVTG",
+          "provider": "pinata"
+        },
+        "onChainTx": "0x68c88682b9e3ca8a11c86325bb27fbfba8fc1c281823862852fc08c6ea447211",
+        "fingerprint": "0xc52059e0dbd3c50e6066bb58c9c9624206b5b413347a0e17d3f132c87d060a61"
+      }
+    }
+  }
+}

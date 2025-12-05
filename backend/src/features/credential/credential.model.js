@@ -104,6 +104,13 @@ const credentialSchema = new mongoose.Schema(
     sourceUrl: String,     // original page URL (used for blockchain fingerprint)
     sourceDomain: String,  // extracted domain
 
+    // Certificate fingerprint for duplicate detection
+    certificateFingerprint: {
+      type: String,
+      index: true,  // indexed for fast duplicate lookups
+      sparse: true, // allow null values but make non-null values unique
+    },
+
     isDomainTrusted: {
       type: Boolean,
       default: false,

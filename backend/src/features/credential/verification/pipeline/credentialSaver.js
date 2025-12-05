@@ -3,6 +3,41 @@ import { uploadToIpfs } from '../../../../core/utils/ipfsService.js';
 import { computeFingerprintFromUrl, registerOnChain } from '../../../../core/utils/blockchainService.js';
 import Credential from '../../credential.model.js';
 
+/**
+ * Check if certificate already exists using fingerprint
+ * @param {string} fingerprint - Certificate fingerprint (keccak256 hash of URL)
+ * @returns {Promise<Object|null>} - Existing credential or null
+ */
+export async function checkDuplicateCertificate(fingerprint) {
+  if (!fingerprint) return null;
+
+  console.log(`🔍 [DUPLICATE-CHECK] Checking for existing certificate with fingerprint: ${fingerprint}`);
+
+  try {
+    const existing = await Credential.findOne({ certificateFingerprint: fingerprint })
+      .populate('user', 'name email')
+      .lean();
+
+    if (existing) {
+      console.log(`⚠️  [DUPLICATE-CHECK] Found existing certificate:`);
+      console.log(`   Certificate ID: ${existing._id}`);
+      console.log(`   Owner: ${existing.user?.name || 'Unknown'} (${existing.user?.email || 'N/A'})`);
+      console.log(`   Title: ${existing.title}`);
+      console.log(`   Issuer: ${existing.issuer}`);
+      console.log(`   Issue Date: ${existing.issueDate}`);
+      console.log(`   Uploaded At: ${existing.createdAt}`);
+      return existing;
+    }
+
+    console.log(`✅ [DUPLICATE-CHECK] No duplicate found - proceeding with upload`);
+    return null;
+  } catch (error) {
+    console.error(`❌ [DUPLICATE-CHECK] Error checking for duplicates:`, error.message);
+    // Don't block the upload if duplicate check fails
+    return null;
+  }
+}
+
 
 // DEPRECATED: ImageKit upload - Now using IPFS instead
 // export async function uploadCertificateImage(imageBuffer, metadata = {}) {
@@ -94,6 +129,7 @@ export async function saveCredential(params) {
       // Source info
       sourceUrl: verificationUrl,
       sourceDomain: domainValidation.domain || null,
+      certificateFingerprint: certificateImage.fingerprint || null,
       isDomainTrusted: domainValidation.isTrusted,
       isIssuerVerified: domainValidation.isTrusted,
 
@@ -162,22 +198,49 @@ export async function uploadAndSaveCredential(params) {
 
   console.log(`🔄 [CREDENTIAL-SAVER] Starting complete save workflow...`);
 
+  // Step 0: Check for duplicates BEFORE uploading to IPFS/blockchain
+  const pageUrl = verificationData.verificationUrl || verificationData.sourceUrl || '';
+  const fingerprint = computeFingerprintFromUrl(pageUrl);
+
+  if (fingerprint) {
+    const existingCertificate = await checkDuplicateCertificate(fingerprint);
+
+    if (existingCertificate) {
+      const error = new Error('DUPLICATE_CERTIFICATE');
+      error.statusCode = 409; // Conflict
+      error.data = {
+        message: 'This certificate has already been uploaded to the platform',
+        existingCertificate: {
+          id: existingCertificate._id,
+          title: existingCertificate.title,
+          issuer: existingCertificate.issuer,
+          issueDate: existingCertificate.issueDate,
+          uploadedAt: existingCertificate.createdAt,
+          owner: {
+            name: existingCertificate.user?.name,
+            email: existingCertificate.user?.email,
+          },
+          verificationStatus: existingCertificate.verificationStatus,
+          sourceUrl: existingCertificate.sourceUrl,
+        },
+        fingerprint: fingerprint,
+      };
+      throw error;
+    }
+  }
+
   // Step 1: Upload to IPFS (primary storage)
   console.log(`📤 [CREDENTIAL-SAVER] Uploading certificate to IPFS...`);
 
   const fileName = `certificate-${Date.now()}.jpg`;
   let ipfsResult = null;
   let chainResult = null;
-  let pageUrl = null;
 
   try {
     ipfsResult = await uploadToIpfs(imageBuffer, fileName);
     console.log(`✅ [CREDENTIAL-SAVER] IPFS upload successful: ${ipfsResult.cid}`);
 
     if (ipfsResult && ipfsResult.cid) {
-      // Compute fingerprint from verification URL
-      pageUrl = verificationData.verificationUrl || verificationData.sourceUrl || '';
-      const fingerprint = computeFingerprintFromUrl(pageUrl);
 
       if (fingerprint && pageUrl) {
         console.log(`🔑 [CREDENTIAL-SAVER] Registering on blockchain...`);
@@ -202,6 +265,7 @@ export async function uploadAndSaveCredential(params) {
     ipfs: ipfsResult || null,
     blockchain: chainResult ? { txHash: chainResult.txHash } : null,
     pageUrl: pageUrl || null,
+    fingerprint: fingerprint || null,
   };
 
   // Step 2: Save to database

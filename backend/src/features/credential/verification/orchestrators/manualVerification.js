@@ -283,7 +283,13 @@ export async function verifyFromManualInput(params) {
         console.log(`✅ Credential saved with ID: ${savedCredential._id}\n`);
       } catch (saveError) {
         console.error(`⚠️  Failed to save credential:`, saveError.message);
-        // Continue - return verification result even if save failed
+
+        // If it's a duplicate certificate error, throw it to be handled by the controller
+        if (saveError.message === 'DUPLICATE_CERTIFICATE') {
+          throw saveError;
+        }
+
+        // For other errors, continue - return verification result even if save failed
       }
     }
 

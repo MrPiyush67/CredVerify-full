@@ -317,6 +317,17 @@ The verification system is the **core feature** of CredVerify. It processes cert
 - Includes scraping stage (Puppeteer)
 - Input: `{ verificationUrl OR qrImage }`
 
+### Trust Boundaries
+
+- OCR (Tesseract.js) and LLM (Gemini) are treated as *untrusted helpers*:
+  - OCR is allowed to misread text → we handle uncertainty.
+  - LLM is allowed to misinterpret text → we never let it make final decisions.
+- Verification decisions (approve / reject) are always made by deterministic backend logic:
+  - Name matching happens via code, not LLM.
+  - Scores are computed via `scoreCalculator.js` (no AI).
+  - LLM output is always validated (e.g., `recipientName` must be a substring of OCR text).
+
+
 ### 3. Blockchain Integration
 
 #### Components
