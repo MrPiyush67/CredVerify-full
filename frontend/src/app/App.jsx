@@ -7,23 +7,23 @@ import { store } from './store.js';
 import ErrorBoundary from '../common/components/ErrorBoundary.jsx';
 import { Loader } from '@common';
 
-function AppContent() {
-  return (
-    <BrowserRouter>
-      <ErrorBoundary>
-        <Suspense fallback={<Loader type="page" />}>
-          <AppRoutes />
-          <Toaster position="top-right" />
-        </Suspense>
-      </ErrorBoundary>
-    </BrowserRouter>
-  );
-}
 
 export default function App() {
   return (
+    // redux store
     <Provider store={store}>
-      <AppContent />
+      {/* browser routing */}
+      <BrowserRouter>
+        <ErrorBoundary>
+          {/* lazy loading handler */}
+          <Suspense fallback={<Loader type="page" />}>
+
+            <AppRoutes />
+
+            <Toaster position="top-right" />
+          </Suspense>
+        </ErrorBoundary>
+      </BrowserRouter>
     </Provider>
   );
 }

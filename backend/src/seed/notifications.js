@@ -20,12 +20,12 @@ const notifications = [
   {
     user: SEED_IDS.credentialist1,
     title: 'Credential Verified',
-    message: 'Your AWS Certified Solutions Architect certificate has been verified by Dr. Kavita Rao.',
+    message: 'Your Machine Learning Specialization certificate has been verified by Dr. Kavita Rao.',
     type: 'success',
     category: 'verification',
     read: true,
     metadata: {
-      credentialTitle: 'AWS Certified Solutions Architect - Associate',
+      credentialTitle: 'Machine Learning Specialization',
       verifiedBy: 'Dr. Kavita Rao',
     },
     createdAt: daysAgo(10),
@@ -53,7 +53,7 @@ const notifications = [
     metadata: {
       credentialTitle: 'Google Cloud Professional Developer',
       rejectedBy: 'Dr. Kavita Rao',
-      reason: 'Unable to verify certificate. Credential ID not found in Google Cloud records.',
+      reason: 'Name on certificate does not match legal name. Credential ID not found in issuer records.',
     },
     createdAt: daysAgo(3),
   },

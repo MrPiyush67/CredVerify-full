@@ -31,7 +31,7 @@ CredVerify uses **blockchain technology** to provide:
 
 ### Technology Stack
 
-- **Blockchain**: Ethereum Sepolia Testnet (upgradable to mainnet/Polygon)
+- **Blockchain**: Ethereum Sepolia Testnet (EVM-compatible, upgradable to mainnet/Polygon)
 - **Smart Contract**: Solidity 0.8.17
 - **IPFS Provider**: Pinata (decentralized file storage)
 - **Web3 Library**: ethers.js v6
@@ -59,10 +59,11 @@ CredVerify uses **blockchain technology** to provide:
 All components are implemented and tested:
 
 - ✅ **IPFS Upload**: Pinata integration working
-- ✅ **Smart Contract**: Deployed on Sepolia at `0x71E8D0B04fF82fdE7Fe12DcF5aFd63501a6E8B35`
+- ✅ **Smart Contract**: Deployed on Ethereum Sepolia at `0x71E8D0B04fF82fdE7Fe12DcF5aFd63501a6E8B35`
 - ✅ **On-Chain Registration**: Fingerprint → CID mapping stored
 - ✅ **Pipeline Integration**: Automatic registration during verification
-- ✅ **Database Storage**: CID and txHash saved in MongoDB
+- ✅ **Duplicate Detection**: URL-based fingerprint prevents duplicate uploads
+- ✅ **Database Storage**: CID, txHash, and fingerprint saved in MongoDB
 
 ### Last Test Results
 
@@ -86,12 +87,17 @@ All components are implemented and tested:
 ```
 Certificate Verified (OCR + AI)
   ↓
-Upload Image to IPFS (Pinata)
-  ↓
-Receive CID (e.g., QmXXX...)
-  ↓
 Compute Fingerprint from sourceUrl
   fingerprint = keccak256(sourceUrl)
+  ↓
+Check for Duplicates in MongoDB
+  Query: { certificateFingerprint: fingerprint }
+  ↓
+[If duplicate found] → Return 409 Conflict Error
+  ↓
+[If unique] → Upload Image to IPFS (Pinata)
+  ↓
+Receive CID (e.g., QmXXX...)
   ↓
 Register on Blockchain
   contract.register(fingerprint, CID)
@@ -101,6 +107,7 @@ Receive Transaction Hash
 Save to MongoDB
   - file.ipfs.cid
   - file.blockchain.txHash
+  - certificateFingerprint
 ```
 
 ### Why Fingerprint from URL?
@@ -112,10 +119,24 @@ We hash the **certificate's original URL** (e.g., `https://coursera.org/verify/A
 2. **Verifiable**: Anyone can verify by hashing the URL
 3. **Tamper-Proof**: Changing URL changes fingerprint
 4. **No PII**: URL is public info (not user's name)
+5. **Duplicate Prevention**: Same URL cannot be uploaded twice
 
-**Alternative Approach** (not implemented):
-- Hash image content (SHA-256 of image bytes)
-- Problem: Minor image edits change hash
+**Implementation**:
+```javascript
+// blockchainService.js
+export function computeFingerprintFromUrl(url) {
+  if (!url) return null;
+  const bytes = ethers.toUtf8Bytes(url);
+  const hash = ethers.keccak256(bytes);
+  return hash; // bytes32 hex string (0x...)
+}
+```
+
+**Alternative Approach NOT Implemented**:
+- Perceptual image hashing (pHash): Hash based on image visual content
+- Problem: Minor image edits (compression, rotation) change hash
+- Problem: Requires complex image processing libraries
+- Our approach is simpler and more reliable for web certificates
 
 ### Data Flow Diagram
 
@@ -599,10 +620,13 @@ Balance: 0.053 ETH
 
 ✅ On-Chain Registration Test
 Transaction: 0x435ae1d4b2814614d85c8a6be0b623750c465b537003828bb7c03ec45e41f943
+Explorer: https://sepolia.etherscan.io/tx/0x435ae1d4b2814614d85c8a6be0b623750c465b537003828bb7c03ec45e41f943
 Block: 9767061
 Gas Used: 140,563
 
 ✅ Full Pipeline Test - ALL TESTS PASSED
+Latest Test Run: December 4, 2025
+Contract: 0x71E8D0B04fF82fdE7Fe12DcF5aFd63501a6E8B35 (Sepolia)
 ```
 
 ---

@@ -12,9 +12,20 @@ export default class ErrorBoundary extends React.Component {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
+  handleRetry = () => {
+    this.setState({ hasError: false });
+  };
+
   render() {
     if (this.state.hasError) {
-      return <h2>Something went wrong. Please refresh the page.</h2>;
+      return (
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <h2>Something went wrong.</h2>
+          <button onClick={this.handleRetry} style={{ padding: '10px 20px', fontSize: '16px' }}>
+            Try Again
+          </button>
+        </div>
+      );
     }
     return this.props.children;
   }

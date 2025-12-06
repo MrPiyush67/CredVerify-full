@@ -28,7 +28,7 @@ Complete documentation for the CredVerify backend API server.
 - **Authentication**: JWT (jsonwebtoken + HTTP-only cookies)
 - **File Upload**: Multer + ImageKit (deprecated) + IPFS (Pinata)
 - **AI/ML**: Google Gemini API, Tesseract.js
-- **Blockchain**: ethers.js v6
+- **Blockchain**: ethers.js v6 (Ethereum Sepolia Testnet)
 - **Web Scraping**: Puppeteer, Cheerio
 - **Real-time**: Socket.IO
 
@@ -299,22 +299,42 @@ The verification system is the **core feature** of CredVerify. It processes cert
    - Auto-approve if ≥85%
    - Output: Final score + decision
 
-8. **Credential Saver** (`credentialSaver.js`)
-   - Uploads image to IPFS (Pinata)
-   - Registers on blockchain (fingerprint → CID)
-   - Saves to MongoDB with all metadata
+8. **Duplicate Check** (`credentialSaver.js` - checkDuplicateCertificate)
+   - Computes fingerprint: `keccak256(sourceUrl)`
+   - Checks MongoDB for existing certificate with same fingerprint
+   - Prevents duplicate uploads from same URL
+   - Output: Existing credential (if found) or null
+
+9. **IPFS Upload** (`credentialSaver.js` - uploadToIpfs)
+   - Uploads certificate image to IPFS via Pinata
+   - Returns CID (Content Identifier)
+   - Output: `{ cid, url, provider: 'pinata' }`
+
+10. **Blockchain Registration** (`credentialSaver.js` - registerOnChain)
+   - Registers fingerprint → CID mapping on smart contract
+   - Uses ethers.js to call `register(bytes32 fingerprint, string cid)`
+   - Output: `{ txHash, blockNumber, gasUsed }`
+
+11. **Database Save** (`credentialSaver.js` - saveCredential)
+   - Saves credential document to MongoDB
+   - Includes IPFS CID, blockchain txHash, and fingerprint
    - Output: Saved credential document
 
 #### Orchestrators
 
 **Extension Verification** (`orchestrators/extensionVerification.js`)
-- **9-stage workflow** for browser extension submissions
+- **11-stage workflow** for browser extension submissions:
+  1. Input Normalization → 2. Domain Validation → 3. Certificate Extraction (pre-captured) 
+  → 4. OCR Extraction → 5. LLM Interpretation → 6. Name Matching → 7. Score Calculation 
+  → 8. Duplicate Check → 9. IPFS Upload → 10. Blockchain Registration → 11. Database Save
 - Pre-captured screenshot eliminates scraping step
 - Input: `{ screenshot (base64), sourceUrl, autoSave (boolean) }`
 
 **Manual Verification** (`orchestrators/manualVerification.js`)
-- **10-stage workflow** for manual URL/QR submissions
-- Includes scraping stage (Puppeteer)
+- **11-stage workflow** for manual URL/QR submissions (includes Puppeteer scraping):
+  1. Input Normalization → 2. Domain Validation → 3. Puppeteer Scraping 
+  → 4. OCR Extraction → 5. LLM Interpretation → 6. Name Matching → 7. Score Calculation 
+  → 8. Duplicate Check → 9. IPFS Upload → 10. Blockchain Registration → 11. Database Save
 - Input: `{ verificationUrl OR qrImage }`
 
 ### Trust Boundaries
@@ -348,16 +368,33 @@ The verification system is the **core feature** of CredVerify. It processes cert
 
 #### Registration Flow
 ```
-Certificate Verified
-  ↓
-Upload to IPFS → CID: QmXXX...
+Certificate Verified (Score ≥ 85%)
   ↓
 Compute Fingerprint: keccak256(sourceUrl)
   ↓
+Check for Duplicates: MongoDB query by fingerprint
+  ↓
+[If duplicate found] → Return existing certificate (409 Conflict)
+  ↓
+[If unique] → Upload to IPFS → CID: QmXXX...
+  ↓
 Register on-chain: contract.register(fingerprint, CID)
   ↓
-Store txHash in MongoDB
+Store in MongoDB: credential + IPFS CID + txHash + fingerprint
 ```
+
+#### Why URL-Based Fingerprint?
+
+**Current Implementation**: `fingerprint = keccak256(sourceUrl)`
+
+**Benefits**:
+1. **Deterministic**: Same URL always produces same fingerprint
+2. **Verifiable**: Anyone can recompute by hashing the URL
+3. **Tamper-Proof**: Changing URL invalidates the fingerprint
+4. **No PII**: URL is public information (e.g., `https://coursera.org/verify/ABC123`)
+5. **Duplicate Detection**: Prevents same certificate from being uploaded twice
+
+**Note**: Perceptual image hashing (pHash) is NOT currently implemented. The system relies on URL uniqueness for duplicate detection.
 
 ### 4. DigiLocker Integration
 

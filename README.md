@@ -63,9 +63,9 @@ CredVerify/
 
 ### Blockchain & Decentralization
 - ✅ IPFS storage for certificates (Pinata provider)
-- ✅ Smart contract on Ethereum Sepolia (Polygon-compatible)
-- ✅ Fingerprint-based on-chain registration
-- ✅ Immutable verification records
+- ✅ Smart contract on Ethereum Sepolia Testnet
+- ✅ URL-based fingerprint for duplicate detection
+- ✅ Immutable on-chain verification records
 - ✅ Decentralized certificate retrieval
 
 ## 🛠️ Tech Stack
@@ -76,7 +76,7 @@ CredVerify/
 - **Database**: MongoDB (Mongoose ODM)
 - **Authentication**: JWT (HTTP-only cookies)
 - **File Storage**: IPFS (Pinata)
-- **Blockchain**: ethers.js (Ethereum/Polygon)
+- **Blockchain**: ethers.js v6 (Ethereum Sepolia Testnet)
 - **AI/ML**: Google Gemini API (LLM), Tesseract.js (OCR)
 - **Web Scraping**: Puppeteer
 
@@ -96,8 +96,10 @@ CredVerify/
 - **Messaging**: chrome.runtime messaging
 
 ### Blockchain
-- **Network**: Ethereum Sepolia Testnet (EVM-compatible)
+- **Network**: Ethereum Sepolia Testnet
 - **Library**: ethers.js v6
+- **Contract**: CertificateRegistry.sol (Solidity 0.8.17)
+- **IPFS Provider**: Pinata Cloud
 - **Storage**: IPFS via Pinata API
 - **Contract**: Solidity 0.8.17
 

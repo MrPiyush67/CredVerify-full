@@ -3,8 +3,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Card, CardContent, CardHeader, CardTitle, Input, Select, SelectItem, Label } from '@common';
 import { motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
-import { signup, selectAuthLoading, selectAuthError, clearError } from '@features/auth/redux/authSlice.js';
+import { signup, selectAuthLoading } from '@features/auth/redux/authSlice.js';
 import { sanitizeInput, sanitizeEmail, sanitizePassword } from '../utils/sanitize.js';
+import { validateEmail, validatePassword, validateName, validateMatch } from '../utils/validation.js';
+import { useAuthForm } from '../hooks/useAuthForm.js';
+import { useRoleTheme } from '../hooks/useRoleTheme.js';
+import { authPageContainer, authPageItem } from '../constants/animations.js';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, AlertTriangle } from 'lucide-react';
 
@@ -15,7 +19,10 @@ export default function SignupPage() {
 
   // Redux state
   const loading = useSelector(selectAuthLoading);
-  const authError = useSelector(selectAuthError);
+
+  // Custom hooks for shared auth logic
+  const { authError } = useAuthForm({ showErrorToast: true });
+  const { bgClass, textClass, roleTextClasses } = useRoleTheme(searchParams.get('role') ?? 'credentialist');
 
   // Component state
   const [role, setRole] = useState(searchParams.get('role') ?? 'credentialist');
@@ -35,6 +42,9 @@ export default function SignupPage() {
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
+  // Update theme when role changes
+  const currentTheme = useRoleTheme(role);
+
   // Clear role query param from URL on mount
   useEffect(() => {
     if (searchParams.get('role')) {
@@ -47,36 +57,8 @@ export default function SignupPage() {
   useEffect(() => {
     if (authError) {
       setError(authError);
-      toast.error(authError);
     }
   }, [authError]);
-
-  // Clear errors when component unmounts
-  useEffect(() => {
-    return () => {
-      dispatch(clearError());
-    };
-  }, [dispatch]);
-
-  // Role-specific styling classes
-  const roleBgClasses = {
-    credentialist: 'bg-credentialist-primary hover:bg-credentialist-primary/90',
-    curator: 'bg-curator-primary hover:bg-curator-primary/90',
-    validant: 'bg-validant-primary hover:bg-validant-primary/90'
-  };
-
-  const roleTextClasses = {
-    credentialist: 'text-credentialist-primary',
-    curator: 'text-curator-primary',
-    validant: 'text-validant-primary'
-  };
-
-  // Role-specific background images
-  const roleBackgroundImages = {
-    credentialist: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80',
-    curator: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80',
-    validant: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80'
-  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -89,66 +71,43 @@ export default function SignupPage() {
 
     let hasError = false;
 
-    // Validate name
-    if (!name.trim()) {
-      setNameError('Full name is required');
-      toast.error('Full name is required');
-      hasError = true;
-    } else if (name.trim().length < 2) {
-      setNameError('Name must be at least 2 characters');
-      toast.error('Name must be at least 2 characters');
+    // Validate name using shared validator
+    const nameValidationError = validateName(name);
+    if (nameValidationError) {
+      setNameError(nameValidationError);
+      toast.error(nameValidationError);
       hasError = true;
     }
 
-    // Validate confirm name
-    if (!confirmName.trim()) {
-      setConfirmNameError('Please confirm your full name');
-      hasError = true;
-    } else if (name.trim() !== confirmName.trim()) {
-      setConfirmNameError('Names do not match');
-      toast.error('Names do not match');
+    // Validate confirm name using shared validator
+    const confirmNameError = validateMatch(name, confirmName, 'Names');
+    if (confirmNameError) {
+      setConfirmNameError(confirmNameError);
+      toast.error(confirmNameError);
       hasError = true;
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email.trim()) {
-      setEmailError('Email is required');
-      hasError = true;
-    } else if (!emailRegex.test(email.trim())) {
-      setEmailError('Email does not match the format');
-      toast.error('Email does not match the format');
+    // Validate email using shared validator
+    const emailValidationError = validateEmail(email);
+    if (emailValidationError) {
+      setEmailError(emailValidationError);
+      toast.error(emailValidationError);
       hasError = true;
     }
 
-    // Validate password
-    if (!password.trim()) {
-      setPasswordError('Password is required');
+    // Validate password with complexity check
+    const passwordValidationError = validatePassword(password, true);
+    if (passwordValidationError) {
+      setPasswordError(passwordValidationError);
+      toast.error(passwordValidationError);
       hasError = true;
-    } else if (password.length < 8) {
-      setPasswordError('Password must be at least 8 characters long');
-      toast.error('Password must be at least 8 characters long');
-      hasError = true;
-    } else {
-      // Password complexity check
-      const hasUpperCase = /[A-Z]/.test(password);
-      const hasLowerCase = /[a-z]/.test(password);
-      const hasNumber = /\d/.test(password);
-
-      if (!hasUpperCase || !hasLowerCase || !hasNumber) {
-        setPasswordError('Password must contain uppercase, lowercase, and number');
-        toast.error('Password must contain uppercase, lowercase, and number');
-        hasError = true;
-      }
     }
 
-    // Validate confirm password
-    if (!confirmPassword.trim()) {
-      setConfirmPasswordError('Please confirm your password');
-      hasError = true;
-    } else if (password !== confirmPassword) {
-      setConfirmPasswordError('Passwords do not match');
-      toast.error('Passwords do not match');
+    // Validate confirm password using shared validator
+    const confirmPasswordValidationError = validateMatch(password, confirmPassword, 'Passwords');
+    if (confirmPasswordValidationError) {
+      setConfirmPasswordError(confirmPasswordValidationError);
+      toast.error(confirmPasswordValidationError);
       hasError = true;
     }
 
@@ -186,51 +145,21 @@ export default function SignupPage() {
     }
   };
 
-  const container = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        delayChildren: 0.2,
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const item = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1
-    }
-  };
-
   return (
     <motion.main
-      className="min-h-screen flex items-center justify-center px-6 py-12 relative overflow-hidden"
+      className={`min-h-screen flex items-center justify-center px-6 py-12 transition-colors duration-500 ${currentTheme.bgClass}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Background Image */}
-      <div className="absolute inset-0 z-0">
-        <img 
-          src={roleBackgroundImages[role]} 
-          alt="Background" 
-          className="w-full h-full object-cover transition-opacity duration-500"
-        />
-        <div className={`absolute inset-0 transition-colors duration-500 ${roleBgClasses[role] || roleBgClasses.credentialist} opacity-90`} />
-      </div>
-
       <motion.div
-        variants={container}
+        variants={authPageContainer}
         initial="hidden"
         animate="visible"
-        className="relative z-10"
       >
         <Card className="w-full max-w-md shadow-2xl border-border/50 bg-card">
           <CardHeader className="space-y-1">
-            <motion.div variants={item}>
+            <motion.div variants={authPageItem}>
               <CardTitle className="text-2xl font-bold">Create account</CardTitle>
               <p className="text-sm text-muted-foreground mt-2">Choose your role and create your account to get started.</p>
             </motion.div>
@@ -239,7 +168,7 @@ export default function SignupPage() {
             <form onSubmit={onSubmit}>
               <div className="space-y-4">
                 {/* Critical Name Warning */}
-                <motion.div variants={item} className="p-4 bg-red-50 border-2 border-red-500 rounded-lg">
+                <motion.div variants={authPageItem} className="p-4 bg-red-50 border-2 border-red-500 rounded-lg">
                   <div className="flex items-start gap-3">
                     <AlertTriangle className="text-red-600 mt-0.5 flex-shrink-0" size={20} />
                     <div className="text-sm">
@@ -253,12 +182,12 @@ export default function SignupPage() {
                 </motion.div>
 
                 {error && (
-                  <motion.div variants={item} className="p-3 bg-red-50 border border-red-200 rounded-md">
+                  <motion.div variants={authPageItem} className="p-3 bg-red-50 border border-red-200 rounded-md">
                     <p className="text-sm text-red-600">{error}</p>
                   </motion.div>
                 )}
 
-                <motion.div variants={item} className="space-y-2">
+                <motion.div variants={authPageItem} className="space-y-2">
                   <Label htmlFor="name" className="font-semibold">
                     Official Full Name <span className="text-red-600">*</span>
                   </Label>
@@ -277,7 +206,7 @@ export default function SignupPage() {
                   <p className="text-xs text-muted-foreground">Must match your official documents exactly</p>
                 </motion.div>
 
-                <motion.div variants={item} className="space-y-2">
+                <motion.div variants={authPageItem} className="space-y-2">
                   <Label htmlFor="confirmName" className="font-semibold">
                     Confirm Official Full Name <span className="text-red-600">*</span>
                   </Label>
@@ -295,7 +224,7 @@ export default function SignupPage() {
                   {confirmNameError && <p className="text-sm text-red-600">{confirmNameError}</p>}
                 </motion.div>
 
-                <motion.div variants={item} className="space-y-2">
+                <motion.div variants={authPageItem} className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
@@ -312,7 +241,7 @@ export default function SignupPage() {
                   {emailError && <p className="text-sm text-red-600">{emailError}</p>}
                 </motion.div>
 
-                <motion.div variants={item} className="space-y-2">
+                <motion.div variants={authPageItem} className="space-y-2">
                   <Label htmlFor="password">Password</Label>
                   <div className="relative">
                     <Input
@@ -338,7 +267,7 @@ export default function SignupPage() {
                   {passwordError && <p className="text-sm text-red-600">{passwordError}</p>}
                 </motion.div>
 
-                <motion.div variants={item} className="space-y-2">
+                <motion.div variants={authPageItem} className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirm Password</Label>
                   <div className="relative">
                     <Input
@@ -363,7 +292,7 @@ export default function SignupPage() {
                   </div>
                   {confirmPasswordError && <p className="text-sm text-red-600">{confirmPasswordError}</p>}
                 </motion.div>
-                <motion.div variants={item} className="space-y-2">
+                <motion.div variants={authPageItem} className="space-y-2">
                   <Label>Role</Label>
                   <Select value={role} onValueChange={setRole}>
                     <SelectItem value="credentialist">Credentialist</SelectItem>
@@ -371,10 +300,10 @@ export default function SignupPage() {
                     <SelectItem value="validant">Validant</SelectItem>
                   </Select>
                 </motion.div>
-                <motion.div variants={item}>
+                <motion.div variants={authPageItem}>
                   <Button
                     type="submit"
-                    className={`w-full text-white ${roleBgClasses[role] || roleBgClasses.credentialist}`}
+                    className={`w-full text-white ${currentTheme.bgClass}`}
                     disabled={loading}
                   >
                     {loading ? 'Creating account...' : 'Create account'}
@@ -382,13 +311,13 @@ export default function SignupPage() {
                 </motion.div>
               </div>
             </form>
-            <motion.div className="mt-4 text-center" variants={item}>
+            <motion.div className="mt-4 text-center" variants={authPageItem}>
               <p className="text-sm text-muted-foreground">
                 Already have an account?{' '}
                 <button
                   type="button"
                   onClick={() => navigate(`/login?role=${role}`)}
-                  className={`hover:underline font-medium ${roleTextClasses[role] || roleTextClasses.credentialist}`}
+                  className={`hover:underline font-medium ${currentTheme.textClass}`}
                 >
                   Log in
                 </button>
