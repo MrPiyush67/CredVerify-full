@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { X, Download } from 'lucide-react';
 import { Button } from '@common';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import toast from 'react-hot-toast';
 import PortfolioPreview from './PortfolioPreview.jsx';
 import { motion, AnimatePresence } from 'framer-motion';

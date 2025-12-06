@@ -62,6 +62,13 @@ export default function LoginPage() {
     validant: 'text-validant-primary'
   };
 
+  // Role-specific background images
+  const roleBackgroundImages = {
+    credentialist: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80',
+    curator: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80',
+    validant: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80'
+  };
+
   const onSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -143,15 +150,26 @@ export default function LoginPage() {
 
   return (
     <motion.main
-      className={`min-h-screen flex items-center justify-center px-6 py-12 transition-colors duration-500 ${roleBgClasses[role] || roleBgClasses.credentialist}`}
+      className="min-h-screen flex items-center justify-center px-6 py-12 relative overflow-hidden"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src={roleBackgroundImages[role]} 
+          alt="Background" 
+          className="w-full h-full object-cover transition-opacity duration-500"
+        />
+        <div className={`absolute inset-0 transition-colors duration-500 ${roleBgClasses[role] || roleBgClasses.credentialist} opacity-90`} />
+      </div>
+
       <motion.div
         variants={container}
         initial="hidden"
         animate="visible"
+        className="relative z-10"
       >
         <Card className="w-full max-w-md shadow-2xl border-border/50 bg-card">
           <CardHeader className="space-y-1">

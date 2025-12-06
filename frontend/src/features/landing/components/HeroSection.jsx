@@ -8,13 +8,30 @@ const IMAGES = {
 };
 
 export function HeroSection({ onGetStarted }) {
+  const [scrollY, setScrollY] = React.useState(0);
+
+  React.useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-slate-50">
       {/* Elegant Background Mesh */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-teal-100/50 blur-[100px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-blue-50/50 blur-[120px]" />
-        <div className="absolute top-[20%] left-[15%] w-[300px] h-[300px] rounded-full bg-purple-50/30 blur-[80px]" />
+        <div 
+          className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-teal-100/50 blur-[100px] transition-transform duration-300" 
+          style={{ transform: `translateY(${scrollY * 0.3}px)` }}
+        />
+        <div 
+          className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-blue-50/50 blur-[120px] transition-transform duration-300" 
+          style={{ transform: `translateY(${-scrollY * 0.2}px)` }}
+        />
+        <div 
+          className="absolute top-[20%] left-[15%] w-[300px] h-[300px] rounded-full bg-purple-50/30 blur-[80px] transition-transform duration-300" 
+          style={{ transform: `translateY(${scrollY * 0.15}px)` }}
+        />
       </div>
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">
@@ -27,7 +44,7 @@ export function HeroSection({ onGetStarted }) {
 
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-slate-900 leading-[1.1] tracking-tight animate-fade-in-up" style={{ animationDelay: '0.2s', opacity: 0, animationFillMode: 'forwards' }}>
               One Profile.<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0F766E] via-teal-500 to-teal-400">
+              <span className="text-[#0F766E]">
                 Infinite Possibilities.
               </span>
             </h1>
@@ -76,17 +93,17 @@ export function HeroSection({ onGetStarted }) {
               <div className="absolute -bottom-12 -left-12 w-64 h-64 bg-blue-200/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
               <div className="relative group transform transition-transform duration-700 hover:rotate-y-2 hover:rotate-x-2 preserve-3d">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0F766E] to-teal-400 rounded-2xl opacity-0 group-hover:opacity-10 blur-2xl transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-[#0F766E]/10 rounded-2xl opacity-0 group-hover:opacity-100 blur-2xl transition-opacity duration-500" />
 
                 <img
                   src={IMAGES.heroCredentials}
                   alt="Unified Credential Platforms"
-                  className="relative w-full h-auto rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.12)] border border-slate-100/50 bg-white/50 backdrop-blur-sm"
+                  className="relative w-full h-auto rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.12)] border border-slate-100/50"
                 />
 
                 {/* Floating Elements - Glassmorphism */}
                 <div className="absolute -bottom-8 -left-8 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-white/40 flex items-center gap-4 z-20 hover:scale-105 transition-all duration-300">
-                  <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-3 rounded-xl text-[#0F766E]">
+                  <div className="bg-teal-50 p-3 rounded-xl text-[#0F766E]">
                     <CheckCircle className="w-6 h-6" />
                   </div>
                   <div>

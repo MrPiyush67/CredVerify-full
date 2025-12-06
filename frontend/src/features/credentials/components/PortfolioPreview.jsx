@@ -73,7 +73,6 @@ const Donut = ({ value, total, color = '#116466', label, difficulty }) => {
       </div>
       <div className="text-right shrink-0 min-w-[80px]">
         <div className="text-3xl font-bold text-[#116466] truncate">{pct}%</div>
-        <div className="text-sm text-gray-500 truncate">of {total}</div>
       </div>
     </div>
   );
@@ -327,9 +326,6 @@ const PortfolioPreview = React.forwardRef(({ portfolioData, userName = 'Your Nam
                 <div className="text-gray-500 text-[10px]">Visibility</div>
               </div>
             </div>
-            <Button variant="outline" className="w-full text-[#116466] border-[#116466] hover:bg-[#116466] hover:text-white font-semibold">
-              View Leaderboard
-            </Button>
           </div>
         </div>
 

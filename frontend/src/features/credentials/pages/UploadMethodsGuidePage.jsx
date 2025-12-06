@@ -11,7 +11,7 @@ export default function UploadMethodsGuidePage() {
       id: 1,
       title: 'Browser Extension',
       icon: Puzzle,
-      gradient: 'from-[#8B5CF6] to-[#7C3AED]',
+      accentColor: '#0F766E',
       description: 'Automatically capture and verify certificates while browsing',
       steps: [
         {
@@ -53,7 +53,7 @@ export default function UploadMethodsGuidePage() {
       id: 2,
       title: 'Verify with Validant',
       icon: ShieldCheck,
-      gradient: 'from-[#116466] to-[#14b8a6]',
+      accentColor: '#0F766E',
       description: 'Get institutional verification for academic credentials',
       steps: [
         {
@@ -101,7 +101,7 @@ export default function UploadMethodsGuidePage() {
       id: 3,
       title: 'Upload PDF/QR Code',
       icon: Upload,
-      gradient: 'from-[#3B82F6] to-[#6366F1]',
+      accentColor: '#0F766E',
       description: 'Upload certificate PDFs or scan QR codes for instant verification',
       steps: [
         {
@@ -149,7 +149,7 @@ export default function UploadMethodsGuidePage() {
       id: 4,
       title: 'Verify with Link',
       icon: Link2,
-      gradient: 'from-[#F59E0B] to-[#EF4444]',
+      accentColor: '#0F766E',
       description: 'Verify credentials using public verification URLs',
       steps: [
         {
@@ -187,6 +187,48 @@ export default function UploadMethodsGuidePage() {
       difficulty: 'Easiest',
       bestFor: 'Digital badges, online certifications with public verification links',
     },
+    {
+      id: 5,
+      title: 'DigiLocker Integration',
+      icon: Database,
+      accentColor: '#0F766E',
+      description: 'Securely import government-issued certificates from DigiLocker',
+      steps: [
+        {
+          step: 1,
+          title: 'Connect DigiLocker',
+          description: 'Authorize Credify to access your DigiLocker account using your Aadhaar credentials',
+          icon: Link2,
+        },
+        {
+          step: 2,
+          title: 'Select Documents',
+          description: 'Choose which certificates to import from your DigiLocker repository',
+          icon: FileCheck,
+        },
+        {
+          step: 3,
+          title: 'Automatic Import',
+          description: 'Selected documents are securely imported with government verification',
+          icon: Download,
+        },
+        {
+          step: 4,
+          title: 'Verified Badge',
+          description: 'Imported certificates receive automatic government-verified status',
+          icon: ShieldCheck,
+        },
+      ],
+      features: [
+        'Direct access to government-verified documents',
+        'Supports marksheets, degrees, PAN card, driving license',
+        'No manual upload required',
+        'Government-backed authentication and verification',
+      ],
+      timeEstimate: '2-3 minutes for initial setup',
+      difficulty: 'Easy',
+      bestFor: 'Government certificates, educational documents, identity documents',
+    },
   ];
 
   const comparisonData = [
@@ -194,6 +236,7 @@ export default function UploadMethodsGuidePage() {
     { method: 'Verify with Validant', speed: 'Slow', speedIcon: Clock, verification: 'Institution Verified', bestUse: 'Academic Degrees' },
     { method: 'Upload PDF/QR', speed: 'Fast', speedIcon: Zap, verification: 'OCR + Blockchain', bestUse: 'Government Certs' },
     { method: 'Verify with Link', speed: 'Instant', speedIcon: Zap, verification: 'Real-time', bestUse: 'Digital Badges' },
+    { method: 'DigiLocker', speed: 'Fast', speedIcon: Zap, verification: 'Government Verified', bestUse: 'Govt Documents' },
   ];
 
   return (
@@ -242,7 +285,7 @@ export default function UploadMethodsGuidePage() {
           <div className="overflow-hidden rounded-xl border border-gray-200">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-gradient-to-r from-[#116466] to-[#14b8a6] text-white">
+                <tr className="bg-[#0F766E] text-white">
                   <th className="px-6 py-4 text-left text-sm font-semibold">Method</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Speed</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Verification Type</th>
@@ -279,7 +322,7 @@ export default function UploadMethodsGuidePage() {
               className="bg-white rounded-2xl border overflow-hidden"
             >
               {/* Method Header */}
-              <div className={`bg-gradient-to-r ${method.gradient} px-8 py-6 text-white`}>
+              <div className="bg-[#0F766E] px-8 py-6 text-white">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-white/20 rounded-lg">
                     <method.icon className="h-7 w-7" />

@@ -129,7 +129,7 @@ export default function AddCredentialsPage() {
       <div className="flex items-center justify-between mb-6">
         <PageHeader
           title="Add Credentials"
-          description="Select your upload method below and choose the platform to verify your credentials"
+          description="Upload certificates via QR scan, link verification, DigiLocker, or verify coding platforms to build your verified credential portfolio"
         />
         <div className="flex items-center gap-3 shrink-0 shadow-md">
           <Button

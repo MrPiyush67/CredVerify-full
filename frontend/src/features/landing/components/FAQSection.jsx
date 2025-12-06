@@ -30,12 +30,40 @@ const faqs = [
 
 export function FAQSection({ onGetStarted }) {
   const [openFAQ, setOpenFAQ] = React.useState(null);
+  const [isVisible, setIsVisible] = React.useState(false);
+  const sectionRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
 
   return (
-    <section id="faq" className="relative py-24 bg-slate-900 overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-teal-900/20 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-blue-900/20 rounded-full blur-[120px]" />
+    <section ref={sectionRef} id="faq" className="relative py-24 overflow-hidden">
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0">
+        <img 
+          src={IMAGES.ctaBg} 
+          alt="FAQ Background" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-slate-900/90" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
@@ -49,7 +77,13 @@ export function FAQSection({ onGetStarted }) {
 
           <div className="space-y-4">
             {faqs.map((faq, idx) => (
-              <div key={idx} className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden hover:bg-white/10 transition-all duration-300">
+              <div 
+                key={idx} 
+                className={`bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden hover:bg-white/10 transition-all duration-500 ${
+                  isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'
+                }`}
+                style={{ transitionDelay: `${idx * 100}ms` }}
+              >
                 <button
                   onClick={() => setOpenFAQ(openFAQ === idx ? null : idx)}
                   className="w-full px-8 py-6 flex items-center justify-between text-left group"

@@ -15,13 +15,14 @@ const slides = [
     icon: Award,
     iconColor: 'text-[#0F766E]',
     bgColor: 'bg-teal-50',
-    accentColor: 'bg-teal-100',
+    accentColor: 'bg-teal-50',
     image: IMAGES.userSlide,
     title: 'For Learners',
     heading: 'Build Your Digital Credential Portfolio',
     description: 'Access your unified dashboard to view all credentials, track verification status, and showcase your verified skills to employers. Manage certificates from universities, online platforms, and training institutes in one place.',
     features: [
       'Unified credential dashboard with verification badges',
+      'DigiLocker integration for government-verified documents',
       'Track learning progress and skill endorsements',
       'Share verified credentials instantly with employers'
     ],
@@ -32,7 +33,7 @@ const slides = [
     icon: Briefcase,
     iconColor: 'text-purple-600',
     bgColor: 'bg-purple-50',
-    accentColor: 'bg-purple-100',
+    accentColor: 'bg-purple-50',
     image: IMAGES.employerSlide,
     title: 'For Employers',
     heading: 'Verify Candidates Instantly',
@@ -49,7 +50,7 @@ const slides = [
     icon: Building,
     iconColor: 'text-blue-600',
     bgColor: 'bg-blue-50',
-    accentColor: 'bg-blue-100',
+    accentColor: 'bg-blue-50',
     image: IMAGES.adminSlide,
     title: 'For Institutions',
     heading: 'Manage & Issue Credentials',
@@ -66,7 +67,30 @@ const slides = [
 export function HowItWorksSection({ navigate }) {
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const [isPaused, setIsPaused] = React.useState(false);
+  const [isVisible, setIsVisible] = React.useState(false);
   const isScrollingRef = React.useRef(false);
+  const sectionRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
 
   React.useEffect(() => {
     if (isPaused) return;
@@ -89,9 +113,9 @@ export function HowItWorksSection({ navigate }) {
   }, [currentSlide]);
 
   return (
-    <section id="how-it-works" className="py-24 bg-white overflow-hidden">
+    <section ref={sectionRef} id="how-it-works" className="py-24 bg-white overflow-hidden">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center mb-12">
+        <div className={`text-center mb-12 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Designed for the Future of Work</h2>
           <p className="text-slate-600 leading-relaxed text-lg max-w-3xl mx-auto">
             Whether you are a student adding a new micro-credential, an employer looking for specific skill sets, or a regulator monitoring quality, CredVerify simplifies the entire lifecycle.
@@ -121,7 +145,7 @@ export function HowItWorksSection({ navigate }) {
                           <span className="font-bold text-slate-900 text-sm">{slide.title === 'For Learners' ? 'Skill Verified' : slide.title === 'For Employers' ? 'Instant Verification' : 'NCVET Compliant'}</span>
                         </div>
                         <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                          <div className={`${slide.iconColor.replace('text-', 'bg-')} w-full h-full`} />
+                          <div className={`bg-[#0F766E] w-full h-full`} />
                         </div>
                       </div>
                     </div>
@@ -160,8 +184,13 @@ export function HowItWorksSection({ navigate }) {
             {[0, 1, 2].map((idx) => (
               <button
                 key={idx}
-                onClick={() => setCurrentSlide(idx)}
-                className={`rounded-full transition-all duration-300 ${currentSlide === idx
+                type="button"
+                onClick={() => {
+                  setIsPaused(true);
+                  setCurrentSlide(idx);
+                  setTimeout(() => setIsPaused(false), 5000);
+                }}
+                className={`rounded-full transition-all duration-300 cursor-pointer hover:opacity-80 ${currentSlide === idx
                     ? 'bg-[#0F766E] w-12 h-3'
                     : 'bg-slate-200 w-3 h-3'
                   }`}

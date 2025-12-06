@@ -8,12 +8,36 @@ const IMAGES = {
 };
 
 export function AboutSection({ onGetStarted }) {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const sectionRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <section id="about" className="py-24 bg-slate-900 text-white relative overflow-hidden">
+    <section ref={sectionRef} id="about" className="py-24 bg-slate-900 text-white relative overflow-hidden">
       <div className="absolute inset-0 opacity-20">
         <img src={IMAGES.employer} alt="Office background" className="w-full h-full object-cover" />
       </div>
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/95 to-slate-900/50" />
+      <div className="absolute inset-0 bg-slate-900/95" />
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="text-center mb-16">
@@ -23,7 +47,7 @@ export function AboutSection({ onGetStarted }) {
             </span>
           </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Transforming India's <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400">Skill Ecosystem</span>
+            Transforming India's <span className="text-teal-400">Skill Ecosystem</span>
           </h2>
           <p className="text-slate-300 text-lg max-w-3xl mx-auto leading-relaxed">
             We're on a mission to bridge the gap between education and employment through verified digital credentials.
@@ -31,10 +55,10 @@ export function AboutSection({ onGetStarted }) {
         </div>
 
         <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
+          <div className={`space-y-6 transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
             <div>
               <h3 className="text-2xl font-bold mb-4 flex items-center gap-3 text-white">
-                <div className="w-1.5 h-8 bg-gradient-to-b from-teal-400 to-blue-500 rounded-full" />
+                <div className="w-1.5 h-8 bg-teal-400 rounded-full" />
                 Our Vision
               </h3>
               <p className="text-slate-400 leading-relaxed text-lg font-light">
@@ -44,7 +68,7 @@ export function AboutSection({ onGetStarted }) {
 
             <div>
               <h3 className="text-2xl font-bold mb-4 flex items-center gap-3 text-white">
-                <div className="w-1.5 h-8 bg-gradient-to-b from-blue-400 to-purple-500 rounded-full" />
+                <div className="w-1.5 h-8 bg-teal-400 rounded-full" />
                 The Problem We Solve
               </h3>
               <p className="text-slate-400 leading-relaxed mb-4 text-lg font-light">
@@ -73,10 +97,9 @@ export function AboutSection({ onGetStarted }) {
             </div>
           </div>
 
-          <div className="relative flex items-center justify-center">
+          <div className={`relative flex items-center justify-center transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
             <div className="relative max-w-md mx-auto group">
-              <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-blue-500 rounded-2xl opacity-20 blur-2xl group-hover:opacity-40 group-hover:blur-3xl transition-all duration-[1200ms]" />
-              <div className="absolute -inset-2 bg-gradient-to-r from-teal-400 via-blue-500 to-purple-500 rounded-2xl opacity-0 group-hover:opacity-30 blur-xl transition-opacity duration-[1200ms]" />
+              <div className="absolute inset-0 bg-teal-500/20 rounded-2xl blur-2xl group-hover:blur-3xl transition-all duration-[1200ms]" />
 
               <div className="relative overflow-hidden rounded-2xl shadow-2xl">
                 <img

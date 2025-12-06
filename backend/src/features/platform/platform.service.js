@@ -51,6 +51,13 @@ export const requestVerification = async (userId, platform) => {
   const code = profile.generateVerificationCode(platform);
   await profile.save();
   
+  console.log(`[Service] ========== CODE GENERATION ==========`);
+  console.log(`[Service] Platform: ${platform}`);
+  console.log(`[Service] Generated Code: "${code}"`);
+  console.log(`[Service] Saved to DB: "${profile[platform].verificationCode}"`);
+  console.log(`[Service] Code Match: ${code === profile[platform].verificationCode}`);
+  console.log(`[Service] =========================================`);
+  
   return {
     verified: false,
     code,
@@ -71,6 +78,23 @@ export const verifyPlatformOwnership = async (userId, platform) => {
   if (!profile[platform].handle) {
     throw new Error('Handle not found. Please submit your handle first');
   }
+  
+  // For Codeforces, auto-generate verification code if not present (API-based verification)
+  if (platform === 'codeforces' && !profile[platform].verificationCode) {
+    console.log('[Service] Auto-generating verification code for Codeforces');
+    const autoCode = profile.generateVerificationCode(platform);
+    await profile.save();
+    console.log(`[Service] Auto-generated code: "${autoCode}"`);
+    console.log(`[Service] Stored in DB: "${profile[platform].verificationCode}"`);
+  }
+  
+  console.log(`[Service] ========== VERIFICATION ATTEMPT ==========`);
+  console.log(`[Service] Platform: ${platform}`);
+  console.log(`[Service] Handle: ${profile[platform].handle}`);
+  console.log(`[Service] Code from DB: "${profile[platform].verificationCode}"`);
+  console.log(`[Service] Code Type: ${typeof profile[platform].verificationCode}`);
+  console.log(`[Service] Code Length: ${profile[platform].verificationCode?.length}`);
+  console.log(`[Service] ==========================================`);
   
   if (!profile[platform].verificationCode) {
     throw new Error('No verification code found. Please request a verification code first');

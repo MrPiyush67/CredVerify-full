@@ -46,28 +46,56 @@ export const verifyCodeforces = async (handle, verificationCode) => {
     
     const user = userResponse.data.result[0];
     
+    // Log the full API response for debugging
+    console.log(`[Codeforces] ========== FULL API RESPONSE ==========`);
+    console.log(JSON.stringify(user, null, 2));
+    console.log(`[Codeforces] =========================================`);
+    
     // If verification code is provided, check for it in API fields
     if (verificationCode) {
       const firstName = user.firstName || '';
       const lastName = user.lastName || '';
       const organization = user.organization || '';
       
-      console.log(`[Codeforces] Checking for code: ${verificationCode}`);
-      console.log(`[Codeforces] First Name: "${firstName}"`);
-      console.log(`[Codeforces] Last Name: "${lastName}"`);
-      console.log(`[Codeforces] Organization: "${organization}"`);
+      console.log(`[Codeforces] ========== VERIFICATION CHECK ==========`);
+      console.log(`[Codeforces] Looking for code: "${verificationCode}"`);
+      console.log(`[Codeforces] RAW First Name: "${firstName}" (type: ${typeof firstName})`);
+      console.log(`[Codeforces] RAW Last Name: "${lastName}" (type: ${typeof lastName})`);
+      console.log(`[Codeforces] RAW Organization: "${organization}" (type: ${typeof organization})`);
+      console.log(`[Codeforces] RAW Combined: "${firstName} ${lastName} ${organization}"`);
       
-      // Check if verification code exists in any of these fields
-      const combinedFields = `${firstName} ${lastName} ${organization}`;
-      if (!combinedFields.includes(verificationCode)) {
-        console.log(`[Codeforces] Code not found in profile fields`);
+      // Normalize and check for verification code (case-insensitive, trimmed)
+      const normalizedCode = verificationCode.trim().toLowerCase();
+      const normalizedFirstName = firstName.trim().toLowerCase();
+      const normalizedLastName = lastName.trim().toLowerCase();
+      const normalizedOrganization = organization.trim().toLowerCase();
+      const combinedFields = `${normalizedFirstName} ${normalizedLastName} ${normalizedOrganization}`;
+      
+      console.log(`[Codeforces] Normalized code: "${normalizedCode}"`);
+      console.log(`[Codeforces] Normalized combined: "${combinedFields}"`);
+      
+      // Check if verification code exists in any field (case-insensitive)
+      const codeFoundInFirstName = normalizedFirstName.includes(normalizedCode);
+      const codeFoundInLastName = normalizedLastName.includes(normalizedCode);
+      const codeFoundInOrganization = normalizedOrganization.includes(normalizedCode);
+      const codeFoundInCombined = combinedFields.includes(normalizedCode);
+      
+      console.log(`[Codeforces] Code in First Name: ${codeFoundInFirstName}`);
+      console.log(`[Codeforces] Code in Last Name: ${codeFoundInLastName}`);
+      console.log(`[Codeforces] Code in Organization: ${codeFoundInOrganization}`);
+      console.log(`[Codeforces] Code in Combined: ${codeFoundInCombined}`);
+      
+      if (!codeFoundInCombined) {
+        console.log(`[Codeforces] ❌ Code NOT found in any profile field`);
+        console.log(`[Codeforces] ==========================================`);
         return { 
           success: false, 
           message: 'Verification code not found. Please add it to your First Name, Last Name, or Organization field in Codeforces settings.' 
         };
       }
       
-      console.log(`[Codeforces] Verification code found!`);
+      console.log(`[Codeforces] ✅ Verification code FOUND!`);
+      console.log(`[Codeforces] ==========================================`);
     }
     
     // Fetch submission history to calculate active days and contests

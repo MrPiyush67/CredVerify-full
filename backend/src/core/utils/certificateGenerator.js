@@ -7,6 +7,62 @@ import mongoose from 'mongoose';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Browser instance pool for reuse
+let browserInstance = null;
+let browserUsageCount = 0;
+const MAX_BROWSER_REUSE = 20; // Restart browser after 20 uses to prevent memory leaks
+
+/**
+ * Get or create a shared browser instance
+ * @returns {Promise<Browser>} Puppeteer browser instance
+ */
+const getBrowserInstance = async () => {
+  // Create new browser if none exists or if usage exceeded limit
+  if (!browserInstance || browserUsageCount >= MAX_BROWSER_REUSE) {
+    if (browserInstance) {
+      try {
+        await browserInstance.close();
+      } catch (error) {
+        console.warn('Failed to close old browser instance:', error.message);
+      }
+    }
+    
+    browserInstance = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage', // Overcome limited resource problems
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu'
+      ],
+    });
+    browserUsageCount = 0;
+    console.log('🚀 New browser instance created');
+  }
+  
+  browserUsageCount++;
+  return browserInstance;
+};
+
+/**
+ * Close the shared browser instance
+ */
+export const closeBrowserInstance = async () => {
+  if (browserInstance) {
+    try {
+      await browserInstance.close();
+      browserInstance = null;
+      browserUsageCount = 0;
+      console.log('🛑 Browser instance closed');
+    } catch (error) {
+      console.error('Failed to close browser instance:', error.message);
+    }
+  }
+};
+
 /**
  * Generate certificate HTML using actual template image as background
  */
@@ -250,20 +306,19 @@ const generateCertificateHTML = async ({
  * @returns {Promise<Buffer>} PDF buffer
  */
 export const generateCertificatePDF = async (data) => {
-  let browser;
+  let page;
   try {
     const html = await generateCertificateHTML(data);
 
-    // Launch headless browser
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-
-    const page = await browser.newPage();
+    // Use shared browser instance instead of launching new one
+    const browser = await getBrowserInstance();
+    page = await browser.newPage();
     
-    // Set content and wait for fonts/images to load
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    // Optimize page settings for faster rendering
+    await page.setContent(html, { 
+      waitUntil: 'domcontentloaded', // Changed from 'networkidle0' for better performance
+      timeout: 10000 
+    });
 
     const pdfBuffer = await page.pdf({
       format: 'A4',
@@ -275,13 +330,19 @@ export const generateCertificatePDF = async (data) => {
         bottom: '0mm',
         left: '0mm',
       },
+      preferCSSPageSize: true,
     });
 
-    await browser.close();
+    // Close only the page, not the browser
+    await page.close();
     return pdfBuffer;
   } catch (error) {
-    if (browser) {
-      await browser.close();
+    if (page) {
+      try {
+        await page.close();
+      } catch (closeError) {
+        console.error('Failed to close page:', closeError.message);
+      }
     }
     throw new Error(`PDF generation failed: ${error.message}`);
   }

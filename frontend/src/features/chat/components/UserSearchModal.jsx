@@ -12,6 +12,7 @@ import {
 import { Button, Input } from '@common';
 import {
   fetchChatUsers,
+  fetchConversations,
   startConversation,
   setActiveConversation,
   selectChatUsers,
@@ -53,7 +54,7 @@ export default function UserSearchModal({ isOpen, onClose }) {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [isStartingConversation, setIsStartingConversation] = useState(false);
+  const [startingConversationUserId, setStartingConversationUserId] = useState(null);
 
   // Fetch chat users when modal opens
   useEffect(() => {
@@ -84,7 +85,7 @@ export default function UserSearchModal({ isOpen, onClose }) {
   }, [chatUsers.data, searchQuery]);
 
   const handleStartConversation = useCallback(async (user) => {
-    setIsStartingConversation(true);
+    setStartingConversationUserId(user._id || user.id);
 
     try {
       const conversationData = {
@@ -94,23 +95,24 @@ export default function UserSearchModal({ isOpen, onClose }) {
 
       const result = await dispatch(startConversation(conversationData)).unwrap();
 
-      // The backend returns { conversationId: ... }
-      const conversationId = result.conversationId || result.data?.conversationId;
+      // The result is { conversation: {...} } from backend
+      const conversation = result.conversation || result;
+      const conversationId = conversation._id || conversation.id;
 
+      // Refresh conversations list first to ensure the new conversation is in the sidebar
+      await dispatch(fetchConversations()).unwrap();
+      
+      // Then set as active conversation
       if (conversationId) {
-        // Set as active conversation
         dispatch(setActiveConversation(conversationId));
       }
-
-      // Refresh conversations list
-      dispatch(fetchChatUsers());
 
       // Close modal
       onClose();
     } catch (error) {
       console.error('Failed to start conversation:', error);
     } finally {
-      setIsStartingConversation(false);
+      setStartingConversationUserId(null);
     }
   }, [dispatch, onClose]);
 
@@ -200,7 +202,7 @@ export default function UserSearchModal({ isOpen, onClose }) {
                     key={user._id}
                     user={user}
                     onStartConversation={() => handleStartConversation(user)}
-                    isLoading={isStartingConversation}
+                    isLoading={startingConversationUserId === (user._id || user.id)}
                     isCurrentUser={user._id === currentUser._id}
                   />
                 ))}

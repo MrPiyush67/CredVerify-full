@@ -6,10 +6,7 @@ export function Footer() {
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 bg-gradient-to-br from-[#0F766E] to-teal-500 rounded-lg flex items-center justify-center shadow-lg shadow-teal-900/20">
-                <span className="text-white font-bold text-lg">C</span>
-              </div>
+            <div className="mb-6">
               <span className="text-2xl font-bold text-slate-100 tracking-tight">Cred<span className="text-[#0F766E]">Verify</span></span>
             </div>
             <p className="text-slate-400 max-w-sm leading-relaxed font-light">

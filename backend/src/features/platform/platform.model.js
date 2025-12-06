@@ -94,6 +94,8 @@ const platformProfileSchema = new mongoose.Schema(
     codeforces: {
       handle: { type: String, trim: true },
       isVerified: { type: Boolean, default: false },
+      verificationCode: String,
+      verificationExpiry: Date,
       stats: {
         rating: Number,
         maxRating: Number,

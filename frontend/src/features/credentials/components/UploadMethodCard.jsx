@@ -5,7 +5,7 @@ export default function UploadMethodCard({ method }) {
       className="text-left border rounded-lg p-6 hover:bg-gray-50 hover:border-[#116466] transition-all shadow-sm"
     >
       <div className="flex flex-col gap-3">
-        <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[#116466] text-white">
+        <span className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-[#0F766E] text-white">
           <method.icon className="h-6 w-6" />
         </span>
         <div>

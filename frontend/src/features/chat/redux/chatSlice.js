@@ -393,7 +393,8 @@ const chatSlice = createSlice({
         state.activeConversation.error = null;
       })
       .addCase(startConversation.fulfilled, (state, action) => {
-        const conversation = action.payload;
+        // action.payload is { conversation: {...} }
+        const conversation = action.payload.conversation || action.payload;
         state.activeConversation.loading = false;
         state.activeConversation.data = conversation;
         state.activeConversation.id = conversation._id;

@@ -4,13 +4,28 @@ import { Button } from '@/common/ui/Button';
 import { cn } from '@/utils/helpers';
 
 export function LandingNav({ scrolled, isMenuOpen, setIsMenuOpen, onLoginClick }) {
+  const scrollToSection = (e, sectionId) => {
+    e.preventDefault();
+    if (sectionId === '') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        const offset = 80; // Account for fixed navbar
+        const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+        const offsetPosition = elementPosition - offset;
+        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+      }
+    }
+  };
+
   const navLinks = [
-    { label: 'Home', href: '#', onClick: (e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
-    { label: 'Features', href: '#features' },
-    { label: 'How it Works', href: '#how-it-works' },
-    { label: 'About', href: '#about' },
-    { label: 'FAQ', href: '#faq' },
-    { label: 'Contact Us', href: '#footer' },
+    { label: 'Home', href: '#', sectionId: '' },
+    { label: 'Features', href: '#features', sectionId: 'features' },
+    { label: 'How it Works', href: '#how-it-works', sectionId: 'how-it-works' },
+    { label: 'About', href: '#about', sectionId: 'about' },
+    { label: 'FAQ', href: '#faq', sectionId: 'faq' },
+    { label: 'Contact Us', href: '#footer', sectionId: 'footer' },
   ];
 
   return (
@@ -32,7 +47,7 @@ export function LandingNav({ scrolled, isMenuOpen, setIsMenuOpen, onLoginClick }
             <a
               key={link.label}
               href={link.href}
-              onClick={link.onClick}
+              onClick={(e) => scrollToSection(e, link.sectionId)}
               className="text-slate-600 hover:text-[#0F766E] font-medium transition-colors text-sm tracking-wide"
             >
               {link.label}
@@ -56,7 +71,7 @@ export function LandingNav({ scrolled, isMenuOpen, setIsMenuOpen, onLoginClick }
               href={link.href}
               className="text-slate-600 py-2"
               onClick={(e) => {
-                link.onClick?.(e);
+                scrollToSection(e, link.sectionId);
                 setIsMenuOpen(false);
               }}
             >
