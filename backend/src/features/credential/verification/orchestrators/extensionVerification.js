@@ -1,11 +1,11 @@
-import { normalizeInput } from '../pipeline/inputNormalizer.js';
-import { validateDomain } from '../pipeline/domainValidator.js';
-import { extractCertificateFromExtension } from '../pipeline/certificateExtractor.js';
-import { extractText, extractTextFromBase64Image } from '../pipeline/ocrExtractor.js';
-import { interpretText, validateMetadata } from '../pipeline/llmInterpreter.js';
-import { matchName } from '../pipeline/nameMatcher.js';
-import { calculateScore } from '../pipeline/scoreCalculator.js';
-import { uploadAndSaveCredential } from '../pipeline/credentialSaver.js';
+import { normalizeInput } from '../pipeline/01_inputNormalizer.js';
+import { validateDomain } from '../pipeline/02_domainValidator.js';
+import { extractCertificateFromExtension } from '../pipeline/03_certificateExtractor.js';
+import { extractText, extractTextFromBase64Image } from '../pipeline/04_ocrExtractor.js';
+import { interpretText, validateMetadata } from '../pipeline/05_llmInterpreter.js';
+import { matchName } from '../pipeline/06_nameMatcher.js';
+import { calculateScore } from '../pipeline/07_scoreCalculator.js';
+import { uploadAndSaveCredential } from '../pipeline/08_credentialSaver.js';
 import User from '../../../user/user.model.js';
 
 /**

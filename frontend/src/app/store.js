@@ -54,6 +54,7 @@ export const store = configureStore({
 
 // Subscribe to store changes and persist auth state
 store.subscribe(() => {
-  saveAuthState(store.getState().auth);
+  const state = store.getState();
+  saveAuthState(state.auth);
 });
 

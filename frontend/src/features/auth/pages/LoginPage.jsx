@@ -3,8 +3,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Card, CardContent, CardHeader, CardTitle, Input, Select, SelectItem, Label } from '@common';
 import { motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
-import { login, selectAuthLoading, selectAuthError, clearError } from '@features/auth/redux/authSlice.js';
+import { login, selectAuthLoading } from '@features/auth/redux/authSlice.js';
 import { sanitizeEmail, sanitizePassword } from '../utils/sanitize.js';
+import { validateEmail, validatePassword } from '../utils/validation.js';
+import { useAuthForm } from '../hooks/useAuthForm.js';
+import { useRoleTheme } from '../hooks/useRoleTheme.js';
+import { authPageContainer, authPageItem } from '../constants/animations.js';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -15,7 +19,10 @@ export default function LoginPage() {
 
   // Redux state
   const loading = useSelector(selectAuthLoading);
-  const authError = useSelector(selectAuthError);
+
+  // Custom hooks for shared auth logic
+  const { authError } = useAuthForm({ showErrorToast: false }); // Don't auto-show toast for login errors
+  const { bgClass, textClass, roleTextClasses } = useRoleTheme(searchParams.get('role') ?? 'credentialist');
 
   // Component state
   const [role, setRole] = useState(searchParams.get('role') ?? 'credentialist');
@@ -25,6 +32,9 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+
+  // Update theme when role changes
+  const currentTheme = useRoleTheme(role);
 
   // Clear role query param from URL on mount
   useEffect(() => {
@@ -38,29 +48,9 @@ export default function LoginPage() {
   useEffect(() => {
     if (authError) {
       setError(authError);
-      // toast.error(authError); // Removed annoying 401 toast
+      // Don't show toast for 401 errors (incorrect credentials)
     }
   }, [authError]);
-
-  // Clear errors when component unmounts
-  useEffect(() => {
-    return () => {
-      dispatch(clearError());
-    };
-  }, [dispatch]);
-
-  // Role-specific styling classes
-  const roleBgClasses = {
-    credentialist: 'bg-credentialist-primary hover:bg-credentialist-primary/90',
-    curator: 'bg-curator-primary hover:bg-curator-primary/90',
-    validant: 'bg-validant-primary hover:bg-validant-primary/90'
-  };
-
-  const roleTextClasses = {
-    credentialist: 'text-credentialist-primary',
-    curator: 'text-curator-primary',
-    validant: 'text-validant-primary'
-  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -68,23 +58,19 @@ export default function LoginPage() {
     setEmailError('');
     setPasswordError('');
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email.trim()) {
-      setEmailError('Email is required');
-      toast.error('Email is required');
-      return;
-    }
-    if (!emailRegex.test(email.trim())) {
-      setEmailError('Email does not match the format');
-      toast.error('Email does not match the format');
+    // Validate email using shared validator
+    const emailValidationError = validateEmail(email);
+    if (emailValidationError) {
+      setEmailError(emailValidationError);
+      toast.error(emailValidationError);
       return;
     }
 
-    // Validate password
-    if (!password.trim()) {
-      setPasswordError('Password is required');
-      toast.error('Password is required');
+    // Validate password using shared validator
+    const passwordValidationError = validatePassword(password);
+    if (passwordValidationError) {
+      setPasswordError(passwordValidationError);
+      toast.error(passwordValidationError);
       return;
     }
 
@@ -92,7 +78,7 @@ export default function LoginPage() {
     const sanitizedEmail = sanitizeEmail(email);
     const sanitizedPassword = sanitizePassword(password);
 
-    // Validate required fields
+    // Final check after sanitization
     if (!sanitizedEmail || !sanitizedPassword) {
       setError('Please enter valid email and password.');
       toast.error('Please enter valid email and password.');
@@ -122,40 +108,21 @@ export default function LoginPage() {
     }
   };
 
-  const container = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        delayChildren: 0.2,
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const item = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1
-    }
-  };
-
   return (
     <motion.main
-      className={`min-h-screen flex items-center justify-center px-6 py-12 transition-colors duration-500 ${roleBgClasses[role] || roleBgClasses.credentialist}`}
+      className={`min-h-screen flex items-center justify-center px-6 py-12 transition-colors duration-500 ${currentTheme.bgClass}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
       <motion.div
-        variants={container}
+        variants={authPageContainer}
         initial="hidden"
         animate="visible"
       >
         <Card className="w-full max-w-md shadow-2xl border-border/50 bg-card">
           <CardHeader className="space-y-1">
-            <motion.div variants={item}>
+            <motion.div variants={authPageItem}>
               <CardTitle className="text-2xl font-bold">Log in</CardTitle>
               <p className="text-sm text-muted-foreground mt-2">Choose a role to be redirected to the appropriate dashboard.</p>
             </motion.div>
@@ -164,11 +131,11 @@ export default function LoginPage() {
             <form onSubmit={onSubmit}>
               <div className="space-y-4">
                 {error && (
-                  <motion.div variants={item} className="p-3 bg-red-50 border border-red-200 rounded-md">
+                  <motion.div variants={authPageItem} className="p-3 bg-red-50 border border-red-200 rounded-md">
                     <p className="text-sm text-red-600">{error}</p>
                   </motion.div>
                 )}
-                <motion.div variants={item} className="space-y-2">
+                <motion.div variants={authPageItem} className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
@@ -183,7 +150,7 @@ export default function LoginPage() {
                   />
                   {emailError && <p className="text-sm text-red-600">{emailError}</p>}
                 </motion.div>
-                <motion.div variants={item} className="space-y-2">
+                <motion.div variants={authPageItem} className="space-y-2">
                   <Label htmlFor="password">Password</Label>
                   <div className="relative">
                     <Input
@@ -207,7 +174,7 @@ export default function LoginPage() {
                   </div>
                   {passwordError && <p className="text-sm text-red-600">{passwordError}</p>}
                 </motion.div>
-                <motion.div variants={item} className="space-y-2">
+                <motion.div variants={authPageItem} className="space-y-2">
                   <Label>Role</Label>
                   <Select value={role} onValueChange={setRole}>
                     <SelectItem value="credentialist">Credentialist</SelectItem>
@@ -215,10 +182,10 @@ export default function LoginPage() {
                     <SelectItem value="validant">Validant</SelectItem>
                   </Select>
                 </motion.div>
-                <motion.div variants={item}>
+                <motion.div variants={authPageItem}>
                   <Button
                     type="submit"
-                    className={`w-full text-white ${roleBgClasses[role] || roleBgClasses.credentialist}`}
+                    className={`w-full text-white ${currentTheme.bgClass}`}
                     disabled={loading}
                   >
                     {loading ? 'Logging in...' : 'Continue'}
@@ -227,7 +194,7 @@ export default function LoginPage() {
               </div>
             </form>
 
-            <motion.div className="mt-6 p-4 bg-muted/50 rounded-lg" variants={item}>
+            <motion.div className="mt-6 p-4 bg-muted/50 rounded-lg" variants={authPageItem}>
               <h3 className="text-sm font-medium mb-3 text-center">Demo Credentials</h3>
               <div className="space-y-2 text-xs">
                 {role === 'credentialist' && (
@@ -240,7 +207,7 @@ export default function LoginPage() {
                         setPassword('password123');
                         setRole('credentialist');
                       }}
-                      className={`hover:underline font-medium ${roleTextClasses.credentialist}`}
+                      className={`hover:underline font-medium ${currentTheme.roleTextClasses.credentialist}`}
                     >
                       priya.sharma@example.com / password123
                     </button>
@@ -256,7 +223,7 @@ export default function LoginPage() {
                         setPassword('password123');
                         setRole('validant');
                       }}
-                      className={`hover:underline font-medium ${roleTextClasses.validant}`}
+                      className={`hover:underline font-medium ${currentTheme.roleTextClasses.validant}`}
                     >
                       kavita.rao@credverify.com / password123
                     </button>
@@ -272,7 +239,7 @@ export default function LoginPage() {
                         setPassword('password123');
                         setRole('curator');
                       }}
-                      className={`hover:underline font-medium ${roleTextClasses.curator}`}
+                      className={`hover:underline font-medium ${currentTheme.roleTextClasses.curator}`}
                     >
                       meera.krishnan@startupx.io / password123
                     </button>
@@ -284,13 +251,13 @@ export default function LoginPage() {
               </p>
             </motion.div>
 
-            <motion.div className="mt-4 text-center" variants={item}>
+            <motion.div className="mt-4 text-center" variants={authPageItem}>
               <p className="text-sm text-muted-foreground">
                 Don't have an account?{' '}
                 <button
                   type="button"
                   onClick={() => navigate(`/signup?role=${role}`)}
-                  className={`hover:underline font-medium ${roleTextClasses[role] || roleTextClasses.credentialist}`}
+                  className={`hover:underline font-medium ${currentTheme.textClass}`}
                 >
                   Sign up
                 </button>

@@ -46,7 +46,7 @@ const createMessages = async (conversations) => {
     {
       conversation: conv1._id,
       sender: SEED_IDS.credentialist1,
-      content: 'Hi Dr. Kavita! I submitted my AWS certification for verification. Could you please review it when you have time?',
+      content: 'Hi Dr. Kavita! I submitted my Machine Learning Specialization certificate from Coursera for verification. Could you please review it when you have time?',
       readBy: [SEED_IDS.credentialist1, SEED_IDS.validant1],
       isRead: true,
       createdAt: daysAgo(12),
@@ -54,7 +54,7 @@ const createMessages = async (conversations) => {
     {
       conversation: conv1._id,
       sender: SEED_IDS.validant1,
-      content: 'Hello Priya! Yes, I saw your submission. Let me check the AWS portal to verify your credential ID.',
+      content: 'Hello Priya! Yes, I saw your submission. Let me check the Coursera API to verify your certificate.',
       readBy: [SEED_IDS.credentialist1, SEED_IDS.validant1],
       isRead: true,
       createdAt: daysAgo(11),
@@ -70,7 +70,7 @@ const createMessages = async (conversations) => {
     {
       conversation: conv1._id,
       sender: SEED_IDS.validant1,
-      content: 'Your AWS certification has been verified successfully! The credential ID matches with AWS records.',
+      content: 'Your Machine Learning Specialization has been verified successfully! The certificate is authentic and all metadata checks out.',
       readBy: [SEED_IDS.credentialist1, SEED_IDS.validant1],
       isRead: true,
       createdAt: daysAgo(10),
