@@ -6,6 +6,7 @@ import { sendCredentialEmail } from '../../../core/utils/emailService.js';
 import { uploadCredentialFile } from '../../../core/utils/imagekitService.js';
 import Credential from '../credential.model.js';
 import User from '../../user/user.model.js';
+import { createNotification } from '../../notification/notification.service.js';
 
 // Set up directory for certificate storage
 const __filename = fileURLToPath(import.meta.url);
@@ -140,6 +141,26 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
         // 3. Update credential with PDF path
         credential.pdfPath = filepath;
         await credential.save();
+
+        // 4. Create notification for the validant (admin) about credential issuance
+        try {
+          await createNotification({
+            user: validantId,
+            title: 'Credential Issued',
+            message: `Credential "${credentialName}" has been successfully issued to ${name}.`,
+            type: 'success',
+            category: 'credential',
+            metadata: {
+              credentialId: certificateId,
+              recipientName: name,
+              recipientEmail: email,
+              credentialName,
+            },
+          });
+        } catch (notifError) {
+          console.error('Failed to create notification:', notifError.message);
+          // Don't fail the whole process if notification fails
+        }
 
         // Add to results with email status
         const resultEntry = {

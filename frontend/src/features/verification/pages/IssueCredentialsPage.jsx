@@ -16,8 +16,6 @@ const IssueCredentialsPage = () => {
     { id: 1, name: '', email: '' },
   ]);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   // Handle credential details change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -104,72 +102,34 @@ const IssueCredentialsPage = () => {
       .filter((r) => r.name.trim() && r.email.trim())
       .map((r) => ({ name: r.name.trim(), email: r.email.trim() }));
 
-    setIsSubmitting(true);
+    // Show immediate success toast
+    toast.success(
+      `✅ ${validRecipients.length} credential(s) will be created!`,
+      { duration: 4000 }
+    );
 
-    try {
-      const response = await axiosClient.post('/credentials/bulk-issue', {
-        credentialData: {
-          credentialName: formData.credentialName,
-          issueDate: formData.issueDate,
-          hours: parseInt(formData.hours),
-          nsqfLevel: parseInt(formData.nsqfLevel),
-        },
-        recipients: validRecipients,
-      });
+    // Reset form immediately
+    setFormData({
+      credentialName: '',
+      issueDate: new Date().toISOString().split('T')[0],
+      hours: '',
+      nsqfLevel: '',
+    });
+    setRecipients([{ id: 1, name: '', email: '' }]);
 
-      const { results } = response.data.data;
-      
-      // Check for new user accounts created
-      const newUsers = results.successful.filter(r => r.isNewUser);
-      
-      // Check for partial success (PDF created but email failed)
-      const emailFailed = results.successful.filter(r => r.status === 'pdf_only' || r.emailError);
-      const emailSent = results.successful.filter(r => r.status === 'sent');
-
-      if (emailSent.length > 0) {
-        toast.success(
-          `✅ Successfully sent ${emailSent.length} credential email(s)!`,
-          { duration: 5000 }
-        );
-      }
-      
-      if (newUsers.length > 0) {
-        toast.success(
-          `👤 Created ${newUsers.length} new user account(s). Default password: CredVerify@123`,
-          { duration: 8000 }
-        );
-      }
-      
-      if (emailFailed.length > 0) {
-        toast.success(
-          `📄 Generated ${emailFailed.length} PDF(s) but email sending failed. PDFs saved on server.`,
-          { duration: 7000 }
-        );
-      }
-
-      if (results.failed.length > 0) {
-        toast.error(
-          `⚠️ Failed to issue ${results.failed.length} credential(s). Check console for details.`,
-          { duration: 7000 }
-        );
-        console.error('Failed credentials:', results.failed);
-      }
-
-      // Reset form
-      setFormData({
-        credentialName: '',
-        issueDate: new Date().toISOString().split('T')[0],
-        hours: '',
-        nsqfLevel: '',
-      });
-      setRecipients([{ id: 1, name: '', email: '' }]);
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || 'Failed to issue credentials. Please try again.'
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Send request to backend (fire and forget - admin is free to continue)
+    axiosClient.post('/credentials/bulk-issue', {
+      credentialData: {
+        credentialName: formData.credentialName,
+        issueDate: formData.issueDate,
+        hours: parseInt(formData.hours),
+        nsqfLevel: parseInt(formData.nsqfLevel),
+      },
+      recipients: validRecipients,
+    }).catch((error) => {
+      console.error('Failed to issue credentials:', error);
+      // Silently log error - admin already moved on
+    });
   };
 
   return (
@@ -200,166 +160,156 @@ const IssueCredentialsPage = () => {
             {/* Credential Details Section */}
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b">
-                Credential Details
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Micro-Credential Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="credentialName"
-                    value={formData.credentialName}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Web Development Fundamentals"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Issue Date *
-                  </label>
-                  <input
-                    type="date"
-                    name="issueDate"
-                    value={formData.issueDate}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Hours *
-                  </label>
-                  <input
-                    type="number"
-                    name="hours"
-                    value={formData.hours}
-                    onChange={handleInputChange}
-                    placeholder="e.g., 40"
-                    min="1"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    NSQF Level * (1-10)
-                  </label>
-                  <input
-                    type="number"
-                    name="nsqfLevel"
-                    value={formData.nsqfLevel}
-                    onChange={handleInputChange}
-                    placeholder="e.g., 4"
-                    min="1"
-                    max="10"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Recipients Section */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-4 pb-2 border-b">
-                <h2 className="text-xl font-semibold text-gray-800">Recipients</h2>
-                <button
-                  type="button"
-                  onClick={addRecipient}
-                  className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Recipient
-                </button>
-              </div>
-
-              <div className="space-y-3">
-                {recipients.map((recipient, index) => (
-                  <motion.div
-                    key={recipient.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center gap-3"
-                  >
-                    <span className="text-sm font-medium text-gray-500 w-8">
-                      {index + 1}.
-                    </span>
+                  Credential Details
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Micro-Credential Name *
+                    </label>
                     <input
                       type="text"
-                      value={recipient.name}
-                      onChange={(e) =>
-                        handleRecipientChange(recipient.id, 'name', e.target.value)
-                      }
-                      placeholder="Full Name"
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      name="credentialName"
+                      value={formData.credentialName}
+                      onChange={handleInputChange}
+                      placeholder="e.g., Web Development Fundamentals"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      required
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Issue Date *
+                    </label>
                     <input
-                      type="email"
-                      value={recipient.email}
-                      onChange={(e) =>
-                        handleRecipientChange(recipient.id, 'email', e.target.value)
-                      }
-                      placeholder="email@example.com"
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      type="date"
+                      name="issueDate"
+                      value={formData.issueDate}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      required
                     />
-                    <button
-                      type="button"
-                      onClick={() => removeRecipient(recipient.id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      disabled={recipients.length === 1}
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  </motion.div>
-                ))}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Hours *
+                    </label>
+                    <input
+                      type="number"
+                      name="hours"
+                      value={formData.hours}
+                      onChange={handleInputChange}
+                      placeholder="e.g., 40"
+                      min="1"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      NSQF Level * (1-10)
+                    </label>
+                    <input
+                      type="number"
+                      name="nsqfLevel"
+                      value={formData.nsqfLevel}
+                      onChange={handleInputChange}
+                      placeholder="e.g., 4"
+                      min="1"
+                      max="10"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
 
-            {/* Submit Button */}
-            <div className="flex justify-end gap-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setFormData({
-                    credentialName: '',
-                    issueDate: new Date().toISOString().split('T')[0],
-                    hours: '',
-                    nsqfLevel: '',
-                  });
-                  setRecipients([{ id: 1, name: '', email: '' }]);
-                }}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Reset
-              </button>
+              {/* Recipients Section */}
+              <div className="mb-8">
+                <div className="flex items-center justify-between mb-4 pb-2 border-b">
+                  <h2 className="text-xl font-semibold text-gray-800">Recipients</h2>
+                  <button
+                    type="button"
+                    onClick={addRecipient}
+                    className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Recipient
+                  </button>
+                </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex items-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Issuing...
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-5 h-5" />
-                    Issue Credentials
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
+                <div className="space-y-3">
+                  {recipients.map((recipient, index) => (
+                    <motion.div
+                      key={recipient.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="flex items-center gap-3"
+                    >
+                      <span className="text-sm font-medium text-gray-500 w-8">
+                        {index + 1}.
+                      </span>
+                      <input
+                        type="text"
+                        value={recipient.name}
+                        onChange={(e) =>
+                          handleRecipientChange(recipient.id, 'name', e.target.value)
+                        }
+                        placeholder="Full Name"
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      />
+                      <input
+                        type="email"
+                        value={recipient.email}
+                        onChange={(e) =>
+                          handleRecipientChange(recipient.id, 'email', e.target.value)
+                        }
+                        placeholder="email@example.com"
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeRecipient(recipient.id)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        disabled={recipients.length === 1}
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-end gap-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData({
+                      credentialName: '',
+                      issueDate: new Date().toISOString().split('T')[0],
+                      hours: '',
+                      nsqfLevel: '',
+                    });
+                    setRecipients([{ id: 1, name: '', email: '' }]);
+                  }}
+                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Reset
+                </button>
+
+                <button
+                  type="submit"
+                  className="flex items-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+                >
+                  <Send className="w-5 h-5" />
+                  Issue Credentials
+                </button>
+              </div>
+            </form>
         </motion.div>
 
         {/* Info Box */}

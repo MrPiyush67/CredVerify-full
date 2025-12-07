@@ -66,14 +66,20 @@ export const IdentityCard = ({ user, isOwnProfile = true }) => {
           </div>
 
           <div>
+            {/* Username - Large and prominent */}
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-1">
+              @{user.username}
+            </h1>
+            
+            {/* Real Name - Smaller with tooltip */}
             <div 
-              className="relative inline-block"
+              className="relative inline-block mb-3"
               onMouseEnter={() => setShowNameTooltip(true)}
               onMouseLeave={() => setShowNameTooltip(false)}
             >
-              <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-2">
+              <p className="text-lg text-gray-600 font-medium">
                 {user.name}
-              </h1>
+              </p>
               {showNameTooltip && (
                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg whitespace-nowrap z-50">
                   <div className="flex items-center gap-1">
@@ -84,6 +90,7 @@ export const IdentityCard = ({ user, isOwnProfile = true }) => {
                 </div>
               )}
             </div>
+            
             <div className="flex items-center justify-center gap-3 mb-3">
               <Badge variant="outline" className="capitalize px-3 py-1 text-sm font-medium border-gray-300 text-gray-700">
                 {user.role}

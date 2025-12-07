@@ -21,6 +21,7 @@ export default function CertificateQrUploadModal({
   });
   const [qrProcessing, setQrProcessing] = useState(false);
   const [qrError, setQrError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
@@ -38,6 +39,7 @@ export default function CertificateQrUploadModal({
     setQrProcessing(true);
     setQrError('');
 
+    setIsSubmitting(true);
     try {
       const url = URL.createObjectURL(file);
       const reader = new BrowserQRCodeReader();
@@ -49,7 +51,7 @@ export default function CertificateQrUploadModal({
       }
 
       URL.revokeObjectURL(url);
-    } catch (err) {
+    } catch (_) {
       // Silently fail - user can still upload the image/PDF
     } finally {
       setQrProcessing(false);
@@ -97,6 +99,8 @@ export default function CertificateQrUploadModal({
     } catch (error) {
       console.error('Verification error:', error);
       toast.error('Failed to verify certificate. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -146,90 +150,84 @@ export default function CertificateQrUploadModal({
             <div className="p-6 space-y-6">
               {/* Instructions Card */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
-                <div className="flex items-start gap-3">
-                  <Info className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
-                  <div className="space-y-2 text-sm text-blue-900">
-                    <p className="font-medium">How it works:</p>
-                    <ol className="list-decimal list-inside space-y-1 text-xs">
-                      <li>Upload your certificate image (JPEG, PNG) or PDF</li>
-                      <li>If your certificate has a QR code, we'll automatically detect and extract it</li>
-                      <li>We'll scrape the verification page and extract certificate details</li>
-                      <li>Your certificate will be verified and saved to your profile</li>
-                    </ol>
-                    <p className="text-xs mt-2">
-                      <strong>Supported formats:</strong> Images with QR codes (Skill India, NSDC, DigiLocker) or PDF certificates (HackerRank, IGNOU, etc.)
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* File Upload */}
-              <div>
-                <label className="text-sm font-medium mb-2 block">Upload Certificate</label>
-                <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-[#116466] transition-colors">
-                  <div className="flex items-center justify-center gap-3 mb-3">
-                    <Upload className="h-8 w-8 text-gray-400" />
-                    <QrCode className="h-8 w-8 text-gray-400" />
+                    <div className="flex items-start gap-3">
+                      <Info className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
+                      <div className="space-y-2 text-sm text-blue-900">
+                        <p className="font-medium">How it works:</p>
+                        <ol className="list-decimal list-inside space-y-1 text-xs">
+                          <li>Upload your certificate image (JPEG, PNG) or PDF</li>
+                          <li>If your certificate has a QR code, we'll automatically detect and extract it</li>
+                          <li>We'll scrape the verification page and extract certificate details</li>
+                          <li>Your certificate will be verified and saved to your profile</li>
+                        </ol>
+                        <p className="text-xs mt-2">
+                          <strong>Supported formats:</strong> Images with QR codes (Skill India, NSDC, DigiLocker) or PDF certificates (HackerRank, IGNOU, etc.)
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
-                  <input
-                    type="file"
-                    accept="image/*,application/pdf"
-                    onChange={handleFileChange}
-                    className="hidden"
-                    id="certificate-upload"
-                  />
+                  {/* File Upload */}
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Upload Certificate</label>
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      id="certificate-upload"
+                    />
+                    <label htmlFor="certificate-upload" className="block border-2 border-dashed rounded-lg p-8 text-center hover:border-[#116466] transition-colors cursor-pointer">
+                      <div className="flex items-center justify-center gap-3 mb-3">
+                        <Upload className="h-8 w-8 text-gray-400" />
+                        <QrCode className="h-8 w-8 text-gray-400" />
+                      </div>
 
-                  <label htmlFor="certificate-upload" className="cursor-pointer">
-                    {uploadData.file ? (
-                      <div className="space-y-2">
-                        <div className="text-sm font-medium text-[#116466] flex items-center justify-center gap-2">
-                          <CheckCircle className="h-5 w-5" />
-                          {uploadData.file.name}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {(uploadData.file.size / 1024).toFixed(2)} KB
-                        </div>
-                        {qrProcessing && (
-                          <div className="text-xs text-blue-600 animate-pulse">
-                            🔍 Scanning for QR code...
+                      <div>
+                        {uploadData.file ? (
+                          <div className="space-y-2">
+                            <div className="text-sm font-medium text-[#116466] flex items-center justify-center gap-2">
+                              <CheckCircle className="h-5 w-5" />
+                              {uploadData.file.name}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {(uploadData.file.size / 1024).toFixed(2)} KB
+                            </div>
+                            {uploadData.qrData && (
+                              <div className="text-xs text-green-600 font-medium">
+                                ✓ QR code detected!
+                              </div>
+                            )}
                           </div>
-                        )}
-                        {uploadData.qrData && (
-                          <div className="text-xs text-green-600 font-medium">
-                            ✓ QR code detected!
-                          </div>
+                        ) : (
+                          <>
+                            <div className="text-sm font-medium text-gray-700 mb-1">
+                              Click to upload or drag and drop
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              PDF, JPEG, PNG (Max 10MB)
+                            </div>
+                          </>
                         )}
                       </div>
-                    ) : (
-                      <>
-                        <div className="text-sm font-medium text-gray-700 mb-1">
-                          Click to upload or drag and drop
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          PDF, JPEG, PNG (Max 10MB)
-                        </div>
-                      </>
+                    </label>
+                    {qrError && (
+                      <div className="text-xs text-amber-600 mt-2 p-2 bg-amber-50 rounded">
+                        {qrError}
+                      </div>
                     )}
-                  </label>
-                </div>
-                {qrError && (
-                  <div className="text-xs text-amber-600 mt-2 p-2 bg-amber-50 rounded">
-                    {qrError}
                   </div>
-                )}
-              </div>
 
-              {/* QR Data Preview (if detected) */}
-              {uploadData.qrData && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                  <p className="text-xs font-medium text-green-900 mb-1">QR Code Data Detected:</p>
-                  <p className="text-xs text-green-800 break-all font-mono bg-white p-2 rounded">
-                    {uploadData.qrData}
-                  </p>
-                </div>
-              )}
-            </div>
+                  {/* QR Data Preview (if detected) */}
+                  {uploadData.qrData && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                      <p className="text-xs font-medium text-green-900 mb-1">QR Code Data Detected:</p>
+                      <p className="text-xs text-green-800 break-all font-mono bg-white p-2 rounded">
+                        {uploadData.qrData}
+                      </p>
+                    </div>
+                  )}
+              </div>
 
             {/* Footer */}
             <div className="sticky bottom-0 bg-gray-50 border-t px-6 py-4 flex justify-end gap-2">
@@ -239,9 +237,9 @@ export default function CertificateQrUploadModal({
               <Button
                 className="bg-[#116466] text-white hover:bg-[#0e4f50]"
                 onClick={handleSubmit}
-                disabled={isSubmitDisabled}
+                disabled={isSubmitDisabled || isSubmitting}
               >
-                {qrProcessing ? 'Processing...' : 'Verify & Upload'}
+                {isSubmitting ? 'Processing...' : (qrProcessing ? 'Scanning...' : 'Verify & Upload')}
               </Button>
             </div>
           </motion.div>
