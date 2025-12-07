@@ -9,8 +9,8 @@ const CONFIG = {
 
   // API Endpoints
   DEVELOPMENT: {
-    BACKEND: 'http://127.0.0.1:5000',
-    FRONTEND: 'http://127.0.0.1:5173'
+    BACKEND: 'http://localhost:5000',
+    FRONTEND: 'http://localhost:5173'
   },
 
   PRODUCTION: {

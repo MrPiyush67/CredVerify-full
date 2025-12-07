@@ -28,6 +28,7 @@ Complete documentation for the CredVerify backend API server.
 - **Authentication**: JWT (jsonwebtoken + HTTP-only cookies)
 - **File Upload**: Multer + ImageKit (deprecated) + IPFS (Pinata)
 - **AI/ML**: Google Gemini API, Tesseract.js
+- **Image Processing**: Sharp 0.34.5 (high-performance image preprocessing)
 - **Blockchain**: ethers.js v6 (Ethereum Sepolia Testnet)
 - **Web Scraping**: Puppeteer, Cheerio
 - **Real-time**: Socket.IO
@@ -280,9 +281,17 @@ The verification system is the **core feature** of CredVerify. It processes cert
    - Output: Image buffer
 
 4. **OCR Extractor** (`ocrExtractor.js`)
-   - Runs Tesseract.js on certificate image
+   - **Image Preprocessing with Sharp**:
+     - Converts SVG certificates to PNG (2000px width) for OCR compatibility
+     - Upscales images to 2000px for better text recognition
+     - Applies grayscale conversion to remove color noise
+     - Sharpens edges to enhance text clarity
+     - Normalizes contrast for consistent brightness
+   - Runs Tesseract.js on preprocessed image buffer
    - Extracts raw text with confidence scores
    - Output: OCR text + quality metrics
+   
+   **Note**: Sharp (v0.34.5) provides 10-20x faster image processing than JavaScript alternatives, crucial for real-time verification.
 
 5. **LLM Interpreter** (`llmInterpreter.js`)
    - Sends OCR text to Google Gemini AI
@@ -300,7 +309,7 @@ The verification system is the **core feature** of CredVerify. It processes cert
    - Output: Final score + decision
 
 8. **Duplicate Check** (`credentialSaver.js` - checkDuplicateCertificate)
-   - Computes fingerprint: `keccak256(sourceUrl)`
+   - Computes fingerprint: `sha256(sourceUrl)` (NIST-approved)
    - Checks MongoDB for existing certificate with same fingerprint
    - Prevents duplicate uploads from same URL
    - Output: Existing credential (if found) or null
@@ -362,15 +371,15 @@ The verification system is the **core feature** of CredVerify. It processes cert
   - Replaces ImageKit as primary storage
 
 - **Blockchain Service**: `blockchainService.js`
-  - Computes fingerprint: `keccak256(sourceUrl)`
+  - Computes fingerprint: `sha256(sourceUrl)` (proven algorithm)
   - Calls contract via ethers.js
   - Returns transaction hash
 
 #### Registration Flow
 ```
-Certificate Verified (Score ≥ 85%)
+Certificate Verified (Score ≥85%)
   ↓
-Compute Fingerprint: keccak256(sourceUrl)
+Compute Fingerprint: sha256(sourceUrl)
   ↓
 Check for Duplicates: MongoDB query by fingerprint
   ↓
@@ -385,7 +394,7 @@ Store in MongoDB: credential + IPFS CID + txHash + fingerprint
 
 #### Why URL-Based Fingerprint?
 
-**Current Implementation**: `fingerprint = keccak256(sourceUrl)`
+**Current Implementation**: `fingerprint = sha256(sourceUrl)`
 
 **Benefits**:
 1. **Deterministic**: Same URL always produces same fingerprint
@@ -393,6 +402,7 @@ Store in MongoDB: credential + IPFS CID + txHash + fingerprint
 3. **Tamper-Proof**: Changing URL invalidates the fingerprint
 4. **No PII**: URL is public information (e.g., `https://coursera.org/verify/ABC123`)
 5. **Duplicate Detection**: Prevents same certificate from being uploaded twice
+6. **Proven Security**: SHA-256 is NIST-approved (FIPS 180-4) with decades of cryptographic research and industry adoption
 
 **Note**: Perceptual image hashing (pHash) is NOT currently implemented. The system relies on URL uniqueness for duplicate detection.
 

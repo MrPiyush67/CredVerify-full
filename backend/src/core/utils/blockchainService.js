@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { ethers } from 'ethers';
 import { fileURLToPath } from 'url';
 
@@ -40,9 +41,20 @@ export async function registerOnChain(fingerprintBytes32, cid) {
   return { txHash: tx.hash, receipt };
 }
 
+/**
+ * Compute fingerprint from URL using SHA-256 (proven, industry-standard)
+ * SHA-256 has decades of cryptographic research and is NIST-approved
+ * Returns bytes32 hex string compatible with Solidity
+ * 
+ * @param {string} url - Certificate source URL
+ * @returns {string} - 0x-prefixed 32-byte hex string
+ */
 export function computeFingerprintFromUrl(url) {
   if (!url) return null;
-  const bytes = ethers.toUtf8Bytes(url);
-  const hash = ethers.keccak256(bytes);
-  return hash; // bytes32 hex string
+
+  // Use SHA-256 (proven, widely trusted algorithm)
+  const hash = crypto.createHash('sha256').update(url).digest('hex');
+
+  // Return as 0x-prefixed bytes32 format for Solidity compatibility
+  return '0x' + hash;
 }
