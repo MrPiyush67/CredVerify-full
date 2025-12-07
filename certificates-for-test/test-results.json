@@ -1,0 +1,155 @@
+{
+  "timestamp": "2025-12-07T17:26:46.988Z",
+  "totalTests": 14,
+  "successful": 9,
+  "failed": 5,
+  "results": [
+    {
+      "index": 0,
+      "testCase": {
+        "url": "https://www.coursera.org/account/accomplishments/verify/T2BC9B306UHQ",
+        "realname": "Pinky Gupta",
+        "cerf-location": "./real-link/PinkyGupta.jpeg"
+      },
+      "success": true,
+      "processingTime": 8415
+    },
+    {
+      "index": 1,
+      "testCase": {
+        "url": "https://www.udemy.com/certificate/UC-858c158b-6121-47ab-9f2f-b5480f832d8a/",
+        "realname": "Prajjwal Maurya",
+        "cerf-location": "./real-link/PrajjwalMaurya.jpg"
+      },
+      "success": true,
+      "processingTime": 4967
+    },
+    {
+      "index": 2,
+      "testCase": {
+        "url": "https://www.udemy.com/certificate/UC-858c158b-6121-47ab-9f2f-b5480f832d8a/",
+        "realname": "Rajagopal T K P",
+        "cerf-location": "./real-link/Rajagopal.jpg"
+      },
+      "success": true,
+      "processingTime": 6628
+    },
+    {
+      "index": 3,
+      "testCase": {
+        "url": "https://unstop.com/certificate-preview/61b0ea94-afa7-41bb-a39c-fd8174abb007",
+        "realname": "Siddharth Kumar Gupta",
+        "cerf-location": "./real-link/Siddharth(1).jpg"
+      },
+      "success": true,
+      "processingTime": 7164
+    },
+    {
+      "index": 4,
+      "testCase": {
+        "url": "https://unstop.com/certificate-preview/7e1b8d8d-c377-4ec1-b5a2-cd600665ea91",
+        "realname": "Siddharth Kumar Gupta",
+        "cerf-location": "./real-link/Siddharth(2).jpg"
+      },
+      "success": true,
+      "processingTime": 7965
+    },
+    {
+      "index": 5,
+      "testCase": {
+        "url": "https://verify.edx.org/cert/bf43f0b105b2435395590ef9edffca0e",
+        "realname": "Shubham Gupta",
+        "cerf-location": "./real-link/ShubhamGupta.jpg"
+      },
+      "success": false,
+      "processingTime": 16431,
+      "error": "Certificate rejected - Low confidence match - identity verification failed"
+    },
+    {
+      "index": 6,
+      "testCase": {
+        "url": "https://www.udacity.com/certificate/5GCUYWZS",
+        "realname": "Nancy AI Aswad",
+        "cerf-location": "./real-link/Nancy.svg"
+      },
+      "success": false,
+      "processingTime": 1327,
+      "error": "Certificate verification failed",
+      "errorCode": "LLM interpretation failed: LLM failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [429 Too Many Requests] You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/usage?tab=rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 5, model: gemini-2.5-flash\nPlease retry in 11.184296231s. [{\"@type\":\"type.googleapis.com/google.rpc.Help\",\"links\":[{\"description\":\"Learn more about Gemini API quotas\",\"url\":\"https://ai.google.dev/gemini-api/docs/rate-limits\"}]},{\"@type\":\"type.googleapis.com/google.rpc.QuotaFailure\",\"violations\":[{\"quotaMetric\":\"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\"quotaId\":\"GenerateRequestsPerMinutePerProjectPerModel-FreeTier\",\"quotaDimensions\":{\"location\":\"global\",\"model\":\"gemini-2.5-flash\"},\"quotaValue\":\"5\"}]},{\"@type\":\"type.googleapis.com/google.rpc.RetryInfo\",\"retryDelay\":\"11s\"}]"
+    },
+    {
+      "index": 7,
+      "testCase": {
+        "url": "https://www.futurelearn.com/certificates/0381o0b",
+        "realname": "Ali Tavakoli",
+        "cerf-location": "./real-link/Ali.jpg"
+      },
+      "success": true,
+      "processingTime": 9364
+    },
+    {
+      "index": 8,
+      "testCase": {
+        "url": "https://www.linkedin.com/learning/certificates/02b61c9f8c4472db86e44ced400e546ed4ab7f3080611d924c7fac224886a6e8",
+        "realname": "Divya Harjai",
+        "cerf-location": "./real-link/DivyaHarjai.jpg"
+      },
+      "success": true,
+      "processingTime": 6863
+    },
+    {
+      "index": 9,
+      "testCase": {
+        "url": "https://www.datacamp.com/certificate/DEA0016641598038",
+        "realname": "Anisha Balachandran",
+        "cerf-location": "./real-link/Anisha.png"
+      },
+      "success": true,
+      "processingTime": 4410
+    },
+    {
+      "index": 10,
+      "testCase": {
+        "url": "https://www.mygreatlearning.com/certificate/SGVRGYWQ",
+        "realname": "Shivansh Shukla",
+        "cerf-location": "./real-link/Shivansh.jpg"
+      },
+      "success": true,
+      "processingTime": 7068
+    },
+    {
+      "index": 11,
+      "testCase": {
+        "url": "https://archive.nptel.ac.in/noc/Ecertificate/?q=NPTEL20EE15S1PC967439",
+        "realname": "Rakshitha R S",
+        "cerf-location": "./real-link/Rakshitha.jpg"
+      },
+      "success": false,
+      "processingTime": 13702,
+      "error": "Certificate rejected - Low confidence match - identity verification failed"
+    },
+    {
+      "index": 12,
+      "testCase": {
+        "url": "https://ncvtmis.gov.in/Pages/Certification/Validate.aspx?Key=190940000072330",
+        "realname": "Anubhav Gupta",
+        "cerf-location": "./real-link/Anubhav.jpg"
+      },
+      "success": false,
+      "processingTime": 7679,
+      "error": "Certificate rejected - Low confidence match - identity verification failed"
+    },
+    {
+      "index": 13,
+      "testCase": {
+        "url": "https://courses.skillindiadigital.gov.in/api/custom_api/view_certificate/e6c33ea6910347a583755ea7cb718550",
+        "realname": "Pranav Raj",
+        "cerf-location": "./real-link/Pranav.png"
+      },
+      "success": false,
+      "processingTime": 1161,
+      "error": "Certificate verification failed",
+      "errorCode": "LLM interpretation failed: LLM failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [429 Too Many Requests] You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/usage?tab=rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 5, model: gemini-2.5-flash\nPlease retry in 13.799694171s. [{\"@type\":\"type.googleapis.com/google.rpc.Help\",\"links\":[{\"description\":\"Learn more about Gemini API quotas\",\"url\":\"https://ai.google.dev/gemini-api/docs/rate-limits\"}]},{\"@type\":\"type.googleapis.com/google.rpc.QuotaFailure\",\"violations\":[{\"quotaMetric\":\"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\"quotaId\":\"GenerateRequestsPerMinutePerProjectPerModel-FreeTier\",\"quotaDimensions\":{\"location\":\"global\",\"model\":\"gemini-2.5-flash\"},\"quotaValue\":\"5\"}]},{\"@type\":\"type.googleapis.com/google.rpc.RetryInfo\",\"retryDelay\":\"13s\"}]"
+    }
+  ]
+}
