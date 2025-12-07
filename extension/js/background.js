@@ -1,6 +1,3 @@
-// CredVerify Extension - Background Script
-
-// Import config
 importScripts('../config.js');
 
 let WHITELISTED_DOMAINS = [];

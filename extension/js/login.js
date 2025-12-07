@@ -1,5 +1,3 @@
-// CredVerify Extension - Login
-
 (() => {
   const loginForm = document.getElementById('loginForm');
   const emailInput = document.getElementById('email');
@@ -10,7 +8,7 @@
   const signupLink = document.getElementById('signupLink');
 
   // Set signup link
-  signupLink.href = `${CONFIG.current.FRONTEND}/auth/signup`;
+  signupLink.href = `${CONFIG.current.FRONTEND}/signup`;
 
   // Show alert
   function showAlert(message, type = 'error') {

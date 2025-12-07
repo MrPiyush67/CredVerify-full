@@ -1,5 +1,3 @@
-// CredVerify Extension - Main Popup Script
-
 (() => {
   // ===========================================
   // DOM ELEMENTS
@@ -32,6 +30,9 @@
   let baselineImageHash = null;
   let baselineImageTimestamp = null;
   const ANTI_TAMPER_MAX_AGE_MS = 5 * 60 * 1000; // 5 minutes
+
+  // Image collection delay for slow-loading pages
+  const IMAGE_COLLECTION_DELAY_MS = 4000; // 2 seconds delay to allow page to fully load certificates
 
   let isVerifying = false;
 
@@ -131,6 +132,15 @@
 
       if (response.isWhitelisted) {
         showDomainInfo(response.domain, response.platform);
+
+        // Show loading message while waiting for page to fully load
+        showAlert(`Waiting for page to load certificates...`, 'info');
+
+        // Wait for page to fully load certificates (especially for slow websites)
+        await new Promise(resolve => setTimeout(resolve, IMAGE_COLLECTION_DELAY_MS));
+
+        // Clear loading message and collect images
+        statusContainer.innerHTML = '';
         await collectImages();
       } else {
         showDomainWarning(response.domain, response.error);

@@ -88,7 +88,7 @@ All components are implemented and tested:
 Certificate Verified (OCR + AI)
   ↓
 Compute Fingerprint from sourceUrl
-  fingerprint = keccak256(sourceUrl)
+  fingerprint = sha256(sourceUrl)
   ↓
 Check for Duplicates in MongoDB
   Query: { certificateFingerprint: fingerprint }
@@ -124,11 +124,13 @@ We hash the **certificate's original URL** (e.g., `https://coursera.org/verify/A
 **Implementation**:
 ```javascript
 // blockchainService.js
+import crypto from 'crypto';
+
 export function computeFingerprintFromUrl(url) {
   if (!url) return null;
-  const bytes = ethers.toUtf8Bytes(url);
-  const hash = ethers.keccak256(bytes);
-  return hash; // bytes32 hex string (0x...)
+  // Use SHA-256 (proven, NIST-approved algorithm)
+  const hash = crypto.createHash('sha256').update(url).digest('hex');
+  return '0x' + hash; // bytes32 hex string (0x...)
 }
 ```
 
@@ -163,7 +165,7 @@ export function computeFingerprintFromUrl(url) {
         │                    │
         ▼                    ▼
     ┌────────┐         ┌──────────┐
-    │  CID   │         │ bytes32  │
+    │  CID   │         │ SHA-256  │
     └───┬────┘         └────┬─────┘
         │                   │
         └─────────┬─────────┘
@@ -399,10 +401,12 @@ credential.file.ipfs = { cid, provider: 'pinata' };
 ### Fingerprint Computation
 
 ```javascript
+import crypto from 'crypto';
+
 export function computeFingerprintFromUrl(url) {
-  const bytes = ethers.toUtf8Bytes(url);  // Convert URL to bytes
-  const hash = ethers.keccak256(bytes);   // SHA3-256 hash
-  return hash; // 0xabc123... (bytes32 hex string)
+  // SHA-256: Proven cryptographic hash (NIST FIPS 180-4)
+  const hash = crypto.createHash('sha256').update(url).digest('hex');
+  return '0x' + hash; // 0xabc123... (bytes32 hex string)
 }
 ```
 

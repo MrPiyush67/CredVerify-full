@@ -1,13 +1,37 @@
+/**
+ * Bulk Credential Issuance Service
+ * 
+ * Flow:
+ * 1. Validant opens issue credential page
+ * 2. Adds user's legal name and email, generates credential
+ * 3. Backend checks if credentialist account exists
+ * 4. If not exists: creates account with default password (CredVerify@123)
+ * 5. Generates PDF certificate with QR code and verification link
+ * 6. Uploads PDF to IPFS (Pinata) - primary cloud storage
+ * 7. Computes fingerprint from verification URL (keccak256 hash)
+ * 8. Registers certificate on Ethereum Sepolia blockchain
+ * 9. Saves credential to MongoDB with IPFS CID and blockchain txHash
+ * 10. Sends email with PDF attachment (includes login credentials if new user)
+ * 11. Saves local backup copy to backend/certificates folder
+ * 
+ * Benefits:
+ * - IPFS provides decentralized, permanent certificate storage
+ * - Blockchain provides immutable proof of issuance
+ * - Email delivers certificate directly to recipient
+ * - Local backup ensures redundancy
+ */
+
 import path from 'path';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { generateCertificatePDF } from '../../../core/utils/certificateGenerator.js';
 import { sendCredentialEmail } from '../../../core/utils/emailService.js';
-import { uploadCredentialFile } from '../../../core/utils/imagekitService.js';
+import { uploadToIpfs } from '../../../core/utils/ipfsService.js';
+import { computeFingerprintFromUrl, registerOnChain } from '../../../core/utils/blockchainService.js';
 import Credential from '../credential.model.js';
 import User from '../../user/user.model.js';
 
-// Set up directory for certificate storage
+// Set up directory for certificate storage (backup only)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const certsDir = path.join(__dirname, '../../../../certificates');
@@ -35,10 +59,10 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
 
   // Process recipients in batches of 3 for better performance
   const BATCH_SIZE = 3;
-  
+
   for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
     const batch = recipients.slice(i, i + BATCH_SIZE);
-    
+
     // Process batch in parallel
     const batchPromises = batch.map(async (recipient) => {
       try {
@@ -74,6 +98,9 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
           legalNameSnapshot: name,
           certificateName: name,
           nameMatchConfidence: 100,
+          verificationStatus: 'VERIFIED',
+          finalVerificationScore: 100,
+          autoApproved: true,
           title: credentialName,
           type: 'micro_credential',
           issuer: 'WEV DEV LOPED BY TO BOOT CAMP',
@@ -103,12 +130,75 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
           certificateId,
         });
 
-        // Save PDF to local directory as backup
+        // 2. Upload PDF to IPFS (primary storage)
+        console.log(`📤 [BULK-ISSUE] Uploading certificate to IPFS for ${name}...`);
+
         const filename = `${credentialName.replace(/[^a-z0-9]/gi, '_')}_${name.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.pdf`;
+        let ipfsResult = null;
+        let chainResult = null;
+        let ipfsUrl = null;
+
+        try {
+          // Upload to IPFS
+          ipfsResult = await uploadToIpfs(pdfBuffer, filename);
+          console.log(`✅ [BULK-ISSUE] IPFS upload successful: ${ipfsResult.cid}`);
+
+          ipfsUrl = `https://gateway.pinata.cloud/ipfs/${ipfsResult.cid}`;
+
+          // Generate verification URL (will be used as source URL)
+          const verificationUrl = `${process.env.CLIENT_URL || 'https://credverify.vercel.app'}/verify/${certificateId}`;
+
+          // Compute fingerprint from verification URL
+          const fingerprint = computeFingerprintFromUrl(verificationUrl);
+
+          if (fingerprint && ipfsResult.cid) {
+            console.log(`🔑 [BULK-ISSUE] Registering on blockchain...`);
+            console.log(`   Verification URL: ${verificationUrl}`);
+            console.log(`   Fingerprint: ${fingerprint}`);
+
+            chainResult = await registerOnChain(fingerprint, ipfsResult.cid);
+            console.log(`✅ [BULK-ISSUE] Blockchain registration successful: ${chainResult.txHash}`);
+
+            // Update credential with blockchain data
+            credential.certificateFingerprint = fingerprint;
+          }
+        } catch (err) {
+          console.error(`❌ [BULK-ISSUE] IPFS/Blockchain error for ${name}:`, err.message);
+          // Continue even if IPFS/blockchain fails - we still have the PDF locally
+        }
+
+        // 3. Update credential with IPFS and blockchain data
+        if (ipfsResult) {
+          credential.file = {
+            url: ipfsUrl,
+            fileName: filename,
+            fileType: 'application/pdf',
+            uploadedAt: new Date(),
+            ipfs: {
+              cid: ipfsResult.cid,
+              provider: 'pinata',
+            },
+          };
+
+          if (chainResult) {
+            credential.file.blockchain = {
+              txHash: chainResult.txHash,
+            };
+          }
+
+          credential.sourceUrl = `${process.env.CLIENT_URL || 'https://credverify.vercel.app'}/verify/${certificateId}`;
+          credential.sourceDomain = 'credverify.vercel.app';
+        }
+
+        // Save credential with updated data
+        await credential.save();
+
+        // 4. Save PDF to local directory as backup (optional)
         const filepath = path.join(certsDir, filename);
         await fs.writeFile(filepath, pdfBuffer);
+        console.log(`💾 [BULK-ISSUE] Backup PDF saved locally: ${filepath}`);
 
-        // 2. Send email with PDF attachment
+        // 5. Send email with PDF attachment
         let emailSent = false;
         let emailError = null;
 
@@ -137,24 +227,28 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
           emailError = err;
         }
 
-        // 3. Update credential with PDF path
-        credential.pdfPath = filepath;
-        await credential.save();
-
-        // Add to results with email status
+        // 6. Build result entry with all data
         const resultEntry = {
           name,
           email,
-          status: emailSent ? 'sent' : 'pdf_only',
-          pdfPath: filepath,
+          status: emailSent ? 'sent' : 'saved_without_email',
           certificateId,
-          verificationUrl: `https://credverify.vercel.app/verify/${certificateId}`,
-          isNewUser, // Flag to indicate if a new account was created
+          verificationUrl: `${process.env.CLIENT_URL || 'https://credverify.vercel.app'}/verify/${certificateId}`,
+          isNewUser,
+          ipfs: ipfsResult ? {
+            cid: ipfsResult.cid,
+            url: ipfsUrl,
+          } : null,
+          blockchain: chainResult ? {
+            txHash: chainResult.txHash,
+            explorerUrl: `https://sepolia.etherscan.io/tx/${chainResult.txHash}`,
+          } : null,
+          localBackup: filepath,
         };
 
         if (!emailSent && emailError) {
           resultEntry.emailError = emailError.message;
-          resultEntry.note = 'PDF generated and saved locally, but email failed to send';
+          resultEntry.note = 'Certificate uploaded to IPFS and blockchain, but email failed to send';
         }
 
         if (isNewUser) {
@@ -178,7 +272,7 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
 
     // Wait for batch to complete
     const batchResults = await Promise.all(batchPromises);
-    
+
     // Categorize results
     batchResults.forEach(({ success, result }) => {
       if (success) {
@@ -187,7 +281,7 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
         results.failed.push(result);
       }
     });
-    
+
     console.log(`📊 Processed batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(recipients.length / BATCH_SIZE)}`);
   }
 
