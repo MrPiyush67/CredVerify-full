@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Mail, Phone, MapPin, Briefcase, GraduationCap, Award, 
-  CheckCircle, XCircle, Clock, Calendar, Building, User 
+  CheckCircle, XCircle, Clock, Calendar, Building, User, MessageCircle 
 } from 'lucide-react';
 import { Button } from '@common/ui/Button.jsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@common/ui/Card.jsx';
@@ -11,6 +12,7 @@ import Loader from '@common/components/Loader.jsx';
 import { getApplicantDetails, updateApplicantStatus } from '../api/jobsApi';
 
 export default function ApplicantDetailsModal({ jobId, applicantUserId, applicantId, onClose, onStatusUpdate }) {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [details, setDetails] = useState(null);
@@ -52,6 +54,18 @@ export default function ApplicantDetailsModal({ jobId, applicantUserId, applican
     } finally {
       setUpdating(false);
     }
+  };
+
+  const handleChatWithApplicant = () => {
+    // Navigate to chat page with the applicant's user ID
+    // The chat will automatically create a conversation when first message is sent
+    navigate('/chat', { 
+      state: { 
+        recipientId: applicantUserId,
+        recipientName: details?.profile?.name,
+        recipientType: 'credentialist' // Applicants are credentialists
+      } 
+    });
   };
 
   const getStatusColor = (status) => {
@@ -109,9 +123,20 @@ export default function ApplicantDetailsModal({ jobId, applicantUserId, applican
                 )}
               </div>
             </div>
-            <Button onClick={onClose} variant="ghost" size="icon">
-              <X className="h-5 w-5" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleChatWithApplicant}
+                variant="outline"
+                size="sm"
+                className="gap-2 border-blue-500/20 text-blue-600 hover:bg-blue-500/10"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Chat Now
+              </Button>
+              <Button onClick={onClose} variant="ghost" size="icon">
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
 
           {/* Content */}

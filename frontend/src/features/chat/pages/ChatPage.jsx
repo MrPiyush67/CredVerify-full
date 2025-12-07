@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   MessageCircle,
@@ -18,6 +19,7 @@ import {
   fetchChatUsers,
   fetchMessages,
   setActiveConversation,
+  startConversation,
   toggleSidebar,
   toggleUserSearch,
   selectConversations,
@@ -30,6 +32,7 @@ import { selectUser } from '@features/auth/redux/authSlice.js';
 
 export default function ChatPage() {
   const dispatch = useDispatch();
+  const location = useLocation();
   const user = useSelector(selectUser);
   const conversations = useSelector(selectConversations);
   const activeConversation = useSelector(selectActiveConversation);
@@ -47,6 +50,39 @@ export default function ChatPage() {
       dispatch(fetchChatUsers());
     }
   }, [dispatch, user]);
+
+  // Handle navigation from other pages (e.g., job applicants)
+  useEffect(() => {
+    const startChatWithUser = async () => {
+      if (location.state?.recipientId && user) {
+        try {
+          // Start or get conversation with the recipient
+          const result = await dispatch(startConversation({
+            recipientId: location.state.recipientId,
+            recipientType: location.state.recipientType || 'credentialist',
+          })).unwrap();
+
+          // Set as active conversation
+          // The conversation is already added to the list by startConversation.fulfilled reducer
+          const conversation = result.conversation || result;
+          const conversationId = conversation._id || conversation.id;
+          
+          if (conversationId) {
+            dispatch(setActiveConversation(conversationId));
+          }
+
+          // Clear the navigation state to prevent re-running
+          window.history.replaceState({}, document.title);
+        } catch (error) {
+          console.error('Failed to start conversation:', error);
+        }
+      }
+    };
+
+    startChatWithUser();
+    // Only run when location.state changes, not on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state?.recipientId]);
 
   // Join/leave conversation rooms when active conversation changes
   useEffect(() => {
