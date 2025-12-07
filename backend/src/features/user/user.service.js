@@ -91,6 +91,18 @@ export const updateUserProfile = async (userId, updates) => {
   // Remove immutable fields from updates
   const { name, email, role, passwordHash, ...allowedUpdates } = updates;
   
+  // Check if username is being updated and if it already exists
+  if (allowedUpdates.username) {
+    const existingUser = await User.findOne({ 
+      username: allowedUpdates.username,
+      _id: { $ne: userId } // Exclude current user
+    });
+    
+    if (existingUser) {
+      throw new Error('Username already exists. Please choose a different username.');
+    }
+  }
+  
   const user = await User.findByIdAndUpdate(
     userId,
     { $set: allowedUpdates },
