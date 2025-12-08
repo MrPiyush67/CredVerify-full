@@ -79,6 +79,7 @@ export const manualVerification = asyncHandler(async (req, res) => {
   // Handle string values from FormData
   const isTestMode = testMode === true || testMode === 'true';
   const userId = isTestMode ? 'test-user-id' : req.user?._id;
+  const legalName = isTestMode ? (testUserName || 'Test User') : req.user?.name;
 
   if (!isTestMode && !req.user) {
     return res.status(401).json({
@@ -97,6 +98,7 @@ export const manualVerification = asyncHandler(async (req, res) => {
 
   console.log('🟢 [MANUAL-VERIFY-CONTROLLER] Starting verification...');
   console.log(`   User: ${isTestMode ? testUserName : req.user.name} (${userId})`);
+  console.log(`   Legal name from auth: ${legalName}`);
   console.log(`   Input type: ${uploadedFile ? 'QR Image' : 'Direct Link'}`);
   console.log(`   Test mode: ${isTestMode ? 'Yes' : 'No'}`);
 
@@ -104,6 +106,7 @@ export const manualVerification = asyncHandler(async (req, res) => {
     // Call the orchestrator
     const result = await verifyFromManualInput({
       userId,
+      legalName,
       link,
       certificateImage: uploadedFile?.buffer,
       autoSave,

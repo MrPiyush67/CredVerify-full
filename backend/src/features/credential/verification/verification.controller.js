@@ -11,6 +11,7 @@ export async function verifyCertificate(req, res) {
 
     // Support test mode (no auth required)
     const userId = testMode ? 'test-user-id' : req.user?._id;
+    const legalName = testMode ? (testUserName || 'Test User') : req.user?.name;
 
     if (!testMode && !req.user) {
       return res.status(401).json({
@@ -35,11 +36,13 @@ export async function verifyCertificate(req, res) {
     }
 
     console.log('🔵 [EXTENSION-VERIFY-CONTROLLER] Starting verification for user:', userId);
+    console.log('🔵 [EXTENSION-VERIFY-CONTROLLER] Legal name from auth:', legalName);
     console.log('🔵 [EXTENSION-VERIFY-CONTROLLER] Source URL:', sourceUrl);
 
     // Call the orchestrator
     const result = await verifyFromExtension({
       userId,
+      legalName,
       imageData,
       sourceUrl,
       extractedText,

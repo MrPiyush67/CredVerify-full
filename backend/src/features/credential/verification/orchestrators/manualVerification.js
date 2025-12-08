@@ -37,23 +37,27 @@ export async function verifyFromManualInput(params) {
 
   try {
     // STAGE 1: Get user's legal name
-    console.log(`📍 STAGE 1: Fetching user legal name...`);
+    console.log(`📍 STAGE 1: Using legal name from auth...`);
 
-    let legalName;
-    let user = null;
+    // Use legal name passed from controller (already fetched by auth middleware)
+    // This avoids redundant DB query and ensures we use the correct authenticated user's name
+    let finalLegalName = params.legalName;
 
-    if (testMode) {
-      legalName = testUserName || 'Test User';
-      console.log(`[TEST MODE] Using test name: ${legalName}`);
-    } else {
-      user = await User.findById(userId).select('name email');
-      if (!user) {
-        throw new Error('User not found');
+    if (!finalLegalName) {
+      console.warn(`⚠️ Legal name not provided, fetching from database...`);
+      if (testMode) {
+        finalLegalName = testUserName || 'Test User';
+        console.log(`[TEST MODE] Using test name: ${finalLegalName}`);
+      } else {
+        const user = await User.findById(userId).select('name email');
+        if (!user) {
+          throw new Error('User not found');
+        }
+        finalLegalName = user.name;
       }
-      legalName = user.name;
     }
 
-    console.log(`✅ Legal name: ${legalName}\n`);
+    console.log(`✅ Legal name: ${finalLegalName}\n`);
 
     // STAGE 2: Normalize input to verification URL
     console.log(`📍 STAGE 2: Normalizing input to verification URL...`);
@@ -229,7 +233,7 @@ export async function verifyFromManualInput(params) {
 
       const nameValidation = matchName({
         extractedName: candidate.extractedData.recipientName,
-        legalName,
+        legalName: finalLegalName,
         ocrText: candidate.ocrResult.text,
       });
 
@@ -277,7 +281,7 @@ export async function verifyFromManualInput(params) {
             nameValidation: finalCandidate.nameValidation,
             verification: finalCandidate.verification,
           },
-          user,
+          user: { name: finalLegalName }, // Pass minimal user object with name
         });
 
         console.log(`✅ Credential saved with ID: ${savedCredential._id}\n`);
