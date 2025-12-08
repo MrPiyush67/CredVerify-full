@@ -27,7 +27,7 @@ export const SEED_IDS = {
   regulator8: new mongoose.Types.ObjectId('507f1f77bcf86cd799439038'),
   regulator9: new mongoose.Types.ObjectId('507f1f77bcf86cd799439039'),
   regulator10: new mongoose.Types.ObjectId('507f1f77bcf86cd799439040'),
-  
+
   // Additional regulators for DigiLocker institutions
   regulator11: new mongoose.Types.ObjectId('507f1f77bcf86cd799439051'),
   regulator12: new mongoose.Types.ObjectId('507f1f77bcf86cd799439052'),
@@ -1239,7 +1239,7 @@ const regulators = [
     rejectedCount: 0,
     isPublic: true,
   },
-  
+
   // Additional Regulators for DigiLocker Institutions
   {
     _id: SEED_IDS.regulator11,
@@ -1383,7 +1383,7 @@ const regulators = [
   },
 ];
 
-// ==================== CURATORS (10 users) ====================
+// ==================== EMPLOYERS (10 users) ====================
 const employers = [
   // DEMO USER 3: Meera Krishnan
   {

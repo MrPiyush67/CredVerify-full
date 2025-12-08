@@ -130,7 +130,7 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
 
-    // ===== CURATOR-SPECIFIC FIELDS (only filled by employers) =====
+    // ===== EMPLOYER-SPECIFIC FIELDS (only filled by employers) =====
     companyName: {
       type: String,
       default: null,

@@ -4,7 +4,7 @@ import Job from '../job/job.model.js';
 import { flattenSettings, getOrCreateSettings, buildSettingsUpdate } from '../../core/utils/settingsHelper.js';
 
 // Helper function to check if a employer can access a private profile
-export const canCuratorAccessProfile = async (employerId, learnerUserId) => {
+export const canEmployerAccessProfile = async (employerId, learnerUserId) => {
   // Check if learner has applied to any of employer's jobs
   const jobWithApplication = await Job.findOne({
     employer: employerId,
@@ -74,7 +74,7 @@ export const getLearnerById = async (learnerId, requestingUserId = null, request
 
   // Employers can view if learner applied to their job
   if (requestingUserRole === 'employer') {
-    const hasAccess = await canCuratorAccessProfile(requestingUserId, profile._id);
+    const hasAccess = await canEmployerAccessProfile(requestingUserId, profile._id);
     if (hasAccess) {
       return profile;
     }
