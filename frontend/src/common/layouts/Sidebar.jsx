@@ -11,7 +11,7 @@ import { Home, BarChart3, Bell, User, Settings, MessageSquare, Briefcase, FileTe
 export const navigationItems = {
   regulator: [
     { label: 'Home', href: '/home' },
-    { label: 'Dashboard', href: '/dashboard' },
+    // { label: 'Dashboard', href: '/dashboard' },
     { label: 'Issue Credential', href: '/issue-credentials' },
     { label: 'Requests', href: '/requests' },
     { label: 'Profile', href: '/profile' },
@@ -21,7 +21,7 @@ export const navigationItems = {
   ],
   employer: [
     { label: 'Home', href: '/home' },
-    { label: 'Dashboard', href: '/dashboard' },
+    // { label: 'Dashboard', href: '/dashboard' },
     { label: 'Jobs', href: '/jobs' },
     { label: 'Post Job', href: '/post-job' },
     { label: 'Profile', href: '/profile' },
@@ -31,7 +31,7 @@ export const navigationItems = {
   ],
   learner: [
     { label: 'Home', href: '/home' },
-    { label: 'Dashboard', href: '/dashboard' },
+    // { label: 'Dashboard', href: '/dashboard' },
     { label: 'Credentials', href: '/credentials' },
     { label: 'Add Credentials', href: '/credentials/add' },
     { label: 'Profile', href: '/profile' },
