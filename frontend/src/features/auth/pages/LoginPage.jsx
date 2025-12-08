@@ -22,10 +22,10 @@ export default function LoginPage() {
 
   // Custom hooks for shared auth logic
   const { authError } = useAuthForm({ showErrorToast: false }); // Don't auto-show toast for login errors
-  const { bgClass, textClass, roleTextClasses } = useRoleTheme(searchParams.get('role') ?? 'credentialist');
+  const { bgClass, textClass, roleTextClasses } = useRoleTheme(searchParams.get('role') ?? 'learner');
 
   // Component state
-  const [role, setRole] = useState(searchParams.get('role') ?? 'credentialist');
+  const [role, setRole] = useState(searchParams.get('role') ?? 'learner');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -177,9 +177,9 @@ export default function LoginPage() {
                 <motion.div variants={authPageItem} className="space-y-2">
                   <Label>Role</Label>
                   <Select value={role} onValueChange={setRole}>
-                    <SelectItem value="credentialist">Credentialist</SelectItem>
-                    <SelectItem value="curator">Curator</SelectItem>
-                    <SelectItem value="validant">Validant</SelectItem>
+                    <SelectItem value="learner">Learner</SelectItem>
+                    <SelectItem value="employer">Employer</SelectItem>
+                    <SelectItem value="regulator">Regulator</SelectItem>
                   </Select>
                 </motion.div>
                 <motion.div variants={authPageItem}>
@@ -197,49 +197,49 @@ export default function LoginPage() {
             <motion.div className="mt-6 p-4 bg-muted/50 rounded-lg" variants={authPageItem}>
               <h3 className="text-sm font-medium mb-3 text-center">Demo Credentials</h3>
               <div className="space-y-2 text-xs">
-                {role === 'credentialist' && (
+                {role === 'learner' && (
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">Credentialist:</span>
+                    <span className="font-medium">Learner:</span>
                     <button
                       type="button"
                       onClick={() => {
                         setEmail('priya.sharma@example.com');
                         setPassword('password123');
-                        setRole('credentialist');
+                        setRole('learner');
                       }}
-                      className={`hover:underline font-medium ${currentTheme.roleTextClasses.credentialist}`}
+                      className={`hover:underline font-medium ${currentTheme.roleTextClasses.learner}`}
                     >
                       priya.sharma@example.com / password123
                     </button>
                   </div>
                 )}
-                {role === 'validant' && (
+                {role === 'regulator' && (
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">Validant:</span>
+                    <span className="font-medium">Regulator:</span>
                     <button
                       type="button"
                       onClick={() => {
                         setEmail('kavita.rao@credverify.com');
                         setPassword('password123');
-                        setRole('validant');
+                        setRole('regulator');
                       }}
-                      className={`hover:underline font-medium ${currentTheme.roleTextClasses.validant}`}
+                      className={`hover:underline font-medium ${currentTheme.roleTextClasses.regulator}`}
                     >
                       kavita.rao@credverify.com / password123
                     </button>
                   </div>
                 )}
-                {role === 'curator' && (
+                {role === 'employer' && (
                   <div className="flex justify-between items-center">
-                    <span className="font-medium">Curator:</span>
+                    <span className="font-medium">Employer:</span>
                     <button
                       type="button"
                       onClick={() => {
                         setEmail('meera.krishnan@startupx.io');
                         setPassword('password123');
-                        setRole('curator');
+                        setRole('employer');
                       }}
-                      className={`hover:underline font-medium ${currentTheme.roleTextClasses.curator}`}
+                      className={`hover:underline font-medium ${currentTheme.roleTextClasses.employer}`}
                     >
                       meera.krishnan@startupx.io / password123
                     </button>

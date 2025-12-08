@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const jobSchema = new mongoose.Schema(
   {
-    curator: {
+    employer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
@@ -42,7 +42,7 @@ const jobSchema = new mongoose.Schema(
     },
     applicants: [
       {
-        credentialist: {
+        learner: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'User',
         },
@@ -64,7 +64,7 @@ const jobSchema = new mongoose.Schema(
 );
 
 // Indexes for better query performance
-jobSchema.index({ curator: 1, status: 1 });
+jobSchema.index({ employer: 1, status: 1 });
 jobSchema.index({ status: 1, createdAt: -1 });
 jobSchema.index({ jobType: 1, experienceLevel: 1 });
 

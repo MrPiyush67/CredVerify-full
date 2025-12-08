@@ -8,7 +8,7 @@ import JobsTab from '@features/home/components/JobsTab.jsx';
 import { useHome } from '../hooks/useHome.js';
 
 export default function HomePage() {
-  const [tab, setTab] = useState('credentialist');
+  const [tab, setTab] = useState('learner');
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   // Use the home hook for data management
@@ -45,25 +45,25 @@ export default function HomePage() {
 
   // Reset tab to valid tab based on user role
   useEffect(() => {
-    const validTabs = ['credentialist', 'job'];
-    if (canViewAdmins) validTabs.push('validant');
-    if (canViewEmployers) validTabs.push('curator');
+    const validTabs = ['learner', 'job'];
+    if (canViewAdmins) validTabs.push('regulator');
+    if (canViewEmployers) validTabs.push('employer');
 
     if (!validTabs.includes(tab)) {
-      setTab('credentialist'); // Default to credentialist tab
+      setTab('learner'); // Default to learner tab
     }
   }, [tab, canViewAdmins, canViewEmployers]);
 
   // Accessibility: tabs ids and keyboard navigation
   const tabIds = {
-    credentialist: useId(),
-    validant: useId(),
-    curator: useId(),
+    learner: useId(),
+    regulator: useId(),
+    employer: useId(),
     job: useId(),
   };
 
   const onTabsKeyDown = useCallback((e) => {
-    const order = ['credentialist', 'validant', 'curator', 'job'];
+    const order = ['learner', 'regulator', 'employer', 'job'];
     const idx = order.indexOf(tab);
     if (e.key === 'ArrowRight') {
       setTab(order[(idx + 1) % order.length]);
@@ -77,11 +77,11 @@ export default function HomePage() {
   // Simple count display - components will handle their own counts
   const getTabCount = (tabType) => {
     switch (tabType) {
-      case 'credentialist':
+      case 'learner':
         return `(${users.data?.length || 0})`;
-      case 'validant':
+      case 'regulator':
         return `(${admins.data?.length || 0})`;
-      case 'curator':
+      case 'employer':
         return `(${employers.data?.length || 0})`;
       case 'job':
         return `(${jobs.data?.length || 0})`;
@@ -115,15 +115,15 @@ export default function HomePage() {
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
               role="tab"
-              aria-selected={tab === 'credentialist'}
-              aria-controls={tabIds.credentialist}
-              variant={tab === 'credentialist' ? 'default' : 'outline'}
+              aria-selected={tab === 'learner'}
+              aria-controls={tabIds.learner}
+              variant={tab === 'learner' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setTab('credentialist')}
+              onClick={() => setTab('learner')}
               className="flex items-center gap-2"
             >
               <Users className="h-4 w-4" />
-              Credentialists {getTabCount('credentialist')}
+              Learners {getTabCount('learner')}
             </Button>
           </motion.div>
 
@@ -131,15 +131,15 @@ export default function HomePage() {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 role="tab"
-                aria-selected={tab === 'validant'}
-                aria-controls={tabIds.validant}
-                variant={tab === 'validant' ? 'default' : 'outline'}
+                aria-selected={tab === 'regulator'}
+                aria-controls={tabIds.regulator}
+                variant={tab === 'regulator' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setTab('validant')}
+                onClick={() => setTab('regulator')}
                 className="flex items-center gap-2"
               >
                 <ShieldCheck className="h-4 w-4" />
-                Validants {getTabCount('validant')}
+                Regulators {getTabCount('regulator')}
               </Button>
             </motion.div>
           )}
@@ -148,15 +148,15 @@ export default function HomePage() {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 role="tab"
-                aria-selected={tab === 'curator'}
-                aria-controls={tabIds.curator}
-                variant={tab === 'curator' ? 'default' : 'outline'}
+                aria-selected={tab === 'employer'}
+                aria-controls={tabIds.employer}
+                variant={tab === 'employer' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setTab('curator')}
+                onClick={() => setTab('employer')}
                 className="flex items-center gap-2"
               >
                 <Briefcase className="h-4 w-4" />
-                Curators {getTabCount('curator')}
+                Employers {getTabCount('employer')}
               </Button>
             </motion.div>
           )}
@@ -185,35 +185,35 @@ export default function HomePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3 }}
       >
-        {tab === 'credentialist' && (
+        {tab === 'learner' && (
           <RoleTab
-            role="credentialist"
-            id={tabIds.credentialist}
+            role="learner"
+            id={tabIds.learner}
             tabpanelProps={{
               role: "tabpanel",
-              "aria-label": "Credentialists tab"
+              "aria-label": "Learners tab"
             }}
           />
         )}
 
-        {tab === 'validant' && canViewAdmins && (
+        {tab === 'regulator' && canViewAdmins && (
           <RoleTab
-            role="validant"
-            id={tabIds.validant}
+            role="regulator"
+            id={tabIds.regulator}
             tabpanelProps={{
               role: "tabpanel",
-              "aria-label": "Validants tab"
+              "aria-label": "Regulators tab"
             }}
           />
         )}
 
-        {tab === 'curator' && canViewEmployers && (
+        {tab === 'employer' && canViewEmployers && (
           <RoleTab
-            role="curator"
-            id={tabIds.curator}
+            role="employer"
+            id={tabIds.employer}
             tabpanelProps={{
               role: "tabpanel",
-              "aria-label": "Curators tab"
+              "aria-label": "Employers tab"
             }}
           />
         )}

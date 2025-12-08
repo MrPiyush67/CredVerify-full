@@ -22,7 +22,7 @@
 - ✅ Blockchain-based immutable certificate storage (Ethereum)
 - ✅ Browser extension for automatic certificate extraction
 - ✅ DigiLocker integration for government document verification
-- ✅ Multi-role platform (User, Credentialist, Validant, Curator)
+- ✅ Multi-role platform (User, Learner, Regulator, Employer)
 - ✅ Real-time notifications and chat system
 - ✅ Job board and credential marketplace
 
@@ -128,9 +128,9 @@ Host: 0.0.0.0
 │  API Routes (/api)                                           │
 │  ├─ /users          - User management                        │
 │  ├─ /credentials    - Certificate verification               │
-│  ├─ /credentialist  - Credential issuer role                 │
-│  ├─ /validant       - Validator role                         │
-│  ├─ /curator        - Curator role                           │
+│  ├─ /learner  - Credential issuer role                 │
+│  ├─ /regulator       - Validator role                         │
+│  ├─ /employer        - Employer role                           │
 │  ├─ /jobs           - Job postings                           │
 │  ├─ /chat           - Real-time chat                         │
 │  ├─ /notifications  - User notifications                     │
@@ -164,7 +164,7 @@ Host: 0.0.0.0
 │  ├─ Chat                                                     │
 │  ├─ Notification                                             │
 │  ├─ Platform                                                 │
-│  └─ Settings (Credentialist, Validant, Curator)             │
+│  └─ Settings (Learner, Regulator, Employer)             │
 ├─────────────────────────────────────────────────────────────┤
 │  Socket.IO (Real-time)                                       │
 │  ├─ Chat messages                                            │
@@ -598,7 +598,7 @@ test-scripts/
 4. **NoSQL Injection Prevention** - Mongo sanitization
 5. **CORS Protection** - Whitelisted origins
 6. **Anti-tamper Protection** - Image hash verification in extension
-7. **Role-based Access Control** - User, Credentialist, Validant, Curator
+7. **Role-based Access Control** - User, Learner, Regulator, Employer
 
 ---
 
@@ -609,7 +609,7 @@ test-scripts/
 2. ✅ **Blockchain:** Immutable certificate storage
 3. ✅ **Browser Extension:** Automatic certificate detection
 4. ✅ **DigiLocker Integration:** Government document verification
-5. ✅ **Multi-role Platform:** Ecosystem for issuers, validators, curators
+5. ✅ **Multi-role Platform:** Ecosystem for issuers, validators, employers
 
 ### **Tech Highlights:**
 - Modern stack (React 19, Vite 7, Tailwind 4)

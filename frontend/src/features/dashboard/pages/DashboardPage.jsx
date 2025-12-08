@@ -69,9 +69,9 @@ export default function DashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          {role === 'validant' && <AdminDashboardView stats={stats} />}
-          {role === 'curator' && <EmployerDashboardView stats={stats} />}
-          {role === 'credentialist' && <UserDashboardView stats={stats} />}
+          {role === 'regulator' && <AdminDashboardView stats={stats} />}
+          {role === 'employer' && <EmployerDashboardView stats={stats} />}
+          {role === 'learner' && <UserDashboardView stats={stats} />}
           {!role && <div className="text-center text-muted-foreground">Loading user data...</div>}
         </motion.div>
       </div>

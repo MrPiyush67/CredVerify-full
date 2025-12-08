@@ -15,8 +15,8 @@ export default function CredentialsPage() {
   const user = useSelector(selectUser);
   const credentials = useSelector(selectCredentials);
 
-  // Only credentialists can add credentials
-  const canAddCredential = user?.role === 'credentialist';
+  // Only learners can add credentials
+  const canAddCredential = user?.role === 'learner';
   const loading = useSelector(selectCredentialsLoading);
   const error = useSelector(selectCredentialsError);
   const pagination = useSelector(selectCredentialsPagination);

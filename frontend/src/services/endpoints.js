@@ -15,13 +15,13 @@ export const ENDPOINTS = {
     UPDATE_ROLE: 'me/profile/role', // Updates role-specific profile
 
     // Public profile by role
-    PUBLIC: (userId, role = 'credentialist') => {
+    PUBLIC: (userId, role = 'learner') => {
       const roleMap = {
-        credentialist: `credentialists/${userId}`,
-        validant: `validants/${userId}`,
-        curator: `curators/${userId}`
+        learner: `learners/${userId}`,
+        regulator: `regulators/${userId}`,
+        employer: `employers/${userId}`
       };
-      return roleMap[role] || `credentialists/${userId}`;
+      return roleMap[role] || `learners/${userId}`;
     },
   },
   DASHBOARD: {
@@ -33,17 +33,17 @@ export const ENDPOINTS = {
 
     // Legacy individual statistics endpoints (kept for backward compatibility)
     STATS: {
-      credentialists: 'credentialist/stats',
-      validant: 'validant/stats',
-      curators: 'curator/stats',
+      learners: 'learner/stats',
+      regulator: 'regulator/stats',
+      employers: 'employer/stats',
       jobs: 'jobs/stats',
     },
 
     // Data endpoints for dashboard - matching backend-new structure
     DATA: {
-      credentialists: 'credentialists',
-      validants: 'validants',
-      curators: 'curators',
+      learners: 'learners',
+      regulators: 'regulators',
+      employers: 'employers',
       jobs: 'jobs',
       myJobs: 'jobs/my-jobs',
       myApplications: 'jobs/my-applications',
@@ -78,21 +78,21 @@ export const ENDPOINTS = {
 
   SETTINGS: {
     // Get/Update settings (role-specific)
-    GET: (role = 'credentialist') => {
+    GET: (role = 'learner') => {
       const roleMap = {
-        credentialist: 'credentialist/settings',
-        validant: 'validant/settings',
-        curator: 'curator/settings'
+        learner: 'learner/settings',
+        regulator: 'regulator/settings',
+        employer: 'employer/settings'
       };
-      return roleMap[role] || 'credentialist/settings';
+      return roleMap[role] || 'learner/settings';
     },
-    UPDATE: (role = 'credentialist') => {
+    UPDATE: (role = 'learner') => {
       const roleMap = {
-        credentialist: 'credentialist/settings',
-        validant: 'validant/settings',
-        curator: 'curator/settings'
+        learner: 'learner/settings',
+        regulator: 'regulator/settings',
+        employer: 'employer/settings'
       };
-      return roleMap[role] || 'credentialist/settings';
+      return roleMap[role] || 'learner/settings';
     },
   },
 
@@ -108,7 +108,7 @@ export const ENDPOINTS = {
     REQUEST_VERIFICATION: (id) => `credentials/${id}/request-verification`,
     PUBLIC: 'credentials/public',
     VERIFIED: 'credentials/verified',
-    PENDING: 'credentials/pending', // For validant to fetch pending/past credentials
+    PENDING: 'credentials/pending', // For regulator to fetch pending/past credentials
   },
 
   JOBS: {
@@ -116,7 +116,7 @@ export const ENDPOINTS = {
     LIST: 'jobs',
     GET: (id) => `jobs/${id}`,
 
-    // Curator
+    // Employer
     CREATE: 'jobs',
     MY_JOBS: 'jobs/my-jobs',
     STATS: 'jobs/stats',
@@ -126,30 +126,30 @@ export const ENDPOINTS = {
     APPLICANT_DETAILS: (jobId, applicantUserId) => `jobs/${jobId}/applicants/${applicantUserId}/details`,
     UPDATE_APPLICANT: (jobId, applicantId) => `jobs/${jobId}/applicants/${applicantId}`,
 
-    // Credentialist
+    // Learner
     APPLY: (id) => `jobs/${id}/apply`,
     MY_APPLICATIONS: 'jobs/my-applications',
   },
 
-  VALIDANT: {
-    PROFILE: 'validant/profile',
-    SETTINGS: 'validant/settings',
-    STATS: 'validant/stats',
-    PENDING_CREDENTIALS: 'validant/credentials/pending',
-    VERIFY_CREDENTIAL: (id) => `validant/credentials/${id}/verify`,
-    REJECT_CREDENTIAL: (id) => `validant/credentials/${id}/reject`,
+  REGULATOR: {
+    PROFILE: 'regulator/profile',
+    SETTINGS: 'regulator/settings',
+    STATS: 'regulator/stats',
+    PENDING_CREDENTIALS: 'regulator/credentials/pending',
+    VERIFY_CREDENTIAL: (id) => `regulator/credentials/${id}/verify`,
+    REJECT_CREDENTIAL: (id) => `regulator/credentials/${id}/reject`,
   },
 
-  CURATOR: {
-    PROFILE: 'curator/profile',
-    SETTINGS: 'curator/settings',
-    STATS: 'curator/stats',
+  EMPLOYER: {
+    PROFILE: 'employer/profile',
+    SETTINGS: 'employer/settings',
+    STATS: 'employer/stats',
   },
 
-  CREDENTIALIST: {
-    PROFILE: 'credentialist/profile',
-    SETTINGS: 'credentialist/settings',
-    STATS: 'credentialist/stats',
+  LEARNER: {
+    PROFILE: 'learner/profile',
+    SETTINGS: 'learner/settings',
+    STATS: 'learner/stats',
   },
 
   PLATFORMS: {

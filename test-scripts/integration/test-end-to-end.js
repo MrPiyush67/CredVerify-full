@@ -11,7 +11,7 @@ const testUser = {
   email: `test-${Date.now()}@credverify.test`,
   password: 'Test@123456',
   name: 'Test User',
-  role: 'credentialist'
+  role: 'learner'
 };
 
 const testCertificate = {
@@ -103,9 +103,9 @@ async function runE2ETest() {
 
     // ===== STEP 4: Request Verification =====
     console.log('\n📝 Step 4: Request Manual Verification');
-    console.log('   (This would normally trigger Validant review)');
-    // In real scenario, this would be picked up by a Validant
-    console.log('⚠️  Manual verification requires Validant approval');
+    console.log('   (This would normally trigger Regulator review)');
+    // In real scenario, this would be picked up by a Regulator
+    console.log('⚠️  Manual verification requires Regulator approval');
 
     // ===== STEP 5: Fetch User's Credentials =====
     console.log('\n📝 Step 5: Fetch User Credentials');

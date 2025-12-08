@@ -79,7 +79,7 @@ export default function NotificationSettings({ currentSettings = {}, handleSetti
           </div>
 
           {/* Common notifications */}
-          {role !== 'validant' && (
+          {role !== 'regulator' && (
             <>
               <div className="flex items-center justify-between">
                 <div>
@@ -109,14 +109,14 @@ export default function NotificationSettings({ currentSettings = {}, handleSetti
             </>
           )}
 
-          {/* System Alerts - For validant and curator */}
-          {(role === 'validant' || role === 'curator') && (
+          {/* System Alerts - For regulator and employer */}
+          {(role === 'regulator' || role === 'employer') && (
             <>
               <div className="flex items-center justify-between">
                 <div>
                   <label className="font-medium">System Alerts</label>
                   <p className="text-sm text-muted-foreground">
-                    {role === 'validant' ? 'Critical system notifications' : 'Important system updates'}
+                    {role === 'regulator' ? 'Critical system notifications' : 'Important system updates'}
                   </p>
                 </div>
                 <Toggle
@@ -145,7 +145,7 @@ export default function NotificationSettings({ currentSettings = {}, handleSetti
             <div>
               <label className="font-medium">Weekly Reports</label>
               <p className="text-sm text-muted-foreground">
-                {role === 'validant' ? 'Weekly administrative reports' : 'Weekly activity summary'}
+                {role === 'regulator' ? 'Weekly administrative reports' : 'Weekly activity summary'}
               </p>
             </div>
             <Toggle
@@ -155,7 +155,7 @@ export default function NotificationSettings({ currentSettings = {}, handleSetti
           </div>
 
           {/* Role-specific notifications */}
-          {role === 'credentialist' && (
+          {role === 'learner' && (
             <>
               <div className="flex items-center justify-between pt-4 border-t">
                 <div>
@@ -198,7 +198,7 @@ export default function NotificationSettings({ currentSettings = {}, handleSetti
             </>
           )}
 
-          {role === 'curator' && (
+          {role === 'employer' && (
             <>
               <div className="flex items-center justify-between pt-4 border-t">
                 <div>
@@ -280,7 +280,7 @@ export default function NotificationSettings({ currentSettings = {}, handleSetti
             </>
           )}
 
-          {role === 'validant' && (
+          {role === 'regulator' && (
             <>
               <div className="flex items-center justify-between pt-4 border-t">
                 <div>

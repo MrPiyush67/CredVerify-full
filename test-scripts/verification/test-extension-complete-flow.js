@@ -70,7 +70,7 @@ async function createUserAccount(name) {
         name: name,
         email: email,
         password: password,
-        role: 'credentialist', // Default role
+        role: 'learner', // Default role
       }),
     });
 

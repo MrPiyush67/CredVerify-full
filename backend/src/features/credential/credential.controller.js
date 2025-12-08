@@ -6,7 +6,7 @@ import * as bulkCredentialService from './services/bulkCredential.service.js';
 
 // @desc    Upload a credential
 // @route   POST /api/credentials
-// @access  Private (Credentialist only)
+// @access  Private (Learner only)
 export const uploadCredential = asyncHandler(async (req, res) => {
   const credential = await credentialService.createCredential(req.user._id, req.body);
   return sendSuccess(res, 201, MESSAGES.CREDENTIAL.UPLOADED, { credential });
@@ -14,7 +14,7 @@ export const uploadCredential = asyncHandler(async (req, res) => {
 
 // @desc    Get my credentials
 // @route   GET /api/credentials
-// @access  Private (Credentialist only)
+// @access  Private (Learner only)
 export const getMyCredentials = asyncHandler(async (req, res) => {
   const { status } = req.query;
   const filters = status ? { status } : {};
@@ -35,7 +35,7 @@ export const getCredentialById = asyncHandler(async (req, res) => {
 
 // @desc    Update credential
 // @route   PATCH /api/credentials/:id
-// @access  Private (Credentialist only)
+// @access  Private (Learner only)
 export const updateCredential = asyncHandler(async (req, res) => {
   const credential = await credentialService.updateCredential(
     req.user._id,
@@ -47,7 +47,7 @@ export const updateCredential = asyncHandler(async (req, res) => {
 
 // @desc    Create credential from extension
 // @route   POST /api/credentials/from-extension
-// @access  Private (Credentialist only)
+// @access  Private (Learner only)
 export const createCredentialFromExtension = asyncHandler(async (req, res) => {
   const credential = await credentialService.createCredential(req.user._id, req.body);
 
@@ -56,7 +56,7 @@ export const createCredentialFromExtension = asyncHandler(async (req, res) => {
 
 // @desc    Delete credential
 // @route   DELETE /api/credentials/:id
-// @access  Private (Credentialist only)
+// @access  Private (Learner only)
 export const deleteCredential = asyncHandler(async (req, res) => {
   await credentialService.deleteCredential(req.user._id, req.params.id);
   return sendSuccess(res, 200, 'Credential deleted successfully');
@@ -64,7 +64,7 @@ export const deleteCredential = asyncHandler(async (req, res) => {
 
 // @desc    Request verification for a credential
 // @route   POST /api/credentials/:id/request-verification
-// @access  Private (Credentialist only)
+// @access  Private (Learner only)
 export const requestVerification = asyncHandler(async (req, res) => {
   const credential = await credentialService.requestVerification(
     req.user._id,
@@ -77,7 +77,7 @@ export const requestVerification = asyncHandler(async (req, res) => {
 
 // @desc    Get verified credentials
 // @route   GET /api/credentials/verified
-// @access  Private (Credentialist only)
+// @access  Private (Learner only)
 export const getVerifiedCredentials = asyncHandler(async (req, res) => {
   const credentials = await credentialService.getVerifiedCredentials(req.user._id);
   return sendSuccess(res, 200, 'Verified credentials fetched successfully', {
@@ -87,7 +87,7 @@ export const getVerifiedCredentials = asyncHandler(async (req, res) => {
 
 // @desc    Get credential stats
 // @route   GET /api/credentials/stats
-// @access  Private (Credentialist only)
+// @access  Private (Learner only)
 export const getCredentialStats = asyncHandler(async (req, res) => {
   const stats = await credentialService.getCredentialStats(req.user._id);
   return sendSuccess(res, 200, 'Stats fetched successfully', { stats });
@@ -108,9 +108,9 @@ export const getPublicCredentials = asyncHandler(async (req, res) => {
   return sendSuccess(res, 200, 'Public credentials fetched successfully', { credentials });
 });
 
-// @desc    Get pending credentials for validant review
+// @desc    Get pending credentials for regulator review
 // @route   GET /api/credentials/pending
-// @access  Private (Validant only)
+// @access  Private (Regulator only)
 export const getPendingCredentials = asyncHandler(async (req, res) => {
   const { type, issuer, status, statusIn } = req.query;
   const filters = {};
@@ -120,13 +120,13 @@ export const getPendingCredentials = asyncHandler(async (req, res) => {
   if (status) filters.status = status;
   if (statusIn) filters.statusIn = statusIn;
 
-  const credentials = await credentialService.getPendingCredentialsForValidant(filters);
+  const credentials = await credentialService.getPendingCredentialsForRegulator(filters);
   return sendSuccess(res, 200, 'Credentials fetched successfully', { credentials });
 });
 
-// @desc    Verify a credential (validant action)
+// @desc    Verify a credential (regulator action)
 // @route   POST /api/credentials/:id/verify
-// @access  Private (Validant only)
+// @access  Private (Regulator only)
 export const verifyCredential = asyncHandler(async (req, res) => {
   const { verificationNotes } = req.body;
   const credential = await credentialService.verifyCredential(
@@ -137,9 +137,9 @@ export const verifyCredential = asyncHandler(async (req, res) => {
   return sendSuccess(res, 200, MESSAGES.CREDENTIAL.VERIFIED, { credential });
 });
 
-// @desc    Reject a credential (validant action)
+// @desc    Reject a credential (regulator action)
 // @route   POST /api/credentials/:id/reject
-// @access  Private (Validant only)
+// @access  Private (Regulator only)
 export const rejectCredential = asyncHandler(async (req, res) => {
   const { rejectionReason } = req.body;
   const credential = await credentialService.rejectCredential(
@@ -154,7 +154,7 @@ import { generateCertificatePDF } from '../../core/utils/certificateGenerator.js
 
 // @desc    Preview credential certificate
 // @route   POST /api/credentials/preview
-// @access  Private (Validant only)
+// @access  Private (Regulator only)
 export const previewCertificate = asyncHandler(async (req, res) => {
   const { credentialName, issueDate, hours, nsqfLevel, recipientName } = req.body;
 
@@ -165,7 +165,7 @@ export const previewCertificate = asyncHandler(async (req, res) => {
     });
   }
 
-  // Get validant name for instructor field
+  // Get regulator name for instructor field
   const instructorName = req.user.name || 'Admin';
 
   // Generate a dummy certificate ID for preview (not saved to database)
@@ -193,10 +193,10 @@ export const previewCertificate = asyncHandler(async (req, res) => {
 
 // @desc    Issue bulk credentials to multiple recipients
 // @route   POST /api/credentials/bulk-issue
-// @access  Private (Validant only)
+// @access  Private (Regulator only)
 export const issueBulkCredentials = asyncHandler(async (req, res) => {
   const { credentialData, recipients } = req.body;
-  const validantId = req.user._id;
+  const regulatorId = req.user._id;
 
   // Validate input
   if (!credentialData || !recipients || !Array.isArray(recipients) || recipients.length === 0) {
@@ -208,7 +208,7 @@ export const issueBulkCredentials = asyncHandler(async (req, res) => {
 
   // Issue credentials to all recipients
   const results = await bulkCredentialService.issueBulkCredentials(
-    validantId,
+    regulatorId,
     credentialData,
     recipients
   );

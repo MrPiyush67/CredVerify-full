@@ -51,7 +51,7 @@ export default function UploadMethodsGuidePage() {
     },
     {
       id: 2,
-      title: 'Verify with Validant',
+      title: 'Verify with Regulator',
       icon: ShieldCheck,
       accentColor: '#0F766E',
       description: 'Get institutional verification for academic credentials',
@@ -77,7 +77,7 @@ export default function UploadMethodsGuidePage() {
         {
           step: 4,
           title: 'Institutional Review',
-          description: 'Institution\'s Validant verifies your credential against their records',
+          description: 'Institution\'s Regulator verifies your credential against their records',
           icon: FileCheck,
         },
         {
@@ -233,7 +233,7 @@ export default function UploadMethodsGuidePage() {
 
   const comparisonData = [
     { method: 'Browser Extension', speed: 'Instant', speedIcon: Zap, verification: 'Instant', bestUse: 'Online Courses' },
-    { method: 'Verify with Validant', speed: 'Slow', speedIcon: Clock, verification: 'Institution Verified', bestUse: 'Academic Degrees' },
+    { method: 'Verify with Regulator', speed: 'Slow', speedIcon: Clock, verification: 'Institution Verified', bestUse: 'Academic Degrees' },
     { method: 'Upload PDF/QR', speed: 'Fast', speedIcon: Zap, verification: 'OCR + Blockchain', bestUse: 'Government Certs' },
     { method: 'Verify with Link', speed: 'Instant', speedIcon: Zap, verification: 'Real-time', bestUse: 'Digital Badges' },
     { method: 'DigiLocker', speed: 'Fast', speedIcon: Zap, verification: 'Government Verified', bestUse: 'Govt Documents' },

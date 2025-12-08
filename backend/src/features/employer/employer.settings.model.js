@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const curatorSettingsSchema = new mongoose.Schema(
+const employerSettingsSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -85,4 +85,4 @@ const curatorSettingsSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model('CuratorSettings', curatorSettingsSchema);
+export default mongoose.model('EmployerSettings', employerSettingsSchema);

@@ -11,7 +11,7 @@ export function LoginModal({ isOpen, onClose, navigate }) {
 
   const roles = [
     {
-      role: 'credentialist',
+      role: 'learner',
       icon: Award,
       bgColor: 'bg-teal-100',
       textColor: 'text-[#0F766E]',
@@ -20,7 +20,7 @@ export function LoginModal({ isOpen, onClose, navigate }) {
       description: 'View your profile, badges, and certificates.',
     },
     {
-      role: 'curator',
+      role: 'employer',
       icon: Building,
       bgColor: 'bg-purple-100',
       textColor: 'text-purple-600',
@@ -29,7 +29,7 @@ export function LoginModal({ isOpen, onClose, navigate }) {
       description: 'Verify candidate skills and post opportunities.',
     },
     {
-      role: 'validant',
+      role: 'regulator',
       icon: ShieldCheck,
       bgColor: 'bg-blue-100',
       textColor: 'text-blue-600',

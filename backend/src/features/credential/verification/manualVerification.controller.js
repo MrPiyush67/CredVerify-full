@@ -52,7 +52,7 @@ export const uploadCertificateImage = multer({
 /**
  * @desc    Manual certificate verification via QR code or direct link
  * @route   POST /api/credentials/manual-verify
- * @access  Private (Credentialist only)
+ * @access  Private (Learner only)
  * 
  * @body    {
  *            certificateImage?: File,  // Image file containing QR code

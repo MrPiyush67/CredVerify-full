@@ -1,7 +1,7 @@
 export const ROLES = {
-  CREDENTIALIST: 'credentialist',
-  VALIDANT: 'validant',
-  CURATOR: 'curator',
+  LEARNER: 'learner',
+  REGULATOR: 'regulator',
+  EMPLOYER: 'employer',
 };
 
 export const ROLE_VALUES = Object.values(ROLES);

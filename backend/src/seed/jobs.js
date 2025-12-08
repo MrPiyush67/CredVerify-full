@@ -16,10 +16,10 @@ const daysAgo = (days) => {
   return date;
 };
 
-// 5 Job Postings by Meera Krishnan (demo curator)
+// 5 Job Postings by Meera Krishnan (demo employer)
 const jobs = [
   {
-    curator: SEED_IDS.curator1,
+    employer: SEED_IDS.employer1,
     title: 'Senior Full Stack Developer',
     description: 'We are looking for an experienced Full Stack Developer to join our growing team at StartupX Technologies. You will be responsible for developing and maintaining web applications using React, Node.js, and MongoDB. The ideal candidate has 4+ years of experience in building scalable applications and working in agile environments.',
     requirements: [
@@ -41,22 +41,22 @@ const jobs = [
     status: 'active',
     applicants: [
       {
-        credentialist: SEED_IDS.credentialist1, // Priya Sharma
+        learner: SEED_IDS.learner1, // Priya Sharma
         appliedAt: randomDaysAgo(5, 15),
         status: 'shortlisted',
       },
       {
-        credentialist: SEED_IDS.credentialist2,
+        learner: SEED_IDS.learner2,
         appliedAt: randomDaysAgo(5, 15),
         status: 'reviewed',
       },
       {
-        credentialist: SEED_IDS.credentialist3,
+        learner: SEED_IDS.learner3,
         appliedAt: randomDaysAgo(5, 15),
         status: 'pending',
       },
       {
-        credentialist: SEED_IDS.credentialist4,
+        learner: SEED_IDS.learner4,
         appliedAt: randomDaysAgo(5, 15),
         status: 'pending',
       },
@@ -65,7 +65,7 @@ const jobs = [
     updatedAt: daysAgo(20),
   },
   {
-    curator: SEED_IDS.curator1,
+    employer: SEED_IDS.employer1,
     title: 'UI/UX Designer',
     description: 'StartupX Technologies is seeking a creative UI/UX Designer to design intuitive and engaging user interfaces for our SaaS products. You will work closely with product managers and developers to create beautiful, functional designs that enhance user experience.',
     requirements: [
@@ -87,17 +87,17 @@ const jobs = [
     status: 'active',
     applicants: [
       {
-        credentialist: SEED_IDS.credentialist5,
+        learner: SEED_IDS.learner5,
         appliedAt: randomDaysAgo(3, 12),
         status: 'reviewed',
       },
       {
-        credentialist: SEED_IDS.credentialist6,
+        learner: SEED_IDS.learner6,
         appliedAt: randomDaysAgo(3, 12),
         status: 'pending',
       },
       {
-        credentialist: SEED_IDS.credentialist7,
+        learner: SEED_IDS.learner7,
         appliedAt: randomDaysAgo(3, 12),
         status: 'rejected',
       },
@@ -106,7 +106,7 @@ const jobs = [
     updatedAt: daysAgo(18),
   },
   {
-    curator: SEED_IDS.curator1,
+    employer: SEED_IDS.employer1,
     title: 'DevOps Engineer',
     description: 'Join our team as a DevOps Engineer to help build and maintain our cloud infrastructure. You will automate deployment pipelines, manage containerized applications, and ensure high availability of our services. This is a great opportunity to work with modern DevOps tools and practices.',
     requirements: [
@@ -128,12 +128,12 @@ const jobs = [
     status: 'active',
     applicants: [
       {
-        credentialist: SEED_IDS.credentialist8,
+        learner: SEED_IDS.learner8,
         appliedAt: randomDaysAgo(2, 10),
         status: 'shortlisted',
       },
       {
-        credentialist: SEED_IDS.credentialist9,
+        learner: SEED_IDS.learner9,
         appliedAt: randomDaysAgo(2, 10),
         status: 'pending',
       },
@@ -142,7 +142,7 @@ const jobs = [
     updatedAt: daysAgo(15),
   },
   {
-    curator: SEED_IDS.curator1,
+    employer: SEED_IDS.employer1,
     title: 'Product Manager',
     description: 'We are looking for a passionate Product Manager to drive the vision and execution of our SaaS products. You will work with cross-functional teams to define product strategy, prioritize features, and deliver value to our customers.',
     requirements: [
@@ -164,12 +164,12 @@ const jobs = [
     status: 'active',
     applicants: [
       {
-        credentialist: SEED_IDS.credentialist10,
+        learner: SEED_IDS.learner10,
         appliedAt: randomDaysAgo(1, 8),
         status: 'reviewed',
       },
       {
-        credentialist: SEED_IDS.credentialist1, // Priya applying to multiple jobs
+        learner: SEED_IDS.learner1, // Priya applying to multiple jobs
         appliedAt: randomDaysAgo(1, 8),
         status: 'pending',
       },
@@ -178,7 +178,7 @@ const jobs = [
     updatedAt: daysAgo(12),
   },
   {
-    curator: SEED_IDS.curator1,
+    employer: SEED_IDS.employer1,
     title: 'Frontend Developer Intern',
     description: 'StartupX Technologies is offering an exciting internship opportunity for aspiring frontend developers. You will work on real projects, learn modern web development technologies, and gain hands-on experience in a fast-paced startup environment.',
     requirements: [
@@ -200,27 +200,27 @@ const jobs = [
     status: 'active',
     applicants: [
       {
-        credentialist: SEED_IDS.credentialist2,
+        learner: SEED_IDS.learner2,
         appliedAt: randomDaysAgo(1, 5),
         status: 'pending',
       },
       {
-        credentialist: SEED_IDS.credentialist3,
+        learner: SEED_IDS.learner3,
         appliedAt: randomDaysAgo(1, 5),
         status: 'pending',
       },
       {
-        credentialist: SEED_IDS.credentialist4,
+        learner: SEED_IDS.learner4,
         appliedAt: randomDaysAgo(1, 5),
         status: 'reviewed',
       },
       {
-        credentialist: SEED_IDS.credentialist5,
+        learner: SEED_IDS.learner5,
         appliedAt: randomDaysAgo(1, 5),
         status: 'pending',
       },
       {
-        credentialist: SEED_IDS.credentialist6,
+        learner: SEED_IDS.learner6,
         appliedAt: randomDaysAgo(1, 5),
         status: 'pending',
       },
@@ -232,7 +232,7 @@ const jobs = [
 
 const seedJobs = async () => {
   const createdJobs = await Job.insertMany(jobs);
-  console.log(`✅ Jobs created: ${createdJobs.length} (posted by demo curator Meera)`);
+  console.log(`✅ Jobs created: ${createdJobs.length} (posted by demo employer Meera)`);
   return createdJobs;
 };
 

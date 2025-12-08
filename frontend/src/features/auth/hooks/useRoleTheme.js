@@ -4,20 +4,20 @@
  */
 export function useRoleTheme(role) {
   const roleBgClasses = {
-    credentialist: 'bg-credentialist-primary hover:bg-credentialist-primary/90',
-    curator: 'bg-curator-primary hover:bg-curator-primary/90',
-    validant: 'bg-validant-primary hover:bg-validant-primary/90'
+    learner: 'bg-learner-primary hover:bg-learner-primary/90',
+    employer: 'bg-employer-primary hover:bg-employer-primary/90',
+    regulator: 'bg-regulator-primary hover:bg-regulator-primary/90'
   };
 
   const roleTextClasses = {
-    credentialist: 'text-credentialist-primary',
-    curator: 'text-curator-primary',
-    validant: 'text-validant-primary'
+    learner: 'text-learner-primary',
+    employer: 'text-employer-primary',
+    regulator: 'text-regulator-primary'
   };
 
   return {
-    bgClass: roleBgClasses[role] || roleBgClasses.credentialist,
-    textClass: roleTextClasses[role] || roleTextClasses.credentialist,
+    bgClass: roleBgClasses[role] || roleBgClasses.learner,
+    textClass: roleTextClasses[role] || roleTextClasses.learner,
     roleBgClasses,
     roleTextClasses
   };

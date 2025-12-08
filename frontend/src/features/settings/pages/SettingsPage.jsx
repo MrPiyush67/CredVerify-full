@@ -124,14 +124,14 @@ export default function SettingsPage() {
           />
 
           {/* Role-Specific Settings */}
-          {role === 'validant' && (
+          {role === 'regulator' && (
             <AdminSettingsView
               currentSettings={localSettings}
               handleSettingChange={handleSettingChange}
             />
           )}
 
-          {role === 'curator' && (
+          {role === 'employer' && (
             <EmployerSettingsView
               currentSettings={localSettings}
               handleSettingChange={handleSettingChange}

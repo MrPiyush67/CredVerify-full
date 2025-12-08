@@ -21,6 +21,6 @@ export const authorize = (...roles) => {
 };
 
 // Shorthand guards
-export const isCredentialist = authorize(ROLES.CREDENTIALIST);
-export const isValidant = authorize(ROLES.VALIDANT);
-export const isCurator = authorize(ROLES.CURATOR);
+export const isLearner = authorize(ROLES.LEARNER);
+export const isRegulator = authorize(ROLES.REGULATOR);
+export const isEmployer = authorize(ROLES.EMPLOYER);

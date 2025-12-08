@@ -1,4 +1,4 @@
-// List of Indian Educational Institutions for Validant Verification
+// List of Indian Educational Institutions for Regulator Verification
 export const INDIAN_INSTITUTIONS = [
   // IITs
   'IIT Delhi',

@@ -16,9 +16,9 @@ const hoursAgo = (hours) => {
 
 // Notifications for demo users based on their activities
 const notifications = [
-  // ========== Priya's Notifications (credentialist1) ==========
+  // ========== Priya's Notifications (learner1) ==========
   {
-    user: SEED_IDS.credentialist1,
+    user: SEED_IDS.learner1,
     title: 'Credential Verified',
     message: 'Your Machine Learning Specialization certificate has been verified by Dr. Kavita Rao.',
     type: 'success',
@@ -31,7 +31,7 @@ const notifications = [
     createdAt: daysAgo(10),
   },
   {
-    user: SEED_IDS.credentialist1,
+    user: SEED_IDS.learner1,
     title: 'Credential Verified',
     message: 'Your Bachelor of Technology - Computer Science degree has been verified by Dr. Kavita Rao.',
     type: 'success',
@@ -44,7 +44,7 @@ const notifications = [
     createdAt: daysAgo(7),
   },
   {
-    user: SEED_IDS.credentialist1,
+    user: SEED_IDS.learner1,
     title: 'Credential Rejected',
     message: 'Your Google Cloud Professional Developer certificate was rejected. Please check the verification notes and resubmit.',
     type: 'error',
@@ -58,7 +58,7 @@ const notifications = [
     createdAt: daysAgo(3),
   },
   {
-    user: SEED_IDS.credentialist1,
+    user: SEED_IDS.learner1,
     title: 'New Message',
     message: 'Dr. Kavita Rao sent you a message about your credential verification.',
     type: 'info',
@@ -70,7 +70,7 @@ const notifications = [
     createdAt: daysAgo(4),
   },
   {
-    user: SEED_IDS.credentialist1,
+    user: SEED_IDS.learner1,
     title: 'New Message',
     message: 'Meera Krishnan sent you a message about the Senior Full Stack Developer position.',
     type: 'info',
@@ -82,7 +82,7 @@ const notifications = [
     createdAt: daysAgo(5),
   },
   {
-    user: SEED_IDS.credentialist1,
+    user: SEED_IDS.learner1,
     title: 'Interview Scheduled',
     message: 'Your interview for Senior Full Stack Developer at StartupX Technologies is scheduled for Thursday at 3 PM.',
     type: 'success',
@@ -96,7 +96,7 @@ const notifications = [
     createdAt: daysAgo(5),
   },
   {
-    user: SEED_IDS.credentialist1,
+    user: SEED_IDS.learner1,
     title: 'Credential Pending Review',
     message: 'Your MongoDB Certified Developer certificate is pending verification.',
     type: 'info',
@@ -108,7 +108,7 @@ const notifications = [
     createdAt: daysAgo(15),
   },
   {
-    user: SEED_IDS.credentialist1,
+    user: SEED_IDS.learner1,
     title: 'Credential Pending Review',
     message: 'Your React Professional Certificate is pending verification.',
     type: 'info',
@@ -120,74 +120,74 @@ const notifications = [
     createdAt: daysAgo(7),
   },
 
-  // ========== Dr. Kavita's Notifications (validant1) ==========
+  // ========== Dr. Kavita's Notifications (regulator1) ==========
   {
-    user: SEED_IDS.validant1,
+    user: SEED_IDS.regulator1,
     title: 'New Verification Request',
     message: 'Priya Sharma submitted AWS Certified Solutions Architect certificate for verification.',
     type: 'info',
     category: 'verification',
     read: true,
     metadata: {
-      credentialistName: 'Priya Sharma',
+      learnerName: 'Priya Sharma',
       credentialTitle: 'AWS Certified Solutions Architect - Associate',
     },
     createdAt: daysAgo(12),
   },
   {
-    user: SEED_IDS.validant1,
+    user: SEED_IDS.regulator1,
     title: 'Verification Completed',
     message: 'You successfully verified the AWS Certified Solutions Architect certificate for Priya Sharma.',
     type: 'success',
     category: 'verification',
     read: true,
     metadata: {
-      credentialistName: 'Priya Sharma',
+      learnerName: 'Priya Sharma',
       credentialTitle: 'AWS Certified Solutions Architect - Associate',
     },
     createdAt: daysAgo(10),
   },
   {
-    user: SEED_IDS.validant1,
+    user: SEED_IDS.regulator1,
     title: 'New Verification Request',
     message: 'Priya Sharma submitted Bachelor of Technology - Computer Science degree for verification.',
     type: 'info',
     category: 'verification',
     read: true,
     metadata: {
-      credentialistName: 'Priya Sharma',
+      learnerName: 'Priya Sharma',
       credentialTitle: 'Bachelor of Technology - Computer Science',
     },
     createdAt: daysAgo(9),
   },
   {
-    user: SEED_IDS.validant1,
+    user: SEED_IDS.regulator1,
     title: 'Verification Completed',
     message: 'You successfully verified the Bachelor of Technology degree for Priya Sharma.',
     type: 'success',
     category: 'verification',
     read: true,
     metadata: {
-      credentialistName: 'Priya Sharma',
+      learnerName: 'Priya Sharma',
       credentialTitle: 'Bachelor of Technology - Computer Science',
     },
     createdAt: daysAgo(7),
   },
   {
-    user: SEED_IDS.validant1,
+    user: SEED_IDS.regulator1,
     title: 'Credential Rejected',
     message: 'You rejected the Google Cloud Professional Developer certificate for Priya Sharma.',
     type: 'warning',
     category: 'verification',
     read: true,
     metadata: {
-      credentialistName: 'Priya Sharma',
+      learnerName: 'Priya Sharma',
       credentialTitle: 'Google Cloud Professional Developer',
     },
     createdAt: daysAgo(3),
   },
   {
-    user: SEED_IDS.validant1,
+    user: SEED_IDS.regulator1,
     title: 'New Message',
     message: 'Priya Sharma sent you a message about credential verification.',
     type: 'info',
@@ -199,7 +199,7 @@ const notifications = [
     createdAt: daysAgo(11),
   },
   {
-    user: SEED_IDS.validant1,
+    user: SEED_IDS.regulator1,
     title: 'New Message',
     message: 'Meera Krishnan sent you a message about credential verification partnership.',
     type: 'info',
@@ -211,7 +211,7 @@ const notifications = [
     createdAt: daysAgo(9),
   },
   {
-    user: SEED_IDS.validant1,
+    user: SEED_IDS.regulator1,
     title: 'Verification Statistics',
     message: 'You have verified 2 credentials and rejected 1 credential this month.',
     type: 'info',
@@ -224,9 +224,9 @@ const notifications = [
     createdAt: hoursAgo(24),
   },
 
-  // ========== Meera's Notifications (curator1) ==========
+  // ========== Meera's Notifications (employer1) ==========
   {
-    user: SEED_IDS.curator1,
+    user: SEED_IDS.employer1,
     title: 'Job Posted Successfully',
     message: 'Your job posting "Senior Full Stack Developer" has been published.',
     type: 'success',
@@ -238,7 +238,7 @@ const notifications = [
     createdAt: daysAgo(20),
   },
   {
-    user: SEED_IDS.curator1,
+    user: SEED_IDS.employer1,
     title: 'Job Posted Successfully',
     message: 'Your job posting "UI/UX Designer" has been published.',
     type: 'success',
@@ -250,7 +250,7 @@ const notifications = [
     createdAt: daysAgo(18),
   },
   {
-    user: SEED_IDS.curator1,
+    user: SEED_IDS.employer1,
     title: 'Job Posted Successfully',
     message: 'Your job posting "DevOps Engineer" has been published.',
     type: 'success',
@@ -262,7 +262,7 @@ const notifications = [
     createdAt: daysAgo(15),
   },
   {
-    user: SEED_IDS.curator1,
+    user: SEED_IDS.employer1,
     title: 'Job Posted Successfully',
     message: 'Your job posting "Product Manager" has been published.',
     type: 'success',
@@ -274,7 +274,7 @@ const notifications = [
     createdAt: daysAgo(12),
   },
   {
-    user: SEED_IDS.curator1,
+    user: SEED_IDS.employer1,
     title: 'Job Posted Successfully',
     message: 'Your job posting "Frontend Developer Intern" has been published.',
     type: 'success',
@@ -286,7 +286,7 @@ const notifications = [
     createdAt: daysAgo(8),
   },
   {
-    user: SEED_IDS.curator1,
+    user: SEED_IDS.employer1,
     title: 'Candidate Interest',
     message: 'Priya Sharma expressed interest in the Senior Full Stack Developer position.',
     type: 'info',
@@ -299,7 +299,7 @@ const notifications = [
     createdAt: daysAgo(8),
   },
   {
-    user: SEED_IDS.curator1,
+    user: SEED_IDS.employer1,
     title: 'New Message',
     message: 'Priya Sharma sent you a message about the Senior Full Stack Developer position.',
     type: 'info',
@@ -311,7 +311,7 @@ const notifications = [
     createdAt: daysAgo(8),
   },
   {
-    user: SEED_IDS.curator1,
+    user: SEED_IDS.employer1,
     title: 'New Message',
     message: 'Dr. Kavita Rao sent you a message about credential verification services.',
     type: 'info',
@@ -323,7 +323,7 @@ const notifications = [
     createdAt: daysAgo(10),
   },
   {
-    user: SEED_IDS.curator1,
+    user: SEED_IDS.employer1,
     title: 'Partnership Opportunity',
     message: 'Dr. Kavita Rao proposed a collaboration for priority credential verification.',
     type: 'info',
@@ -341,13 +341,13 @@ const seedNotifications = async () => {
   console.log(`✅ Notifications created: ${createdNotifications.length}`);
 
   // Count per user
-  const priyaNotifs = notifications.filter(n => n.user === SEED_IDS.credentialist1).length;
-  const kavitaNotifs = notifications.filter(n => n.user === SEED_IDS.validant1).length;
-  const meeraNotifs = notifications.filter(n => n.user === SEED_IDS.curator1).length;
+  const priyaNotifs = notifications.filter(n => n.user === SEED_IDS.learner1).length;
+  const kavitaNotifs = notifications.filter(n => n.user === SEED_IDS.regulator1).length;
+  const meeraNotifs = notifications.filter(n => n.user === SEED_IDS.employer1).length;
 
-  console.log(`   - Priya (credentialist): ${priyaNotifs} notifications`);
-  console.log(`   - Dr. Kavita (validant): ${kavitaNotifs} notifications`);
-  console.log(`   - Meera (curator): ${meeraNotifs} notifications`);
+  console.log(`   - Priya (learner): ${priyaNotifs} notifications`);
+  console.log(`   - Dr. Kavita (regulator): ${kavitaNotifs} notifications`);
+  console.log(`   - Meera (employer): ${meeraNotifs} notifications`);
 
   return createdNotifications;
 };

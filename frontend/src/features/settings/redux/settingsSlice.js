@@ -6,7 +6,7 @@ export const fetchUserSettings = createAsyncThunk(
   'settings/fetchUserSettings',
   async (_, { rejectWithValue, getState }) => {
     try {
-      const role = getState().auth?.role || 'credentialist';
+      const role = getState().auth?.role || 'learner';
       const response = await settingsApi.getUserSettings(role);
       return response.data;
     } catch (error) {
@@ -19,7 +19,7 @@ export const updateUserSettings = createAsyncThunk(
   'settings/updateUserSettings',
   async (settingsData, { rejectWithValue, getState }) => {
     try {
-      const role = getState().auth?.role || 'credentialist';
+      const role = getState().auth?.role || 'learner';
       const response = await settingsApi.updateUserSettings(settingsData, role);
       return response.data;
     } catch (error) {

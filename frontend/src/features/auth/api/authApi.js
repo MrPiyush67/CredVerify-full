@@ -3,7 +3,7 @@ import ENDPOINTS from '@services/endpoints';
 
 // to make sure only these 3 roles gets passed to backend
 const roleKey = (role) => (
-  (role === 'validant' || role === 'curator') ? role : 'credentialist'
+  (role === 'regulator' || role === 'employer') ? role : 'learner'
 );
 
 export const login = async ({ email, password, role }) => {
@@ -14,7 +14,7 @@ export const login = async ({ email, password, role }) => {
 
 export const signup = async ({ name, email, password, role, companyName }) => {
   const key = roleKey(role);
-  const payload = key === 'curator'
+  const payload = key === 'employer'
     ? { name, email, password, role: key, companyName }
     : { name, email, password, role: key };
   const res = await axiosClient.post(ENDPOINTS.AUTH.SIGNUP, payload);

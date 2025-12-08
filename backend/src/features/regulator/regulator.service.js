@@ -1,13 +1,13 @@
 import User from '../user/user.model.js';
-import ValidantSettings from './validant.settings.model.js';
+import RegulatorSettings from './regulator.settings.model.js';
 import Credential from '../credential/credential.model.js';
 import { flattenSettings, getOrCreateSettings, buildSettingsUpdate } from '../../core/utils/settingsHelper.js';
 
 export const getProfile = async (userId) => {
   const profile = await User.findById(userId).select('-passwordHash');
 
-  if (!profile || profile.role !== 'validant') {
-    throw new Error('Validant profile not found');
+  if (!profile || profile.role !== 'regulator') {
+    throw new Error('Regulator profile not found');
   }
 
   return profile;
@@ -20,44 +20,44 @@ export const updateProfile = async (userId, updates) => {
     { new: true, runValidators: true }
   ).select('-passwordHash');
 
-  if (!profile || profile.role !== 'validant') {
-    throw new Error('Validant profile not found');
+  if (!profile || profile.role !== 'regulator') {
+    throw new Error('Regulator profile not found');
   }
 
   return profile;
 };
 
 export const getPendingCredentials = async (userId) => {
-  const validantProfile = await User.findById(userId);
+  const regulatorProfile = await User.findById(userId);
 
-  if (!validantProfile || validantProfile.role !== 'validant') {
-    throw new Error('Validant profile not found');
+  if (!regulatorProfile || regulatorProfile.role !== 'regulator') {
+    throw new Error('Regulator profile not found');
   }
 
-  // Build query - filter by institution if validant has one
-  const query = { 
+  // Build query - filter by institution if regulator has one
+  const query = {
     status: 'pending',
-    verificationRequested: true 
+    verificationRequested: true
   };
 
-  // If validant has an institution, only show credentials for that institution
-  if (validantProfile.institution) {
-    query.institution = validantProfile.institution;
+  // If regulator has an institution, only show credentials for that institution
+  if (regulatorProfile.institution) {
+    query.institution = regulatorProfile.institution;
   }
 
   // Get credentials pending verification
   const credentials = await Credential.find(query)
-    .populate('credentialist', 'name email avatar')
+    .populate('learner', 'name email avatar')
     .sort({ requestedAt: -1, createdAt: -1 });
 
   return credentials;
 };
 
 export const verifyCredential = async (userId, credentialId) => {
-  const validantProfile = await User.findById(userId);
+  const regulatorProfile = await User.findById(userId);
 
-  if (!validantProfile || validantProfile.role !== 'validant') {
-    throw new Error('Validant profile not found');
+  if (!regulatorProfile || regulatorProfile.role !== 'regulator') {
+    throw new Error('Regulator profile not found');
   }
 
   const credential = await Credential.findById(credentialId);
@@ -76,18 +76,18 @@ export const verifyCredential = async (userId, credentialId) => {
   credential.verifiedAt = new Date();
   await credential.save();
 
-  // Increment validant verified count
-  validantProfile.verifiedCount += 1;
-  await validantProfile.save();
+  // Increment regulator verified count
+  regulatorProfile.verifiedCount += 1;
+  await regulatorProfile.save();
 
   return credential;
 };
 
 export const rejectCredential = async (userId, credentialId, reason) => {
-  const validantProfile = await User.findById(userId);
+  const regulatorProfile = await User.findById(userId);
 
-  if (!validantProfile || validantProfile.role !== 'validant') {
-    throw new Error('Validant profile not found');
+  if (!regulatorProfile || regulatorProfile.role !== 'regulator') {
+    throw new Error('Regulator profile not found');
   }
 
   const credential = await Credential.findById(credentialId);
@@ -107,9 +107,9 @@ export const rejectCredential = async (userId, credentialId, reason) => {
   credential.verifiedAt = new Date();
   await credential.save();
 
-  // Increment validant rejected count
-  validantProfile.rejectedCount += 1;
-  await validantProfile.save();
+  // Increment regulator rejected count
+  regulatorProfile.rejectedCount += 1;
+  await regulatorProfile.save();
 
   return credential;
 };
@@ -117,8 +117,8 @@ export const rejectCredential = async (userId, credentialId, reason) => {
 export const getVerificationStats = async (userId) => {
   const profile = await User.findById(userId);
 
-  if (!profile || profile.role !== 'validant') {
-    throw new Error('Validant profile not found');
+  if (!profile || profile.role !== 'regulator') {
+    throw new Error('Regulator profile not found');
   }
 
   // Single aggregation for all stats
@@ -148,33 +148,33 @@ export const getVerificationStats = async (userId) => {
   };
 };
 
-// Get all validants (for display/search) - only public validants
-export const getAllValidants = async (filters = {}) => {
-  const validants = await User.find({ role: 'validant', isPublic: true, ...filters })
+// Get all regulators (for display/search) - only public regulators
+export const getAllRegulators = async (filters = {}) => {
+  const regulators = await User.find({ role: 'regulator', isPublic: true, ...filters })
     .select('-passwordHash')
     .sort({ createdAt: -1 });
 
-  return validants;
+  return regulators;
 };
 
-// Get validant by ID (public profile only)
-export const getValidantById = async (validantId) => {
-  const validant = await User.findById(validantId).select('-passwordHash');
+// Get regulator by ID (public profile only)
+export const getRegulatorById = async (regulatorId) => {
+  const regulator = await User.findById(regulatorId).select('-passwordHash');
 
-  if (!validant || validant.role !== 'validant') {
-    throw new Error('Validant not found');
+  if (!regulator || regulator.role !== 'regulator') {
+    throw new Error('Regulator not found');
   }
 
-  if (!validant.isPublic) {
-    throw new Error('This validant profile is not public');
+  if (!regulator.isPublic) {
+    throw new Error('This regulator profile is not public');
   }
 
-  return validant;
+  return regulator;
 };
 
 // Get settings
 export const getSettings = async (userId) => {
-  const settings = await getOrCreateSettings(ValidantSettings, userId);
+  const settings = await getOrCreateSettings(RegulatorSettings, userId);
   return flattenSettings(settings);
 };
 
@@ -201,7 +201,7 @@ export const updateSettings = async (userId, updates) => {
 
   const updateObj = buildSettingsUpdate(updates, fieldMappings);
 
-  const settings = await ValidantSettings.findOneAndUpdate(
+  const settings = await RegulatorSettings.findOneAndUpdate(
     { user: userId },
     { $set: updateObj },
     { new: true, upsert: true, runValidators: true }

@@ -20,7 +20,7 @@ export const updateRoleProfile = async (roleData) => {
 };
 
 // Get public profile of another user
-export const getPublicProfile = async (userId, role = 'credentialist') => {
+export const getPublicProfile = async (userId, role = 'learner') => {
   const response = await axiosClient.get(ENDPOINTS.PROFILE.PUBLIC(userId, role));
   return response;
 };

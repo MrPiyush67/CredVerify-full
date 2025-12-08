@@ -55,9 +55,9 @@ The backend follows a **modular, feature-based architecture** where each domain 
 features/
 ├── user/                   # Base authentication & profiles
 ├── credential/             # Certificate management & verification
-├── credentialist/          # Credential holder profiles
-├── validant/               # Verifier profiles & manual review
-├── curator/                # Recruiter profiles
+├── learner/          # Credential holder profiles
+├── regulator/               # Verifier profiles & manual review
+├── employer/                # Recruiter profiles
 ├── job/                    # Job postings & applications
 ├── chat/                   # Real-time messaging
 ├── notification/           # User notifications
@@ -171,23 +171,23 @@ backend/
 │       │           ├── verification.controller.js # Extension endpoint
 │       │           └── manualVerification.controller.js # Manual endpoint
 │       │
-│       ├── credentialist/
-│       │   ├── credentialist.model.js    # Profile schema
-│       │   ├── credentialist.service.js  # Profile management
-│       │   ├── credentialist.controller.js
-│       │   └── credentialist.routes.js
+│       ├── learner/
+│       │   ├── learner.model.js    # Profile schema
+│       │   ├── learner.service.js  # Profile management
+│       │   ├── learner.controller.js
+│       │   └── learner.routes.js
 │       │
-│       ├── validant/
-│       │   ├── validant.model.js
-│       │   ├── validant.service.js
-│       │   ├── validant.controller.js
-│       │   └── validant.routes.js
+│       ├── regulator/
+│       │   ├── regulator.model.js
+│       │   ├── regulator.service.js
+│       │   ├── regulator.controller.js
+│       │   └── regulator.routes.js
 │       │
-│       ├── curator/
-│       │   ├── curator.model.js
-│       │   ├── curator.service.js
-│       │   ├── curator.controller.js
-│       │   └── curator.routes.js
+│       ├── employer/
+│       │   ├── employer.model.js
+│       │   ├── employer.service.js
+│       │   ├── employer.controller.js
+│       │   └── employer.routes.js
 │       │
 │       ├── job/
 │       │   ├── job.model.js
@@ -238,16 +238,16 @@ backend/
 #### Roles
 ```javascript
 ROLES = {
-  CREDENTIALIST: 'credentialist',  // Certificate holders
-  VALIDANT: 'validant',            // Verifiers
-  CURATOR: 'curator'               // Recruiters
+  CREDENTIALIST: 'learner',  // Certificate holders
+  VALIDANT: 'regulator',            // Verifiers
+  CURATOR: 'employer'               // Recruiters
 }
 ```
 
 #### Authentication Flow
 1. User signs up with role selection
 2. Base `User` document created in MongoDB
-3. Role-specific profile created (CredentialistProfile/ValidantProfile/CuratorProfile)
+3. Role-specific profile created (LearnerProfile/RegulatorProfile/EmployerProfile)
 4. JWT token generated and sent as HTTP-only cookie
 5. Subsequent requests include cookie for authentication
 
@@ -452,15 +452,15 @@ See **[API-REFERENCE.md](./API-REFERENCE.md)** for complete endpoint documentati
 |---------|-----------|---------------|-------|
 | Authentication | `/api/auth` | No | All |
 | User Profile | `/api/user` | Yes | All |
-| Credentials | `/api/credentials` | Yes | Credentialist |
-| Verification (Extension) | `/api/credentials/verify` | Yes | Credentialist |
-| Manual Verification | `/api/credentials/verify-manual` | Yes | Credentialist |
-| Validant Dashboard | `/api/validant` | Yes | Validant |
-| Curator Jobs | `/api/curator` | Yes | Curator |
+| Credentials | `/api/credentials` | Yes | Learner |
+| Verification (Extension) | `/api/credentials/verify` | Yes | Learner |
+| Manual Verification | `/api/credentials/verify-manual` | Yes | Learner |
+| Regulator Dashboard | `/api/regulator` | Yes | Regulator |
+| Employer Jobs | `/api/employer` | Yes | Employer |
 | Public Jobs | `/api/jobs` | No | All |
 | Chat | `/api/chat` | Yes | All |
 | Notifications | `/api/notifications` | Yes | All |
-| DigiLocker | `/api/digilocker` | Yes | Credentialist |
+| DigiLocker | `/api/digilocker` | Yes | Learner |
 | Dashboard | `/api/dashboard` | Yes | All |
 | Platforms | `/api/platforms` | No | All |
 
@@ -499,7 +499,7 @@ const authorize = (...roles) => (req, res, next) => {
 router.post(
   '/verify',
   protect,                     // Must be authenticated
-  authorize('credentialist'),  // Must be credentialist
+  authorize('learner'),  // Must be learner
   verifyController.verify
 );
 ```
@@ -515,7 +515,7 @@ router.post(
   username: String (unique),
   email: String (unique, required),
   password: String (hashed, required),
-  role: Enum ['credentialist', 'validant', 'curator'],
+  role: Enum ['learner', 'regulator', 'employer'],
   avatar: String,
   bio: String,
   location: String,
@@ -588,7 +588,7 @@ router.post(
 ### Job
 ```javascript
 {
-  curator: ObjectId (ref: User),
+  employer: ObjectId (ref: User),
   title: String,
   company: String,
   description: String,

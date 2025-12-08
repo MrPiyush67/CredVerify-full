@@ -9,9 +9,9 @@ import { errorHandler } from './core/middleware/errorHandler.js';
 // Import feature routes
 import userRoutes from './features/user/user.routes.js';
 import credentialRoutes from './features/credential/credential.routes.js';
-import credentialistRoutes from './features/credentialist/credentialist.routes.js';
-import validantRoutes from './features/validant/validant.routes.js';
-import curatorRoutes from './features/curator/curator.routes.js';
+import learnerRoutes from './features/learner/learner.routes.js';
+import regulatorRoutes from './features/regulator/regulator.routes.js';
+import employerRoutes from './features/employer/employer.routes.js';
 import jobRoutes from './features/job/job.routes.js';
 import chatRoutes from './features/chat/chat.routes.js';
 import notificationRoutes from './features/notification/notification.routes.js';
@@ -76,9 +76,9 @@ app.get('/health', (req, res) => {
 app.use('/api', [
   userRoutes,
   credentialRoutes,
-  credentialistRoutes,
-  validantRoutes,
-  curatorRoutes,
+  learnerRoutes,
+  regulatorRoutes,
+  employerRoutes,
   jobRoutes,
   chatRoutes,
   notificationRoutes,

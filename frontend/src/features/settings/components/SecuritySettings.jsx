@@ -6,7 +6,7 @@ export default function SecuritySettings({ currentSettings = {}, handleSettingCh
   const security = currentSettings.security || {};
 
   // Determine default session timeout based on role
-  const defaultSessionTimeout = role === 'validant' ? '8' : '24';
+  const defaultSessionTimeout = role === 'regulator' ? '8' : '24';
 
   const handleSecurityChange = (key, value) => {
     handleSettingChange('security', { ...security, [key]: value });
@@ -39,11 +39,11 @@ export default function SecuritySettings({ currentSettings = {}, handleSettingCh
               </label>
               <p className="text-sm text-muted-foreground">
                 Add an extra layer of security to your account
-                {role === 'validant' && ' (Recommended for validants)'}
+                {role === 'regulator' && ' (Recommended for regulators)'}
               </p>
             </div>
             <Toggle
-              checked={role === 'validant' ? (security.twoFactorAuth !== false) : (security.twoFactorAuth || false)}
+              checked={role === 'regulator' ? (security.twoFactorAuth !== false) : (security.twoFactorAuth || false)}
               onChange={(e) => handleSecurityChange('twoFactorAuth', e.target.checked)}
             />
           </div>
@@ -74,7 +74,7 @@ export default function SecuritySettings({ currentSettings = {}, handleSettingCh
               </label>
               <p className="text-sm text-muted-foreground">
                 Automatically log out after inactivity
-                {role === 'validant' && ' (Shorter timeout for validants)'}
+                {role === 'regulator' && ' (Shorter timeout for regulators)'}
               </p>
             </div>
             <select
@@ -84,11 +84,11 @@ export default function SecuritySettings({ currentSettings = {}, handleSettingCh
             >
               <option value="1">1 hour</option>
               <option value="4">4 hours</option>
-              {role === 'validant' && <option value="8">8 hours</option>}
+              {role === 'regulator' && <option value="8">8 hours</option>}
               <option value="12">12 hours</option>
-              {role !== 'validant' && <option value="24">24 hours</option>}
-              {role !== 'validant' && <option value="168">1 week</option>}
-              {role !== 'validant' && <option value="never">Never</option>}
+              {role !== 'regulator' && <option value="24">24 hours</option>}
+              {role !== 'regulator' && <option value="168">1 week</option>}
+              {role !== 'regulator' && <option value="never">Never</option>}
             </select>
           </div>
 

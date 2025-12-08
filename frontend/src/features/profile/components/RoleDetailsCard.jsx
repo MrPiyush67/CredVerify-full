@@ -3,7 +3,7 @@ import { MapPin, ShieldCheck, Building2, User as UserIcon, Layers } from 'lucide
 import { Badge } from '@common/ui/Badge.jsx';
 import { BentoCard } from './BentoGrid';
 
-const ValidantCard = ({ data }) => (
+const RegulatorCard = ({ data }) => (
   <BentoCard title="Authority Status" icon={ShieldCheck} className="col-span-1" delay={0.2}>
     <div className="space-y-4">
       <div className="flex justify-between items-center pb-2 border-b border-gray-100">
@@ -29,7 +29,7 @@ const ValidantCard = ({ data }) => (
   </BentoCard>
 );
 
-const CuratorCard = ({ data }) => (
+const EmployerCard = ({ data }) => (
   <BentoCard title="Company Info" icon={Building2} className="col-span-1" delay={0.2}>
     <div className="space-y-4">
       <div>
@@ -52,7 +52,7 @@ const CuratorCard = ({ data }) => (
   </BentoCard>
 );
 
-const CredentialistCard = ({ data }) => (
+const LearnerCard = ({ data }) => (
   <BentoCard title="Profile Status" icon={UserIcon} className="col-span-1" delay={0.2}>
     <div className="space-y-4">
       <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
@@ -76,11 +76,11 @@ export const RoleDetailsCard = ({ user, roleProfile }) => {
   const data = { ...user, ...roleProfile };
 
   const roleCards = {
-    validant: ValidantCard,
-    curator: CuratorCard,
-    credentialist: CredentialistCard
+    regulator: RegulatorCard,
+    employer: EmployerCard,
+    learner: LearnerCard
   };
 
-  const CardComponent = roleCards[user.role] || CredentialistCard;
+  const CardComponent = roleCards[user.role] || LearnerCard;
   return <CardComponent data={data} />;
 };

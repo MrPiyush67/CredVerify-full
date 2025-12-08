@@ -1,7 +1,7 @@
 import express from 'express';
 import { protect } from '../../core/middleware/auth.js';
 import { optionalAuth } from '../../core/middleware/optionalAuth.js';
-import { isCredentialist, isValidant } from '../../core/middleware/roleGuard.js';
+import { isLearner, isRegulator } from '../../core/middleware/roleGuard.js';
 import {
   uploadCredential,
   getMyCredentials,
@@ -51,28 +51,28 @@ router.post('/credentials/extract-preview', protect, extractCertificatePreview);
 router.post('/credentials/manual-verify', uploadCertificateImage, optionalAuth, manualVerification);
 router.post('/credentials/test-qr', protect, uploadCertificateImage, testQrExtraction);
 
-// Validant routes (specific routes first)
-router.get('/credentials/pending', protect, isValidant, getPendingCredentials);
-router.post('/credentials/preview', protect, isValidant, previewCertificate);
-router.post('/credentials/bulk-issue', protect, isValidant, issueBulkCredentials);
+// Regulator routes (specific routes first)
+router.get('/credentials/pending', protect, isRegulator, getPendingCredentials);
+router.post('/credentials/preview', protect, isRegulator, previewCertificate);
+router.post('/credentials/bulk-issue', protect, isRegulator, issueBulkCredentials);
 
-// Credentialist routes (specific routes before parameterized)
-router.post('/credentials', protect, isCredentialist, uploadCredential);
-router.get('/credentials/verified', protect, isCredentialist, getVerifiedCredentials);
-router.get('/credentials/stats', protect, isCredentialist, getCredentialStats);
-router.get('/credentials', protect, isCredentialist, getMyCredentials);
+// Learner routes (specific routes before parameterized)
+router.post('/credentials', protect, isLearner, uploadCredential);
+router.get('/credentials/verified', protect, isLearner, getVerifiedCredentials);
+router.get('/credentials/stats', protect, isLearner, getCredentialStats);
+router.get('/credentials', protect, isLearner, getMyCredentials);
 router.get('/credentials/:id', protect, getCredentialById);
-router.patch('/credentials/:id', protect, isCredentialist, updateCredential);
-router.delete('/credentials/:id', protect, isCredentialist, deleteCredential);
+router.patch('/credentials/:id', protect, isLearner, updateCredential);
+router.delete('/credentials/:id', protect, isLearner, deleteCredential);
 router.post(
   '/credentials/:id/request-verification',
   protect,
-  isCredentialist,
+  isLearner,
   requestVerification
 );
 
-// More validant routes
-router.post('/credentials/:id/verify', protect, isValidant, verifyCredential);
-router.post('/credentials/:id/reject', protect, isValidant, rejectCredential);
+// More regulator routes
+router.post('/credentials/:id/verify', protect, isRegulator, verifyCredential);
+router.post('/credentials/:id/reject', protect, isRegulator, rejectCredential);
 
 export default router;

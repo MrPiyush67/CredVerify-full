@@ -8,7 +8,7 @@ import { Button, PageHeader } from '@common';
 import CertificateQrUploadModal from '../components/CertificateQrUploadModal.jsx';
 import LinkVerificationModal from '../components/LinkVerificationModal.jsx';
 import PortfolioGeneratorModal from '../components/PortfolioGeneratorModal.jsx';
-import ValidantVerificationModal from '../components/ValidantVerificationModal.jsx';
+import RegulatorVerificationModal from '../components/RegulatorVerificationModal.jsx';
 import ExtensionInstallModal from '../components/ExtensionInstallModal.jsx';
 import PlatformVerificationModal from '../components/PlatformVerificationModal.jsx';
 import DigilockerModal from '../components/DigilockerModal.jsx';
@@ -93,7 +93,7 @@ export default function AddCredentialsPage() {
     });
   };
 
-  const handleValidantSubmit = async (credentialData) => {
+  const handleRegulatorSubmit = async (credentialData) => {
     try {
       const response = await credentialAPI.uploadCredential(credentialData);
 
@@ -101,7 +101,7 @@ export default function AddCredentialsPage() {
         const credential = response.data.credential;
         setSubmittedCredentials(prev => [...prev, {
           id: credential._id,
-          uploadMethod: 'Verify with Validant',
+          uploadMethod: 'Verify with Regulator',
           platformName: credential.title,
           institution: credential.institution,
           status: credential.status,
@@ -118,7 +118,7 @@ export default function AddCredentialsPage() {
 
   const uploadMethods = [
     { id: 'extension', onClick: () => openModal('extension'), icon: Puzzle, title: 'Browser Extension', description: 'Install extension to auto-extract certificates from websites' },
-    { id: 'validant', onClick: () => openModal('validant'), icon: ShieldCheck, title: 'Verify with Validant', description: 'Upload academic credentials for institutional verification' },
+    { id: 'regulator', onClick: () => openModal('regulator'), icon: ShieldCheck, title: 'Verify with Regulator', description: 'Upload academic credentials for institutional verification' },
     { id: 'certificate', onClick: () => openModal('certificateQr'), icon: QrCode, title: 'Certificate/QR Upload', description: 'Upload certificate image or PDF with QR code for verification' },
     { id: 'link', onClick: () => openModal('linkVerification'), icon: LinkIcon, title: 'Link Verification', description: 'Enter verification link from Coursera, NPTEL, HackerRank, etc.' },
     { id: 'digilocker', onClick: () => openModal('digilocker'), icon: FolderKey, title: 'DigiLocker', description: 'Import verified documents directly from your DigiLocker account' }
@@ -299,11 +299,11 @@ export default function AddCredentialsPage() {
         platformName={platformHandlers.verificationModal.platformName}
       />
 
-      {/* Validant Verification Modal */}
-      <ValidantVerificationModal
-        isOpen={modals.isValidantOpen}
+      {/* Regulator Verification Modal */}
+      <RegulatorVerificationModal
+        isOpen={modals.isRegulatorOpen}
         onClose={closeModal}
-        onSubmit={handleValidantSubmit}
+        onSubmit={handleRegulatorSubmit}
       />
 
       {/* Confirm Delete Modal for Profile Links */}

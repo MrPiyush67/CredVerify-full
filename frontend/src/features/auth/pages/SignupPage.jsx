@@ -22,10 +22,10 @@ export default function SignupPage() {
 
   // Custom hooks for shared auth logic
   const { authError } = useAuthForm({ showErrorToast: true });
-  const { bgClass, textClass, roleTextClasses } = useRoleTheme(searchParams.get('role') ?? 'credentialist');
+  const { bgClass, textClass, roleTextClasses } = useRoleTheme(searchParams.get('role') ?? 'learner');
 
   // Component state
-  const [role, setRole] = useState(searchParams.get('role') ?? 'credentialist');
+  const [role, setRole] = useState(searchParams.get('role') ?? 'learner');
   const [name, setName] = useState('');
   const [confirmName, setConfirmName] = useState('');
   const [email, setEmail] = useState('');
@@ -295,9 +295,9 @@ export default function SignupPage() {
                 <motion.div variants={authPageItem} className="space-y-2">
                   <Label>Role</Label>
                   <Select value={role} onValueChange={setRole}>
-                    <SelectItem value="credentialist">Credentialist</SelectItem>
-                    <SelectItem value="curator">Curator</SelectItem>
-                    <SelectItem value="validant">Validant</SelectItem>
+                    <SelectItem value="learner">Learner</SelectItem>
+                    <SelectItem value="employer">Employer</SelectItem>
+                    <SelectItem value="regulator">Regulator</SelectItem>
                   </Select>
                 </motion.div>
                 <motion.div variants={authPageItem}>

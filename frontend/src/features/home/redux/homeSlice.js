@@ -4,24 +4,24 @@ import logger from '@utils/logger.js';
 
 // Helper function to flatten profile data from backend
 // After schema consolidation, User objects are already flat (no nested user object)
-// Only jobs need flattening for curator references
+// Only jobs need flattening for employer references
 const flattenProfileData = (profile) => {
   if (!profile) return profile;
 
-  // Jobs have nested curator objects that need flattening
-  // Example: { _id, title, curator: { _id, name, email, companyName }, ... }
-  if (profile.curator && typeof profile.curator === 'object') {
-    const curatorName = profile.curator.name;
-    const curatorEmail = profile.curator.email;
+  // Jobs have nested employer objects that need flattening
+  // Example: { _id, title, employer: { _id, name, email, companyName }, ... }
+  if (profile.employer && typeof profile.employer === 'object') {
+    const employerName = profile.employer.name;
+    const employerEmail = profile.employer.email;
     return {
       ...profile,
-      curatorName,
-      curatorEmail,
-      companyName: profile.curator.companyName || curatorName,
+      employerName,
+      employerEmail,
+      companyName: profile.employer.companyName || employerName,
     };
   }
 
-  // User objects from credentialists/validants/curators endpoints are already flat
+  // User objects from learners/regulators/employers endpoints are already flat
   // No nested 'user' object anymore after schema consolidation
   // Example: { _id, name, email, avatar, role, companyName, institution, ... }
   return profile;
@@ -391,7 +391,7 @@ const homeSlice = createSlice({
       })
       .addCase(fetchJobs.fulfilled, (state, action) => {
         state.jobs.loading = false;
-        // Handle backend API response format and flatten nested curator data
+        // Handle backend API response format and flatten nested employer data
         const rawData = action.payload.data || action.payload.jobs || action.payload;
         state.jobs.data = flattenProfileArray(rawData);
         state.jobs.error = null;

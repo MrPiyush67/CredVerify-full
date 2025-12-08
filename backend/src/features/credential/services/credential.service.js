@@ -49,7 +49,7 @@ export const createCredential = async (userId, credentialData) => {
         fileName: credentialData.fileName || `credential-${Date.now()}.jpg`,
         userName: credentialData.certificateName || 'unknown',
         issuer: credentialData.issuer || 'unknown',
-        tags: ['credential', 'validant-verification'],
+        tags: ['credential', 'regulator-verification'],
       });
 
       fileData = {
@@ -93,22 +93,22 @@ export const createCredential = async (userId, credentialData) => {
     },
   });
 
-  // If institution is specified, notify validants from that institution
+  // If institution is specified, notify regulators from that institution
   if (credential.institution) {
     try {
-      console.log('🔔 [NOTIFICATION] Finding validants for institution:', credential.institution);
+      console.log('🔔 [NOTIFICATION] Finding regulators for institution:', credential.institution);
       const User = mongoose.model('User');
-      const validants = await User.find({
-        role: 'validant',
+      const regulators = await User.find({
+        role: 'regulator',
         institution: credential.institution,
       }).select('_id name email');
 
-      console.log(`📧 [NOTIFICATION] Found ${validants.length} validants for ${credential.institution}`);
+      console.log(`📧 [NOTIFICATION] Found ${regulators.length} regulators for ${credential.institution}`);
 
-      // Send notification to each validant
-      for (const validant of validants) {
+      // Send notification to each regulator
+      for (const regulator of regulators) {
         await createNotification({
-          user: validant._id,
+          user: regulator._id,
           title: 'New Credential Verification Request',
           message: `A new credential "${credential.title}" from ${credential.institution} requires verification.`,
           type: 'info',
@@ -119,10 +119,10 @@ export const createCredential = async (userId, credentialData) => {
             institution: credential.institution,
           },
         });
-        console.log(`✅ [NOTIFICATION] Sent to validant: ${validant.name} (${validant.email})`);
+        console.log(`✅ [NOTIFICATION] Sent to regulator: ${regulator.name} (${regulator.email})`);
       }
     } catch (notificationError) {
-      console.error('❌ [NOTIFICATION] Failed to notify validants:', notificationError);
+      console.error('❌ [NOTIFICATION] Failed to notify regulators:', notificationError);
       // Don't throw error - credential was created successfully
     }
   }
@@ -176,14 +176,14 @@ export const updateCredential = async (userId, credentialId, updates) => {
     const allowedFields = ['isPublic'];
     const attemptedFields = Object.keys(updates);
     const hasDisallowedFields = attemptedFields.some(field => !allowedFields.includes(field));
-    
+
     console.log('[UPDATE VERIFIED CREDENTIAL]', {
       credentialId: credential._id,
       attemptedFields,
       hasDisallowedFields,
       updates
     });
-    
+
     if (hasDisallowedFields) {
       const disallowedFields = attemptedFields.filter(field => !allowedFields.includes(field));
       throw new Error(`Cannot update verified credentials. Attempted to modify: ${disallowedFields.join(', ')}. Only visibility (isPublic) can be changed.`);
@@ -241,11 +241,11 @@ export const requestVerification = async (userId, credentialId) => {
   credential.requestedAt = new Date();
   await credential.save();
 
-  // Notify credentialist
+  // Notify learner
   await createNotification({
     user: userId,
     title: 'Verification Requested',
-    message: `Your verification request for "${credential.title}" has been sent to validants.`,
+    message: `Your verification request for "${credential.title}" has been sent to regulators.`,
     type: 'info',
     category: 'verification',
     metadata: {
@@ -255,8 +255,8 @@ export const requestVerification = async (userId, credentialId) => {
     },
   });
 
-  // TODO: Notify validants (can be enhanced to notify specific institution validants)
-  // For now, validants will see it in their pending queue
+  // TODO: Notify regulators (can be enhanced to notify specific institution regulators)
+  // For now, regulators will see it in their pending queue
 
   return credential;
 };
@@ -319,8 +319,8 @@ export const getPublicCredentials = async (filters = {}) => {
   return credentials;
 };
 
-// Get pending credentials for validant review
-export const getPendingCredentialsForValidant = async (filters = {}) => {
+// Get pending credentials for regulator review
+export const getPendingCredentialsForRegulator = async (filters = {}) => {
   let query = {};
 
   // Handle multiple statuses (e.g., for past requests: verified OR rejected)
@@ -351,8 +351,8 @@ export const getPendingCredentialsForValidant = async (filters = {}) => {
   return credentials;
 };
 
-// Verify credential (validant action)
-export const verifyCredential = async (validantId, credentialId, verificationNotes = '') => {
+// Verify credential (regulator action)
+export const verifyCredential = async (regulatorId, credentialId, verificationNotes = '') => {
   const credential = await Credential.findById(credentialId).populate(
     'user',
     'username name'
@@ -361,7 +361,7 @@ export const verifyCredential = async (validantId, credentialId, verificationNot
   if (credential.status !== 'pending') throw new Error('Credential is not pending verification');
 
   credential.status = 'verified';
-  credential.verifiedBy = validantId;
+  credential.verifiedBy = regulatorId;
   credential.verifiedAt = new Date();
   if (verificationNotes) {
     credential.verificationNotes = verificationNotes;
@@ -379,7 +379,7 @@ export const verifyCredential = async (validantId, credentialId, verificationNot
     }
   }
 
-  // Notify credentialist of successful verification
+  // Notify learner of successful verification
   await createNotification({
     user: credential.user._id,
     title: '✅ Credential Verified!',
@@ -389,7 +389,7 @@ export const verifyCredential = async (validantId, credentialId, verificationNot
     metadata: {
       credentialId: credential._id,
       credentialTitle: credential.title,
-      verifiedBy: validantId,
+      verifiedBy: regulatorId,
       verificationNotes: verificationNotes,
     },
   });
@@ -397,8 +397,8 @@ export const verifyCredential = async (validantId, credentialId, verificationNot
   return credential;
 };
 
-// Reject credential (validant action)
-export const rejectCredential = async (validantId, credentialId, rejectionReason) => {
+// Reject credential (regulator action)
+export const rejectCredential = async (regulatorId, credentialId, rejectionReason) => {
   const credential = await Credential.findById(credentialId).populate(
     'user',
     'username name'
@@ -408,7 +408,7 @@ export const rejectCredential = async (validantId, credentialId, rejectionReason
   if (!rejectionReason) throw new Error('Rejection reason is required');
 
   credential.status = 'rejected';
-  credential.verifiedBy = validantId;
+  credential.verifiedBy = regulatorId;
   credential.rejectionReason = rejectionReason;
   credential.verificationRequested = false;
 
@@ -425,7 +425,7 @@ export const rejectCredential = async (validantId, credentialId, rejectionReason
     }
   }
 
-  // Notify credentialist of rejection
+  // Notify learner of rejection
   await createNotification({
     user: credential.user._id,
     title: '❌ Credential Rejected',
@@ -436,7 +436,7 @@ export const rejectCredential = async (validantId, credentialId, rejectionReason
       credentialId: credential._id,
       credentialTitle: credential.title,
       rejectionReason: rejectionReason,
-      verifiedBy: validantId,
+      verifiedBy: regulatorId,
     },
   });
 

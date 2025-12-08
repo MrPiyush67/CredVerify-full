@@ -31,7 +31,7 @@ Complete documentation for the CredVerify React frontend application.
 - **Styling**: Custom CSS with CSS variables
 
 ### Key Features
-- ✅ Role-based routing (Credentialist/Validant/Curator)
+- ✅ Role-based routing (Learner/Regulator/Employer)
 - ✅ Protected routes with authentication guards
 - ✅ Redux Toolkit for global state
 - ✅ Lazy-loaded route components
@@ -55,8 +55,8 @@ src/
 ├── features/               # Feature modules (domains)
 │   ├── auth/               # Authentication
 │   ├── credentials/        # Credential management
-│   ├── verification/       # Manual verification (Validant)
-│   ├── jobs/               # Job postings (Curator)
+│   ├── verification/       # Manual verification (Regulator)
+│   ├── jobs/               # Job postings (Employer)
 │   ├── chat/               # Messaging
 │   ├── notifications/      # Notifications
 │   ├── profile/            # User profiles
@@ -135,7 +135,7 @@ frontend/
 │   │   │
 │   │   ├── verification/
 │   │   │   ├── pages/
-│   │   │   │   ├── RequestsPage.jsx            # Validant review queue
+│   │   │   │   ├── RequestsPage.jsx            # Regulator review queue
 │   │   │   │   └── IssueCredentialsPage.jsx    # Manual credential issuance
 │   │   │   └── components/
 │   │   │       ├── VerificationQueue.jsx
@@ -287,26 +287,26 @@ frontend/
 #### Roles
 ```javascript
 ROLES = {
-  CREDENTIALIST: 'credentialist',  // Certificate holders
-  VALIDANT: 'validant',            // Verifiers
-  CURATOR: 'curator'               // Recruiters
+  CREDENTIALIST: 'learner',  // Certificate holders
+  VALIDANT: 'regulator',            // Verifiers
+  CURATOR: 'employer'               // Recruiters
 }
 ```
 
 #### Protected Routes
 ```jsx
-// Credentialist-only
-<Route element={<ProtectedRoute requiredRole="credentialist" />}>
+// Learner-only
+<Route element={<ProtectedRoute requiredRole="learner" />}>
   <Route path="/credentials" element={<CredentialsPage />} />
 </Route>
 
-// Validant-only
-<Route element={<ProtectedRoute requiredRole="validant" />}>
+// Regulator-only
+<Route element={<ProtectedRoute requiredRole="regulator" />}>
   <Route path="/requests" element={<RequestsPage />} />
 </Route>
 
-// Curator-only
-<Route element={<ProtectedRoute requiredRole="curator" />}>
+// Employer-only
+<Route element={<ProtectedRoute requiredRole="employer" />}>
   <Route path="/jobs" element={<JobsPage />} />
 </Route>
 ```
@@ -441,20 +441,20 @@ export default function AppRoutes() {
         <Route path="/notifications" element={<NotificationsPage />} />
       </Route>
 
-      {/* Credentialist-only */}
-      <Route element={<ProtectedRoute requiredRole="credentialist" />}>
+      {/* Learner-only */}
+      <Route element={<ProtectedRoute requiredRole="learner" />}>
         <Route path="/credentials" element={<CredentialsPage />} />
         <Route path="/credentials/add" element={<AddCredentialsPage />} />
         <Route path="/credentials/upload-guide" element={<UploadMethodsGuidePage />} />
       </Route>
 
-      {/* Validant-only */}
-      <Route element={<ProtectedRoute requiredRole="validant" />}>
+      {/* Regulator-only */}
+      <Route element={<ProtectedRoute requiredRole="regulator" />}>
         <Route path="/requests" element={<RequestsPage />} />
       </Route>
 
-      {/* Curator-only */}
-      <Route element={<ProtectedRoute requiredRole="curator" />}>
+      {/* Employer-only */}
+      <Route element={<ProtectedRoute requiredRole="employer" />}>
         <Route path="/jobs" element={<JobsPage />} />
         <Route path="/post-job" element={<PostJobPage />} />
         <Route path="/post-job/:id" element={<PostJobPage />} />
@@ -584,8 +584,8 @@ const response = await axiosClient.post('/credentials', formData, {
 ### 3. Verification (`features/verification/`)
 
 **Pages:**
-- `RequestsPage.jsx` - Validant's review queue (pending credentials)
-- `IssueCredentialsPage.jsx` - Manual credential issuance (admin/validant)
+- `RequestsPage.jsx` - Regulator's review queue (pending credentials)
+- `IssueCredentialsPage.jsx` - Manual credential issuance (admin/regulator)
 
 **Components:**
 - `VerificationQueue.jsx` - List of pending reviews
@@ -595,7 +595,7 @@ const response = await axiosClient.post('/credentials', formData, {
 
 **Pages:**
 - `JobsPage.jsx` - Browse/search jobs (all users)
-- `PostJobPage.jsx` - Create/edit job posting (curator only)
+- `PostJobPage.jsx` - Create/edit job posting (employer only)
 
 **Components:**
 - `JobCard.jsx` - Job listing card

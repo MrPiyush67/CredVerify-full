@@ -30,14 +30,14 @@ export const getDashboardStats = async (role) => {
 };
 
 /**
- * Get users data (credentialists)
+ * Get users data (learners)
  * @param {Object} params - Query parameters
  * @returns {Promise} - API response with users data
  */
 export const getUsers = async (params = {}) => {
   try {
     logger.debug('Fetching users data', { params });
-    const response = await axiosClient.get(ENDPOINTS.HOME.DATA.credentialists, { params });
+    const response = await axiosClient.get(ENDPOINTS.HOME.DATA.learners, { params });
 
     logger.debug('Users data fetched successfully', {
       count: response.data?.data?.profiles?.length || 0
@@ -59,14 +59,14 @@ export const getUsers = async (params = {}) => {
 export const getAdmins = async (params = {}) => {
   try {
     logger.debug('Fetching admins data', { params });
-    const response = await axiosClient.get(ENDPOINTS.HOME.DATA.validants, { params });
+    const response = await axiosClient.get(ENDPOINTS.HOME.DATA.regulators, { params });
 
     logger.debug('Admins data fetched successfully', {
-      count: response.data?.data?.validants?.length || 0
+      count: response.data?.data?.regulators?.length || 0
     });
 
-    // Backend returns { success, message, data: { validants } }
-    return response.data?.data?.validants || [];
+    // Backend returns { success, message, data: { regulators } }
+    return response.data?.data?.regulators || [];
   } catch (error) {
     logger.error('Failed to fetch admins data', { error: error.message });
     throw error;
@@ -81,14 +81,14 @@ export const getAdmins = async (params = {}) => {
 export const getEmployers = async (params = {}) => {
   try {
     logger.debug('Fetching employers data', { params });
-    const response = await axiosClient.get(ENDPOINTS.HOME.DATA.curators, { params });
+    const response = await axiosClient.get(ENDPOINTS.HOME.DATA.employers, { params });
 
     logger.debug('Employers data fetched successfully', {
-      count: response.data?.data?.curators?.length || 0
+      count: response.data?.data?.employers?.length || 0
     });
 
-    // Backend returns { success, message, data: { curators } }
-    return response.data?.data?.curators || [];
+    // Backend returns { success, message, data: { employers } }
+    return response.data?.data?.employers || [];
   } catch (error) {
     logger.error('Failed to fetch employers data', { error: error.message });
     throw error;
@@ -208,11 +208,11 @@ export const getJobStats = async () => {
 export const getRoleData = async (role, params = {}) => {
   try {
     switch (role) {
-      case 'credentialist':
+      case 'learner':
         return await getUsers(params);
-      case 'validant':
+      case 'regulator':
         return await getAdmins(params);
-      case 'curator':
+      case 'employer':
         return await getEmployers(params);
       default:
         throw new Error(`Invalid role: ${role}`);

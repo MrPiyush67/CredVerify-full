@@ -116,8 +116,8 @@ export default function GeneralSettings({ currentSettings = {}, handleSettingCha
             />
           </div>
 
-          {/* Company-specific settings for curators */}
-          {role === 'curator' && (
+          {/* Company-specific settings for employers */}
+          {role === 'employer' && (
             <>
               <div className="flex items-center justify-between pt-4 border-t">
                 <div>

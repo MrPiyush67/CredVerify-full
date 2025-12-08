@@ -91,12 +91,12 @@ export default function ApplicantsModal({ jobId, jobTitle, onClose }) {
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex items-start gap-3 flex-1">
                           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
-                            {applicant.user?.name?.charAt(0).toUpperCase() || applicant.credentialist?.name?.charAt(0).toUpperCase() || 'A'}
+                            {applicant.user?.name?.charAt(0).toUpperCase() || applicant.learner?.name?.charAt(0).toUpperCase() || 'A'}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2">
                               <h3 className="font-semibold truncate">
-                                {applicant.user?.name || applicant.credentialist?.name || 'Unknown'}
+                                {applicant.user?.name || applicant.learner?.name || 'Unknown'}
                               </h3>
                               <Badge className={`${getStatusColor(applicant.status)} text-xs`}>
                                 {applicant.status}
@@ -104,7 +104,7 @@ export default function ApplicantsModal({ jobId, jobTitle, onClose }) {
                             </div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Mail className="h-4 w-4 flex-shrink-0" />
-                              <span className="truncate">{applicant.user?.email || applicant.credentialist?.email || 'N/A'}</span>
+                              <span className="truncate">{applicant.user?.email || applicant.learner?.email || 'N/A'}</span>
                             </div>
                             {applicant.appliedAt && (
                               <p className="text-xs text-muted-foreground mt-1">
@@ -139,7 +139,7 @@ export default function ApplicantsModal({ jobId, jobTitle, onClose }) {
       {selectedApplicant && (
         <ApplicantDetailsModal
           jobId={jobId}
-          applicantUserId={selectedApplicant.user?._id || selectedApplicant.credentialist?._id}
+          applicantUserId={selectedApplicant.user?._id || selectedApplicant.learner?._id}
           applicantId={selectedApplicant._id}
           onClose={() => setSelectedApplicant(null)}
           onStatusUpdate={handleRefresh}

@@ -54,7 +54,7 @@ export default function PlatformRow({
               <>
                 <div className="flex items-center gap-2 px-3 py-1 bg-yellow-50 rounded-full border border-yellow-200">
                   <Loader2 className="h-4 w-4 text-yellow-600 animate-spin" />
-                  <span className="text-xs font-medium text-yellow-700">Pending Validant Approval</span>
+                  <span className="text-xs font-medium text-yellow-700">Pending Regulator Approval</span>
                 </div>
                 <Button
                   variant="outline"

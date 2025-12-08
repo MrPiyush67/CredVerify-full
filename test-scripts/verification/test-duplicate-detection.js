@@ -66,7 +66,7 @@ async function createUserAccount(name) {
         name: name,
         email: email,
         password: password,
-        role: 'credentialist',
+        role: 'learner',
       }),
     });
 

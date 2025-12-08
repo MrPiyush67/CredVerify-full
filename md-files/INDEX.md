@@ -99,9 +99,9 @@ These files contain specialized technical documentation:
 3. Install browser extension: [EXTENSION-GUIDE.md](./EXTENSION-GUIDE.md)
 
 **Using the platform**:
-- **Credentialists**: Upload & verify certificates
-- **Validants**: Review & approve credentials
-- **Curators**: Post jobs & review applications
+- **Learners**: Upload & verify certificates
+- **Regulators**: Review & approve credentials
+- **Employers**: Post jobs & review applications
 
 ### For Contributors
 

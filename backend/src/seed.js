@@ -45,15 +45,15 @@ const seedDatabase = async () => {
 
     console.log('✅ Database seeding completed successfully!');
     console.log('\n📊 Summary:');
-    console.log('   - 30 users (10 credentialists, 10 validants, 10 curators)');
-    console.log('   - 5 credentials for demo credentialist (Priya)');
-    console.log('   - 5 job postings by demo curator (Meera)');
+    console.log('   - 30 users (10 learners, 10 regulators, 10 employers)');
+    console.log('   - 5 credentials for demo learner (Priya)');
+    console.log('   - 5 job postings by demo employer (Meera)');
     console.log('   - 3 conversations with 37 messages between demo users');
     console.log('   - Multiple notifications for demo users');
     console.log('\n👩 Demo Users (All Female):');
-    console.log('   - Priya Sharma (credentialist) - priya.sharma@example.com');
-    console.log('   - Dr. Kavita Rao (validant) - kavita.rao@credverify.com');
-    console.log('   - Meera Krishnan (curator) - meera.krishnan@startupx.io');
+    console.log('   - Priya Sharma (learner) - priya.sharma@example.com');
+    console.log('   - Dr. Kavita Rao (regulator) - kavita.rao@credverify.com');
+    console.log('   - Meera Krishnan (employer) - meera.krishnan@startupx.io');
     console.log('\n🔑 Password for all users: password123\n');
 
     process.exit(0);

@@ -23,9 +23,9 @@ import { selectUser } from '@features/auth/redux/authSlice.js';
 // Helper functions
 const getRoleIcon = (role) => {
   switch (role) {
-    case 'validant':
+    case 'regulator':
       return <Shield className="w-4 h-4 text-purple-500" />;
-    case 'curator':
+    case 'employer':
       return <Building className="w-4 h-4 text-green-500" />;
     default:
       return <User className="w-4 h-4 text-blue-500" />;
@@ -34,14 +34,14 @@ const getRoleIcon = (role) => {
 
 const getRoleBadge = (role) => {
   const colors = {
-    validant: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
-    curator: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-    credentialist: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+    regulator: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+    employer: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+    learner: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
   };
 
   return (
-    <span className={`px-2 py-1 text-xs rounded-full ${colors[role] || colors.credentialist}`}>
-      {role || 'credentialist'}
+    <span className={`px-2 py-1 text-xs rounded-full ${colors[role] || colors.learner}`}>
+      {role || 'learner'}
     </span>
   );
 };

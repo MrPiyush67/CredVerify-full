@@ -132,7 +132,7 @@ Auto-save to CredVerify account
 
 2. **CredVerify Account**
    - Sign up at `http://localhost:5173/signup`
-   - Role must be **Credentialist**
+   - Role must be **Learner**
 
 ### Installation Steps
 

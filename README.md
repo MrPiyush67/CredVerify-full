@@ -38,7 +38,7 @@ CredVerify/
 
 ## 🚀 Key Features
 
-### For Credential Holders (Credentialists)
+### For Credential Holders (Learners)
 - ✅ Upload certificates (PDF, image, QR code, or credential ID)
 - ✅ One-click verification via browser extension
 - ✅ AI-powered automatic data extraction
@@ -47,14 +47,14 @@ CredVerify/
 - ✅ Profile building with verified credentials
 - ✅ Job application system
 
-### For Verifiers (Validants)
+### For Verifiers (Regulators)
 - ✅ Automated verification pipeline (85%+ confidence = auto-approved)
 - ✅ Manual review dashboard for edge cases
 - ✅ Platform-specific validation rules
 - ✅ Bulk credential processing
 - ✅ Verification statistics and analytics
 
-### For Recruiters (Curators)
+### For Recruiters (Employers)
 - ✅ Post job listings with credential requirements
 - ✅ Browse verified candidate profiles
 - ✅ Filter by skills, credentials, and experience
@@ -158,7 +158,7 @@ npm run dev
 
 ### 5. Test the Platform
 1. Open http://localhost:5173
-2. Sign up as Credentialist
+2. Sign up as Learner
 3. Upload a certificate (or use extension)
 4. View verification results
 
@@ -269,7 +269,7 @@ node test-full-pipeline.js
 ## 🔐 Security
 
 - **JWT Authentication**: HTTP-only cookies, 7-day expiration
-- **Role-Based Access Control**: Credentialist, Validant, Curator roles
+- **Role-Based Access Control**: Learner, Regulator, Employer roles
 - **Input Sanitization**: MongoDB injection prevention
 - **Blockchain Security**: Owner-only contract registration
 - **API Rate Limiting**: Express rate limiter (planned)

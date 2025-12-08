@@ -10,8 +10,8 @@ export function CredentialsCard({ credentials = [], isOwnProfile = false, classN
   const currentUser = useSelector(selectUser);
   const [isEditing, setIsEditing] = useState(false);
   
-  // Only credentialists can add credentials
-  const canAddCredential = isOwnProfile && currentUser?.role === 'credentialist';
+  // Only learners can add credentials
+  const canAddCredential = isOwnProfile && currentUser?.role === 'learner';
 
   const handleViewAll = () => {
     navigate('/credentials');

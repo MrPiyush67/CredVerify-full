@@ -25,7 +25,7 @@ export default function useUploadModals() {
       isCertificateQrOpen: activeModal === 'certificateQr',
       isLinkVerificationOpen: activeModal === 'linkVerification',
       isPortfolioOpen: activeModal === 'portfolio',
-      isValidantOpen: activeModal === 'validant',
+      isRegulatorOpen: activeModal === 'regulator',
       isExtensionOpen: activeModal === 'extension',
       isDigilockerOpen: activeModal === 'digilocker',
     },

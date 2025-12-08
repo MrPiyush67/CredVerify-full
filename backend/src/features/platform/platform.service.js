@@ -145,7 +145,7 @@ export const verifyPlatformOwnership = async (userId, platform) => {
   profile[platform].lastFetched = new Date();
   profile[platform].verificationCode = null; // Clear code after successful verification
   profile[platform].verificationExpiry = null;
-  profile[platform].pendingValidation = false; // No need for validant approval
+  profile[platform].pendingValidation = false; // No need for regulator approval
   
   await profile.save();
   

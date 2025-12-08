@@ -3,7 +3,7 @@ import ENDPOINTS from '@services/endpoints.js';
 
 // Get current user's settings
 // NOTE: Backend-new doesn't have settings endpoints yet
-export const getUserSettings = async (role = 'credentialist') => {
+export const getUserSettings = async (role = 'learner') => {
   try {
     const response = await axiosClient.get(ENDPOINTS.SETTINGS.GET(role));
     return response;
@@ -37,7 +37,7 @@ export const getUserSettings = async (role = 'credentialist') => {
 };
 
 // Update current user's settings
-export const updateUserSettings = async (settingsData, role = 'credentialist') => {
+export const updateUserSettings = async (settingsData, role = 'learner') => {
   try {
     const response = await axiosClient.patch(ENDPOINTS.SETTINGS.UPDATE(role), settingsData);
     return response;

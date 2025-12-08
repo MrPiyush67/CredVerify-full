@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const validantSettingsSchema = new mongoose.Schema(
+const learnerSettingsSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -15,28 +15,29 @@ const validantSettingsSchema = new mongoose.Schema(
       smsNotifications: { type: Boolean, default: false },
       weeklyDigest: { type: Boolean, default: true },
       marketingEmails: { type: Boolean, default: false },
-      verificationAlerts: { type: Boolean, default: true },
-      systemAlerts: { type: Boolean, default: true },
-      urgentNotifications: { type: Boolean, default: true },
-      weeklyReports: { type: Boolean, default: true },
+      credentialUpdates: { type: Boolean, default: true },
+      jobAlerts: { type: Boolean, default: true },
+      applicationAlerts: { type: Boolean, default: true },
     },
     // Privacy Settings
     privacy: {
       profileVisibility: {
         type: String,
-        enum: ['public', 'internal', 'admin-only'],
-        default: 'internal',
+        enum: ['public', 'private', 'connections'],
+        default: 'public',
       },
       showEmail: { type: Boolean, default: false },
       showPhone: { type: Boolean, default: false },
+      allowMessages: { type: Boolean, default: true },
       trackActivity: { type: Boolean, default: true },
+      showOnlineStatus: { type: Boolean, default: true },
+      allowDirectMessages: { type: Boolean, default: true },
     },
     // Security Settings
     security: {
       twoFactorAuth: { type: Boolean, default: false },
       loginNotifications: { type: Boolean, default: true },
       sessionTimeout: { type: String, default: '24' }, // hours
-      auditLogging: { type: Boolean, default: true },
     },
     // Appearance Settings
     appearance: {
@@ -49,17 +50,10 @@ const validantSettingsSchema = new mongoose.Schema(
       timezone: { type: String, default: 'UTC' },
       compactView: { type: Boolean, default: false },
     },
-    // Admin-specific Settings
-    admin: {
-      defaultVerificationTime: { type: String, default: '48' }, // hours
-      autoAssignment: { type: Boolean, default: true },
-      bulkOperations: { type: Boolean, default: true },
-      advancedFilters: { type: Boolean, default: true },
-    },
   },
   {
     timestamps: true,
   }
 );
 
-export default mongoose.model('ValidantSettings', validantSettingsSchema);
+export default mongoose.model('LearnerSettings', learnerSettingsSchema);

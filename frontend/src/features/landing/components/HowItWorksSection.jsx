@@ -11,7 +11,7 @@ const IMAGES = {
 
 const slides = [
   {
-    role: 'credentialist',
+    role: 'learner',
     icon: Award,
     iconColor: 'text-[#0F766E]',
     bgColor: 'bg-teal-50',
@@ -29,7 +29,7 @@ const slides = [
     ctaText: 'Get Started Free'
   },
   {
-    role: 'curator',
+    role: 'employer',
     icon: Briefcase,
     iconColor: 'text-purple-600',
     bgColor: 'bg-purple-50',
@@ -46,7 +46,7 @@ const slides = [
     ctaText: 'Start Hiring'
   },
   {
-    role: 'validant',
+    role: 'regulator',
     icon: Building,
     iconColor: 'text-blue-600',
     bgColor: 'bg-blue-50',

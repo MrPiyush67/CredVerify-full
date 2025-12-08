@@ -43,27 +43,27 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
 
   // Fetch data on mount
   useEffect(() => {
-    if (role === 'credentialist' || role === 'credentialists') {
+    if (role === 'learner' || role === 'learners') {
       dispatch(fetchUsers());
-    } else if (role === 'validant' || role === 'validants') {
-      // Fetch validants for all users (public profiles)
+    } else if (role === 'regulator' || role === 'regulators') {
+      // Fetch regulators for all users (public profiles)
       dispatch(fetchAdmins());
-    } else if (role === 'curator' || role === 'curators') {
-      // Fetch curators for all users (public profiles)
+    } else if (role === 'employer' || role === 'employers') {
+      // Fetch employers for all users (public profiles)
       dispatch(fetchEmployers());
     }
   }, [dispatch, role]);
 
   // Get the appropriate data and loading state for the role
   const { items, isLoading } = useMemo(() => {
-    const roleKey = role === 'credentialist' ? 'credentialists' : role === 'validant' ? 'validants' : role === 'curator' ? 'curators' : role;
+    const roleKey = role === 'learner' ? 'learners' : role === 'regulator' ? 'regulators' : role === 'employer' ? 'employers' : role;
 
     switch (roleKey) {
-      case 'credentialists':
+      case 'learners':
         return { items: Array.isArray(users?.data) ? users.data : [], isLoading: users?.loading || false };
-      case 'validants':
+      case 'regulators':
         return { items: Array.isArray(admins?.data) ? admins.data : [], isLoading: admins?.loading || false };
-      case 'curators':
+      case 'employers':
         return { items: Array.isArray(employers?.data) ? employers.data : [], isLoading: employers?.loading || false };
       default:
         return { items: [], isLoading: false };
@@ -81,17 +81,17 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
       
       // Role-specific filters
       switch (role) {
-        case 'credentialist': {
+        case 'learner': {
           const skillMatch = !filters.skill || (Array.isArray(item.skills) && item.skills.some(s => s.toLowerCase().includes(filters.skill.toLowerCase())));
           const institutionMatch = !filters.institution || (Array.isArray(item.education) && item.education.some(edu => (edu.institution || '').toLowerCase().includes(filters.institution.toLowerCase())));
           return nameMatch && skillMatch && institutionMatch;
         }
-        case 'validant': {
+        case 'regulator': {
           const institutionMatch = !filters.institution || (item.institution || '').toLowerCase().includes(filters.institution.toLowerCase());
           const departmentMatch = !filters.department || (item.department || '').toLowerCase().includes(filters.department.toLowerCase());
           return nameMatch && institutionMatch && departmentMatch;
         }
-        case 'curator': {
+        case 'employer': {
           const companyMatch = !filters.company || (item.companyName || '').toLowerCase().includes(filters.company.toLowerCase());
 
           // Normalize item companySize into defined buckets so comparisons are robust
@@ -169,7 +169,7 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
             />
             
             {/* Role-specific filters */}
-            {role === 'credentialist' && (
+            {role === 'learner' && (
               <>
                 <Input
                   placeholder="Filter by skill..."
@@ -186,7 +186,7 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
               </>
             )}
             
-            {role === 'validant' && (
+            {role === 'regulator' && (
               <>
                 <Input
                   placeholder="Filter by institution..."
@@ -203,7 +203,7 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
               </>
             )}
             
-            {role === 'curator' && (
+            {role === 'employer' && (
               <>
                 <Input
                   placeholder="Filter by company..."
@@ -255,7 +255,7 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
 
         const onViewProfile = () => {
           // Navigate to profile page with userId and role as query params
-          const routeRole = role === 'credentialist' ? 'credentialist' : role === 'validant' ? 'validant' : 'curator';
+          const routeRole = role === 'learner' ? 'learner' : role === 'regulator' ? 'regulator' : 'employer';
           navigate(`/profile?userId=${key}&role=${routeRole}`);
         };
 
@@ -289,7 +289,7 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {role === 'credentialist' && (
+              {role === 'learner' && (
                 <div className="space-y-2">
                   {/* Bio */}
                   {item.bio && (
@@ -327,7 +327,7 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
                 </div>
               )}
 
-              {role === 'validant' && (
+              {role === 'regulator' && (
                 <div className="space-y-1">
                   {/* Bio */}
                   {item.bio && (
@@ -377,7 +377,7 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
                 </div>
               )}
 
-              {role === 'curator' && (
+              {role === 'employer' && (
                 <div className="space-y-1">
                   {/* Bio */}
                   {item.bio && (

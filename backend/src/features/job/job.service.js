@@ -3,17 +3,17 @@ import { createNotification } from '../notification/notification.service.js';
 import User from '../user/user.model.js';
 import Credential from '../credential/credential.model.js';
 
-// Create a new job (curator)
-export const createJob = async (curatorId, jobData) => {
+// Create a new job (employer)
+export const createJob = async (employerId, jobData) => {
   const job = await Job.create({
-    curator: curatorId,
+    employer: employerId,
     ...jobData,
   });
 
-  // Notify curator of successful job posting
+  // Notify employer of successful job posting
   if (job.status === 'active') {
     await createNotification({
-      user: curatorId,
+      user: employerId,
       title: 'Job Posted Successfully',
       message: `Your job "${job.title}" is now live and accepting applications.`,
       type: 'success',
@@ -26,18 +26,18 @@ export const createJob = async (curatorId, jobData) => {
     });
   }
 
-  return job.populate('curator', 'name email');
+  return job.populate('employer', 'name email');
 };
 
-// Get all jobs created by a curator
-export const getJobsByCurator = async (curatorId, status = null) => {
-  const filter = { curator: curatorId };
+// Get all jobs created by a employer
+export const getJobsByEmployer = async (employerId, status = null) => {
+  const filter = { employer: employerId };
   if (status) {
     filter.status = status;
   }
 
   const jobs = await Job.find(filter)
-    .populate('curator', 'name email')
+    .populate('employer', 'name email')
     .sort({ createdAt: -1 });
 
   return jobs;
@@ -46,8 +46,8 @@ export const getJobsByCurator = async (curatorId, status = null) => {
 // Get single job by ID
 export const getJobById = async (jobId) => {
   const job = await Job.findById(jobId)
-    .populate('curator', 'name email')
-    .populate('applicants.credentialist', 'name email avatar');
+    .populate('employer', 'name email')
+    .populate('applicants.learner', 'name email avatar');
 
   if (!job) {
     throw new Error('Job not found');
@@ -56,9 +56,9 @@ export const getJobById = async (jobId) => {
   return job;
 };
 
-// Update a job (curator only)
-export const updateJob = async (curatorId, jobId, updates) => {
-  const job = await Job.findOne({ _id: jobId, curator: curatorId });
+// Update a job (employer only)
+export const updateJob = async (employerId, jobId, updates) => {
+  const job = await Job.findOne({ _id: jobId, employer: employerId });
 
   if (!job) {
     throw new Error('Job not found or unauthorized');
@@ -70,9 +70,9 @@ export const updateJob = async (curatorId, jobId, updates) => {
   return job;
 };
 
-// Delete a job (curator only)
-export const deleteJob = async (curatorId, jobId) => {
-  const job = await Job.findOneAndDelete({ _id: jobId, curator: curatorId });
+// Delete a job (employer only)
+export const deleteJob = async (employerId, jobId) => {
+  const job = await Job.findOneAndDelete({ _id: jobId, employer: employerId });
 
   if (!job) {
     throw new Error('Job not found or unauthorized');
@@ -81,10 +81,10 @@ export const deleteJob = async (curatorId, jobId) => {
   return job;
 };
 
-// Get all applicants for a job (curator only)
-export const getApplicants = async (curatorId, jobId) => {
-  const job = await Job.findOne({ _id: jobId, curator: curatorId }).populate({
-    path: 'applicants.credentialist',
+// Get all applicants for a job (employer only)
+export const getApplicants = async (employerId, jobId) => {
+  const job = await Job.findOne({ _id: jobId, employer: employerId }).populate({
+    path: 'applicants.learner',
     select: 'name email avatar role',
   });
 
@@ -95,32 +95,32 @@ export const getApplicants = async (curatorId, jobId) => {
   return job.applicants;
 };
 
-// Get single applicant full details (curator only - bypasses privacy)
-export const getApplicantDetails = async (curatorId, jobId, applicantUserId) => {
-  // Verify curator owns this job and applicant applied
+// Get single applicant full details (employer only - bypasses privacy)
+export const getApplicantDetails = async (employerId, jobId, applicantUserId) => {
+  // Verify employer owns this job and applicant applied
   const job = await Job.findOne({
     _id: jobId,
-    curator: curatorId,
-    'applicants.credentialist': applicantUserId,
+    employer: employerId,
+    'applicants.learner': applicantUserId,
   });
 
   if (!job) {
     throw new Error('Job not found, unauthorized, or applicant not found');
   }
 
-  // Get full credentialist profile (even if private)
+  // Get full learner profile (even if private)
   const profile = await User.findById(applicantUserId).select('-passwordHash');
 
   // Get all verified credentials (public showcase)
   const verifiedCredentials = await Credential.find({
-    credentialist: applicantUserId,
+    learner: applicantUserId,
     status: 'verified',
     isPublic: true,
   }).select('title issuer credentialType issueDate credentialId skills');
 
   // Get application details
   const application = job.applicants.find(
-    (app) => app.credentialist.toString() === applicantUserId.toString()
+    (app) => app.learner.toString() === applicantUserId.toString()
   );
 
   return {
@@ -134,9 +134,9 @@ export const getApplicantDetails = async (curatorId, jobId, applicantUserId) => 
   };
 };
 
-// Update applicant status (curator only)
-export const updateApplicantStatus = async (curatorId, jobId, applicantId, status) => {
-  const job = await Job.findOne({ _id: jobId, curator: curatorId });
+// Update applicant status (employer only)
+export const updateApplicantStatus = async (employerId, jobId, applicantId, status) => {
+  const job = await Job.findOne({ _id: jobId, employer: employerId });
 
   if (!job) {
     throw new Error('Job not found or unauthorized');
@@ -152,7 +152,7 @@ export const updateApplicantStatus = async (curatorId, jobId, applicantId, statu
   applicant.status = status;
   await job.save();
 
-  // Notify credentialist if status changed
+  // Notify learner if status changed
   if (oldStatus !== status) {
     let notificationTitle = 'Application Status Update';
     let notificationMessage = `Your application for "${job.title}" status: ${status}`;
@@ -172,7 +172,7 @@ export const updateApplicantStatus = async (curatorId, jobId, applicantId, statu
     }
 
     await createNotification({
-      user: applicant.credentialist,
+      user: applicant.learner,
       title: notificationTitle,
       message: notificationMessage,
       type: notificationType,
@@ -204,14 +204,14 @@ export const getAllJobs = async (filters = {}) => {
   }
 
   const jobs = await Job.find(query)
-    .populate('curator', 'name email companyName')
+    .populate('employer', 'name email companyName')
     .sort({ createdAt: -1 });
 
   return jobs;
 };
 
-// Apply to a job (credentialist)
-export const applyToJob = async (jobId, credentialistId) => {
+// Apply to a job (learner)
+export const applyToJob = async (jobId, learnerId) => {
   const job = await Job.findById(jobId);
 
   if (!job) {
@@ -224,7 +224,7 @@ export const applyToJob = async (jobId, credentialistId) => {
 
   // Check if already applied
   const alreadyApplied = job.applicants.some(
-    (app) => app.credentialist.toString() === credentialistId.toString()
+    (app) => app.learner.toString() === learnerId.toString()
   );
 
   if (alreadyApplied) {
@@ -232,17 +232,17 @@ export const applyToJob = async (jobId, credentialistId) => {
   }
 
   job.applicants.push({
-    credentialist: credentialistId,
+    learner: learnerId,
   });
 
   await job.save();
 
-  // Populate job to get curator info
-  await job.populate('curator', 'name email');
+  // Populate job to get employer info
+  await job.populate('employer', 'name email');
 
-  // Notify credentialist of successful application
+  // Notify learner of successful application
   await createNotification({
-    user: credentialistId,
+    user: learnerId,
     title: 'Application Submitted',
     message: `Your application for "${job.title}" has been submitted successfully.`,
     type: 'info',
@@ -250,13 +250,13 @@ export const applyToJob = async (jobId, credentialistId) => {
     metadata: {
       jobId: job._id,
       jobTitle: job.title,
-      curatorName: job.curator.username,
+      employerName: job.employer.username,
     },
   });
 
-  // Notify curator of new application
+  // Notify employer of new application
   await createNotification({
-    user: job.curator._id,
+    user: job.employer._id,
     title: 'New Application Received',
     message: `Someone applied for "${job.title}" position.`,
     type: 'info',
@@ -264,25 +264,25 @@ export const applyToJob = async (jobId, credentialistId) => {
     metadata: {
       jobId: job._id,
       jobTitle: job.title,
-      applicantId: credentialistId,
+      applicantId: learnerId,
     },
   });
 
   return job;
 };
 
-// Get jobs a credentialist has applied to
-export const getMyApplications = async (credentialistId) => {
+// Get jobs a learner has applied to
+export const getMyApplications = async (learnerId) => {
   const jobs = await Job.find({
-    'applicants.credentialist': credentialistId,
+    'applicants.learner': learnerId,
   })
-    .populate('curator', 'name email')
+    .populate('employer', 'name email')
     .sort({ 'applicants.appliedAt': -1 });
 
   // Transform to include application status
   const applications = jobs.map((job) => {
     const application = job.applicants.find(
-      (app) => app.credentialist.toString() === credentialistId.toString()
+      (app) => app.learner.toString() === learnerId.toString()
     );
 
     return {
@@ -292,7 +292,7 @@ export const getMyApplications = async (credentialistId) => {
         description: job.description,
         location: job.location,
         jobType: job.jobType,
-        curator: job.curator,
+        employer: job.employer,
       },
       applicationStatus: application.status,
       appliedAt: application.appliedAt,
@@ -302,9 +302,9 @@ export const getMyApplications = async (credentialistId) => {
   return applications;
 };
 
-// Get job statistics for curator dashboard
-export const getJobStats = async (curatorId) => {
-  const jobs = await Job.find({ curator: curatorId });
+// Get job statistics for employer dashboard
+export const getJobStats = async (employerId) => {
+  const jobs = await Job.find({ employer: employerId });
 
   const totalJobs = jobs.length;
   const activeJobs = jobs.filter((j) => j.status === 'active').length;

@@ -59,7 +59,7 @@ export default function ChatPage() {
           // Start or get conversation with the recipient
           const result = await dispatch(startConversation({
             recipientId: location.state.recipientId,
-            recipientType: location.state.recipientType || 'credentialist',
+            recipientType: location.state.recipientType || 'learner',
           })).unwrap();
 
           // Set as active conversation

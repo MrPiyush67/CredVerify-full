@@ -63,7 +63,7 @@ export default function ApplicantDetailsModal({ jobId, applicantUserId, applican
       state: { 
         recipientId: applicantUserId,
         recipientName: details?.profile?.name,
-        recipientType: 'credentialist' // Applicants are credentialists
+        recipientType: 'learner' // Applicants are learners
       } 
     });
   };

@@ -9,7 +9,7 @@ import { Home, BarChart3, Bell, User, Settings, MessageSquare, Briefcase, FileTe
 
 
 export const navigationItems = {
-  validant: [
+  regulator: [
     { label: 'Home', href: '/home' },
     { label: 'Dashboard', href: '/dashboard' },
     { label: 'Issue Credential', href: '/issue-credentials' },
@@ -19,7 +19,7 @@ export const navigationItems = {
     { label: 'Settings', href: '/settings' },
     { label: 'Chat', href: '/chat' },
   ],
-  curator: [
+  employer: [
     { label: 'Home', href: '/home' },
     { label: 'Dashboard', href: '/dashboard' },
     { label: 'Jobs', href: '/jobs' },
@@ -29,7 +29,7 @@ export const navigationItems = {
     { label: 'Settings', href: '/settings' },
     { label: 'Chat', href: '/chat' },
   ],
-  credentialist: [
+  learner: [
     { label: 'Home', href: '/home' },
     { label: 'Dashboard', href: '/dashboard' },
     { label: 'Credentials', href: '/credentials' },
@@ -97,7 +97,7 @@ export default function Sidebar({ children }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
-  const role = useSelector(selectRole) || 'credentialist';
+  const role = useSelector(selectRole) || 'learner';
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isFirstRender = useRef(true);
 
@@ -209,7 +209,7 @@ export default function Sidebar({ children }) {
   );
 
   // Get theme class based on role
-  const themeClass = role === 'credentialist' ? 'credentialist-theme' : role === 'curator' ? 'curator-theme' : 'validant-theme';
+  const themeClass = role === 'learner' ? 'learner-theme' : role === 'employer' ? 'employer-theme' : 'regulator-theme';
 
   return (
     <div className={`min-h-screen ${themeClass}`}>

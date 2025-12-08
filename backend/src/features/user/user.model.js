@@ -96,7 +96,7 @@ const userSchema = new mongoose.Schema(
       comment: 'If true, profile is visible to everyone',
     },
 
-    // ===== VALIDANT-SPECIFIC FIELDS (only filled by validants) =====
+    // ===== VALIDANT-SPECIFIC FIELDS (only filled by regulators) =====
     institution: {
       type: String,
       default: null,
@@ -130,7 +130,7 @@ const userSchema = new mongoose.Schema(
       default: 0,
     },
 
-    // ===== CURATOR-SPECIFIC FIELDS (only filled by curators) =====
+    // ===== CURATOR-SPECIFIC FIELDS (only filled by employers) =====
     companyName: {
       type: String,
       default: null,
@@ -168,7 +168,7 @@ const userSchema = new mongoose.Schema(
 // Compound indexes
 userSchema.index({ email: 1, role: 1 });
 userSchema.index({ isActive: 1, role: 1 });
-userSchema.index({ role: 1, institution: 1 }); // For validant queries
-userSchema.index({ role: 1, companyName: 1 }); // For curator queries
+userSchema.index({ role: 1, institution: 1 }); // For regulator queries
+userSchema.index({ role: 1, companyName: 1 }); // For employer queries
 
 export default mongoose.model('User', userSchema);

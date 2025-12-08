@@ -66,9 +66,9 @@ CredVerify uses a combination of:
 
 4. **Test Accounts**
    - Create test accounts for each role:
-     - Credentialist: `test-credentialist@example.com`
-     - Validant: `test-validant@example.com`
-     - Curator: `test-curator@example.com`
+     - Learner: `test-learner@example.com`
+     - Regulator: `test-regulator@example.com`
+     - Employer: `test-employer@example.com`
 
 ### Seeding Test Data
 
@@ -128,7 +128,7 @@ curl -X POST http://localhost:5000/api/auth/signup \
     "email": "test@example.com",
     "password": "password123",
     "name": "Test User",
-    "role": "credentialist"
+    "role": "learner"
   }'
 ```
 
@@ -219,7 +219,7 @@ npm run seed
 - [ ] **Signup**
   1. Go to `http://localhost:5173/signup`
   2. Fill form with valid data
-  3. Select role (Credentialist/Validant/Curator)
+  3. Select role (Learner/Regulator/Employer)
   4. Click "Sign Up"
   5. Should redirect to `/home`
   6. Check user data in UI
@@ -235,10 +235,10 @@ npm run seed
   2. Should redirect to `/login`
   3. Try accessing `/home` → should redirect to `/login`
 
-#### Credential Management (Credentialist)
+#### Credential Management (Learner)
 
 - [ ] **Upload Credential**
-  1. Login as credentialist
+  1. Login as learner
   2. Go to `/credentials/add`
   3. Upload certificate image
   4. Click "Verify"
@@ -263,10 +263,10 @@ npm run seed
   2. Confirm deletion
   3. Verify removed from list
 
-#### Verification Queue (Validant)
+#### Verification Queue (Regulator)
 
 - [ ] **View Pending Requests**
-  1. Login as validant
+  1. Login as regulator
   2. Go to `/requests`
   3. Check pending credentials displayed
 
@@ -282,10 +282,10 @@ npm run seed
   3. Enter reason
   4. Verify status changed to "Rejected"
 
-#### Job Management (Curator)
+#### Job Management (Employer)
 
 - [ ] **Post Job**
-  1. Login as curator
+  1. Login as employer
   2. Go to `/post-job`
   3. Fill job form
   4. Click "Post Job"
@@ -495,7 +495,7 @@ Tests:
    - Backend running
    - Frontend running
    - Extension installed
-   - User logged in (credentialist)
+   - User logged in (learner)
 
 2. **Steps**:
    1. Visit coursera.org certificate page
@@ -523,7 +523,7 @@ Tests:
 1. **Setup**:
    - Backend running
    - Frontend running
-   - User logged in (credentialist)
+   - User logged in (learner)
 
 2. **Steps**:
    1. Go to `/credentials/add`
@@ -544,24 +544,24 @@ Tests:
 #### Workflow 3: Job Application
 
 1. **Setup**:
-   - Credentialist with verified credentials
-   - Curator with posted job
+   - Learner with verified credentials
+   - Employer with posted job
 
 2. **Steps**:
-   1. Login as credentialist
+   1. Login as learner
    2. Go to `/jobs`
    3. Find job posting
    4. Click "Apply"
    5. Select credentials to attach
    6. Submit application
    7. Logout
-   8. Login as curator
+   8. Login as employer
    9. Go to job posting
    10. View applications
 
 3. **Expected**:
    - ✅ Application submitted
-   - ✅ Curator sees application
+   - ✅ Employer sees application
    - ✅ Credentials attached and visible
 
 ---
@@ -605,10 +605,10 @@ Tests:
 - [ ] DigiLocker import (if configured)
 
 **Jobs** (5 min):
-- [ ] Post job (curator)
+- [ ] Post job (employer)
 - [ ] Browse jobs
-- [ ] Apply to job (credentialist)
-- [ ] View applications (curator)
+- [ ] Apply to job (learner)
+- [ ] View applications (employer)
 
 **Chat** (3 min):
 - [ ] Send message
@@ -757,7 +757,7 @@ The `utils/test-helpers.js` provides:
 **Credentials not showing**:
 - Check Redux state in DevTools
 - Check API response in Network tab
-- Verify user role is "credentialist"
+- Verify user role is "learner"
 
 ### Extension Issues
 

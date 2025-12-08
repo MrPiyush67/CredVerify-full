@@ -17,11 +17,11 @@ const monthsAgo = (months) => {
 // Demo certificate image URL (consistent across all certificates for demo purposes)
 const DEMO_CERT_IMAGE = 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=600&fit=crop';
 
-// 5 Credentials for Priya Sharma (demo credentialist)
+// 5 Credentials for Priya Sharma (demo learner)
 const credentials = [
   // VERIFIED #1 - Coursera Certificate
   {
-    user: SEED_IDS.credentialist1,
+    user: SEED_IDS.learner1,
     legalNameSnapshot: 'Priya Sharma',
     certificateName: 'Priya Sharma',
     nameMatchConfidence: 100,
@@ -48,7 +48,7 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.validant1,
+    verifiedBy: SEED_IDS.regulator1,
     verificationNotes: 'Certificate verified through Coursera official API. All metadata confirmed valid.',
     verifiedAt: daysAgo(5),
     meta: {
@@ -61,7 +61,7 @@ const credentials = [
   },
   // VERIFIED #2 - Degree Certificate
   {
-    user: SEED_IDS.credentialist1,
+    user: SEED_IDS.learner1,
     legalNameSnapshot: 'Priya Sharma',
     certificateName: 'Priya Sharma',
     nameMatchConfidence: 100,
@@ -87,7 +87,7 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.validant1,
+    verifiedBy: SEED_IDS.regulator1,
     verificationNotes: 'Degree verified with IIT Delhi registrar office. Student ID and graduation year confirmed.',
     verifiedAt: daysAgo(10),
     meta: {
@@ -101,7 +101,7 @@ const credentials = [
   },
   // REJECTED - Name Mismatch
   {
-    user: SEED_IDS.credentialist1,
+    user: SEED_IDS.learner1,
     legalNameSnapshot: 'Priya Sharma',
     certificateName: 'Priya S.',
     nameMatchConfidence: 65,
@@ -127,7 +127,7 @@ const credentials = [
     isIssuerVerified: false,
     isPublic: false,
     status: 'rejected',
-    verifiedBy: SEED_IDS.validant1,
+    verifiedBy: SEED_IDS.regulator1,
     verificationNotes: 'Name on certificate does not match legal name. Certificate shows "Priya S." but legal name is "Priya Sharma". Unable to verify credential ID in Google Cloud records.',
     rejectionReason: 'Name mismatch and credential ID not found in issuer records',
     meta: {
@@ -139,7 +139,7 @@ const credentials = [
   },
   // PENDING #1 - Under Manual Review
   {
-    user: SEED_IDS.credentialist1,
+    user: SEED_IDS.learner1,
     legalNameSnapshot: 'Priya Sharma',
     certificateName: 'Priya Sharma',
     nameMatchConfidence: 100,
@@ -178,7 +178,7 @@ const credentials = [
   },
   // PENDING #2 - Auto-approval threshold not met
   {
-    user: SEED_IDS.credentialist1,
+    user: SEED_IDS.learner1,
     legalNameSnapshot: 'Priya Sharma',
     certificateName: 'Priya Sharma',
     nameMatchConfidence: 100,
@@ -219,7 +219,7 @@ const credentials = [
 
 const seedCredentials = async () => {
   const createdCredentials = await Credential.insertMany(credentials);
-  console.log(`✅ Credentials created: ${createdCredentials.length} (for demo credentialist Priya)`);
+  console.log(`✅ Credentials created: ${createdCredentials.length} (for demo learner Priya)`);
   return createdCredentials;
 };
 

@@ -27,7 +27,7 @@ export default function JobsTab({ id, tabpanelProps = {} }) {
 
   // Get current user and role
   const userRole = useSelector(selectRole);
-  const canApply = userRole === 'credentialist';
+  const canApply = userRole === 'learner';
 
   // Get data from Redux store based on user role
   const jobsData = useSelector(selectJobs);
@@ -36,7 +36,7 @@ export default function JobsTab({ id, tabpanelProps = {} }) {
 
   // Determine which jobs to show based on user role
   const { jobs, isLoading } = useMemo(() => {
-    if (userRole === 'curator') {
+    if (userRole === 'employer') {
       return {
         jobs: Array.isArray(myJobsData.data) ? myJobsData.data : [],
         isLoading: myJobsData.loading
@@ -51,21 +51,21 @@ export default function JobsTab({ id, tabpanelProps = {} }) {
 
   // Fetch appropriate data on mount based on role
   useEffect(() => {
-    if (userRole === 'curator') {
+    if (userRole === 'employer') {
       dispatch(fetchMyJobs());
     } else {
       dispatch(fetchJobs());
     }
 
-    // If credentialist, also fetch applications to show applied jobs
-    if (userRole === 'credentialist') {
+    // If learner, also fetch applications to show applied jobs
+    if (userRole === 'learner') {
       dispatch(fetchMyApplications());
     }
   }, [dispatch, userRole]);
 
   // Track applied jobs from applications data
   useEffect(() => {
-    if (userRole === 'credentialist' && Array.isArray(myApplicationsData.data)) {
+    if (userRole === 'learner' && Array.isArray(myApplicationsData.data)) {
       const appliedJobIds = new Set(
         myApplicationsData.data.map(app => app.job || app.jobId).filter(Boolean)
       );
@@ -82,7 +82,7 @@ export default function JobsTab({ id, tabpanelProps = {} }) {
       const query = searchQuery.toLowerCase();
       result = result.filter((job) => 
         (job.title || '').toLowerCase().includes(query) ||
-        (job.curator?.companyName || '').toLowerCase().includes(query)
+        (job.employer?.companyName || '').toLowerCase().includes(query)
       );
     }
     
@@ -245,7 +245,7 @@ export default function JobsTab({ id, tabpanelProps = {} }) {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-1">
-                <p className="text-sm font-medium">{job.curator?.companyName || 'Company Not Specified'}</p>
+                <p className="text-sm font-medium">{job.employer?.companyName || 'Company Not Specified'}</p>
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className="text-xs text-muted-foreground">
                     {(() => {

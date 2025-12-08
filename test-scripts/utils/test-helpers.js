@@ -152,7 +152,7 @@ export async function fetchJSON(url, options = {}) {
 /**
  * Generate test data
  */
-export function generateTestUser(role = 'credentialist') {
+export function generateTestUser(role = 'learner') {
   const timestamp = Date.now();
   return {
     email: `test-${timestamp}@credverify.test`,

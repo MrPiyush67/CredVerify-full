@@ -4,7 +4,7 @@ import { Input, Button } from '@common';
 import { INDIAN_INSTITUTIONS } from '../constants/institutions.js';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function ValidantVerificationModal({ isOpen, onClose, onSubmit }) {
+export default function RegulatorVerificationModal({ isOpen, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
     title: '',
     certificateName: '',
@@ -12,7 +12,7 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
     type: 'degree',
     issueDate: '',
     file: null,
-    credentialistComments: '',
+    learnerComments: '',
   });
   const [errors, setErrors] = useState({});
   const [filePreview, setFilePreview] = useState(null);
@@ -93,7 +93,7 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
         issuer: formData.institution,
         type: formData.type,
         issueDate: formData.issueDate,
-        verificationNotes: formData.credentialistComments || '',
+        verificationNotes: formData.learnerComments || '',
         status: 'pending',
         verificationRequested: true,
         // Store file as base64 data URL
@@ -124,7 +124,7 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
       type: 'degree',
       issueDate: '',
       file: null,
-      credentialistComments: '',
+      learnerComments: '',
     });
     setErrors({});
     setFilePreview(null);
@@ -158,7 +158,7 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
               {/* Header */}
               <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between z-10">
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Verify with Validant</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">Verify with Regulator</h2>
                   <p className="text-sm text-gray-500 mt-1">
                     Upload your academic credential for institutional verification
                   </p>
@@ -180,7 +180,7 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
                     <li>Upload your academic document (degree, certificate, etc.)</li>
                     <li>Select your institution/college</li>
                     <li>Your credential will be added as "Unverified"</li>
-                    <li>The validant from your institution will review and verify</li>
+                    <li>The regulator from your institution will review and verify</li>
                     <li>Once approved, your credential status changes to "Verified"</li>
                   </ol>
                 </div>
@@ -302,21 +302,21 @@ export default function ValidantVerificationModal({ isOpen, onClose, onSubmit })
                   )}
                 </div>
 
-                {/* Comments for Validant */}
+                {/* Comments for Regulator */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Comments for Validant (Optional)
+                    Comments for Regulator (Optional)
                   </label>
                   <textarea
-                    value={formData.credentialistComments}
-                    onChange={(e) => handleInputChange('credentialistComments', e.target.value)}
-                    placeholder="Add any additional information or context for the validant..."
+                    value={formData.learnerComments}
+                    onChange={(e) => handleInputChange('learnerComments', e.target.value)}
+                    placeholder="Add any additional information or context for the regulator..."
                     rows={4}
                     maxLength={500}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                   />
                   <p className="mt-1 text-xs text-gray-500 text-right">
-                    {formData.credentialistComments.length}/500 characters
+                    {formData.learnerComments.length}/500 characters
                   </p>
                 </div>
 

@@ -53,7 +53,7 @@ export const getMessages = async (conversationId, params = {}) => {
  * Send a message to a recipient (backend will find/create conversation)
  * @param {Object} messageData - Message data
  * @param {string} messageData.recipientId - ID of the recipient
- * @param {string} messageData.recipientType - Type of recipient ('credentialist', 'curator', 'validant')
+ * @param {string} messageData.recipientType - Type of recipient ('learner', 'employer', 'regulator')
  * @param {string} messageData.content - Message content
  * @returns {Promise} - API response with sent message
  */
@@ -89,7 +89,7 @@ export const sendMessage = async (messageData) => {
  * Start a new conversation with a user
  * @param {Object} conversationData - Conversation data
  * @param {string} conversationData.recipientId - ID of the other participant
- * @param {string} conversationData.recipientType - Type of recipient ('credentialist', 'curator', 'validant')
+ * @param {string} conversationData.recipientType - Type of recipient ('learner', 'employer', 'regulator')
  * @returns {Promise} - API response with conversation ID
  */
 export const startConversation = async (conversationData) => {

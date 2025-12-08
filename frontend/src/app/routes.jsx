@@ -39,15 +39,15 @@ export default function AppRoutes() {
         <Route path="/notifications" element={<NotificationsPage />} />
       </Route>
 
-      {/* Credentialist-only routes */}
-      <Route element={<ProtectedRoute requiredRole="credentialist" />}>
+      {/* Learner-only routes */}
+      <Route element={<ProtectedRoute requiredRole="learner" />}>
         <Route path="/credentials" element={<CredentialsPage />} />
         <Route path="/credentials/add" element={<AddCredentialsPage />} />
         <Route path="/credentials/upload-guide" element={<UploadMethodsGuidePage />} />
       </Route>
 
-      {/* Validant-only routes */}
-      <Route element={<ProtectedRoute requiredRole="validant" />}>
+      {/* Regulator-only routes */}
+      <Route element={<ProtectedRoute requiredRole="regulator" />}>
         <Route path="/requests" element={<RequestsPage />} />
       </Route>
 
@@ -56,8 +56,8 @@ export default function AppRoutes() {
         <Route path="/issue-credentials" element={<IssueCredentialsPage />} />
       </Route>
 
-      {/* Curator-only routes */}
-      <Route element={<ProtectedRoute requiredRole="curator" />}>
+      {/* Employer-only routes */}
+      <Route element={<ProtectedRoute requiredRole="employer" />}>
         <Route path="/jobs" element={<JobsPage />} />
         <Route path="/post-job" element={<PostJobPage />} />
         <Route path="/post-job/:id" element={<PostJobPage />} />

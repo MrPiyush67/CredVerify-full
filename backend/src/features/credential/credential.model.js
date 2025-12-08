@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const credentialSchema = new mongoose.Schema(
   {
-    // Owner in your system (previously 'credentialist')
+    // Owner in your system (previously 'learner')
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

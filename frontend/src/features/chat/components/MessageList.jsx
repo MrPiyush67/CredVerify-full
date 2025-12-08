@@ -215,12 +215,12 @@ const MessageBubble = React.memo(({ message, isOwn, showAvatar, showTime, userRo
   // Get theme class based on user role
   const getThemeClass = (role) => {
     switch (role?.toLowerCase()) {
-      case 'credentialist':
-        return 'credentialist-theme';
-      case 'curator':
-        return 'curator-theme';
-      case 'validant':
-        return 'validant-theme';
+      case 'learner':
+        return 'learner-theme';
+      case 'employer':
+        return 'employer-theme';
+      case 'regulator':
+        return 'regulator-theme';
       default:
         return '';
     }

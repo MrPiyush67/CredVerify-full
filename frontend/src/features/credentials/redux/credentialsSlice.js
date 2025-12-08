@@ -17,7 +17,7 @@ export const fetchCredentials = createAsyncThunk(
   }
 );
 
-// For validants - fetch pending/past credentials
+// For regulators - fetch pending/past credentials
 export const fetchPendingCredentials = createAsyncThunk(
   'credentials/fetchPending',
   async ({ page = 1, limit = 10, status, statusIn, credentialType, issuer } = {}, { rejectWithValue }) => {
@@ -186,7 +186,7 @@ const credentialsSlice = createSlice({
         state.credentials = []; // Ensure credentials is always an array
       })
 
-      // Fetch pending credentials (validant)
+      // Fetch pending credentials (regulator)
       .addCase(fetchPendingCredentials.pending, (state) => {
         state.loading = true;
         state.error = null;

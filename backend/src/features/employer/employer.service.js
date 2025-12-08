@@ -1,12 +1,12 @@
 import User from '../user/user.model.js';
-import CuratorSettings from './curator.settings.model.js';
+import EmployerSettings from './employer.settings.model.js';
 import { flattenSettings, getOrCreateSettings, buildSettingsUpdate } from '../../core/utils/settingsHelper.js';
 
 export const getProfile = async (userId) => {
   const profile = await User.findById(userId).select('-passwordHash');
 
-  if (!profile || profile.role !== 'curator') {
-    throw new Error('Curator profile not found');
+  if (!profile || profile.role !== 'employer') {
+    throw new Error('Employer profile not found');
   }
 
   return profile;
@@ -19,40 +19,40 @@ export const updateProfile = async (userId, updates) => {
     { new: true, runValidators: true }
   ).select('-passwordHash');
 
-  if (!profile || profile.role !== 'curator') {
-    throw new Error('Curator profile not found');
+  if (!profile || profile.role !== 'employer') {
+    throw new Error('Employer profile not found');
   }
 
   return profile;
 };
 
-// Get all curators (for display/search) - only public curators
-export const getAllCurators = async (filters = {}) => {
-  const curators = await User.find({ role: 'curator', isPublic: true, ...filters })
+// Get all employers (for display/search) - only public employers
+export const getAllEmployers = async (filters = {}) => {
+  const employers = await User.find({ role: 'employer', isPublic: true, ...filters })
     .select('-passwordHash')
     .sort({ createdAt: -1 });
 
-  return curators;
+  return employers;
 };
 
-// Get curator by ID (public profile only)
-export const getCuratorById = async (curatorId) => {
-  const curator = await User.findById(curatorId).select('-passwordHash');
+// Get employer by ID (public profile only)
+export const getEmployerById = async (employerId) => {
+  const employer = await User.findById(employerId).select('-passwordHash');
 
-  if (!curator || curator.role !== 'curator') {
-    throw new Error('Curator not found');
+  if (!employer || employer.role !== 'employer') {
+    throw new Error('Employer not found');
   }
 
-  if (!curator.isPublic) {
-    throw new Error('This curator profile is not public');
+  if (!employer.isPublic) {
+    throw new Error('This employer profile is not public');
   }
 
-  return curator;
+  return employer;
 };
 
 // Get settings
 export const getSettings = async (userId) => {
-  const settings = await getOrCreateSettings(CuratorSettings, userId);
+  const settings = await getOrCreateSettings(EmployerSettings, userId);
   return flattenSettings(settings);
 };
 
@@ -81,7 +81,7 @@ export const updateSettings = async (userId, updates) => {
 
   const updateObj = buildSettingsUpdate(updates, fieldMappings);
 
-  const settings = await CuratorSettings.findOneAndUpdate(
+  const settings = await EmployerSettings.findOneAndUpdate(
     { user: userId },
     { $set: updateObj },
     { new: true, upsert: true, runValidators: true }
@@ -90,19 +90,19 @@ export const updateSettings = async (userId, updates) => {
   return flattenSettings(settings);
 };
 
-// Get curator statistics (optimized with aggregation)
+// Get employer statistics (optimized with aggregation)
 export const getStats = async (userId) => {
   const Job = (await import('../job/job.model.js')).default;
 
   const profile = await User.findById(userId).lean();
 
-  if (!profile || profile.role !== 'curator') {
-    throw new Error('Curator profile not found');
+  if (!profile || profile.role !== 'employer') {
+    throw new Error('Employer profile not found');
   }
 
   // Optimized: Single aggregation query for all job stats
   const jobStats = await Job.aggregate([
-    { $match: { curator: userId } },
+    { $match: { employer: userId } },
     {
       $facet: {
         statusCounts: [

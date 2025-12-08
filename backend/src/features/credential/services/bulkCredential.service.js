@@ -2,9 +2,9 @@
  * Bulk Credential Issuance Service
  * 
  * Flow:
- * 1. Validant opens issue credential page
+ * 1. Regulator opens issue credential page
  * 2. Adds user's legal name and email, generates credential
- * 3. Backend checks if credentialist account exists
+ * 3. Backend checks if learner account exists
  * 4. If not exists: creates account with default password (CredVerify@123)
  * 5. Generates PDF certificate with QR code and verification link
  * 6. Uploads PDF to IPFS (Pinata) - primary cloud storage
@@ -42,16 +42,16 @@ await fs.mkdir(certsDir, { recursive: true }).catch(console.error);
 
 /**
  * Issue bulk credentials to multiple recipients
- * @param {string} validantId - ID of the validant issuing credentials
+ * @param {string} regulatorId - ID of the regulator issuing credentials
  * @param {Object} credentialData - Common credential data
  * @param {Array} recipients - Array of recipient objects {name, email}
  */
-export const issueBulkCredentials = async (validantId, credentialData, recipients) => {
+export const issueBulkCredentials = async (regulatorId, credentialData, recipients) => {
   const { credentialName, issueDate, hours, nsqfLevel } = credentialData;
 
-  // Fetch validant details for instructor name
-  const validant = await User.findById(validantId).select('name');
-  const instructorName = validant?.name || 'Admin';
+  // Fetch regulator details for instructor name
+  const regulator = await User.findById(regulatorId).select('name');
+  const instructorName = regulator?.name || 'Admin';
 
   const results = {
     successful: [],
@@ -74,7 +74,7 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
         let isNewUser = false;
 
         if (!user) {
-          // Create a new credentialist user for this recipient
+          // Create a new learner user for this recipient
           const bcrypt = (await import('bcryptjs')).default;
           const defaultPassword = await bcrypt.hash('CredVerify@123', 10);
 
@@ -86,7 +86,7 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
             name: name, // Legal name - immutable
             email: email,
             passwordHash: defaultPassword,
-            role: 'credentialist',
+            role: 'learner',
             isActive: true,
           });
 
@@ -109,7 +109,7 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
           totalHours: parseInt(hours),
           nsqfLevel: parseInt(nsqfLevel),
           status: 'verified',
-          verifiedBy: validantId,
+          verifiedBy: regulatorId,
           verifiedAt: new Date(),
           isPublic: false,
           isDomainTrusted: true,
@@ -232,10 +232,10 @@ export const issueBulkCredentials = async (validantId, credentialData, recipient
         credential.pdfPath = filepath;
         await credential.save();
 
-        // 4. Create notification for the validant (admin) about credential issuance
+        // 4. Create notification for the regulator (admin) about credential issuance
         try {
           await createNotification({
-            user: validantId,
+            user: regulatorId,
             title: 'Credential Issued',
             message: `Credential "${credentialName}" has been successfully issued to ${name}.`,
             type: 'success',

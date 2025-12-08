@@ -1,6 +1,6 @@
 import express from 'express';
 import { protect } from '../../core/middleware/auth.js';
-import { isCurator, isCredentialist } from '../../core/middleware/roleGuard.js';
+import { isEmployer, isLearner } from '../../core/middleware/roleGuard.js';
 import {
   createJob,
   getMyJobs,
@@ -18,36 +18,36 @@ import {
 
 const router = express.Router();
 
-// Curator routes (specific routes first)
-router.post('/jobs', protect, isCurator, createJob);
-router.get('/jobs/my-jobs', protect, isCurator, getMyJobs);
-router.get('/jobs/stats', protect, isCurator, getJobStats);
+// Employer routes (specific routes first)
+router.post('/jobs', protect, isEmployer, createJob);
+router.get('/jobs/my-jobs', protect, isEmployer, getMyJobs);
+router.get('/jobs/stats', protect, isEmployer, getJobStats);
 
-// Credentialist routes (before public routes to prevent conflicts)
-router.get('/jobs/my-applications', protect, isCredentialist, getMyApplications);
+// Learner routes (before public routes to prevent conflicts)
+router.get('/jobs/my-applications', protect, isLearner, getMyApplications);
 
 // Public routes
 router.get('/jobs', getAllJobs);
 router.get('/jobs/:id', getJobById);
 
-// More curator routes
-router.patch('/jobs/:id', protect, isCurator, updateJob);
-router.delete('/jobs/:id', protect, isCurator, deleteJob);
-router.get('/jobs/:id/applicants', protect, isCurator, getApplicants);
+// More employer routes
+router.patch('/jobs/:id', protect, isEmployer, updateJob);
+router.delete('/jobs/:id', protect, isEmployer, deleteJob);
+router.get('/jobs/:id/applicants', protect, isEmployer, getApplicants);
 router.get(
   '/jobs/:jobId/applicants/:applicantUserId/details',
   protect,
-  isCurator,
+  isEmployer,
   getApplicantDetails
 );
 router.patch(
   '/jobs/:jobId/applicants/:applicantId',
   protect,
-  isCurator,
+  isEmployer,
   updateApplicantStatus
 );
 
-// More credentialist routes
-router.post('/jobs/:id/apply', protect, isCredentialist, applyToJob);
+// More learner routes
+router.post('/jobs/:id/apply', protect, isLearner, applyToJob);
 
 export default router;

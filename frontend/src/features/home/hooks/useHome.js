@@ -83,16 +83,16 @@ export const useHome = () => {
       // Each role has their own stats endpoint that gets called separately
 
       // Fetch public data - all authenticated users can view these lists
-      await dispatch(fetchUsers());      // credentialists list
-      await dispatch(fetchAdmins());     // validants list
-      await dispatch(fetchEmployers());  // curators list
+      await dispatch(fetchUsers());      // learners list
+      await dispatch(fetchAdmins());     // regulators list
+      await dispatch(fetchEmployers());  // employers list
       await dispatch(fetchJobs());       // all jobs
 
       // Fetch role-specific personal data
-      if (userRole === 'curator') {
+      if (userRole === 'employer') {
         await dispatch(fetchMyJobs());     // their jobs
         await dispatch(fetchJobStats());   // their stats
-      } else if (userRole === 'credentialist') {
+      } else if (userRole === 'learner') {
         await dispatch(fetchMyApplications());     // their applications
         await dispatch(fetchCredentialHistory());  // their credentials
       }
@@ -178,10 +178,10 @@ export const useHome = () => {
     canViewEmployers: true,
     canViewUsers: true,
     canViewJobs: true,
-    canViewMyJobs: userRole === 'curator',
-    canViewMyApplications: userRole === 'credentialist',
-    canViewCredentials: userRole === 'credentialist',
-    canViewJobStats: userRole === 'curator',
+    canViewMyJobs: userRole === 'employer',
+    canViewMyApplications: userRole === 'learner',
+    canViewCredentials: userRole === 'learner',
+    canViewJobStats: userRole === 'employer',
   };
 };
 

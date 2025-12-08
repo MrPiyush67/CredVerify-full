@@ -8,25 +8,25 @@ import { ROLES } from '../../core/constants/roles.js';
  */
 export const getStatsByRole = async (userId, role) => {
   switch (role) {
-    case ROLES.CREDENTIALIST:
-      return await getCredentialistStats(userId);
-    case ROLES.VALIDANT:
-      return await getValidantStats(userId);
-    case ROLES.CURATOR:
-      return await getCuratorStats(userId);
+    case ROLES.LEARNER:
+      return await getLearnerStats(userId);
+    case ROLES.REGULATOR:
+      return await getRegulatorStats(userId);
+    case ROLES.EMPLOYER:
+      return await getEmployerStats(userId);
     default:
       throw new Error('Invalid user role for dashboard access');
   }
 };
 
 /**
- * Credentialist dashboard statistics
+ * Learner dashboard statistics
  */
-async function getCredentialistStats(userId) {
+async function getLearnerStats(userId) {
   const profile = await User.findById(userId);
 
-  if (!profile || profile.role !== 'credentialist') {
-    throw new Error('Credentialist profile not found');
+  if (!profile || profile.role !== 'learner') {
+    throw new Error('Learner profile not found');
   }
 
   // Get credentials stats with single aggregation
@@ -64,8 +64,8 @@ async function getCredentialistStats(userId) {
   const profileCompleteness = calculateProfileCompleteness(profile);
 
   // Generate chart data (pass stats to avoid re-querying)
-  const chartData = await generateChartData('credentialist', null, userId);
-  const heatmapData = await generateHeatmapData('credentialist', null, userId);
+  const chartData = await generateChartData('learner', null, userId);
+  const heatmapData = await generateHeatmapData('learner', null, userId);
 
   return {
     personalStats: {
@@ -85,9 +85,9 @@ async function getCredentialistStats(userId) {
 }
 
 /**
- * Validant dashboard statistics
+ * Regulator dashboard statistics
  */
-async function getValidantStats(userId) {
+async function getRegulatorStats(userId) {
   // Get all credentials counts for platform overview
   const [totalCredentials, verifiedCredentials, pendingCredentials, rejectedCredentials] = await Promise.all([
     Credential.countDocuments(),
@@ -96,7 +96,7 @@ async function getValidantStats(userId) {
     Credential.countDocuments({ status: 'rejected' }),
   ]);
 
-  // Get credentials verified by this validant (if tracking verifier)
+  // Get credentials verified by this regulator (if tracking verifier)
   const myVerifications = await Credential.countDocuments({
     verifiedBy: userId,
     status: 'verified'
@@ -104,21 +104,21 @@ async function getValidantStats(userId) {
 
   // Recent activity (last 30 days)
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  const [totalUsers, totalCurators, totalJobs, newCredentials] = await Promise.all([
-    User.countDocuments({ role: ROLES.CREDENTIALIST }),
-    User.countDocuments({ role: ROLES.CURATOR }),
+  const [totalUsers, totalEmployers, totalJobs, newCredentials] = await Promise.all([
+    User.countDocuments({ role: ROLES.LEARNER }),
+    User.countDocuments({ role: ROLES.EMPLOYER }),
     Job.countDocuments(),
     Credential.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
   ]);
 
   // Generate chart data
-  const chartData = await generateChartData('validant');
-  const heatmapData = await generateHeatmapData('validant');
+  const chartData = await generateChartData('regulator');
+  const heatmapData = await generateHeatmapData('regulator');
 
   return {
     platformOverview: {
       totalUsers,
-      totalCurators,
+      totalEmployers,
       totalJobs,
       totalCredentials,
       verifiedCredentials,
@@ -143,17 +143,17 @@ async function getValidantStats(userId) {
 }
 
 /**
- * Curator dashboard statistics
+ * Employer dashboard statistics
  */
-async function getCuratorStats(userId) {
+async function getEmployerStats(userId) {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-  // Get curator's jobs for calculations
-  const curatorJobs = await Job.find({ curator: userId });
+  // Get employer's jobs for calculations
+  const employerJobs = await Job.find({ employer: userId });
 
-  // Get curator's job stats with single aggregation
+  // Get employer's job stats with single aggregation
   const jobStats = await Job.aggregate([
-    { $match: { curator: userId } },
+    { $match: { employer: userId } },
     {
       $facet: {
         statusCounts: [{ $group: { _id: '$status', count: { $sum: 1 } } }],
@@ -188,8 +188,8 @@ async function getCuratorStats(userId) {
   const recentJobs = appStats.recentJobs || 0;
 
   // Generate chart data
-  const chartData = await generateChartData('curator', null, userId);
-  const heatmapData = await generateHeatmapData('curator', null, userId);
+  const chartData = await generateChartData('employer', null, userId);
+  const heatmapData = await generateHeatmapData('employer', null, userId);
 
   return {
     jobMetrics: {
@@ -204,10 +204,10 @@ async function getCuratorStats(userId) {
       newApplications: 0, // Placeholder - implement when application tracking is ready
     },
     performance: {
-      averageApplicationsPerJob: curatorJobs.length > 0
-        ? (totalApplications / curatorJobs.length).toFixed(1)
+      averageApplicationsPerJob: employerJobs.length > 0
+        ? (totalApplications / employerJobs.length).toFixed(1)
         : 0,
-      jobFillRate: calculateJobFillRate(curatorJobs),
+      jobFillRate: calculateJobFillRate(employerJobs),
     },
     chartData,
     heatmapData,
@@ -251,8 +251,8 @@ async function generateChartData(role, data = []) {
       const startDate = new Date(year, monthIndex, 1);
       const endDate = new Date(year, monthIndex + 1, 0, 23, 59, 59);
 
-      if (role === 'credentialist' && data.length > 0) {
-        // Credentialist: Cumulative credentials over time
+      if (role === 'learner' && data.length > 0) {
+        // Learner: Cumulative credentials over time
         const cumulativeByMonth = data.filter(c => new Date(c.createdAt) <= endDate);
 
         chartData.push({
@@ -262,8 +262,8 @@ async function generateChartData(role, data = []) {
           rejected: cumulativeByMonth.filter(c => c.status === 'rejected').length,
           total: cumulativeByMonth.length,
         });
-      } else if (role === 'validant') {
-        // Validant: Use MongoDB aggregation
+      } else if (role === 'regulator') {
+        // Regulator: Use MongoDB aggregation
         const pipeline = [
           {
             $facet: {
@@ -295,8 +295,8 @@ async function generateChartData(role, data = []) {
           pending,
           total: verified + rejected + pending,
         });
-      } else if (role === 'curator' && data.length > 0) {
-        // Curator: Job lifecycle metrics
+      } else if (role === 'employer' && data.length > 0) {
+        // Employer: Job lifecycle metrics
         const monthJobs = data.filter(j => {
           const createdAt = new Date(j.createdAt);
           return createdAt >= startDate && createdAt <= endDate;
@@ -335,14 +335,14 @@ async function generateHeatmapData(role, data = []) {
   try {
     const activityMap = new Map();
 
-    if (role === 'credentialist' && data.length > 0) {
-      // Credentialist: Group credential activities by date
+    if (role === 'learner' && data.length > 0) {
+      // Learner: Group credential activities by date
       data.forEach(c => {
         const dateKey = new Date(c.updatedAt).toISOString().split('T')[0];
         activityMap.set(dateKey, (activityMap.get(dateKey) || 0) + 1);
       });
-    } else if (role === 'validant') {
-      // Validant: Use MongoDB aggregation for credentials
+    } else if (role === 'regulator') {
+      // Regulator: Use MongoDB aggregation for credentials
       const pipeline = [
         {
           $match: {
@@ -361,8 +361,8 @@ async function generateHeatmapData(role, data = []) {
       results.forEach(r => {
         activityMap.set(r._id, r.count);
       });
-    } else if (role === 'curator' && data.length > 0) {
-      // Curator: Count job activities
+    } else if (role === 'employer' && data.length > 0) {
+      // Employer: Count job activities
       data.forEach(j => {
         const createDate = new Date(j.createdAt).toISOString().split('T')[0];
         activityMap.set(createDate, (activityMap.get(createDate) || 0) + 1);

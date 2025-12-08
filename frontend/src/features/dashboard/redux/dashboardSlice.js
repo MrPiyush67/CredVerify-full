@@ -6,7 +6,7 @@ export const fetchDashboardStats = createAsyncThunk(
   'dashboard/fetchDashboardStats',
   async (_, { rejectWithValue, getState }) => {
     try {
-      const role = getState().auth?.role || 'credentialist';
+      const role = getState().auth?.role || 'learner';
       const response = await dashboardApi.getDashboardStats();
       return {
         role,

@@ -1,14 +1,14 @@
 import User from '../user/user.model.js';
-import CredentialistSettings from './credentialist.settings.model.js';
+import LearnerSettings from './learner.settings.model.js';
 import Job from '../job/job.model.js';
 import { flattenSettings, getOrCreateSettings, buildSettingsUpdate } from '../../core/utils/settingsHelper.js';
 
-// Helper function to check if a curator can access a private profile
-export const canCuratorAccessProfile = async (curatorId, credentialistUserId) => {
-  // Check if credentialist has applied to any of curator's jobs
+// Helper function to check if a employer can access a private profile
+export const canCuratorAccessProfile = async (employerId, learnerUserId) => {
+  // Check if learner has applied to any of employer's jobs
   const jobWithApplication = await Job.findOne({
-    curator: curatorId,
-    'applicants.credentialist': credentialistUserId,
+    employer: employerId,
+    'applicants.learner': learnerUserId,
   });
 
   return !!jobWithApplication;
@@ -17,8 +17,8 @@ export const canCuratorAccessProfile = async (curatorId, credentialistUserId) =>
 export const getProfile = async (userId) => {
   const profile = await User.findById(userId).select('-passwordHash');
 
-  if (!profile || profile.role !== 'credentialist') {
-    throw new Error('Credentialist profile not found');
+  if (!profile || profile.role !== 'learner') {
+    throw new Error('Learner profile not found');
   }
 
   return profile;
@@ -31,16 +31,16 @@ export const updateProfile = async (userId, updates) => {
     { new: true, runValidators: true }
   ).select('-passwordHash');
 
-  if (!profile || profile.role !== 'credentialist') {
-    throw new Error('Credentialist profile not found');
+  if (!profile || profile.role !== 'learner') {
+    throw new Error('Learner profile not found');
   }
 
   return profile;
 };
 
-// Get all public credentialists (only returns public profiles)
-export const getAllCredentialists = async (filters = {}) => {
-  const query = { role: 'credentialist', isPublic: true, ...filters };
+// Get all public learners (only returns public profiles)
+export const getAllLearners = async (filters = {}) => {
+  const query = { role: 'learner', isPublic: true, ...filters };
 
   const profiles = await User.find(query)
     .select('-passwordHash')
@@ -49,12 +49,12 @@ export const getAllCredentialists = async (filters = {}) => {
   return profiles;
 };
 
-// Get credentialist by ID with privacy check
-export const getCredentialistById = async (credentialistId, requestingUserId = null, requestingUserRole = null) => {
-  const profile = await User.findById(credentialistId).select('-passwordHash');
+// Get learner by ID with privacy check
+export const getLearnerById = async (learnerId, requestingUserId = null, requestingUserRole = null) => {
+  const profile = await User.findById(learnerId).select('-passwordHash');
 
-  if (!profile || profile.role !== 'credentialist') {
-    throw new Error('Credentialist not found');
+  if (!profile || profile.role !== 'learner') {
+    throw new Error('Learner not found');
   }
 
   // If profile is public, anyone can view
@@ -72,8 +72,8 @@ export const getCredentialistById = async (credentialistId, requestingUserId = n
     return profile;
   }
 
-  // Curators can view if credentialist applied to their job
-  if (requestingUserRole === 'curator') {
+  // Employers can view if learner applied to their job
+  if (requestingUserRole === 'employer') {
     const hasAccess = await canCuratorAccessProfile(requestingUserId, profile._id);
     if (hasAccess) {
       return profile;
@@ -86,7 +86,7 @@ export const getCredentialistById = async (credentialistId, requestingUserId = n
 
 // Get settings
 export const getSettings = async (userId) => {
-  const settings = await getOrCreateSettings(CredentialistSettings, userId);
+  const settings = await getOrCreateSettings(LearnerSettings, userId);
   return flattenSettings(settings);
 };
 
@@ -111,7 +111,7 @@ export const updateSettings = async (userId, updates) => {
 
   const updateObj = buildSettingsUpdate(updates, fieldMappings);
 
-  const settings = await CredentialistSettings.findOneAndUpdate(
+  const settings = await LearnerSettings.findOneAndUpdate(
     { user: userId },
     { $set: updateObj },
     { new: true, upsert: true, runValidators: true }
@@ -120,14 +120,14 @@ export const updateSettings = async (userId, updates) => {
   return flattenSettings(settings);
 };
 
-// Get credentialist statistics (optimized with single aggregation)
+// Get learner statistics (optimized with single aggregation)
 export const getStats = async (userId) => {
   const Credential = (await import('../credential/credential.model.js')).default;
   const Job = (await import('../job/job.model.js')).default;
 
   const profile = await User.findById(userId).lean();
 
-  if (!profile || profile.role !== 'credentialist') {
+  if (!profile || profile.role !== 'learner') {
     throw new Error('Profile not found');
   }
 
@@ -135,7 +135,7 @@ export const getStats = async (userId) => {
   const [credentialStats, jobStats] = await Promise.all([
     // Get all credential counts in single aggregation
     Credential.aggregate([
-      { $match: { credentialist: userId } },
+      { $match: { learner: userId } },
       {
         $facet: {
           total: [{ $count: 'count' }],
@@ -147,7 +147,7 @@ export const getStats = async (userId) => {
     ]),
     // Get application stats in single aggregation
     Job.aggregate([
-      { $match: { 'applicants.credentialist': userId } },
+      { $match: { 'applicants.learner': userId } },
       {
         $facet: {
           total: [{ $count: 'count' }],

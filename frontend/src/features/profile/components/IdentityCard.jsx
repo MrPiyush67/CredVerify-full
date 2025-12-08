@@ -14,9 +14,9 @@ export const IdentityCard = ({ user, isOwnProfile = true }) => {
   const getRoleIcon = () => {
     const iconProps = { className: "w-5 h-5" };
     const roleIcons = {
-      validant: <ShieldCheck {...iconProps} className="w-5 h-5 text-green-600" />,
-      curator: <Building2 {...iconProps} className="w-5 h-5 text-purple-600" />,
-      credentialist: <UserIcon {...iconProps} className="w-5 h-5 text-blue-600" />
+      regulator: <ShieldCheck {...iconProps} className="w-5 h-5 text-green-600" />,
+      employer: <Building2 {...iconProps} className="w-5 h-5 text-purple-600" />,
+      learner: <UserIcon {...iconProps} className="w-5 h-5 text-blue-600" />
     };
     return roleIcons[user.role] || null;
   };
