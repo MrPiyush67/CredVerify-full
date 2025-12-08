@@ -26,7 +26,14 @@
   "author": "CredVerify Team",
   "license": "MIT",
   "dependencies": {
+<<<<<<< HEAD
     "form-data": "^4.0.5",
     "node-fetch": "^3.3.2"
   }
 }
+=======
+    "node-fetch": "^3.3.2",
+    "form-data": "^4.0.5"
+  }
+}
+>>>>>>> my-local-backup

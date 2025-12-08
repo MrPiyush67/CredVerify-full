@@ -8,11 +8,14 @@ import axios from "axios";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+<<<<<<< HEAD
 // Surya OCR service configuration
 const SURYA_OCR_URL = process.env.SURYA_OCR_URL || 'http://localhost:5000';
 const USE_SURYA_OCR = process.env.USE_SURYA_OCR !== 'false'; // Default to true
 const SURYA_TIMEOUT = 30000; // 30 seconds
 
+=======
+>>>>>>> my-local-backup
 /**
  * Extract text from image using Tesseract OCR
  * @param {Buffer|string} imageSource - Buffer or file path
@@ -117,6 +120,7 @@ export async function extractTextFromUrl(imageUrl) {
     throw new Error(`URL OCR extraction failed: ${error.message}`);
   }
 }
+<<<<<<< HEAD
 
 /**
  * Extract text from base64 image using Surya OCR (Python microservice)
@@ -191,3 +195,5 @@ export async function extractTextFromBase64Smart(base64Image) {
   console.log(`🔄 [OCR] Using Tesseract OCR as fallback...`);
   return await extractTextFromBase64(base64Image);
 }
+=======
+>>>>>>> my-local-backup

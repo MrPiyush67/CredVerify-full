@@ -1,7 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+<<<<<<< HEAD
 import { Card, CardContent, CardHeader, CardTitle, Avatar, AvatarImage, AvatarFallback, Badge, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Button } from '@common';
 import { Filter } from 'lucide-react';
+=======
+import { Card, CardContent, CardHeader, CardTitle, Avatar, AvatarImage, AvatarFallback, Badge, Input, Button } from '@common';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@common/ui/select';
+import { Filter, GraduationCap, Building2, MapPin, Briefcase, Mail } from 'lucide-react';
+import { Skeleton } from '@common/ui/skeleton';
+import { Separator } from '@common/ui/separator';
+
+>>>>>>> my-local-backup
 import {
   fetchUsers,
   fetchAdmins,
@@ -12,8 +21,13 @@ import { selectUser } from '@features/auth/redux/authSlice.js';
 import { useNavigate } from 'react-router-dom';
 
 const emptyText = {
+<<<<<<< HEAD
   user: 'No users found.',
   admin: 'No admins found.',
+=======
+  learner: 'No users found.',
+  regulator: 'No admins found.',
+>>>>>>> my-local-backup
   employer: 'No employers found.',
 };
 
@@ -39,17 +53,25 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
   const admins = useSelector((state) => selectRoleData(state, 'admins'));
   const employers = useSelector((state) => selectRoleData(state, 'employers'));
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> my-local-backup
   // Fetch data on mount
   useEffect(() => {
     if (role === 'learner' || role === 'learners') {
       dispatch(fetchUsers());
     } else if (role === 'regulator' || role === 'regulators') {
+<<<<<<< HEAD
       // Fetch regulators for all users (public profiles)
       dispatch(fetchAdmins());
     } else if (role === 'employer' || role === 'employers') {
       // Fetch employers for all users (public profiles)
+=======
+      dispatch(fetchAdmins());
+    } else if (role === 'employer' || role === 'employers') {
+>>>>>>> my-local-backup
       dispatch(fetchEmployers());
     }
   }, [dispatch, role]);
@@ -72,6 +94,7 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
 
   // Filter items based on search query and filters
   const filteredItems = useMemo(() => {
+<<<<<<< HEAD
     // Ensure items is always an array
     const safeItems = Array.isArray(items) ? items : [];
     
@@ -79,6 +102,14 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
       // Search by name
       const nameMatch = !searchQuery.trim() || (item.name || '').toLowerCase().includes(searchQuery.toLowerCase());
       
+=======
+    const safeItems = Array.isArray(items) ? items : [];
+
+    return safeItems.filter((item) => {
+      // Search by name
+      const nameMatch = !searchQuery.trim() || (item.name || '').toLowerCase().includes(searchQuery.toLowerCase());
+
+>>>>>>> my-local-backup
       // Role-specific filters
       switch (role) {
         case 'learner': {
@@ -94,6 +125,7 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
         case 'employer': {
           const companyMatch = !filters.company || (item.companyName || '').toLowerCase().includes(filters.company.toLowerCase());
 
+<<<<<<< HEAD
           // Normalize item companySize into defined buckets so comparisons are robust
           const normalizeSize = (size) => {
             if (!size) return '';
@@ -105,6 +137,16 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
             // Replace any en/em dashes with hyphen
             const cleaned = s.replace(/[–—]/g, '-');
             // If formatted like "10-50"
+=======
+          // Normalize company size
+          const normalizeSize = (size) => {
+            if (!size) return '';
+            const s = String(size).trim();
+            const buckets = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'];
+            if (buckets.includes(s)) return s;
+            
+            const cleaned = s.replace(/[–—]/g, '-');
+>>>>>>> my-local-backup
             const rangeMatch = cleaned.match(/^(\d+)\s*-\s*(\d+)$/);
             if (rangeMatch) {
               const min = parseInt(rangeMatch[1], 10);
@@ -116,7 +158,11 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
               if (max <= 1000) return '501-1000';
               return '1000+';
             }
+<<<<<<< HEAD
             // If single number
+=======
+            
+>>>>>>> my-local-backup
             const num = parseInt(cleaned, 10);
             if (!isNaN(num)) {
               if (num <= 10) return '1-10';
@@ -126,12 +172,20 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
               if (num <= 1000) return '501-1000';
               return '1000+';
             }
+<<<<<<< HEAD
             // Fallback for textual sizes
+=======
+            
+>>>>>>> my-local-backup
             const lower = cleaned.toLowerCase();
             if (lower.includes('micro') || lower.includes('small') || lower.includes('startup')) return '1-10';
             if (lower.includes('medium')) return '51-200';
             if (lower.includes('large') || lower.includes('enterprise')) return '1000+';
+<<<<<<< HEAD
             return s; // return original if unknown
+=======
+            return s;
+>>>>>>> my-local-backup
           };
 
           const selectedBucket = filters.companySize === 'all' || !filters.companySize ? '' : filters.companySize;
@@ -145,6 +199,7 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
       }
     });
   }, [items, searchQuery, filters, role]);
+<<<<<<< HEAD
   
   return (
     <div
@@ -152,6 +207,11 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
       id={id}
       {...tabpanelProps}
     >
+=======
+
+  return (
+    <div className="space-y-3" id={id} {...tabpanelProps}>
+>>>>>>> my-local-backup
       {/* Filters Section */}
       <Card className="bg-muted/30">
         <CardContent className="p-4">
@@ -167,7 +227,11 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="text-sm"
             />
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> my-local-backup
             {/* Role-specific filters */}
             {role === 'learner' && (
               <>
@@ -185,7 +249,11 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
                 />
               </>
             )}
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> my-local-backup
             {role === 'regulator' && (
               <>
                 <Input
@@ -202,7 +270,11 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
                 />
               </>
             )}
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> my-local-backup
             {role === 'employer' && (
               <>
                 <Input
@@ -230,6 +302,7 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
           </div>
         </CardContent>
       </Card>
+<<<<<<< HEAD
       
       {/* Results */}
       {isLoading && Array.from({ length: 6 }).map((_, i) => (
@@ -449,6 +522,269 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
         );
       })}
       
+=======
+
+      {/* Results Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Loading Skeletons */}
+        {isLoading && Array.from({ length: 6 }).map((_, i) => (
+          <Card key={`${role}-skel-${i}`}>
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-5/6" />
+              <div className="flex gap-2">
+                <Skeleton className="h-5 w-16" />
+                <Skeleton className="h-5 w-16" />
+              </div>
+              <Skeleton className="h-8 w-full" />
+            </CardContent>
+          </Card>
+        ))}
+
+        {/* No Results */}
+        {!isLoading && filteredItems.length === 0 && (
+          <Card className="col-span-full">
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">{emptyText[role] ?? 'No records found.'}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* User Cards */}
+        {!isLoading && filteredItems.slice(0, displayCount).map((item) => {
+          const key = item._id || item.id;
+          const name = item.name || 'Unknown';
+          const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+
+          const onViewProfile = () => {
+            const routeRole = role === 'learner' ? 'learner' : role === 'regulator' ? 'regulator' : 'employer';
+            navigate(`/profile?userId=${key}&role=${routeRole}`);
+          };
+
+          return (
+            <Card key={key} className="hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-border/60 flex flex-col">
+              <CardHeader className="pb-3">
+                <div className="flex items-start gap-3">
+                  <Avatar className="h-12 w-12 flex-shrink-0">
+                    {item.avatar ? (
+                      <AvatarImage src={item.avatar} alt={`${name} profile`} />
+                    ) : (
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {initials}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-base font-semibold truncate">{name}</CardTitle>
+                    {item.verified !== undefined && (
+                      <Badge variant={item.verified ? "success" : "warning"} className="text-xs mt-1">
+                        {item.verified ? "Verified" : "Pending"}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col">
+                {/* Learner Content */}
+                {role === 'learner' && (
+                  <div className="space-y-3 flex-1">
+                    {item.bio && (
+                      <p className="text-xs text-muted-foreground italic line-clamp-2">
+                        "{item.bio}"
+                      </p>
+                    )}
+
+                    <Separator />
+
+                    {item.education && item.education.length > 0 && (
+                      <div className="flex items-start gap-2 text-sm">
+                        <GraduationCap className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                        <span className="text-muted-foreground text-xs">
+                          {item.education[0].degree} at {item.education[0].institution}
+                        </span>
+                      </div>
+                    )}
+
+                    {item.skills && item.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {item.skills.slice(0, 3).map((skill, i) => (
+                          <Badge key={i} variant="outline" className="text-xs">
+                            {skill}
+                          </Badge>
+                        ))}
+                        {item.skills.length > 3 && (
+                          <Badge variant="secondary" className="text-xs">
+                            +{item.skills.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    {item.email && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Mail className="h-3 w-3" />
+                        <span className="truncate">{item.email}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Regulator Content */}
+                {role === 'regulator' && (
+                  <div className="space-y-3 flex-1">
+                    {item.bio && (
+                      <p className="text-xs text-muted-foreground italic line-clamp-2">
+                        "{item.bio}"
+                      </p>
+                    )}
+
+                    <Separator />
+
+                    {item.institution && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span className="text-muted-foreground text-xs">{item.institution}</span>
+                      </div>
+                    )}
+
+                    {item.department && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <GraduationCap className="h-3 w-3 shrink-0" />
+                        <span>Department: {item.department}</span>
+                      </div>
+                    )}
+
+                    {item.skills && item.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {item.skills.slice(0, 3).map((skill, i) => (
+                          <Badge key={i} variant="outline" className="text-xs">
+                            {skill}
+                          </Badge>
+                        ))}
+                        {item.skills.length > 3 && (
+                          <Badge variant="secondary" className="text-xs">
+                            +{item.skills.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    {item.email && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Mail className="h-3 w-3" />
+                        <span className="truncate">{item.email}</span>
+                      </div>
+                    )}
+
+                    {(item.verifiedCount > 0 || item.rejectedCount > 0) && (
+                      <div className="flex gap-2 mt-2">
+                        <Badge variant="success" className="text-xs">
+                          ✓ {item.verifiedCount || 0} verified
+                        </Badge>
+                        <Badge variant="secondary" className="text-xs">
+                          ✗ {item.rejectedCount || 0} rejected
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Employer Content */}
+                {role === 'employer' && (
+                  <div className="space-y-3 flex-1">
+                    {item.bio && (
+                      <p className="text-xs text-muted-foreground italic line-clamp-2">
+                        "{item.bio}"
+                      </p>
+                    )}
+
+                    <Separator />
+
+                    {item.companyName && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span className="font-medium text-muted-foreground text-xs">{item.companyName}</span>
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap gap-2 items-center">
+                      {item.industry && (
+                        <Badge variant="outline" className="text-xs">
+                          {item.industry}
+                        </Badge>
+                      )}
+                      {item.companySize && (
+                        <Badge variant="secondary" className="text-xs">
+                          {item.companySize} employees
+                        </Badge>
+                      )}
+                    </div>
+
+                    {item.skills && item.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {item.skills.slice(0, 3).map((skill, i) => (
+                          <Badge key={i} variant="outline" className="text-xs">
+                            {skill}
+                          </Badge>
+                        ))}
+                        {item.skills.length > 3 && (
+                          <Badge variant="secondary" className="text-xs">
+                            +{item.skills.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    {item.experience && item.experience.length > 0 && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Briefcase className="h-3 w-3 shrink-0" />
+                        <span>{item.experience[0].position} at {item.experience[0].company}</span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <MapPin className="h-3 w-3 shrink-0" />
+                      <span>
+                        {(() => {
+                          const loc = item.companyLocation || item.location || item.city;
+                          if (typeof loc === 'object' && loc) {
+                            return `${loc.city || ''}${loc.state ? ', ' + loc.state : ''}${loc.country ? ', ' + loc.country : ''}`.trim().replace(/^,|,$/, '') || 'Location not specified';
+                          }
+                          return loc || 'Location not specified';
+                        })()}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <Separator className="my-3" />
+
+                <div className="flex justify-end">
+                  <Button
+                    onClick={onViewProfile}
+                    size="sm"
+                    variant="outline"
+                    className="text-xs"
+                  >
+                    View Profile
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+>>>>>>> my-local-backup
       {/* Load More Button */}
       {!isLoading && filteredItems.length > displayCount && (
         <div className="flex justify-center pt-4">

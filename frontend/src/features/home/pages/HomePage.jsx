@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 import React, { useState, useId, useCallback, useEffect } from 'react';
 import { Input, Button } from '@common';
 import { Briefcase, ShieldCheck, Users, ArrowUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+=======
+import React, { useState, useEffect } from 'react';
+import { Button } from '@common';
+import { Briefcase, ShieldCheck, Users, ArrowUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@common/ui/tabs';
+>>>>>>> my-local-backup
 import PageHeader from '@common/components/PageHeader.jsx';
 import RoleTab from '@features/home/components/RoleTab.jsx';
 import JobsTab from '@features/home/components/JobsTab.jsx';
@@ -54,6 +62,7 @@ export default function HomePage() {
     }
   }, [tab, canViewAdmins, canViewEmployers]);
 
+<<<<<<< HEAD
   // Accessibility: tabs ids and keyboard navigation
   const tabIds = {
     learner: useId(),
@@ -74,6 +83,8 @@ export default function HomePage() {
     }
   }, [tab]);
 
+=======
+>>>>>>> my-local-backup
   // Simple count display - components will handle their own counts
   const getTabCount = (tabType) => {
     switch (tabType) {
@@ -104,13 +115,19 @@ export default function HomePage() {
         description="Manage users, employers, admins, and jobs from here."
       />
 
+<<<<<<< HEAD
       {/* Tabs */}
       <motion.div
         className="space-y-3"
+=======
+      {/* Tabs with shadcn */}
+      <motion.div
+>>>>>>> my-local-backup
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
+<<<<<<< HEAD
         <div className="flex items-center gap-2" role="tablist" aria-label="Home tabs" onKeyDown={onTabsKeyDown}>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
@@ -227,6 +244,59 @@ export default function HomePage() {
             }}
           />
         )}
+=======
+        <Tabs value={tab} onValueChange={setTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 lg:flex lg:w-auto lg:justify-start">
+            <TabsTrigger value="learner" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              <span className="hidden sm:inline">Learners</span>
+              <span className="text-xs opacity-70">{getTabCount('learner')}</span>
+            </TabsTrigger>
+
+            {canViewAdmins && (
+              <TabsTrigger value="regulator" className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4" />
+                <span className="hidden sm:inline">Regulators</span>
+                <span className="text-xs opacity-70">{getTabCount('regulator')}</span>
+              </TabsTrigger>
+            )}
+
+            {canViewEmployers && (
+              <TabsTrigger value="employer" className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4" />
+                <span className="hidden sm:inline">Employers</span>
+                <span className="text-xs opacity-70">{getTabCount('employer')}</span>
+              </TabsTrigger>
+            )}
+
+            <TabsTrigger value="job" className="flex items-center gap-2">
+              <Briefcase className="h-4 w-4" />
+              <span className="hidden sm:inline">Jobs</span>
+              <span className="text-xs opacity-70">{getTabCount('job')}</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="learner" className="space-y-4">
+            <RoleTab role="learner" />
+          </TabsContent>
+
+          {canViewAdmins && (
+            <TabsContent value="regulator" className="space-y-4">
+              <RoleTab role="regulator" />
+            </TabsContent>
+          )}
+
+          {canViewEmployers && (
+            <TabsContent value="employer" className="space-y-4">
+              <RoleTab role="employer" />
+            </TabsContent>
+          )}
+
+          <TabsContent value="job" className="space-y-4">
+            <JobsTab />
+          </TabsContent>
+        </Tabs>
+>>>>>>> my-local-backup
       </motion.div>
 
       {/* Scroll to Top Button */}
@@ -253,4 +323,7 @@ export default function HomePage() {
     </motion.main>
   );
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> my-local-backup

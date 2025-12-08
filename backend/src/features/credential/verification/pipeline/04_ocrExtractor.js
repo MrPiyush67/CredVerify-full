@@ -1,5 +1,6 @@
 /**
  * OCR Extraction Pipeline
+<<<<<<< HEAD
  * Extracts text from certificate images using Surya OCR (with Tesseract fallback)
  *
  * Reuses: ocr.service.js from /ocr/
@@ -10,6 +11,14 @@ import {
   extractTextFromBase64,
   extractTextFromBase64Smart
 } from '../../services/ocr.service.js';
+=======
+ * Extracts text from certificate images using Tesseract.js
+ * 
+ * Reuses: ocr.service.js from /ocr/
+ */
+
+import { extractTextFromImage, extractTextFromBase64 } from '../../services/ocr.service.js';
+>>>>>>> my-local-backup
 
 /**
  * Extract text from certificate image buffer
@@ -70,8 +79,12 @@ export async function extractText(imageBuffer) {
 
 /**
  * Extract text from base64 encoded image (for extension flow)
+<<<<<<< HEAD
  * Uses Surya OCR with automatic Tesseract fallback
  *
+=======
+ * 
+>>>>>>> my-local-backup
  * @param {string} base64Image - Base64 encoded image
  * @returns {Promise<Object>} - { text, confidence, wordCount }
  */
@@ -79,8 +92,12 @@ export async function extractTextFromBase64Image(base64Image) {
   console.log(`🔍 [OCR-EXTRACTOR] Extracting from base64 image...`);
 
   try {
+<<<<<<< HEAD
     // Use smart OCR (Surya with Tesseract fallback)
     const text = await extractTextFromBase64Smart(base64Image);
+=======
+    const text = await extractTextFromBase64(base64Image);
+>>>>>>> my-local-backup
 
     const wordCount = text.trim().split(/\s+/).length;
     const charCount = text.length;

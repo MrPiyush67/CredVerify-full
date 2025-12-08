@@ -8,7 +8,10 @@ yarn.lock
 **/.env
 .env/
 **/.env/
+<<<<<<< HEAD
 **/venv/
+=======
+>>>>>>> my-local-backup
 
 # Logs
 logs/
@@ -34,4 +37,8 @@ build/
 
 # Uploads
 uploads/
+<<<<<<< HEAD
 temp/
+=======
+temp/
+>>>>>>> my-local-backup
