@@ -8,7 +8,7 @@ import {
   RefreshCw,
   Settings
 } from 'lucide-react';
-import { Button, Input, Select, SelectItem } from '@common';
+import { Button, Input, Select, SelectItem, SelectTrigger, SelectValue, SelectContent } from '@common';
 import Loader from '@common/components/Loader.jsx';
 import {
   fetchNotifications,
@@ -169,11 +169,16 @@ export default function NotificationList({ title = 'Notifications' }) {
                 value={filters.type || ''}
                 onValueChange={(value) => handleFilterChange('type', value)}
               >
-                {filterOptions.type.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
+                <SelectTrigger>
+                  <SelectValue placeholder="All Types" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filterOptions.type.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
 
@@ -185,11 +190,16 @@ export default function NotificationList({ title = 'Notifications' }) {
                 value={filters.category || ''}
                 onValueChange={(value) => handleFilterChange('category', value)}
               >
-                {filterOptions.category.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
+                <SelectTrigger>
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filterOptions.category.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
 
@@ -201,11 +211,16 @@ export default function NotificationList({ title = 'Notifications' }) {
                 value={filters.priority || ''}
                 onValueChange={(value) => handleFilterChange('priority', value)}
               >
-                {filterOptions.priority.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
+                <SelectTrigger>
+                  <SelectValue placeholder="All Priorities" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filterOptions.priority.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
 
@@ -217,11 +232,16 @@ export default function NotificationList({ title = 'Notifications' }) {
                 value={filters.read || ''}
                 onValueChange={(value) => handleFilterChange('read', value)}
               >
-                {filterOptions.read.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
+                <SelectTrigger>
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filterOptions.read.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
 

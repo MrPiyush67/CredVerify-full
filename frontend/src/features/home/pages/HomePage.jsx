@@ -1,7 +1,8 @@
-import React, { useState, useId, useCallback, useEffect } from 'react';
-import { Input, Button } from '@common';
+import React, { useState, useEffect } from 'react';
+import { Button } from '@common';
 import { Briefcase, ShieldCheck, Users, ArrowUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@common/ui/tabs';
 import PageHeader from '@common/components/PageHeader.jsx';
 import RoleTab from '@features/home/components/RoleTab.jsx';
 import JobsTab from '@features/home/components/JobsTab.jsx';
@@ -54,26 +55,6 @@ export default function HomePage() {
     }
   }, [tab, canViewAdmins, canViewEmployers]);
 
-  // Accessibility: tabs ids and keyboard navigation
-  const tabIds = {
-    learner: useId(),
-    regulator: useId(),
-    employer: useId(),
-    job: useId(),
-  };
-
-  const onTabsKeyDown = useCallback((e) => {
-    const order = ['learner', 'regulator', 'employer', 'job'];
-    const idx = order.indexOf(tab);
-    if (e.key === 'ArrowRight') {
-      setTab(order[(idx + 1) % order.length]);
-      e.preventDefault();
-    } else if (e.key === 'ArrowLeft') {
-      setTab(order[(idx - 1 + order.length) % order.length]);
-      e.preventDefault();
-    }
-  }, [tab]);
-
   // Simple count display - components will handle their own counts
   const getTabCount = (tabType) => {
     switch (tabType) {
@@ -104,129 +85,63 @@ export default function HomePage() {
         description="Manage users, employers, admins, and jobs from here."
       />
 
-      {/* Tabs */}
+      {/* Tabs with shadcn */}
       <motion.div
-        className="space-y-3"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        <div className="flex items-center gap-2" role="tablist" aria-label="Home tabs" onKeyDown={onTabsKeyDown}>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              role="tab"
-              aria-selected={tab === 'learner'}
-              aria-controls={tabIds.learner}
-              variant={tab === 'learner' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setTab('learner')}
-              className="flex items-center gap-2"
-            >
+        <Tabs value={tab} onValueChange={setTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 lg:flex lg:w-auto lg:justify-start">
+            <TabsTrigger value="learner" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              Learners {getTabCount('learner')}
-            </Button>
-          </motion.div>
+              <span className="hidden sm:inline">Learners</span>
+              <span className="text-xs opacity-70">{getTabCount('learner')}</span>
+            </TabsTrigger>
+
+            {canViewAdmins && (
+              <TabsTrigger value="regulator" className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4" />
+                <span className="hidden sm:inline">Regulators</span>
+                <span className="text-xs opacity-70">{getTabCount('regulator')}</span>
+              </TabsTrigger>
+            )}
+
+            {canViewEmployers && (
+              <TabsTrigger value="employer" className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4" />
+                <span className="hidden sm:inline">Employers</span>
+                <span className="text-xs opacity-70">{getTabCount('employer')}</span>
+              </TabsTrigger>
+            )}
+
+            <TabsTrigger value="job" className="flex items-center gap-2">
+              <Briefcase className="h-4 w-4" />
+              <span className="hidden sm:inline">Jobs</span>
+              <span className="text-xs opacity-70">{getTabCount('job')}</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="learner" className="space-y-4">
+            <RoleTab role="learner" />
+          </TabsContent>
 
           {canViewAdmins && (
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                role="tab"
-                aria-selected={tab === 'regulator'}
-                aria-controls={tabIds.regulator}
-                variant={tab === 'regulator' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setTab('regulator')}
-                className="flex items-center gap-2"
-              >
-                <ShieldCheck className="h-4 w-4" />
-                Regulators {getTabCount('regulator')}
-              </Button>
-            </motion.div>
+            <TabsContent value="regulator" className="space-y-4">
+              <RoleTab role="regulator" />
+            </TabsContent>
           )}
 
           {canViewEmployers && (
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                role="tab"
-                aria-selected={tab === 'employer'}
-                aria-controls={tabIds.employer}
-                variant={tab === 'employer' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setTab('employer')}
-                className="flex items-center gap-2"
-              >
-                <Briefcase className="h-4 w-4" />
-                Employers {getTabCount('employer')}
-              </Button>
-            </motion.div>
+            <TabsContent value="employer" className="space-y-4">
+              <RoleTab role="employer" />
+            </TabsContent>
           )}
 
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              role="tab"
-              aria-selected={tab === 'job'}
-              aria-controls={tabIds.job}
-              variant={tab === 'job' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setTab('job')}
-              className="flex items-center gap-2"
-            >
-              <Briefcase className="h-4 w-4" />
-              Jobs {getTabCount('job')}
-            </Button>
-          </motion.div>
-        </div>
-      </motion.div>
-
-      {/* Tab content */}
-      <motion.div
-        className="space-y-3"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-      >
-        {tab === 'learner' && (
-          <RoleTab
-            role="learner"
-            id={tabIds.learner}
-            tabpanelProps={{
-              role: "tabpanel",
-              "aria-label": "Learners tab"
-            }}
-          />
-        )}
-
-        {tab === 'regulator' && canViewAdmins && (
-          <RoleTab
-            role="regulator"
-            id={tabIds.regulator}
-            tabpanelProps={{
-              role: "tabpanel",
-              "aria-label": "Regulators tab"
-            }}
-          />
-        )}
-
-        {tab === 'employer' && canViewEmployers && (
-          <RoleTab
-            role="employer"
-            id={tabIds.employer}
-            tabpanelProps={{
-              role: "tabpanel",
-              "aria-label": "Employers tab"
-            }}
-          />
-        )}
-
-        {tab === 'job' && (
-          <JobsTab
-            id={tabIds.job}
-            tabpanelProps={{
-              role: "tabpanel",
-              "aria-label": "Jobs tab"
-            }}
-          />
-        )}
+          <TabsContent value="job" className="space-y-4">
+            <JobsTab />
+          </TabsContent>
+        </Tabs>
       </motion.div>
 
       {/* Scroll to Top Button */}
@@ -253,4 +168,3 @@ export default function HomePage() {
     </motion.main>
   );
 }
-

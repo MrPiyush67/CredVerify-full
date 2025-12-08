@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, Select, SelectItem, Label } from '@common';
+import { Button, Card, CardContent, CardHeader, CardTitle, Input, Select, SelectItem, SelectTrigger, SelectValue, SelectContent, Label } from '@common';
 import { motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
 import { signup, selectAuthLoading } from '@features/auth/redux/authSlice.js';
@@ -295,9 +295,14 @@ export default function SignupPage() {
                 <motion.div variants={authPageItem} className="space-y-2">
                   <Label>Role</Label>
                   <Select value={role} onValueChange={setRole}>
-                    <SelectItem value="learner">Learner</SelectItem>
-                    <SelectItem value="employer">Employer</SelectItem>
-                    <SelectItem value="regulator">Regulator</SelectItem>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="learner">Learner</SelectItem>
+                      <SelectItem value="employer">Employer</SelectItem>
+                      <SelectItem value="regulator">Regulator</SelectItem>
+                    </SelectContent>
                   </Select>
                 </motion.div>
                 <motion.div variants={authPageItem}>
