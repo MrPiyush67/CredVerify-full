@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Select, SelectItem } from '@common';
-import { Languages } from 'lucide-react';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@common';
 
 const languages = [
   { code: 'en', name: 'English' },
@@ -75,18 +74,17 @@ export default function GoogleTranslate() {
   };
 
   return (
-    <div className="space-y-2">
-      <Select
-        value={selectedLanguage}
-        onValueChange={handleLanguageChange}
-        className="h-9 text-[var(--sidebar-fg)] bg-white/5 border-white/15 hover:bg-white/10 focus:bg-white/10 focus:border-white/25 focus:ring-white/10"
-      >
+    <Select value={selectedLanguage} onValueChange={handleLanguageChange}>
+      <SelectTrigger className="h-9 text-[var(--sidebar-fg)] bg-white/5 border-white/15 hover:bg-white/10">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
         {languages.map((lang) => (
           <SelectItem key={lang.code} value={lang.code}>
             {lang.name}
           </SelectItem>
         ))}
-      </Select>
-    </div>
+      </SelectContent>
+    </Select>
   );
 }
