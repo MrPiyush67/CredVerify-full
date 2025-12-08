@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const config = {
-  port: process.env.PORT || 5000,
+  port: process.env.PORT || 8003,
   mongoUri: process.env.MONGO_URI || 'mongodb://localhost:27017/microcredentials',
   jwtSecret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
   jwtExpire: process.env.JWT_EXPIRE || '7d',
@@ -11,7 +11,7 @@ export const config = {
   digilocker: {
     clientId: process.env.DIGILOCKER_CLIENT_ID || 'mock-client-id',
     clientSecret: process.env.DIGILOCKER_CLIENT_SECRET || 'mock-client-secret',
-    redirectUri: process.env.DIGILOCKER_REDIRECT_URI || 'http://localhost:5000/api/digilocker/callback',
+    redirectUri: process.env.DIGILOCKER_REDIRECT_URI || 'http://localhost:8003/api/digilocker/callback',
     scope: process.env.DIGILOCKER_SCOPE || 'profile documents',
     // Use environment variable to switch between mock and real sandbox
     authUrl: process.env.DIGILOCKER_AUTH_URL || 'http://localhost:3002/public/oauth2/1/authorize',

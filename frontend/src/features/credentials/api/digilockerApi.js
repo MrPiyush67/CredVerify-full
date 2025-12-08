@@ -6,7 +6,7 @@ const digilockerApi = {
     // Check if user is authenticated by testing a protected endpoint first
     const backendUrl = import.meta.env.VITE_API_URL
       ? import.meta.env.VITE_API_URL.replace('/api', '')
-      : 'http://localhost:5000';
+      : 'http://localhost:8003';
 
     const authUrl = `${backendUrl}/api/digilocker/auth`;
 

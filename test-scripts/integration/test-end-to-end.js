@@ -3,7 +3,7 @@
  * Tests complete user workflow from signup to credential verification
  */
 
-const BACKEND_URL = 'http://localhost:5000';
+const BACKEND_URL = 'http://localhost:8003';
 const FRONTEND_URL = 'http://localhost:5173';
 
 // Test configuration

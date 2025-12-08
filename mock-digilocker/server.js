@@ -69,7 +69,7 @@ const server = app.listen(PORT, () => {
   console.log(`\n🚀 Mock DigiLocker Server running on http://localhost:${PORT}`);
   console.log(`📝 Demo user: ${config.mockUser.email}`);
   console.log(`🔑 Password: ${config.mockUser.password}\n`);
-  console.log(`🔗 Test URL: http://localhost:${PORT}/public/oauth2/1/authorize?response_type=code&client_id=${config.validClientId}&redirect_uri=http://localhost:5000/callback&scope=profile%20documents\n`);
+  console.log(`🔗 Test URL: http://localhost:${PORT}/public/oauth2/1/authorize?response_type=code&client_id=${config.validClientId}&redirect_uri=http://localhost:8003/callback&scope=profile%20documents\n`);
 });
 
 server.on('error', (error) => {

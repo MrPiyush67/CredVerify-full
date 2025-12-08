@@ -8,13 +8,13 @@
  * 4. Saves token for other tests
  */
 
-const BACKEND_URL = 'http://127.0.0.1:5000';
+const BACKEND_URL = 'http://localhost:8003/';
 const USER_EMAIL = 'susi20091998@gmail.com';
 const USER_PASSWORD = '@Piyush9152';
 
 async function testAuthentication() {
   console.log('🧪 TEST 1: Authentication\n');
-  console.log('=' .repeat(60));
+  console.log('='.repeat(60));
 
   try {
     // Step 1: Login
@@ -43,7 +43,7 @@ async function testAuthentication() {
     }
 
     const loginData = await loginResponse.json();
-    
+
     if (!loginData.success || !loginData.data.token) {
       console.error('\n❌ Login response invalid!');
       console.error('Response:', JSON.stringify(loginData, null, 2));
@@ -51,7 +51,7 @@ async function testAuthentication() {
     }
 
     console.log('\n✅ Login successful!');
-    
+
     const token = loginData.data.token;
     const user = loginData.data.user;
 
@@ -60,14 +60,14 @@ async function testAuthentication() {
     console.log('  - Name:', user.name);
     console.log('  - Email:', user.email);
     console.log('  - Role:', user.role);
-    
+
     console.log('\n🔑 Auth Token:');
     console.log(token);
     console.log('\n  Token length:', token.length, 'characters');
 
     // Step 2: Test token by fetching profile
     console.log('\n📝 Step 2: Testing token validity...');
-    
+
     const profileResponse = await fetch(`${BACKEND_URL}/api/users/profile`, {
       method: 'GET',
       headers: {
@@ -91,7 +91,7 @@ async function testAuthentication() {
 
     // Step 3: Save results for next tests
     console.log('\n💾 Saving test data...');
-    
+
     const fs = await import('fs');
     const testData = {
       token: token,
@@ -123,7 +123,7 @@ async function testAuthentication() {
 
   } catch (error) {
     console.error('\n❌ TEST FAILED:', error.message);
-    
+
     if (error.code === 'ECONNREFUSED') {
       console.error('\n💡 Backend server is not running!');
       console.error('Start it with: cd backend && npm run dev');

@@ -37,7 +37,7 @@ class SocketService {
       return;
     }
 
-    const serverUrl = getEnvVariable('VITE_API_URL') || 'http://localhost:5000';
+    const serverUrl = getEnvVariable('VITE_API_URL') || 'http://localhost:8003';
     // Remove /api suffix if present
     const baseUrl = serverUrl.replace(/\/api\/?$/, '');
 

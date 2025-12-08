@@ -4,10 +4,10 @@
  * 
  * Prerequisites:
  * - Mock DigiLocker server running on port 3002
- * - Backend server running on port 5000
+ * - Backend server running on port 8003
  */
 
-const BACKEND_URL = 'http://localhost:5000';
+const BACKEND_URL = 'http://localhost:8003';
 const DIGILOCKER_URL = 'http://localhost:3002';
 
 console.log('🧪 DigiLocker OAuth Integration Test\n');

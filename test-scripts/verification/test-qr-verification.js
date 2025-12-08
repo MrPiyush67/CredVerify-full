@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
 
 // Configuration
 const CONFIG = {
-  BACKEND_URL: 'http://127.0.0.1:5000',
+  BACKEND_URL: 'http://localhost:8003',
   QR_CERTS_DIR: path.join(__dirname, '../../certificates-for-test/qr-real'),
 };
 

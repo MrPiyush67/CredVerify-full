@@ -22,7 +22,7 @@ export const validateEnv = () => {
       `  2. Add the following:\n\n` +
       missing.map(key => `     ${key}=your_value_here`).join('\n') +
       `\n\n💡 Example .env file:\n` +
-      `   VITE_API_URL=http://localhost:5000/api\n`;
+      `   VITE_API_URL=http://localhost:8003/api\n`;
 
     throw new Error(errorMessage);
   }
@@ -45,7 +45,7 @@ export const validateEnv = () => {
  */
 export const env = {
   get API_URL() {
-    return import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    return import.meta.env.VITE_API_URL || 'http://localhost:8003/api';
   },
   get mode() {
     return import.meta.env.MODE;
