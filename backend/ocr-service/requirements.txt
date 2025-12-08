@@ -1,0 +1,17 @@
+# Flask web framework
+flask==3.0.0
+flask-cors==4.0.0
+
+# Surya OCR and dependencies
+# surya-ocr==0.4.14
+
+# Image processing
+# pillow==10.1.0
+numpy==1.24.3
+
+# Additional dependencies for Surya
+torch>=2.0.0
+transformers>=4.30.0
+
+# Utilities
+python-dotenv==1.0.0

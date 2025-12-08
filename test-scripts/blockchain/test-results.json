@@ -1,0 +1,22 @@
+{
+  "timestamp": "2025-12-04T11:42:03.719Z",
+  "certificate": {
+    "holder": "John Doe",
+    "course": "Blockchain Development",
+    "issuer": "Example University",
+    "date": "2025-12-04T11:41:48.024Z",
+    "url": "https://example.com/certificate/ABC123"
+  },
+  "ipfs": {
+    "cid": "QmXTMgMcESCaUeFDLgQwpGczx3twD3au9DRqonXjU5YbD9",
+    "provider": "pinata",
+    "gateway": "https://gateway.pinata.cloud/ipfs/QmXTMgMcESCaUeFDLgQwpGczx3twD3au9DRqonXjU5YbD9"
+  },
+  "blockchain": {
+    "fingerprint": "0x0f812d33bd5cb56a2d0848d59789b98dd3b4aa2f3a6d249651484db3113dafb6",
+    "txHash": "0x435ae1d4b2814614d85c8a6be0b623750c465b537003828bb7c03ec45e41f943",
+    "blockNumber": "9767061",
+    "gasUsed": "140563",
+    "explorer": "https://sepolia.etherscan.io/tx/0x435ae1d4b2814614d85c8a6be0b623750c465b537003828bb7c03ec45e41f943"
+  }
+}
