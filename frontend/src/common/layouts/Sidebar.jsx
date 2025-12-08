@@ -43,11 +43,7 @@ export const navigationItems = {
 
 const iconMap = {
   'Home': Home,
-<<<<<<< HEAD
   // 'Dashboard': BarChart3,
-=======
-  'Dashboard': BarChart3,
->>>>>>> my-local-backup
   'Notifications': Bell,
   'Profile': User,
   'Settings': Settings,
