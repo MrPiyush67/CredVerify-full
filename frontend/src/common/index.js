@@ -8,3 +8,4 @@ export { Label } from './ui/Label.jsx';
 export { Toggle } from './ui/Toggle.jsx';
 export { default as Loader } from './components/Loader.jsx';
 export { default as PageHeader } from './components/PageHeader.jsx';
+export { default as GoogleTranslate } from './components/GoogleTranslate.jsx';
