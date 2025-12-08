@@ -6,6 +6,7 @@ import { Button, PageHeader, Loader } from '@common';
 import { fetchCredentials, fetchCredentialById, selectCredentials, selectCredentialsLoading, selectCredentialsError, selectCredentialsPagination, selectSelectedCredential } from '../redux/credentialsSlice';
 import { selectUser } from '@features/auth/redux/authSlice';
 import CredentialsList from '../components/CredentialsList.jsx';
+import CategorizedCredentialsList from '../components/CategorizedCredentialsList.jsx';
 import CredentialUploadModal from '../components/CredentialUploadModal.jsx';
 import CredentialDetailsModal from '../components/CredentialDetailsModal.jsx';
 import EmptyState from '../components/EmptyState.jsx';
@@ -25,21 +26,27 @@ export default function CredentialsPage() {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [detailsLoading, setDetailsLoading] = useState(false);
+  const [viewingCredential, setViewingCredential] = useState(null);
 
   useEffect(() => {
     dispatch(fetchCredentials());
   }, [dispatch]);
 
   const handleViewDetails = async (credential) => {
+    setViewingCredential(credential);
     setIsDetailsModalOpen(true);
-    setDetailsLoading(true);
-    try {
-      // Fetch full credential details from backend
-      await dispatch(fetchCredentialById(credential._id)).unwrap();
-    } catch (error) {
-      console.error('Failed to fetch credential details:', error);
-    } finally {
-      setDetailsLoading(false);
+
+    // Only fetch details for real credentials (not dummy ones)
+    if (credential._id && !credential._id.toString().startsWith('dummy-')) {
+      setDetailsLoading(true);
+      try {
+        // Fetch full credential details from backend
+        await dispatch(fetchCredentialById(credential._id)).unwrap();
+      } catch (error) {
+        console.error('Failed to fetch credential details:', error);
+      } finally {
+        setDetailsLoading(false);
+      }
     }
   };
 
@@ -77,17 +84,10 @@ export default function CredentialsPage() {
       )}
 
       {/* Content */}
-      {credentials.length === 0 ? (
-        <EmptyState onAddCredential={() => setIsUploadModalOpen(true)} />
-      ) : (
-        <CredentialsList
-          credentials={credentials}
-          onViewDetails={handleViewDetails}
-          onRefresh={handleRefresh}
-          pagination={pagination}
-          onPageChange={handlePageChange}
-        />
-      )}
+      <CategorizedCredentialsList
+        credentials={credentials}
+        onViewDetails={handleViewDetails}
+      />
 
       {/* Modals */}
       <CredentialUploadModal
@@ -99,7 +99,7 @@ export default function CredentialsPage() {
       <CredentialDetailsModal
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
-        credential={selectedCredential}
+        credential={selectedCredential && viewingCredential && selectedCredential._id === viewingCredential._id ? selectedCredential : viewingCredential}
         loading={detailsLoading}
         onSuccess={handleRefresh}
       />

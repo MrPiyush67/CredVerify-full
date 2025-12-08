@@ -190,43 +190,79 @@
       const results = await chrome.scripting.executeScript({
         target: { tabId: tabs[0].id },
         func: () => {
-          const imgs = Array.from(document.querySelectorAll('img'));
-          const out = [];
-          console.log(`Found ${imgs.length} total images on page`);
+          return new Promise((resolve) => {
+            const imgs = Array.from(document.querySelectorAll('img'));
+            const out = [];
+            console.log(`Found ${imgs.length} total images on page`);
 
-          imgs.forEach((img, idx) => {
-            // Get actual rendered dimensions instead of natural dimensions
-            const rect = img.getBoundingClientRect();
-            const renderedWidth = rect.width;
-            const renderedHeight = rect.height;
+            let processed = 0;
 
-            // Skip images that haven't loaded or are not visible
-            if (renderedWidth === 0 || renderedHeight === 0) {
-              console.log(`⚠️ Skipping image ${idx}: zero dimensions (not loaded/visible)`);
+            if (imgs.length === 0) {
+              resolve([]);
               return;
             }
 
-            console.log(`Image ${idx}: ${renderedWidth}x${renderedHeight} - ${img.src.substring(0, 50)}...`);
+            imgs.forEach((img, idx) => {
+              // Get actual rendered dimensions instead of natural dimensions
+              const rect = img.getBoundingClientRect();
+              const renderedWidth = rect.width;
+              const renderedHeight = rect.height;
 
-            if (img.src && renderedWidth >= 400 && renderedHeight >= 200) {
-              try {
-                out.push({
-                  url: new URL(img.src, document.baseURI).href,
-                  domIndex: idx, // simple DOM position signature
-                  width: renderedWidth,
-                  height: renderedHeight
-                });
-                console.log(`✅ Included image ${idx}: ${renderedWidth}x${renderedHeight}`);
-              } catch (e) {
-                console.log(`❌ Error processing image ${idx}:`, e);
+              // Skip images that haven't loaded or are not visible
+              if (renderedWidth === 0 || renderedHeight === 0) {
+                console.log(`⚠️ Skipping image ${idx}: zero dimensions (not loaded/visible)`);
+                processed++;
+                if (processed === imgs.length) resolve(out);
+                return;
               }
-            } else {
-              console.log(`❌ Filtered out image ${idx}: ${renderedWidth}x${renderedHeight} (too small)`);
-            }
-          });
 
-          console.log(`Returning ${out.length} filtered images`);
-          return out;
+              console.log(`Image ${idx}: ${renderedWidth}x${renderedHeight} - ${img.src.substring(0, 50)}...`);
+
+              if (img.src && renderedWidth >= 400 && renderedHeight >= 200) {
+                try {
+                  // Convert image to data URL to avoid CORS issues
+                  const canvas = document.createElement('canvas');
+                  canvas.width = img.naturalWidth || renderedWidth;
+                  canvas.height = img.naturalHeight || renderedHeight;
+                  const ctx = canvas.getContext('2d');
+
+                  try {
+                    ctx.drawImage(img, 0, 0);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+                    out.push({
+                      url: new URL(img.src, document.baseURI).href,
+                      dataUrl: dataUrl, // Add data URL for display
+                      domIndex: idx,
+                      width: renderedWidth,
+                      height: renderedHeight
+                    });
+                    console.log(`✅ Included image ${idx}: ${renderedWidth}x${renderedHeight}`);
+                  } catch (e) {
+                    // CORS error - fallback to original URL
+                    console.log(`⚠️ CORS issue with image ${idx}, using original URL`);
+                    out.push({
+                      url: new URL(img.src, document.baseURI).href,
+                      dataUrl: null,
+                      domIndex: idx,
+                      width: renderedWidth,
+                      height: renderedHeight
+                    });
+                  }
+                } catch (e) {
+                  console.log(`❌ Error processing image ${idx}:`, e);
+                }
+              } else {
+                console.log(`❌ Filtered out image ${idx}: ${renderedWidth}x${renderedHeight} (too small)`);
+              }
+
+              processed++;
+              if (processed === imgs.length) {
+                console.log(`Returning ${out.length} filtered images`);
+                resolve(out);
+              }
+            });
+          });
         }
       });
 
@@ -248,7 +284,7 @@
     imageList.innerHTML = '';
     imageCount.textContent = images.length;
 
-    images.forEach((url, index) => {
+    images.forEach((imgData, index) => {
       const item = document.createElement('div');
       item.style.cssText = `
         display: flex;
@@ -261,18 +297,22 @@
         transition: all var(--transition-base);
       `;
 
+      // Use dataUrl if available, otherwise fallback to url
+      const imgSrc = imgData.dataUrl || imgData.url || imgData;
+      const displayUrl = typeof imgData === 'string' ? imgData : imgData.url;
+
       item.innerHTML = `
         <img
-          src="${url}"
-          style="width: 80px; height: 60px; object-fit: cover; border-radius: var(--radius-sm);"
-          onerror="this.style.display='none'"
+          src="${imgSrc}"
+          style="width: 80px; height: 60px; object-fit: cover; border-radius: var(--radius-sm); background: hsl(var(--muted));"
+          onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2260%22%3E%3Crect fill=%22%23ddd%22 width=%22100%25%22 height=%22100%25%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2212%22%3ENo Image%3C/text%3E%3C/svg%3E'"
         />
         <div style="flex: 1; font-size: 0.75rem; color: hsl(var(--muted-foreground)); overflow: hidden; text-overflow: ellipsis;">
           Image ${index + 1}
         </div>
       `;
 
-      item.addEventListener('click', () => selectImage(url, item));
+      item.addEventListener('click', () => selectImage(imgData, item));
       imageList.appendChild(item);
     });
 
@@ -284,7 +324,7 @@
     }
   }
 
-  async function selectImage(url, element) {
+  async function selectImage(imgData, element) {
     // Highlight selected
     imageList.querySelectorAll('div').forEach(el => {
       el.style.borderColor = 'hsl(var(--border))';
@@ -293,6 +333,10 @@
     element.style.borderColor = 'hsl(var(--primary))';
     element.style.backgroundColor = 'hsl(var(--primary) / 0.05)';
 
+    // Handle both string URLs and image data objects
+    const url = typeof imgData === 'string' ? imgData : imgData.url;
+    const dataUrl = typeof imgData === 'object' ? imgData.dataUrl : null;
+
     selectedImageUrl = url;
     selectedImageBlob = null;
     baselineImageHash = null;
@@ -300,13 +344,22 @@
 
     // Fetch blob & lock anti-tamper baseline if possible
     try {
-      const response = await fetch(url, { mode: 'cors', cache: 'no-store' });
-      if (response.ok) {
+      // If we have a dataUrl, convert it to blob directly
+      if (dataUrl) {
+        const response = await fetch(dataUrl);
         selectedImageBlob = await response.blob();
         baselineImageHash = await calculateImageHash(selectedImageBlob);
         baselineImageTimestamp = Date.now();
       } else {
-        console.warn('Failed to fetch image for baseline, status:', response.status);
+        // Fallback to fetching from original URL
+        const response = await fetch(url, { mode: 'cors', cache: 'no-store' });
+        if (response.ok) {
+          selectedImageBlob = await response.blob();
+          baselineImageHash = await calculateImageHash(selectedImageBlob);
+          baselineImageTimestamp = Date.now();
+        } else {
+          console.warn('Failed to fetch image for baseline, status:', response.status);
+        }
       }
     } catch (err) {
       console.warn('Error fetching image for baseline hash:', err);

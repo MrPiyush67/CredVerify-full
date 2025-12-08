@@ -3,13 +3,28 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, Clock, XCircle, ExternalLink, Calendar, User, FileText, Award, Hash, Globe, Lock, Shield, Send } from 'lucide-react';
 import { Button, Badge, Loader } from '@common';
 import { useDispatch } from 'react-redux';
-import { requestCredentialVerification } from '../redux/credentialsSlice';
+import { requestCredentialVerification, editCredential } from '../redux/credentialsSlice';
 import toast from 'react-hot-toast';
 
 export default function CredentialDetailsModal({ isOpen, onClose, credential, loading, onSuccess }) {
   const dispatch = useDispatch();
   const [submittingVerification, setSubmittingVerification] = useState(false);
   if (!credential && !loading) return null;
+
+  const handleTogglePublic = async (isPublic) => {
+    try {
+      await dispatch(editCredential({
+        id: credential._id,
+        data: { isPublic }
+      })).unwrap();
+
+      toast.success(`Credential ${isPublic ? 'made public' : 'made private'}`);
+      if (onSuccess) onSuccess();
+    } catch (error) {
+      console.error('Failed to toggle visibility:', error.message || error);
+      toast.error(error.message || error || 'Failed to toggle visibility');
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -53,7 +68,8 @@ export default function CredentialDetailsModal({ isOpen, onClose, credential, lo
                   <Loader />
                 </div>
               ) : credential ? (
-                <div className="p-6 space-y-6">{/* Status indicator hidden, stored in meta */}
+                <div className="p-6 space-y-6">
+                  {/* Status indicator hidden, stored in meta */}
                   {credential.meta?.status && (
                     <input type="hidden" value={credential.meta.status} />
                   )}
@@ -66,25 +82,44 @@ export default function CredentialDetailsModal({ isOpen, onClose, credential, lo
                     )}
                   </div>
 
-                  {/* Public/Private Indicator */}
-                  <div className="flex items-center gap-2">
-                    {credential.isPublic ? (
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-teal-50 border border-teal-200 rounded-lg">
-                        <Globe className="h-4 w-4 text-teal-600" />
-                        <span className="text-sm font-medium text-teal-700">Public</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg">
-                        <Lock className="h-4 w-4 text-gray-600" />
-                        <span className="text-sm font-medium text-gray-700">Private</span>
-                      </div>
-                    )}
-                    {credential.isIssuerVerified && (
-                      <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg">
-                        <Shield className="h-4 w-4 text-green-600" />
-                        <span className="text-sm font-medium text-green-700">Verified Issuer</span>
-                      </div>
-                    )}
+                  {/* Public/Private Indicator & Toggle */}
+                  <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <div className="flex items-center gap-2">
+                      {credential.isPublic ? (
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-teal-50 border border-teal-200 rounded-lg">
+                          <Globe className="h-4 w-4 text-teal-600" />
+                          <span className="text-sm font-medium text-teal-700">Public</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg">
+                          <Lock className="h-4 w-4 text-gray-600" />
+                          <span className="text-sm font-medium text-gray-700">Private</span>
+                        </div>
+                      )}
+                      {credential.isIssuerVerified && (
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg">
+                          <Shield className="h-4 w-4 text-green-600" />
+                          <span className="text-sm font-medium text-green-700">Verified Issuer</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Toggle Switch */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-600">Visibility</span>
+                      <button
+                        onClick={() => handleTogglePublic(!credential.isPublic)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#116466] focus:ring-offset-2 ${credential.isPublic ? 'bg-[#116466]' : 'bg-gray-300'
+                          }`}
+                        role="switch"
+                        aria-checked={credential.isPublic}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-all duration-300 ease-in-out ${credential.isPublic ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                        />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Core Information */}
