@@ -6,6 +6,7 @@ import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, Select
 import Loader from '@common/components/Loader.jsx';
 import { fetchPendingCredentials, selectCredentials, selectCredentialsLoading, selectCredentialsError } from '@features/credentials/redux/credentialsSlice';
 import RequestCard from '../components/RequestCard.jsx';
+import AiChatWrapper from '@features/ai-chat/components/AiChatWrapper.jsx';
 
 export default function RequestsPage() {
   const dispatch = useDispatch();
@@ -146,6 +147,8 @@ export default function RequestsPage() {
           ))}
         </motion.div>
       )}
+
+      <AiChatWrapper />
     </div>
   );
 }

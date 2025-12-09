@@ -16,6 +16,7 @@ import EmployerDashboardView from '../components/EmployerDashboardView.jsx';
 import { Button } from '@common';
 import Loader from '@common/components/Loader.jsx';
 import PageHeader from '@common/components/PageHeader.jsx';
+import AiChatWrapper from '@features/ai-chat/components/AiChatWrapper.jsx';
 
 export default function DashboardPage() {
   const dispatch = useDispatch();
@@ -75,6 +76,8 @@ export default function DashboardPage() {
           {!role && <div className="text-center text-muted-foreground">Loading user data...</div>}
         </motion.div>
       </div>
+
+      <AiChatWrapper />
     </div>
   );
 }

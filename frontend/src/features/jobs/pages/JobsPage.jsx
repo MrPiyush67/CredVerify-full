@@ -7,6 +7,7 @@ import { Button, Card } from '@common';
 import Loader from '@common/components/Loader.jsx';
 import { fetchMyJobs, selectMyJobs, selectJobsLoading, selectJobsErrors } from '../redux/jobsSlice';
 import JobsList from '../components/JobsList.jsx';
+import AiChatWrapper from '@features/ai-chat/components/AiChatWrapper.jsx';
 
 export default function JobsPage() {
   const dispatch = useDispatch();
@@ -88,6 +89,8 @@ export default function JobsPage() {
       ) : (
         <JobsList jobs={myJobs} />
       )}
+
+      <AiChatWrapper />
     </div>
   );
 }

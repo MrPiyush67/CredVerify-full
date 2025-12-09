@@ -1,23 +1,24 @@
 /**
  * AI Chat Service
- * Integrates with Grok API for AI-powered chat
+ * Integrates with Groq API for AI-powered chat
  */
 
 import axios from 'axios';
 import ChatHistory from './chatHistory.model.js';
 
-const GROK_API_URL = 'https://api.x.ai/v1/chat/completions';
-const GROK_API_KEY = process.env.GROK_API_KEY;
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.1-70b-versatile';
 
 /**
- * Get chat response from Grok AI
+ * Get chat response from Groq AI
  * @param {string} userMessage - User's message
  * @param {Array} conversationHistory - Previous conversation messages
  * @param {string} userId - User ID for context
  */
 export const getChatResponse = async (userMessage, conversationHistory = [], userId) => {
-  if (!GROK_API_KEY) {
-    throw new Error('Grok API key is not configured. Please set GROK_API_KEY in environment variables.');
+  if (!GROQ_API_KEY) {
+    throw new Error('Groq API key is not configured. Please set GROQ_API_KEY in environment variables.');
   }
 
   try {
@@ -51,19 +52,20 @@ export const getChatResponse = async (userMessage, conversationHistory = [], use
       },
     ];
 
-    // Call Grok API
+    // Call Groq API
     const response = await axios.post(
-      GROK_API_URL,
+      GROQ_API_URL,
       {
         messages,
-        model: 'grok-beta', // Use the appropriate Grok model
+        model: GROQ_MODEL,
         stream: false,
         temperature: 0.7,
+        max_tokens: 1024,
       },
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${GROK_API_KEY}`,
+          'Authorization': `Bearer ${GROQ_API_KEY}`,
         },
         timeout: 30000, // 30 second timeout
       }
@@ -73,39 +75,40 @@ export const getChatResponse = async (userMessage, conversationHistory = [], use
 
     // Save to chat history
     await saveChatInteraction(userId, userMessage, aiMessage);
-
     return aiMessage;
   } catch (error) {
-    console.error('Grok API Error:', error.response?.data || error.message);
-    
-    // If no credits or API issue, provide helpful fallback response
-    if (error.response?.data?.error?.includes('credits') || error.response?.status === 402) {
-      const fallbackMessage = generateFallbackResponse(userMessage);
-      await saveChatInteraction(userId, userMessage, fallbackMessage);
-      return fallbackMessage;
-    }
-    
+    console.error('Groq API Error:', error.response?.data || error.message);
+
     if (error.response?.status === 401) {
-      throw new Error('Invalid Grok API key. Please check your configuration.');
+      throw new Error('Invalid Groq API key. Please check your configuration.');
     }
-    
+
     if (error.response?.status === 429) {
       throw new Error('Rate limit exceeded. Please try again later.');
     }
-    
-    // Provide fallback for any other errors
+
+    if (error.response?.data?.error?.includes('credits') || error.response?.status === 402) {
+      throw new Error('Insufficient API credits. Please check your Groq API account.');
+    } throw new Error('Insufficient API credits. Please add credits to your Grok API account at https://console.x.ai/');
+  }
+
+  // Only use fallback for network errors or complete API unavailability
+  if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.code === 'ETIMEDOUT') {
     const fallbackMessage = generateFallbackResponse(userMessage);
     await saveChatInteraction(userId, userMessage, fallbackMessage);
     return fallbackMessage;
   }
-};
+
+  // For other errors, throw to let the controller handle
+  throw new Error(error.response?.data?.error?.message || 'Failed to get AI response. Please try again.');
+}
 
 /**
  * Generate fallback response when API is unavailable
  */
 const generateFallbackResponse = (userMessage) => {
   const lowerMessage = userMessage.toLowerCase();
-  
+
   // NSQF related queries
   if (lowerMessage.includes('nsqf') || lowerMessage.includes('level')) {
     return `NSQF (National Skills Qualifications Framework) has 10 levels:
@@ -116,7 +119,7 @@ const generateFallbackResponse = (userMessage) => {
 
 Each level represents increasing complexity and responsibility in skills and knowledge.`;
   }
-  
+
   // NCRF related queries
   if (lowerMessage.includes('ncrf') || lowerMessage.includes('credit')) {
     return `NCRF (National Credit Framework) enables credit accumulation and transfer:
@@ -127,7 +130,7 @@ Each level represents increasing complexity and responsibility in skills and kno
 
 This framework integrates school, vocational, and higher education.`;
   }
-  
+
   // Verification related queries
   if (lowerMessage.includes('verify') || lowerMessage.includes('verification')) {
     return `To verify credentials on CredVerify:
@@ -138,7 +141,7 @@ This framework integrates school, vocational, and higher education.`;
 
 All verified credentials are stored securely with blockchain proof.`;
   }
-  
+
   // Upload related queries
   if (lowerMessage.includes('upload') || lowerMessage.includes('add')) {
     return `To add credentials:
@@ -150,7 +153,7 @@ All verified credentials are stored securely with blockchain proof.`;
 
 Supported formats: PDF, JPG, PNG`;
   }
-  
+
   // Career/Job queries
   if (lowerMessage.includes('job') || lowerMessage.includes('career')) {
     return `Your credentials can help you find relevant jobs:
@@ -161,7 +164,7 @@ Supported formats: PDF, JPG, PNG`;
 
 Keep your credentials updated for better job matches!`;
   }
-  
+
   // Default helpful response
   return `I'm here to help with your credentials! I can assist with:
 
@@ -173,7 +176,7 @@ Keep your credentials updated for better job matches!`;
 
 What specific aspect would you like to know more about?
 
-Note: AI service is temporarily using offline mode. For full AI capabilities, please add credits to your Grok API account at https://console.x.ai/`;
+Note: AI service is temporarily offline. Please check your internet connection.`;
 };
 
 /**

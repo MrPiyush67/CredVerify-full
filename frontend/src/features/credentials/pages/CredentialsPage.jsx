@@ -349,7 +349,6 @@ export default function CredentialsPage() {
         onSuccess={handleRefresh}
       />
 
-      {/* AI Chat Wrapper - Testing (visible to all users) */}
       <AiChatWrapper />
     </div>
   );
