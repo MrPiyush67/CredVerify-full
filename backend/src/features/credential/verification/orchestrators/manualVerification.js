@@ -48,9 +48,14 @@ export async function verifyFromManualInput(params) {
     } else {
       user = await User.findById(userId).select('name email');
       if (!user) {
-        throw new Error('User not found');
+        console.error(`❌ [STAGE 1] User not found for ID: ${userId}`);
+        throw new Error(`User not found: ${userId}`);
       }
+
       legalName = user.name;
+      console.log(`✅ [STAGE 1] Found user: ${user.name} (${user.email})`);
+      console.log(`   User ID: ${userId}`);
+      console.log(`   Legal name: ${legalName}`);
     }
 
     console.log(`✅ Legal name: ${legalName}\n`);

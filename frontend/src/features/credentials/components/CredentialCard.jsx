@@ -227,7 +227,7 @@ export default function CredentialCard({ credential, onViewDetails, subcategory 
         </div>
 
         {/* Public/Private Badge */}
-        <div className="absolute top-2 left-2 flex flex-col gap-2">
+        <div className="absolute top-2 left-2">
           <div className="flex items-center gap-1 px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-full shadow-md text-xs font-medium w-fit">
             {credential.isPublic ? (
               <>
@@ -241,14 +241,16 @@ export default function CredentialCard({ credential, onViewDetails, subcategory 
               </>
             )}
           </div>
+        </div>
 
-          {/* Subcategory Badge */}
-          {subcategory && (
-            <div className="flex items-center gap-1 px-2.5 py-1 bg-blue-50/90 backdrop-blur-sm rounded-full shadow-md text-xs font-medium w-fit">
+        {/* Subcategory Badge - Positioned at bottom */}
+        {subcategory && (
+          <div className="absolute bottom-2 left-2">
+            <div className="flex items-center px-2.5 py-1 bg-blue-50/90 backdrop-blur-sm rounded-full shadow-md text-xs font-medium w-fit">
               <span className="text-blue-700">{subcategory}</span>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Card Content */}

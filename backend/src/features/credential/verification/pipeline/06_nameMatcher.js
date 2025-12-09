@@ -57,9 +57,32 @@ export function matchName(params) {
   }
   // One name contains the other (e.g., "John Smith" vs "John Michael Smith")
   else if (normalizedExtracted.includes(normalizedLegal) || normalizedLegal.includes(normalizedExtracted)) {
-    confidence = 90;
-    reason = 'Partial name match (one contains the other)';
-    isMatch = true;
+    // Check if only middle name is different
+    const extractedWords = normalizedExtracted.split(' ');
+    const legalWords = normalizedLegal.split(' ');
+
+    // If one has middle name and other doesn't (3 words vs 2 words)
+    if (Math.abs(extractedWords.length - legalWords.length) === 1 &&
+      (extractedWords.length === 3 || legalWords.length === 3)) {
+
+      const longer = extractedWords.length > legalWords.length ? extractedWords : legalWords;
+      const shorter = extractedWords.length > legalWords.length ? legalWords : extractedWords;
+
+      // Check if first and last names match (middle name is the difference)
+      if (longer[0] === shorter[0] && longer[longer.length - 1] === shorter[shorter.length - 1]) {
+        confidence = 95;
+        reason = 'First and last names match (middle name differs or missing)';
+        isMatch = true;
+      } else {
+        confidence = 90;
+        reason = 'Partial name match (one contains the other)';
+        isMatch = true;
+      }
+    } else {
+      confidence = 90;
+      reason = 'Partial name match (one contains the other)';
+      isMatch = true;
+    }
   }
   // Split and compare words
   else {
@@ -68,9 +91,32 @@ export function matchName(params) {
     const matchingWords = extractedWords.filter(word => legalWords.includes(word));
 
     if (matchingWords.length >= 2) {
-      confidence = Math.min(95, (matchingWords.length / Math.max(extractedWords.length, legalWords.length)) * 100);
-      reason = `${matchingWords.length} matching words found`;
-      isMatch = confidence >= 65;
+      // Check if first and last names match (middle name scenario)
+      // For 2 or 3-word names where 2 words match
+      if (matchingWords.length === 2 &&
+        (extractedWords.length === 2 || extractedWords.length === 3) &&
+        (legalWords.length === 2 || legalWords.length === 3)) {
+
+        // Check if matching words are first and last positions
+        const extractedFirstLast = [extractedWords[0], extractedWords[extractedWords.length - 1]];
+        const legalFirstLast = [legalWords[0], legalWords[legalWords.length - 1]];
+
+        // If first and last names match
+        if (extractedFirstLast[0] === legalFirstLast[0] &&
+          extractedFirstLast[1] === legalFirstLast[1]) {
+          confidence = 95;
+          reason = 'First and last names match (middle name differs or missing)';
+          isMatch = true;
+        } else {
+          confidence = Math.min(95, (matchingWords.length / Math.max(extractedWords.length, legalWords.length)) * 100);
+          reason = `${matchingWords.length} matching words found`;
+          isMatch = confidence >= 65;
+        }
+      } else {
+        confidence = Math.min(95, (matchingWords.length / Math.max(extractedWords.length, legalWords.length)) * 100);
+        reason = `${matchingWords.length} matching words found`;
+        isMatch = confidence >= 65;
+      }
     } else if (matchingWords.length === 1) {
       confidence = 40;
       reason = 'Only 1 matching word - likely not the same person';

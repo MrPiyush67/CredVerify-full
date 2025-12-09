@@ -378,8 +378,193 @@
   }
 
   // ===========================================
-  // ANTI-TAMPER PROTECTION (SIMPLE & LOCAL)
+  // ANTI-TAMPER PROTECTION (REFRESH-BASED)
   // ===========================================
+
+  /**
+   * Perform anti-tamper verification after page refresh
+   * Re-scan page, find image with matching hash, then proceed with verification
+   */
+  async function performAntiTamperVerification(pending) {
+    try {
+      showProgress(10, '🔐 Verifying certificate authenticity after page refresh...');
+      showProgress(20, 'Re-scanning page for certificate images...');
+
+      // Wait a moment for page to fully load
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Collect all images from the page
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      const results = await chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        func: () => {
+          return new Promise((resolve) => {
+            const imgs = Array.from(document.querySelectorAll('img'));
+            const out = [];
+            let processed = 0;
+
+            if (imgs.length === 0) {
+              resolve([]);
+              return;
+            }
+
+            imgs.forEach((img, idx) => {
+              const rect = img.getBoundingClientRect();
+              const renderedWidth = rect.width;
+              const renderedHeight = rect.height;
+
+              if (renderedWidth === 0 || renderedHeight === 0) {
+                processed++;
+                if (processed === imgs.length) resolve(out);
+                return;
+              }
+
+              if (img.src && renderedWidth >= 400 && renderedHeight >= 200) {
+                out.push({
+                  url: new URL(img.src, document.baseURI).href,
+                  width: renderedWidth,
+                  height: renderedHeight
+                });
+              }
+
+              processed++;
+              if (processed === imgs.length) resolve(out);
+            });
+          });
+        }
+      });
+
+      const images = results[0]?.result || [];
+      console.log(`Found ${images.length} certificate images on refreshed page`);
+
+      if (images.length === 0) {
+        throw new Error('No certificate images found after page refresh');
+      }
+
+      showProgress(40, `Verifying ${images.length} images for tampering...`);
+
+      // Check each image's hash against the stored baseline
+      let matchFound = false;
+      let matchedImage = null;
+
+      for (const imgData of images) {
+        try {
+          showProgress(50, `Checking image: ${imgData.url.substring(0, 50)}...`);
+
+          const response = await fetch(imgData.url, { mode: 'cors', cache: 'no-store' });
+          if (!response.ok) continue;
+
+          const blob = await response.blob();
+          const currentHash = await calculateImageHash(blob);
+
+          console.log(`Image hash: ${currentHash} vs baseline: ${pending.imageHash}`);
+
+          if (compareHashes(currentHash, pending.imageHash)) {
+            matchFound = true;
+            matchedImage = imgData;
+            selectedImageUrl = imgData.url;
+            selectedImageBlob = blob;
+            baselineImageHash = currentHash;
+            baselineImageTimestamp = Date.now();
+            console.log('✅ Anti-tamper check PASSED: Image hash matches!');
+            break;
+          }
+        } catch (err) {
+          console.warn(`Error checking image ${imgData.url}:`, err);
+          continue;
+        }
+      }
+
+      // Clear pending status
+      await chrome.storage.local.remove(['cv_anti_tamper_pending']);
+
+      if (!matchFound) {
+        showProgress(100, '❌ Anti-tamper check FAILED!');
+        setTimeout(() => {
+          progressContainer.style.display = 'none';
+          showAlert(
+            '🚫 Anti-tamper check FAILED! The certificate image has changed or was removed after page refresh. This could indicate tampering. Please try again.',
+            'destructive'
+          );
+        }, 1000);
+        return;
+      }
+
+      // Success! Show the matched image and proceed with verification
+      showProgress(60, '✅ Anti-tamper check passed! Image is authentic.');
+
+      // Update UI with matched image
+      certificatePreview.innerHTML = `
+        <img src="${selectedImageUrl}" alt="Certificate" class="certificate-image" />
+      `;
+      certificatePreview.classList.add('has-image');
+      verifyBtn.disabled = false;
+
+      // Auto-proceed with verification
+      showProgress(70, 'Proceeding with certificate verification...');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await continueVerification();
+
+    } catch (error) {
+      console.error('Anti-tamper verification error:', error);
+      await chrome.storage.local.remove(['cv_anti_tamper_pending']);
+      progressContainer.style.display = 'none';
+      showAlert(`Anti-tamper check failed: ${error.message}`, 'destructive');
+    }
+  }
+
+  /**
+   * Initiate anti-tamper check by storing baseline and refreshing page
+   * This is called on FIRST verify click
+   */
+  async function initiateAntiTamperCheck() {
+    if (!selectedImageUrl || !selectedImageBlob || !baselineImageHash) {
+      throw new Error('No certificate image selected or hash not calculated');
+    }
+
+    console.log('🔐 Initiating anti-tamper check (will refresh page)...');
+
+    // Store anti-tamper data
+    await chrome.storage.local.set({
+      cv_anti_tamper_pending: {
+        imageHash: baselineImageHash,
+        imageUrl: selectedImageUrl,
+        pageUrl: currentPageUrl,
+        timestamp: Date.now()
+      }
+    });
+
+    console.log('✅ Baseline stored, refreshing page...');
+
+    // Refresh the page (keep popup open)
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    const tabId = tabs[0].id;
+
+    // Set up listener for when page finishes loading
+    const onTabUpdated = async (updatedTabId, changeInfo) => {
+      if (updatedTabId === tabId && changeInfo.status === 'complete') {
+        // Remove listener
+        chrome.tabs.onUpdated.removeListener(onTabUpdated);
+
+        // Wait a moment for images to load
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Retrieve pending anti-tamper data
+        const storage = await chrome.storage.local.get(['cv_anti_tamper_pending']);
+        if (storage.cv_anti_tamper_pending) {
+          // Perform anti-tamper verification
+          await performAntiTamperVerification(storage.cv_anti_tamper_pending);
+        }
+      }
+    };
+
+    // Add listener before reloading
+    chrome.tabs.onUpdated.addListener(onTabUpdated);
+
+    // Reload the page
+    await chrome.tabs.reload(tabId);
+  }
+
   async function calculateImageHash(blob) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -437,65 +622,16 @@
     return diff <= tolerance;
   }
 
-  async function runAntiTamperCheck() {
-    if (!selectedImageUrl) {
-      showAlert('No certificate image selected.', 'warning');
-      return false;
-    }
-
-    // If we never got a baseline hash (due to CORS, etc.), warn and continue best-effort
-    if (!baselineImageHash || !baselineImageTimestamp || !selectedImageBlob) {
-      showAlert(
-        'Anti-tamper protection is limited on this certificate (image security settings). Proceeding with best-effort verification.',
-        'warning'
-      );
-      return true;
-    }
-
-    // Require a relatively fresh selection
-    if (Date.now() - baselineImageTimestamp > ANTI_TAMPER_MAX_AGE_MS) {
-      showAlert('Certificate selection is too old. Please reselect the certificate.', 'warning');
-      resetSelection();
-      return false;
-    }
-
-    showProgress(20, 'Rechecking certificate image for tampering...');
-
-    try {
-      // Re-fetch the image from its original URL, bypassing cache
-      const res = await fetch(selectedImageUrl, { mode: 'cors', cache: 'no-store' });
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-
-      const blob = await res.blob();
-      const currentHash = await calculateImageHash(blob);
-
-      const ok = compareHashes(baselineImageHash, currentHash);
-      if (!ok) {
-        showAlert('Certificate image changed since selection. Please reload the page and reselect.', 'destructive');
-        resetSelection();
-        return false;
-      }
-
-      // If OK, update our blob to the latest version
-      selectedImageBlob = blob;
-
-      showProgress(40, 'Anti-tamper check passed.');
-      return true;
-    } catch (err) {
-      console.error('Anti-tamper error:', err);
-      showAlert('Could not verify certificate image integrity. Please reselect.', 'destructive');
-      resetSelection();
-      return false;
-    }
-  }
-
   function resetSelection() {
     selectedImageUrl = null;
     selectedImageBlob = null;
     baselineImageHash = null;
     baselineImageTimestamp = null;
+
+    // Clear any pending anti-tamper checks
+    chrome.storage.local.remove(['cv_anti_tamper_pending']).catch(err => {
+      console.warn('Error clearing anti-tamper pending:', err);
+    });
 
     certificatePreview.innerHTML = `
       <div class="preview-placeholder">
@@ -523,18 +659,43 @@
     verifyBtnText.textContent = 'Verifying...';
 
     try {
-      // Step 1: Anti-tamper check
-      showProgress(10, 'Running anti-tamper check...');
-      const antiTamperOk = await runAntiTamperCheck();
-      if (!antiTamperOk) {
-        isVerifying = false;
-        verifySpinner.style.display = 'none';
-        verifyBtnText.textContent = '✓ Verify Certificate';
-        return;
+      // Check if this is the first verification (no baseline hash yet)
+      // If baseline exists, we already passed the refresh-based anti-tamper check
+      const storage = await chrome.storage.local.get(['cv_anti_tamper_pending']);
+      const hasPendingCheck = !!storage.cv_anti_tamper_pending;
+
+      if (!hasPendingCheck && baselineImageHash) {
+        // This is first click, initiate anti-tamper check
+        showProgress(10, '🔐 Initiating anti-tamper protection...');
+        showProgress(30, '📄 Storing baseline and refreshing page...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await initiateAntiTamperCheck();
+        return; // Will refresh page and continue after
       }
 
-      // Step 2: OCR + backend verification
-      showProgress(60, 'Extracting text with OCR...');
+      // If we reach here, anti-tamper check already passed (after refresh)
+      // Proceed with verification
+      await continueVerification();
+
+    } catch (error) {
+      console.error('Verification error:', error);
+      progressContainer.style.display = 'none';
+      showAlert(`Verification failed: ${error.message}`, 'destructive');
+      isVerifying = false;
+      verifyBtn.disabled = !selectedImageUrl;
+      verifySpinner.style.display = 'none';
+      verifyBtnText.textContent = '✓ Verify Certificate';
+    }
+  }
+
+  /**
+   * Continue with actual verification (OCR + backend)
+   * This is called AFTER anti-tamper check passes
+   */
+  async function continueVerification() {
+    try {
+      // Step 1: OCR + backend verification
+      showProgress(70, 'Extracting text with OCR...');
 
       // Convert blob to base64 (if we have it)
       let fileData = null;
