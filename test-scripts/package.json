@@ -13,7 +13,7 @@
     "test:all-certs": "node verification/test-all-certificates.js",
     "test:single-cert": "node verification/test-single-certificate.js",
     "test:extension-flow": "node verification/test-extension-complete-flow.js",
-    "zip-extension": "powershell -Command \"Compress-Archive -Path '../extension/*' -DestinationPath '../frontend/public/credverify-extension.zip' -Force\"",
+    "zip-extension": "cd .. && zip -r frontend/public/credverify-extension.zip extension -x '*.git*' -x '*node_modules*' -x '*.DS_Store'",
     "platforms:list": "node platforms/platforms-manager.js list",
     "platforms:stats": "node platforms/platforms-manager.js stats",
     "platforms:add": "node platforms/platforms-manager.js add",

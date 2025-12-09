@@ -145,6 +145,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // Handle certificate verification
 async function handleVerification(data) {
   try {
+    console.log('🔵 [BACKGROUND] handleVerification called with data:', {
+      hasFileData: !!data.fileData,
+      hasImageUrl: !!data.imageUrl,
+      pageUrl: data.pageUrl,
+      courseUrl: data.courseUrl || 'NOT PROVIDED'
+    });
+
     // Get auth token
     const storage = await chrome.storage.local.get(['cv_auth_token']);
     const authToken = storage.cv_auth_token;
@@ -172,6 +179,28 @@ async function handleVerification(data) {
       throw new Error('No image data provided');
     }
 
+    // Prepare request body
+    const requestBody = {
+      imageData,
+      sourceUrl: data.pageUrl || 'https://unknown.com',
+      imageType: 'base64'
+    };
+
+    // Add courseUrl if provided
+    if (data.courseUrl) {
+      requestBody.courseUrl = data.courseUrl;
+      console.log('🔵 [BACKGROUND] Added courseUrl to request:', data.courseUrl);
+    } else {
+      console.log('⚠️ [BACKGROUND] No courseUrl provided in data');
+    }
+
+    console.log('🔵 [BACKGROUND] Request body:', {
+      hasImageData: !!requestBody.imageData,
+      sourceUrl: requestBody.sourceUrl,
+      imageType: requestBody.imageType,
+      courseUrl: requestBody.courseUrl || 'NOT INCLUDED'
+    });
+
     // Call backend API
     const response = await fetch(CONFIG.url(CONFIG.API.VERIFY), {
       method: 'POST',
@@ -179,11 +208,7 @@ async function handleVerification(data) {
         'Authorization': `Bearer ${authToken}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        imageData,
-        sourceUrl: data.pageUrl || 'https://unknown.com',
-        imageType: 'base64'
-      })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {

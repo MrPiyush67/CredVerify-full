@@ -61,8 +61,8 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
     switch (roleKey) {
       case 'learners':
         return { items: Array.isArray(users?.data) ? users.data : [], isLoading: users?.loading || false };
-      case 'regulators':
-        return { items: Array.isArray(admins?.data) ? admins.data : [], isLoading: admins?.loading || false };
+      // case 'regulators':
+      //   return { items: Array.isArray(admins?.data) ? admins.data : [], isLoading: admins?.loading || false };
       case 'employers':
         return { items: Array.isArray(employers?.data) ? employers.data : [], isLoading: employers?.loading || false };
       default:
@@ -81,7 +81,10 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
       // Role-specific filters
       switch (role) {
         case 'learner': {
-          const skillMatch = !filters.skill || (Array.isArray(item.skills) && item.skills.some(s => s.toLowerCase().includes(filters.skill.toLowerCase())));
+          const skillMatch = !filters.skill || (Array.isArray(item.skills) && item.skills.some(s => {
+            const skillName = typeof s === 'object' ? (s.name || s.title || '') : s;
+            return skillName.toLowerCase().includes(filters.skill.toLowerCase());
+          }));
           const institutionMatch = !filters.institution || (Array.isArray(item.education) && item.education.some(edu => (edu.institution || '').toLowerCase().includes(filters.institution.toLowerCase())));
           return nameMatch && skillMatch && institutionMatch;
         }
@@ -311,7 +314,9 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
                     {item.skills && item.skills.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {item.skills.slice(0, 3).map((skill, i) => (
-                          <Badge key={i} variant="outline" className="text-xs">{skill}</Badge>
+                          <Badge key={i} variant="outline" className="text-xs">
+                            {typeof skill === 'object' ? skill.name || skill.title || '' : skill}
+                          </Badge>
                         ))}
                         {item.skills.length > 3 && (
                           <Badge variant="secondary" className="text-xs">+{item.skills.length - 3} more</Badge>
@@ -354,7 +359,9 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
                     {item.skills && item.skills.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {item.skills.slice(0, 3).map((skill, i) => (
-                          <Badge key={i} variant="outline" className="text-xs">{skill}</Badge>
+                          <Badge key={i} variant="outline" className="text-xs">
+                            {typeof skill === 'object' ? skill.name || skill.title || '' : skill}
+                          </Badge>
                         ))}
                         {item.skills.length > 3 && (
                           <Badge variant="secondary" className="text-xs">+{item.skills.length - 3} more</Badge>
@@ -406,7 +413,9 @@ export default function RoleTab({ role, id, tabpanelProps = {} }) {
                     {item.skills && item.skills.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {item.skills.slice(0, 3).map((skill, i) => (
-                          <Badge key={i} variant="outline" className="text-xs">{skill}</Badge>
+                          <Badge key={i} variant="outline" className="text-xs">
+                            {typeof skill === 'object' ? skill.name || skill.title || '' : skill}
+                          </Badge>
                         ))}
                         {item.skills.length > 3 && (
                           <Badge variant="secondary" className="text-xs">+{item.skills.length - 3} more</Badge>
