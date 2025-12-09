@@ -2,8 +2,17 @@ import React from 'react';
 import { Star, Clock, Award, BookOpen } from 'lucide-react';
 
 const CourseCard = ({ course }) => {
+  const handleClick = () => {
+    if (course.url) {
+      window.open(course.url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-3 space-y-1.5 hover:shadow-lg hover:scale-[1.01] transition-all duration-300 cursor-pointer">
+    <div
+      onClick={handleClick}
+      className="bg-white rounded-xl border border-gray-200 p-3 space-y-1.5 hover:shadow-lg hover:scale-[1.01] transition-all duration-300 cursor-pointer"
+    >
       {/* Course Image */}
       <div className="relative w-full aspect-[16/9] rounded-lg overflow-hidden bg-gradient-to-br from-teal-50 to-green-50">
         <img
