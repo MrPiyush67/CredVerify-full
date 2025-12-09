@@ -1,7 +1,4 @@
-import { motion } from 'framer-motion';
 import CredentialCard from './CredentialCard';
-import { useRef } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const CATEGORIES = [
   {
@@ -68,82 +65,46 @@ const generateDummyCredentials = (category) => {
       url: null, // Dummy link as requested
       fileType: 'image/png'
     },
-    subcategory: sub
+    subcategory: sub,
+    category: category.title // Keep category in data for internal organization
   }));
 };
 
-const ScrollContainer = ({ children, id }) => {
-  const scrollRef = useRef(null);
+export default function CategorizedCredentialsList({ credentials, onViewDetails, searchQuery = '', selectedIndustry = '' }) {
+  // Generate all credentials from all categories and flatten them into a single array
+  const allCredentials = CATEGORIES.flatMap(category => generateDummyCredentials(category));
 
-  const scroll = (direction) => {
-    if (scrollRef.current) {
-      const { current } = scrollRef;
-      const scrollAmount = 320; // Card width + gap
-      if (direction === 'left') {
-        current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-      } else {
-        current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      }
-    }
-  };
+  // Filter credentials based on search query and selected industry
+  const filteredCredentials = allCredentials.filter((credential) => {
+    // Search filter
+    const matchesSearch = !searchQuery.trim() ||
+      credential.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      credential.subcategory.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      credential.issuer.toLowerCase().includes(searchQuery.toLowerCase());
 
-  return (
-    <div className="relative group">
-      <button
-        onClick={() => scroll('left')}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 -ml-4"
-      >
-        <ChevronLeft className="h-6 w-6 text-gray-700" />
-      </button>
+    // Industry filter (map industry to subcategory)
+    const matchesIndustry = !selectedIndustry ||
+      credential.subcategory.toLowerCase().includes(selectedIndustry.toLowerCase());
 
-      <div
-        ref={scrollRef}
-        className="flex gap-5 overflow-x-auto pb-4 pt-2 px-1 scrollbar-hide snap-x"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {children}
-      </div>
-
-      <button
-        onClick={() => scroll('right')}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 -mr-4"
-      >
-        <ChevronRight className="h-6 w-6 text-gray-700" />
-      </button>
-    </div>
-  );
-};
-
-export default function CategorizedCredentialsList({ credentials, onViewDetails }) {
-  // In a real scenario, we would filter 'credentials' into categories.
-  // For now, we generate dummy data as requested.
+    return matchesSearch && matchesIndustry;
+  });
 
   return (
-    <div className="space-y-10 pb-10">
-      {CATEGORIES.map((category) => {
-        const categoryCredentials = generateDummyCredentials(category);
-
-        return (
-          <section key={category.id} className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">{category.title}</h2>
-              <span className="text-sm text-gray-500">{categoryCredentials.length} Certificates</span>
-            </div>
-
-            <ScrollContainer id={category.id}>
-              {categoryCredentials.map((credential) => (
-                <div key={credential._id} className="snap-start">
-                  <CredentialCard
-                    credential={credential}
-                    onViewDetails={onViewDetails}
-                    subcategory={credential.subcategory}
-                  />
-                </div>
-              ))}
-            </ScrollContainer>
-          </section>
-        );
-      })}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      {filteredCredentials.length > 0 ? (
+        filteredCredentials.map((credential) => (
+          <CredentialCard
+            key={credential._id}
+            credential={credential}
+            onViewDetails={onViewDetails}
+            subcategory={credential.subcategory}
+          />
+        ))
+      ) : (
+        <div className="col-span-full text-center py-12">
+          <p className="text-muted-foreground">No credentials found matching your filters.</p>
+        </div>
+      )}
     </div>
   );
 }

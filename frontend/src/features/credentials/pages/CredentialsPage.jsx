@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import { Plus } from 'lucide-react';
-import { Button, PageHeader, Loader } from '@common';
+import { Plus, Search, X } from 'lucide-react';
+import { Button, PageHeader, Loader, Card, CardContent, Input } from '@common';
+import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@common/ui/command';
 import { fetchCredentials, fetchCredentialById, selectCredentials, selectCredentialsLoading, selectCredentialsError, selectCredentialsPagination, selectSelectedCredential } from '../redux/credentialsSlice';
 import { selectUser } from '@features/auth/redux/authSlice';
 import CredentialsList from '../components/CredentialsList.jsx';
@@ -10,6 +11,68 @@ import CategorizedCredentialsList from '../components/CategorizedCredentialsList
 import CredentialUploadModal from '../components/CredentialUploadModal.jsx';
 import CredentialDetailsModal from '../components/CredentialDetailsModal.jsx';
 import EmptyState from '../components/EmptyState.jsx';
+
+const INDUSTRIES = [
+  'Aerospace & Aviation',
+  'Agriculture',
+  'Apparel',
+  'Automotive',
+  'Beauty & Wellness',
+  'BFSI (Banking, Financial Services & Insurance)',
+  'Capital Goods & Manufacturing',
+  'Chemicals & Petrochemicals',
+  'Construction',
+  'Education, Training & Research',
+  'Electronics & HW (Hardware)',
+  'Environmental Science',
+  'Food Industry / Food Processing',
+  'Gem & Jewellery',
+  'Glass & Ceramics',
+  'Handicrafts & Carpets',
+  'Healthcare',
+  'Home Management & Caregiving',
+  'Hydrocarbon',
+  'Indian Defence Forces',
+  'Infrastructure',
+  'Instrumentation',
+  'Iron & Steel',
+  'IT/ITeS',
+  'Judiciary',
+  'Leather',
+  'Legal Activities',
+  'Legislators',
+  'Life Sciences',
+  'Management',
+  'Media & Entertainment',
+  'Mining',
+  'Musical Instruments',
+  'Office Administration & Facility Management',
+  'Optical Products',
+  'Paints & Coatings',
+  'Paper & Paper Products',
+  'Persons with Disability',
+  'Plumbing',
+  'Postal Services',
+  'Power',
+  'Printing',
+  'Private Security',
+  'Public Administration',
+  'Railways',
+  'Real Estate',
+  'Religious Professionals',
+  'Retail',
+  'Rubber Industry',
+  'Shipping',
+  'Sports, Physical Education, Fitness & Leisure',
+  'Telecom',
+  'Textile & Handloom',
+  'Tobacco Industry',
+  'Tourism & Hospitality',
+  'Transportation, Logistics & Warehousing',
+  'Unorganised Sector',
+  'Water Supply, Sewerage, Waste Management & Remediation Activities',
+  'Wood & Carpentry'
+];
 
 export default function CredentialsPage() {
   const dispatch = useDispatch();
@@ -27,10 +90,32 @@ export default function CredentialsPage() {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [viewingCredential, setViewingCredential] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedIndustry, setSelectedIndustry] = useState('');
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const [industrySearch, setIndustrySearch] = useState('');
 
   useEffect(() => {
     dispatch(fetchCredentials());
   }, [dispatch]);
+
+  // Filter industries based on search
+  const filteredIndustries = INDUSTRIES.filter(industry =>
+    industry.toLowerCase().includes(industrySearch.toLowerCase())
+  );
+
+  // Close command dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isCommandOpen && !event.target.closest('.command-wrapper')) {
+        setIsCommandOpen(false);
+        setIndustrySearch('');
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isCommandOpen]);
 
   const handleViewDetails = async (credential) => {
     setViewingCredential(credential);
@@ -83,10 +168,110 @@ export default function CredentialsPage() {
         </motion.div>
       )}
 
+      {/* Search and Filter Section */}
+      <Card className="mb-6 bg-muted/30">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Search Input */}
+            <Input
+              placeholder="Search by title, subcategory, or issuer..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="text-sm"
+            />
+
+            {/* Industry Filter with Command */}
+            <div className="relative command-wrapper">
+              <Button
+                variant="outline"
+                className="w-full justify-between text-sm"
+                onClick={() => setIsCommandOpen(!isCommandOpen)}
+              >
+                <span className={selectedIndustry ? 'text-foreground' : 'text-muted-foreground'}>
+                  {selectedIndustry || 'Filter by Industry...'}
+                </span>
+                {selectedIndustry ? (
+                  <X
+                    className="h-4 w-4"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedIndustry('');
+                    }}
+                  />
+                ) : (
+                  <Search className="h-4 w-4" />
+                )}
+              </Button>
+
+              {/* Command Dropdown */}
+              {isCommandOpen && (
+                <div className="absolute z-50 w-full mt-1">
+                  <Command className="rounded-lg border shadow-md bg-popover">
+                    <CommandInput
+                      placeholder="Search industries..."
+                      value={industrySearch}
+                      onChange={(e) => setIndustrySearch(e.target.value)}
+                    />
+                    <CommandList>
+                      {filteredIndustries.length === 0 ? (
+                        <CommandEmpty>No industry found.</CommandEmpty>
+                      ) : (
+                        <CommandGroup heading="Industries">
+                          {filteredIndustries.map((industry) => (
+                            <CommandItem
+                              key={industry}
+                              onSelect={() => {
+                                setSelectedIndustry(industry);
+                                setIsCommandOpen(false);
+                                setIndustrySearch('');
+                              }}
+                              className="cursor-pointer"
+                            >
+                              {industry}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      )}
+                    </CommandList>
+                  </Command>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Active Filters Display */}
+          {(searchQuery || selectedIndustry) && (
+            <div className="flex items-center gap-2 mt-3">
+              <span className="text-xs text-muted-foreground">Active filters:</span>
+              {searchQuery && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-xs">
+                  <span>Search: {searchQuery}</span>
+                  <X
+                    className="h-3 w-3 cursor-pointer"
+                    onClick={() => setSearchQuery('')}
+                  />
+                </div>
+              )}
+              {selectedIndustry && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-xs">
+                  <span>Industry: {selectedIndustry}</span>
+                  <X
+                    className="h-3 w-3 cursor-pointer"
+                    onClick={() => setSelectedIndustry('')}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Content */}
       <CategorizedCredentialsList
         credentials={credentials}
         onViewDetails={handleViewDetails}
+        searchQuery={searchQuery}
+        selectedIndustry={selectedIndustry}
       />
 
       {/* Modals */}

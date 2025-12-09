@@ -90,7 +90,15 @@ export async function extractTextFromBase64Image(base64Image) {
       confidence = 30;
     }
 
-    console.log(`✅ [OCR-EXTRACTOR] Extracted ${wordCount} words from base64`);
+    console.log(`\n${'='.repeat(60)}`);
+    console.log(`✅ [OCR-EXTRACTOR] Base64 Extraction Complete`);
+    console.log(`${'='.repeat(60)}`);
+    console.log(`📊 Confidence: ${confidence}%`);
+    console.log(`📝 Words: ${wordCount} | Characters: ${charCount}`);
+    console.log(`${'='.repeat(60)}`);
+    console.log(`📄 Extracted Text from Base64:\n`);
+    console.log(text);
+    console.log(`\n${'='.repeat(60)}\n`);
 
     return {
       text,

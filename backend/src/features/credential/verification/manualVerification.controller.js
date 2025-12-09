@@ -72,13 +72,21 @@ export const uploadCertificateImage = multer({
  *          }
  */
 export const manualVerification = asyncHandler(async (req, res) => {
-  const { link, autoSave = true, testMode, testUserName } = req.body;
+  const { link, courseUrl, autoSave = true, testMode, testUserName } = req.body; // NEW: courseUrl
   const uploadedFile = req.file;
 
   // Support test mode (no auth required)
   // Handle string values from FormData
   const isTestMode = testMode === true || testMode === 'true';
   const userId = isTestMode ? 'test-user-id' : req.user?._id;
+
+  console.log('🔍 [MANUAL-VERIFY-CONTROLLER] Authentication Debug:');
+  console.log(`   isTestMode: ${isTestMode}`);
+  console.log(`   req.user exists: ${!!req.user}`);
+  console.log(`   req.user._id: ${req.user?._id}`);
+  console.log(`   req.user.name: ${req.user?.name}`);
+  console.log(`   req.user.email: ${req.user?.email}`);
+  console.log(`   userId being used: ${userId}`);
 
   if (!isTestMode && !req.user) {
     return res.status(401).json({
@@ -105,6 +113,7 @@ export const manualVerification = asyncHandler(async (req, res) => {
     const result = await verifyFromManualInput({
       userId,
       link,
+      courseUrl, // NEW: Pass course URL
       certificateImage: uploadedFile?.buffer,
       autoSave,
       testMode: isTestMode,
