@@ -20,22 +20,71 @@ console.log('   process.env.SURYA_OCR_URL:', process.env.SURYA_OCR_URL);
 console.log('   process.env.USE_SURYA_OCR:', process.env.USE_SURYA_OCR);
 
 /**
- * Extract text using Surya OCR service
+ * Extract text from image using Surya OCR service
  * @param {Buffer|string} imageSource - Buffer or file path
  * @returns {Promise<string>} - Extracted text
  */
-async function extractWithSuryaOcr(imageSource) {
+export async function extractTextWithSurya(imageSource) {
   try {
-    // Convert to base64 if it's a buffer
+    console.log('🔍 [SURYA-OCR] Attempting to extract text using Surya OCR service...');
+
+    // Convert image to base64 if it's a buffer
     let base64Image;
     if (Buffer.isBuffer(imageSource)) {
       base64Image = imageSource.toString('base64');
     } else {
-      // If it's a file path, read it
-      const fs = await import('fs/promises');
-      const fileBuffer = await fs.readFile(imageSource);
-      base64Image = fileBuffer.toString('base64');
+      // Assume it's a file path, read it
+      const fs = await import('fs');
+      const imageBuffer = fs.readFileSync(imageSource);
+      base64Image = imageBuffer.toString('base64');
     }
+
+    // Prepare the request payload
+    const payload = {
+      imageData: `data:image/png;base64,${base64Image}`
+    };
+
+    console.log(`🌐 [SURYA-OCR] Sending request to ${SURYA_OCR_URL}/extract-text`);
+
+    // Call Surya OCR service
+    const response = await axios.post(`${SURYA_OCR_URL}/extract-text`, payload, {
+      timeout: SURYA_TIMEOUT,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.data && response.data.success && response.data.full_text) {
+      console.log('✅ [SURYA-OCR] Successfully extracted text using Surya OCR');
+      return response.data.full_text;
+    } else if (response.data && !response.data.success) {
+      throw new Error(response.data.error || 'Surya OCR extraction failed');
+    } else {
+      throw new Error('Invalid response format from Surya OCR service');
+    }
+
+  } catch (error) {
+    console.error('❌ [SURYA-OCR] Error:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Extract text from image using Tesseract OCR (fallback)
+ * @param {Buffer|string} imageSource - Buffer or file path
+ * @returns {Promise<string>} - Extracted text
+ */
+export async function extractTextWithTesseract(imageSource) {
+  try {
+    console.log('🔤 [TESERACT-OCR] Using Tesseract OCR as fallback...');
+
+    const worker = await Tesseract.createWorker('eng', 1, {
+      logger: (m) => {
+        if (m.status === 'recognizing text') {
+          console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`);
+        }
+      },
+    });
 
     // Call Surya OCR service
     const response = await axios.post(
@@ -66,73 +115,33 @@ async function extractWithSuryaOcr(imageSource) {
     console.log('✅ [TESERACT-OCR] Successfully extracted text using Tesseract');
     return cleanedText;
   } catch (error) {
-    if (error.code === 'ECONNREFUSED') {
-      throw new Error(`Surya OCR service is not running on ${SURYA_OCR_URL}`);
-    }
-    if (error.code === 'ECONNABORTED') {
-      throw new Error('Surya OCR request timed out');
-    }
-    throw error;
+    console.error('❌ [TESERACT-OCR] Error:', error);
+    throw new Error(`Tesseract OCR extraction failed: ${error.message}`);
   }
 }
 
 /**
- * Extract text from image using Tesseract OCR (fallback)
- * @param {Buffer|string} imageSource - Buffer or file path
- * @returns {Promise<string>} - Extracted text
- */
-async function extractWithTesseract(imageSource) {
-  const worker = await Tesseract.createWorker('eng', 1, {
-    logger: (m) => {
-      if (m.status === 'recognizing text') {
-        console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`);
-      }
-    },
-  });
-
-  const {
-    data: { text },
-  } = await worker.recognize(imageSource);
-
-  await worker.terminate();
-
-  // Clean up text
-  const cleanedText = text
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-    .join('\n');
-
-  return cleanedText;
-}
-
-/**
- * Extract text from image using Surya OCR (with Tesseract fallback)
+ * Extract text from image using Surya OCR (primary) with Tesseract fallback
  * @param {Buffer|string} imageSource - Buffer or file path
  * @returns {Promise<string>} - Extracted text
  */
 export async function extractTextFromImage(imageSource) {
-  // Try Surya OCR first if enabled
-  if (USE_SURYA_OCR) {
-    try {
-      console.log('🔍 [OCR] Attempting Surya OCR...');
-      const suryaResult = await extractWithSuryaOcr(imageSource);
-      console.log('✅ [OCR] Surya OCR successful');
-      return suryaResult;
-    } catch (error) {
-      console.warn('⚠️  [OCR] Surya OCR failed, falling back to Tesseract:', error.message);
-      // Fall through to Tesseract
-    }
-  }
-
-  // Fallback to Tesseract OCR
   try {
-    console.log('🔍 [OCR] Using Tesseract OCR...');
-    const tesseractResult = await extractWithTesseract(imageSource);
-    console.log('✅ [OCR] Tesseract OCR successful');
-    return tesseractResult;
+    // Try Surya OCR first if enabled
+    if (USE_SURYA_OCR) {
+      try {
+        return await extractTextWithSurya(imageSource);
+      } catch (suryaError) {
+        console.warn('⚠️ [OCR-SERVICE] Surya OCR failed, falling back to Tesseract:', suryaError.message);
+        return await extractTextWithTesseract(imageSource);
+      }
+    } else {
+      // Use Tesseract directly if Surya is disabled
+      console.log('🔧 [OCR-SERVICE] Surya OCR disabled, using Tesseract only');
+      return await extractTextWithTesseract(imageSource);
+    }
   } catch (error) {
-    console.error('❌ [OCR] Tesseract Error:', error);
+    console.error('❌ [OCR-SERVICE] All OCR methods failed:', error);
     throw new Error(`OCR extraction failed: ${error.message}`);
   }
 }
