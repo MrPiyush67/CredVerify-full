@@ -137,6 +137,23 @@ export async function verifyFromExtension(params) {
     console.log(`✅ Extracted recipient: ${extractedData.recipientName || 'Not found'}`);
     console.log(`✅ Metadata valid: ${metadataValid}\n`);
 
+    // STAGE 6.5: Validate microcredential duration
+    console.log(`📍 STAGE 6.5: Validating microcredential duration...`);
+
+    if (extractedData.learningHours !== null && extractedData.learningHours !== undefined) {
+      if (extractedData.learningHours < 7.5 || extractedData.learningHours > 30) {
+        console.error(`❌ Duration validation failed: ${extractedData.learningHours} hours (must be 7.5-30)\n`);
+        throw new Error(
+          `This certificate does not qualify as a microcredential. ` +
+          `Microcredentials must have a duration between 7.5 and 30 hours. ` +
+          `This certificate has ${extractedData.learningHours} hours.`
+        );
+      }
+      console.log(`✅ Duration validated: ${extractedData.learningHours} hours (within 7.5-30 range)\n`);
+    } else {
+      console.warn(`⚠️ No learning hours extracted - skipping duration validation\n`);
+    }
+
     // STAGE 7: Name matching
     console.log(`📍 STAGE 7: Matching name with user profile...`);
 

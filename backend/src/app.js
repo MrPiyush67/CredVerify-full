@@ -19,6 +19,7 @@ import dashboardRoutes from './features/dashboard/dashboard.routes.js';
 import platformRoutes from './features/platform/platform.routes.js';
 import digilockerRoutes from './features/digilocker/routes.js';
 import aiChatRoutes from './features/ai-chat/aiChat.routes.js';
+import organizationRoutes from './features/credential/routes/organization.routes.js';
 
 const app = express();
 
@@ -74,6 +75,10 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Mount Organization routes FIRST (more specific path)
+// IMPORTANT: This must come before general credential routes to avoid route conflicts
+app.use('/api/certificates/organization', organizationRoutes);
 
 // Mount feature routes
 app.use('/api', [

@@ -67,6 +67,8 @@ Return exactly this shape:
 
 {
   "recipientName": "string or null",
+  "certificateId": "string or null",
+  "companyName": "string or null",
   "courseTitle": "string or null",
   "duration": "string or null",
   "learningHours": number or null,
@@ -91,32 +93,51 @@ Do not add any extra fields.
 - Look for patterns near phrases like "This is to certify that", "awarded to", etc.
 - DO NOT use instructor names or organization names.
 
-2️⃣ courseTitle
+2️⃣ certificateId
+- The unique certificate identifier or number.
+- Look for patterns like:
+  - "Certificate ID:", "Certificate No:", "Cert No:", "ID:"
+  - "Reference Number:", "Credential ID:"
+  - Alphanumeric codes like "CERT-2024-12345678", "UC-858c158b-6121-47ab-912f"
+- Often appears at the top or bottom of the certificate.
+- If not clearly present, set to null.
+
+3️⃣ companyName
+- The organization or company that ISSUED the certificate.
+- Look for:
+  - Organization name at the top of the certificate
+  - Near phrases like "Issued by", "Certified by", "Authorized by"
+  - Company logo text, header text
+  - Examples: "TechCorp Training Division", "National Skill Development Corporation", "Coursera"
+- DO NOT confuse with the course name or recipient name.
+- If not clearly present, set to null.
+
+4️⃣ courseTitle
 - The name of the course, program, or training.
 - Often near "Certificate of", "completed", "in recognition of".
 
-3️⃣ duration
+5️⃣ duration
 - Time period of the course (e.g., "3 months", "66 hours", "10 weeks").
 
-4️⃣ learningHours
+6️⃣ learningHours
 - Extract numeric hours if mentioned (e.g., "66 total hours" → 66).
 
-5️⃣ grade
+7️⃣ grade
 - Letter grade, percentage, or qualitative result (e.g., "A+", "95%", "Distinction").
 
-6️⃣ NSQFLevel
+8️⃣ NSQFLevel
 - NSQF level if mentioned (1-10).
 
-7️⃣ issueDate and completionDate
+9️⃣ issueDate and completionDate
 - Parse dates to YYYY-MM-DD format.
 
-8️⃣ skills
+🔟 skills
 - Array of specific skills mentioned.
 
-9️⃣ description
+1️⃣1️⃣ description
 - Brief summary of what the certificate is for.
 
-🔟 certificateUrl
+1️⃣2️⃣ certificateUrl
 - URL for verification if present.
 
 ────────────────────────────────────────
@@ -163,6 +184,8 @@ Return exactly this shape:
 
 {
   "recipientName": "string or null",
+  "certificateId": "string or null",
+  "companyName": "string or null",
   "courseTitle": "string or null",
   "duration": "string or null",
   "learningHours": number or null,
@@ -212,7 +235,26 @@ Do not add any extra fields.
   → Here "Dr. Angela Yu" is the instructor, "Prajjwal Maurya" is the recipientName.
 
 
-2️⃣ courseTitle
+2️⃣ certificateId
+- The unique certificate identifier or number.
+- Look for patterns like:
+  - "Certificate ID:", "Certificate No:", "Cert No:", "ID:"
+  - "Reference Number:", "Credential ID:"
+  - Alphanumeric codes like "CERT-2024-12345678", "UC-858c158b-6121-47ab-912f"
+- Often appears at the top or bottom of the certificate.
+- If not clearly present, set to null.
+
+3️⃣ companyName
+- The organization or company that ISSUED the certificate.
+- Look for:
+  - Organization name at the top of the certificate
+  - Near phrases like "Issued by", "Certified by", "Authorized by"
+  - Company logo text, header text
+  - Examples: "TechCorp Training Division", "National Skill Development Corporation", "Coursera"
+- DO NOT confuse with the course name or recipient name.
+- If not clearly present, set to null.
+
+4️⃣ courseTitle
 - Look for:
   - Text near "Course:", "Program:", "for completing", "in the course of"
   - Headlines like "Certificate in ___", "Diploma in ___", "CERTIFICATE OF ___"
@@ -222,7 +264,7 @@ Do not add any extra fields.
   - "Data Analytics with Python"
 - If unclear, use null.
 
-3️⃣ duration
+5️⃣ duration
 - Free-text duration string.
 - Look for:
   - "Duration:", "Course duration", "for a period of", "over ___ weeks/months/hours"
@@ -230,7 +272,7 @@ Do not add any extra fields.
   - e.g. "6 weeks", "40 hours", "3 month program"
 - If not mentioned, set to null.
 
-4️⃣ learningHours
+6️⃣ learningHours
 - Numeric total of learning hours, if explicit.
 - Look for patterns:
   - "X hours", "X learning hours", "X contact hours"
@@ -239,7 +281,7 @@ Do not add any extra fields.
 - If multiple hour-like numbers appear, choose the one explicitly tied to course duration.
 - Use null if not clearly specified.
 
-5️⃣ grade
+7️⃣ grade
 - Any grade, score, or classification.
 - Examples:
   - "A", "A+", "Distinction", "First Class", "Pass", "Score: 87%"
@@ -247,14 +289,14 @@ Do not add any extra fields.
   - "Grade:", "Result:", "Score:", "Marks obtained:"
 - If not present, null.
 
-6️⃣ NSQFLevel
+8️⃣ NSQFLevel
 - NSQF = National Skills Qualifications Framework (levels 1–10).
 - Look for strings like:
   - "NSQF Level 4", "NSQF Level-5", "NSQF level: 6"
 - Extract only the numeric level (1–10).
 - If not mentioned, null.
 
-7️⃣ issueDate and completionDate
+9️⃣ issueDate and completionDate
 - Normalize ALL dates to "YYYY-MM-DD".
 - Common input formats:
   - "01/02/2023", "1-2-2023", "01 Feb 2023", "February 1, 2023"
@@ -269,7 +311,7 @@ Do not add any extra fields.
   - Put it in completionDate if it is clearly a completion date
   - Otherwise, use null for the second field.
 
-8️⃣ skills
+🔟 skills
 - Extract a list of distinct skills if they appear.
 - Look for:
   - Sections like "Skills:", "Skills gained", "Key skills", "Learning outcomes", bullet lists.
@@ -277,14 +319,14 @@ Do not add any extra fields.
 - Return as an array of strings.
 - If no clear skills section, use [] (empty array), NOT null.
 
-9️⃣ description
+1️⃣1️⃣ description
 - One or two sentences summarizing:
   - What the certificate represents
   - Course focus and nature (e.g., "online self-paced course", "NSDC-approved training program", etc.)
 - Prefer reusing phrases present in the OCR text, lightly cleaned.
 - If the text is extremely short or unclear, null is acceptable.
 
-🔟 certificateUrl
+1️⃣2️⃣ certificateUrl
 - Look for any URL or verification link printed on the certificate:
   - e.g., "Verify at https://coursera.org/verify/ABC123"
   - e.g., short links like "bit.ly/xyz", "udemy.com/certificate/UC-XXXXXX"
@@ -301,6 +343,8 @@ Do not add any extra fields.
 Example 1
 OCR:
 "Certificate of Completion
+ID: CERT-2023-12345
+TechCorp Training Division
 This is to certify that JOHN DOE has successfully completed the course
 'Full-Stack Web Development' of 40 hours duration on 12 March 2023.
 Verification: https://example.org/verify/ABC123"
@@ -308,6 +352,8 @@ Verification: https://example.org/verify/ABC123"
 Expected JSON:
 {
   "recipientName": "JOHN DOE",
+  "certificateId": "CERT-2023-12345",
+  "companyName": "TechCorp Training Division",
   "courseTitle": "Full-Stack Web Development",
   "duration": "40 hours",
   "learningHours": 40,
@@ -323,6 +369,8 @@ Expected JSON:
 Example 2
 OCR:
 "NSDC Approved Training
+Certificate No: NSDC-2022-7890
+Issued by: National Skill Development Corporation
 This is to certify that Priya Sharma has successfully completed
 'Customer Care Executive' training program.
 Duration: 3 months (NSQF Level 4)
@@ -331,6 +379,8 @@ Date of issue: 01/08/2022"
 Expected JSON:
 {
   "recipientName": "Priya Sharma",
+  "certificateId": "NSDC-2022-7890",
+  "companyName": "National Skill Development Corporation",
   "courseTitle": "Customer Care Executive",
   "duration": "3 months",
   "learningHours": null,

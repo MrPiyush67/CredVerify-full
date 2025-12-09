@@ -149,6 +149,53 @@ const credentialSchema = new mongoose.Schema(
       default: {},
     },
 
+    // NEW: Organization Verification fields
+    verificationMethod: {
+      type: String,
+      enum: ['extension', 'manual', 'regulator', 'organization'],
+      default: 'manual',
+    },
+    organizationVerification: {
+      companyId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'OrganizationCertificate',
+      },
+      matchedCertificateId: {
+        type: String,
+      },
+      matchScore: {
+        type: Number,  // 0-100 matching confidence
+        min: 0,
+        max: 100,
+      },
+      matchedFields: {
+        nameMatch: {
+          type: Boolean,
+          default: false,
+        },
+        certificateIdMatch: {
+          type: Boolean,
+          default: false,
+        },
+        companyMatch: {
+          type: Boolean,
+          default: false,
+        },
+      },
+    },
+    isOrganizationVerified: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    organizationName: {
+      type: String,
+      trim: true,
+    },
+    organizationVerifiedAt: {
+      type: Date,
+    },
+
     // Legacy fields for backward compatibility (can be migrated to meta)
     status: {
       type: String,

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, FileText, Trash2, BookOpen, QrCode, ShieldCheck, Puzzle, FolderKey, LinkIcon } from 'lucide-react';
+import { ChevronDown, FileText, Trash2, BookOpen, QrCode, ShieldCheck, Puzzle, FolderKey, LinkIcon, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Button, PageHeader } from '@common';
@@ -12,6 +12,7 @@ import RegulatorVerificationModal from '../components/RegulatorVerificationModal
 import ExtensionInstallModal from '../components/ExtensionInstallModal.jsx';
 import PlatformVerificationModal from '../components/PlatformVerificationModal.jsx';
 import DigilockerModal from '../components/DigilockerModal.jsx';
+import OrganizationVerificationModal from '../components/OrganizationVerificationModal.jsx';
 import PlatformRow from '../components/PlatformRow.jsx';
 import UploadMethodCard from '../components/UploadMethodCard.jsx';
 import usePlatformHandlers from '../hooks/usePlatformHandlers.js';
@@ -116,9 +117,45 @@ export default function AddCredentialsPage() {
     }
   };
 
+  const handleOrganizationVerification = async (verificationResult) => {
+    try {
+      if (verificationResult.verified || verificationResult.autoApproved) {
+        // Certificate matched and verified
+        const credential = verificationResult.credential;
+        setSubmittedCredentials(prev => [...prev, {
+          id: credential._id,
+          uploadMethod: 'Organization Verification',
+          platformName: credential.title || verificationResult.companyName,
+          institution: credential.issuer || verificationResult.companyName,
+          status: credential.verificationStatus || 'verified',
+          autoVerified: verificationResult.autoApproved,
+          matchScore: verificationResult.matchScore,
+          submittedAt: credential.createdAt || new Date().toISOString()
+        }]);
+        toast.success('Certificate verified successfully with organization database!');
+      } else {
+        // No match found - pending review
+        const credential = verificationResult.credential;
+        setSubmittedCredentials(prev => [...prev, {
+          id: credential?._id || Date.now(),
+          uploadMethod: 'Organization Verification',
+          platformName: verificationResult.companyName,
+          status: 'pending_review',
+          submittedAt: new Date().toISOString()
+        }]);
+        toast.warning('Certificate submitted for manual review. No match found in organization database.');
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to verify certificate';
+      toast.error(errorMessage);
+      console.error('Organization verification error:', error.response?.data || error);
+    }
+  };
+
   const uploadMethods = [
     { id: 'extension', onClick: () => openModal('extension'), icon: Puzzle, title: 'Browser Extension', description: 'Install extension to auto-extract certificates from websites' },
     { id: 'regulator', onClick: () => openModal('regulator'), icon: ShieldCheck, title: 'Verify with Regulator', description: 'Upload academic credentials for institutional verification' },
+    { id: 'organization', onClick: () => openModal('organization'), icon: Building2, title: 'Organization Verification', description: 'Verify certificates from registered organizations' },
     { id: 'certificate', onClick: () => openModal('certificateQr'), icon: QrCode, title: 'Certificate/QR Upload', description: 'Upload certificate image or PDF with QR code for verification' },
     { id: 'link', onClick: () => openModal('linkVerification'), icon: LinkIcon, title: 'Link Verification', description: 'Enter verification link from Coursera, NPTEL, HackerRank, etc.' },
     { id: 'digilocker', onClick: () => openModal('digilocker'), icon: FolderKey, title: 'DigiLocker', description: 'Import verified documents directly from your DigiLocker account' }
@@ -150,7 +187,7 @@ export default function AddCredentialsPage() {
         className="mb-8"
       >
         <h2 className="text-xl font-semibold mb-4 text-[#116466]">Upload Methods</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           {uploadMethods.map((method) => (
             <UploadMethodCard key={method.id} method={method} />
           ))}
@@ -304,6 +341,13 @@ export default function AddCredentialsPage() {
         isOpen={modals.isRegulatorOpen}
         onClose={closeModal}
         onSubmit={handleRegulatorSubmit}
+      />
+
+      {/* Organization Verification Modal */}
+      <OrganizationVerificationModal
+        isOpen={modals.isOrganizationOpen}
+        onClose={closeModal}
+        onSubmit={handleOrganizationVerification}
       />
 
       {/* Confirm Delete Modal for Profile Links */}

@@ -1,0 +1,22 @@
+# Certificate Generator & Watcher Dependencies
+
+# Core
+python-dotenv==1.0.0
+requests==2.31.0
+
+# Name generation
+Faker==20.1.0
+
+# Image processing
+Pillow==10.1.0
+reportlab==4.0.7
+qrcode[pil]==7.4.2
+
+# Scheduling (for watcher)
+APScheduler==3.10.4
+
+# Groq API (for LLM extraction in watcher)
+groq==0.4.1
+
+# Optional: Tesseract fallback (if needed)
+# pytesseract==0.3.10
