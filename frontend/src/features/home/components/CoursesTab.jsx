@@ -47,7 +47,7 @@ export default function CoursesTab({ id, tabpanelProps = {} }) {
     // Filter for verified certificates and micro-credentials only
     return data.filter(
       c => c.verificationStatus === 'VERIFIED' &&
-           (c.type === 'certificate' || c.type === 'micro_credential')
+        (c.type === 'certificate' || c.type === 'micro_credential')
     );
   }, [credentialHistory.data]);
 
@@ -58,8 +58,16 @@ export default function CoursesTab({ id, tabpanelProps = {} }) {
     const platforms = new Set();
     courses.forEach(course => {
       // Try to extract platform from meta or issuer
-      const platform = course.meta?.platform || course.issuer?.split(' - ')[0] || course.issuer?.split(' ')[0];
-      if (platform) platforms.add(platform);
+      let platform = course.meta?.platform || course.issuer?.split(' - ')[0] || course.issuer?.split(' ')[0];
+
+      // Handle case where platform is an object
+      if (typeof platform === 'object' && platform !== null) {
+        platform = platform.name || platform.id || platform.category || platform.title || 'Unknown Platform';
+      }
+
+      if (platform && typeof platform === 'string') {
+        platforms.add(platform);
+      }
     });
     return Array.from(platforms).sort();
   }, [courses]);
@@ -212,7 +220,9 @@ export default function CoursesTab({ id, tabpanelProps = {} }) {
                   <SelectContent>
                     <SelectItem value="all">All Platforms</SelectItem>
                     {availablePlatforms.map(platform => (
-                      <SelectItem key={platform} value={platform}>{platform}</SelectItem>
+                      <SelectItem key={platform} value={platform}>
+                        {typeof platform === 'string' ? platform : 'Unknown Platform'}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -314,7 +324,7 @@ export default function CoursesTab({ id, tabpanelProps = {} }) {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base flex items-center gap-2 flex-1 min-w-0">
                   <BookOpen className="h-4 w-4 flex-shrink-0 text-primary" />
-                  <span className="truncate">{course.title}</span>
+                  <span className="truncate">{typeof course.title === 'object' ? (course.title.name || course.title.id || 'Untitled Course') : (course.title || 'Untitled Course')}</span>
                 </CardTitle>
                 <div className="flex items-center gap-2 ml-2 flex-shrink-0">
                   <Badge variant="success" className="text-xs">
@@ -329,12 +339,12 @@ export default function CoursesTab({ id, tabpanelProps = {} }) {
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                  <span>{course.issuer || 'Issuer Not Specified'}</span>
+                  <span>{typeof course.issuer === 'object' ? (course.issuer.name || course.issuer.id || 'Issuer Not Specified') : (course.issuer || 'Issuer Not Specified')}</span>
                 </div>
                 {platform && (
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">
-                      {platform}
+                      {typeof platform === 'object' ? (platform.name || platform.id || 'Platform') : platform}
                     </Badge>
                   </div>
                 )}
