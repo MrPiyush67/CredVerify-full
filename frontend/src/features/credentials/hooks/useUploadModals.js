@@ -28,6 +28,7 @@ export default function useUploadModals() {
       isRegulatorOpen: activeModal === 'regulator',
       isExtensionOpen: activeModal === 'extension',
       isDigilockerOpen: activeModal === 'digilocker',
+      isOrganizationOpen: activeModal === 'organization',
     },
   };
 }

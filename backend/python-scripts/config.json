@@ -1,0 +1,89 @@
+{
+  "companies": [
+    {
+      "name": "TechCorp India",
+      "issuer": "TechCorp Training Division",
+      "courses": [
+        "Full Stack Web Development",
+        "Data Science with Python",
+        "Cloud Computing with AWS",
+        "DevOps Engineering",
+        "Machine Learning Fundamentals"
+      ]
+    },
+    {
+      "name": "Infosys Springboard",
+      "issuer": "Infosys Limited",
+      "courses": [
+        "Digital Marketing",
+        "Java Programming",
+        "Cybersecurity Essentials",
+        "Artificial Intelligence",
+        "Blockchain Technology"
+      ]
+    },
+    {
+      "name": "Wipro TalentNext",
+      "issuer": "Wipro Limited",
+      "courses": [
+        "Python for Beginners",
+        "React Native Development",
+        "Database Management",
+        "Software Testing",
+        "Agile Project Management"
+      ]
+    },
+    {
+      "name": "TCS iON",
+      "issuer": "Tata Consultancy Services",
+      "courses": [
+        "Business Analytics",
+        "Internet of Things",
+        "Mobile App Development",
+        "UI/UX Design",
+        "Network Administration"
+      ]
+    },
+    {
+      "name": "Tech Mahindra SMART Academy",
+      "issuer": "Tech Mahindra Limited",
+      "courses": [
+        "5G Technology",
+        "Angular Development",
+        "Kubernetes Administration",
+        "Ethical Hacking",
+        "Salesforce Development"
+      ]
+    },
+    {
+      "name": "HCL TechBee",
+      "issuer": "HCL Technologies",
+      "courses": [
+        "Software Development",
+        "Cloud Architecture",
+        "API Development",
+        "Microservices",
+        "Docker Containerization"
+      ]
+    }
+  ],
+  "instructors": [
+    "Dr. Rajesh Kumar",
+    "Prof. Priya Sharma",
+    "Mr. Amit Patel",
+    "Ms. Sneha Gupta",
+    "Dr. Vikram Singh",
+    "Prof. Anita Desai",
+    "Mr. Rahul Verma",
+    "Ms. Kavita Reddy",
+    "Dr. Suresh Iyer",
+    "Prof. Meera Nair"
+  ],
+  "nsqf_levels": [3, 4, 5, 6, 7],
+  "hours_range": {
+    "min": 7.5,
+    "max": 30
+  },
+  "date_range_years": 2,
+  "certificate_id_prefix": "CERT"
+}

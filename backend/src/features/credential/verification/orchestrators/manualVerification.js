@@ -232,6 +232,26 @@ export async function verifyFromManualInput(params) {
 
     console.log(`✅ Successfully interpreted ${interpretedCandidates.length} candidate(s)\n`);
 
+    // STAGE 7.5: Validate microcredential duration
+    console.log(`📍 STAGE 7.5: Validating microcredential duration...`);
+
+    // Check the best candidate's duration (we already selected one above)
+    const selectedData = interpretedCandidates[0].extractedData;
+
+    if (selectedData.learningHours !== null && selectedData.learningHours !== undefined) {
+      if (selectedData.learningHours < 7.5 || selectedData.learningHours > 30) {
+        console.error(`❌ Duration validation failed: ${selectedData.learningHours} hours (must be 7.5-30)\n`);
+        throw new Error(
+          `This certificate does not qualify as a microcredential. ` +
+          `Microcredentials must have a duration between 7.5 and 30 hours. ` +
+          `This certificate has ${selectedData.learningHours} hours.`
+        );
+      }
+      console.log(`✅ Duration validated: ${selectedData.learningHours} hours (within 7.5-30 range)\n`);
+    } else {
+      console.warn(`⚠️ No learning hours extracted - skipping duration validation\n`);
+    }
+
     // STAGE 8: Name matching for each candidate
     console.log(`📍 STAGE 8: Matching names with user profile...`);
 
