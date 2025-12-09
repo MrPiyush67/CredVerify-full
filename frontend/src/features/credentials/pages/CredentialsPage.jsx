@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import { Plus, Search, X } from 'lucide-react';
+import { Plus, Search, X, Calendar } from 'lucide-react';
 import { Button, PageHeader, Loader, Card, CardContent, Input } from '@common';
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from '@common/ui/command';
 import { fetchCredentials, fetchCredentialById, selectCredentials, selectCredentialsLoading, selectCredentialsError, selectCredentialsPagination, selectSelectedCredential } from '../redux/credentialsSlice';
@@ -94,6 +94,8 @@ export default function CredentialsPage() {
   const [selectedIndustry, setSelectedIndustry] = useState('');
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [industrySearch, setIndustrySearch] = useState('');
+  const [selectedDate, setSelectedDate] = useState(''); // Store selected date
+  const [visibilityFilter, setVisibilityFilter] = useState(''); // '', 'public', 'private'
 
   useEffect(() => {
     dispatch(fetchCredentials());
@@ -171,7 +173,7 @@ export default function CredentialsPage() {
       {/* Search and Filter Section */}
       <Card className="mb-6 bg-muted/30">
         <CardContent className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             {/* Search Input */}
             <Input
               placeholder="Search by title, subcategory, or issuer..."
@@ -237,11 +239,40 @@ export default function CredentialsPage() {
                 </div>
               )}
             </div>
+
+            {/* Date Filter with Calendar */}
+            <div className="relative">
+              <Input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
+                placeholder="Filter by date..."
+                className="text-sm"
+              />
+              {selectedDate && (
+                <X
+                  className="h-4 w-4 absolute right-10 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
+                  onClick={() => setSelectedDate('')}
+                />
+              )}
+            </div>
+
+            {/* Visibility Filter */}
+            <select
+              value={visibilityFilter}
+              onChange={(e) => setVisibilityFilter(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="">All Credentials</option>
+              <option value="public">Public Only</option>
+              <option value="private">Private Only</option>
+            </select>
           </div>
 
           {/* Active Filters Display */}
-          {(searchQuery || selectedIndustry) && (
-            <div className="flex items-center gap-2 mt-3">
+          {(searchQuery || selectedIndustry || selectedDate || visibilityFilter) && (
+            <div className="flex items-center gap-2 mt-3 flex-wrap">
               <span className="text-xs text-muted-foreground">Active filters:</span>
               {searchQuery && (
                 <div className="flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-xs">
@@ -261,6 +292,32 @@ export default function CredentialsPage() {
                   />
                 </div>
               )}
+              {selectedDate && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-xs">
+                  <span>
+                    Date: From {new Date(selectedDate).toLocaleDateString('en-US', { 
+                      year: 'numeric', 
+                      month: 'short', 
+                      day: 'numeric' 
+                    })} to Today
+                  </span>
+                  <X
+                    className="h-3 w-3 cursor-pointer"
+                    onClick={() => setSelectedDate('')}
+                  />
+                </div>
+              )}
+              {visibilityFilter && (
+                <div className="flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-xs">
+                  <span>
+                    Visibility: {visibilityFilter === 'public' ? 'Public' : 'Private'}
+                  </span>
+                  <X
+                    className="h-3 w-3 cursor-pointer"
+                    onClick={() => setVisibilityFilter('')}
+                  />
+                </div>
+              )}
             </div>
           )}
         </CardContent>
@@ -272,6 +329,8 @@ export default function CredentialsPage() {
         onViewDetails={handleViewDetails}
         searchQuery={searchQuery}
         selectedIndustry={selectedIndustry}
+        selectedDate={selectedDate}
+        visibilityFilter={visibilityFilter}
       />
 
       {/* Modals */}
