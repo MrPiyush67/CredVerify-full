@@ -11,6 +11,7 @@ import CategorizedCredentialsList from '../components/CategorizedCredentialsList
 import CredentialUploadModal from '../components/CredentialUploadModal.jsx';
 import CredentialDetailsModal from '../components/CredentialDetailsModal.jsx';
 import EmptyState from '../components/EmptyState.jsx';
+import AiChatWrapper from '@features/ai-chat/components/AiChatWrapper.jsx';
 
 const INDUSTRIES = [
   'Aerospace & Aviation',
@@ -288,6 +289,9 @@ export default function CredentialsPage() {
         loading={detailsLoading}
         onSuccess={handleRefresh}
       />
+
+      {/* AI Chat Wrapper - Testing (visible to all users) */}
+      <AiChatWrapper />
     </div>
   );
 }
