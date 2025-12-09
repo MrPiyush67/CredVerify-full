@@ -8,13 +8,9 @@ import {
   getCredentialById,
   updateCredential,
   deleteCredential,
-  requestVerification,
   getVerifiedCredentials,
   getCredentialStats,
   getPublicCredentials,
-  getPendingCredentials,
-  verifyCredential,
-  rejectCredential,
   createCredentialFromExtension,
   issueBulkCredentials,
   previewCertificate,
@@ -67,8 +63,7 @@ router.post('/credentials/extract-preview', protect, extractCertificatePreview);
 router.post('/credentials/manual-verify', uploadCertificateImage, optionalAuth, manualVerification);
 router.post('/credentials/test-qr', protect, uploadCertificateImage, testQrExtraction);
 
-// Regulator routes (specific routes first)
-router.get('/credentials/pending', protect, isRegulator, getPendingCredentials);
+// Regulator routes (for bulk issuance and certificate preview)
 router.post('/credentials/preview', protect, isRegulator, previewCertificate);
 router.post('/credentials/bulk-issue', protect, isRegulator, issueBulkCredentials);
 
@@ -80,15 +75,5 @@ router.get('/credentials', protect, isLearner, getMyCredentials);
 router.get('/credentials/:id', protect, getCredentialById);
 router.patch('/credentials/:id', protect, isLearner, updateCredential);
 router.delete('/credentials/:id', protect, isLearner, deleteCredential);
-router.post(
-  '/credentials/:id/request-verification',
-  protect,
-  isLearner,
-  requestVerification
-);
-
-// More regulator routes
-router.post('/credentials/:id/verify', protect, isRegulator, verifyCredential);
-router.post('/credentials/:id/reject', protect, isRegulator, rejectCredential);
 
 export default router;

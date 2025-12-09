@@ -14,7 +14,7 @@ export const navigationItems = {
     { label: 'Home', href: '/home' },
     // { label: 'Dashboard', href: '/dashboard' },
     { label: 'Issue Credential', href: '/issue-credentials' },
-    { label: 'Requests', href: '/requests' },
+    // { label: 'Requests', href: '/requests' },
     { label: 'Profile', href: '/profile' },
     { label: 'Notifications', href: '/notifications' },
     { label: 'Settings', href: '/settings' },
@@ -51,7 +51,7 @@ const iconMap = {
   'Post Job': FileText,
   'Credentials': Award,
   'Add Credentials': Plus,
-  'Requests': FileText,
+  // 'Requests': FileText,
   'Issue Credential': Plus,
 };
 

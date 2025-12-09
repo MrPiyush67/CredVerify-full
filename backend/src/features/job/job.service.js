@@ -309,7 +309,6 @@ export const getJobStats = async (employerId) => {
   const totalJobs = jobs.length;
   const activeJobs = jobs.filter((j) => j.status === 'active').length;
   const closedJobs = jobs.filter((j) => j.status === 'closed').length;
-  const draftJobs = jobs.filter((j) => j.status === 'draft').length;
 
   const totalApplicants = jobs.reduce((sum, j) => sum + j.applicants.length, 0);
   const pendingApplicants = jobs.reduce(
@@ -325,7 +324,6 @@ export const getJobStats = async (employerId) => {
     totalJobs,
     activeJobs,
     closedJobs,
-    draftJobs,
     totalApplicants,
     pendingApplicants,
     shortlistedApplicants,

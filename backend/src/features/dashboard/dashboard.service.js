@@ -195,7 +195,6 @@ async function getEmployerStats(userId) {
     jobMetrics: {
       totalJobs,
       activeJobs: statusCounts.active || 0,
-      draftJobs: statusCounts.draft || 0,
       closedJobs: statusCounts.closed || 0,
       totalApplications,
     },
@@ -304,14 +303,12 @@ async function generateChartData(role, data = []) {
 
         const activeJobs = monthJobs.filter(j => j.status === 'active').length;
         const closedJobs = monthJobs.filter(j => j.status === 'closed').length;
-        const draftJobs = monthJobs.filter(j => j.status === 'draft').length;
 
         chartData.push({
           name: monthName,
           posted: monthJobs.length,
           active: activeJobs,
           closed: closedJobs,
-          draft: draftJobs,
         });
       }
     }

@@ -140,8 +140,6 @@ export const getStats = async (userId) => {
         $facet: {
           total: [{ $count: 'count' }],
           verified: [{ $match: { status: 'verified' } }, { $count: 'count' }],
-          pending: [{ $match: { status: 'pending' } }, { $count: 'count' }],
-          rejected: [{ $match: { status: 'rejected' } }, { $count: 'count' }],
         },
       },
     ]),
@@ -160,8 +158,6 @@ export const getStats = async (userId) => {
   const credentials = {
     total: credentialStats[0]?.total[0]?.count || 0,
     verified: credentialStats[0]?.verified[0]?.count || 0,
-    pending: credentialStats[0]?.pending[0]?.count || 0,
-    rejected: credentialStats[0]?.rejected[0]?.count || 0,
   };
 
   const applications = {

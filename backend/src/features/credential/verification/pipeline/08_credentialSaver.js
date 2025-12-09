@@ -173,10 +173,9 @@ export async function saveCredential(params) {
       },
 
       // Legacy status field
-      status: verification.status === 'VERIFIED' ? 'verified' :
-        verification.status === 'REVIEW_REQUIRED' ? 'pending' : 'rejected',
+      status: verification.status === 'VERIFIED' || verification.status === 'REVIEW_REQUIRED' ? 'verified' : 'rejected',
 
-      verifiedAt: verification.status === 'VERIFIED' ? new Date() : null,
+      verifiedAt: verification.status === 'VERIFIED' || verification.status === 'REVIEW_REQUIRED' ? new Date() : null,
     };
 
     const credential = await Credential.create(credentialData);
@@ -245,24 +244,29 @@ export async function uploadAndSaveCredential(params) {
   let ipfsResult = null;
   let chainResult = null;
 
-  try {
-    ipfsResult = await uploadToIpfs(imageBuffer, fileName);
-    console.log(`✅ [CREDENTIAL-SAVER] IPFS upload successful: ${ipfsResult.cid}`);
+  // Upload to IPFS - this is critical and should fail if it doesn't work
+  ipfsResult = await uploadToIpfs(imageBuffer, fileName);
+  console.log(`✅ [CREDENTIAL-SAVER] IPFS upload successful: ${ipfsResult.cid}`);
 
-    if (ipfsResult && ipfsResult.cid) {
+  // Register on blockchain if we have the necessary data
+  if (ipfsResult && ipfsResult.cid && fingerprint && pageUrl) {
+    console.log(`🔑 [CREDENTIAL-SAVER] Registering on blockchain...`);
+    console.log(`   Page URL: ${pageUrl}`);
+    console.log(`   Fingerprint: ${fingerprint}`);
 
-      if (fingerprint && pageUrl) {
-        console.log(`🔑 [CREDENTIAL-SAVER] Registering on blockchain...`);
-        console.log(`   Page URL: ${pageUrl}`);
-        console.log(`   Fingerprint: ${fingerprint}`);
-        chainResult = await registerOnChain(fingerprint, ipfsResult.cid);
-        console.log(`✅ [CREDENTIAL-SAVER] On-chain registration successful: ${chainResult.txHash}`);
-      } else {
-        console.warn('⚠️  [CREDENTIAL-SAVER] No page URL available for fingerprint generation');
-      }
+    try {
+      chainResult = await registerOnChain(fingerprint, ipfsResult.cid);
+      console.log(`✅ [CREDENTIAL-SAVER] On-chain registration successful: ${chainResult.txHash}`);
+    } catch (blockchainError) {
+      console.error('❌ [CREDENTIAL-SAVER] Blockchain registration failed:', blockchainError.message);
+      // Blockchain registration is optional - continue with IPFS storage
+      // The credential will still be stored in MongoDB with IPFS link
+      console.warn('⚠️  [CREDENTIAL-SAVER] Continuing without blockchain registration');
     }
-  } catch (err) {
-    console.error('❌ [CREDENTIAL-SAVER] IPFS or on-chain registration failed:', err.message || err);
+  } else {
+    console.warn('⚠️  [CREDENTIAL-SAVER] Missing data for blockchain registration');
+    if (!fingerprint) console.warn('   - No fingerprint');
+    if (!pageUrl) console.warn('   - No page URL');
   }
 
   // Create certificate image object with IPFS data

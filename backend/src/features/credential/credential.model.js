@@ -27,8 +27,8 @@ const credentialSchema = new mongoose.Schema(
     // New: Weighted verification system (ChatGPT recommended)
     verificationStatus: {
       type: String,
-      enum: ['VERIFIED', 'REVIEW_REQUIRED', 'REJECTED', 'PENDING'],
-      default: 'PENDING',
+      enum: ['VERIFIED', 'REVIEW_REQUIRED', 'REJECTED'],
+      default: 'VERIFIED',
     },
     finalVerificationScore: {
       type: Number,   // 0-100 (weighted: 60% name + 30% domain + 10% metadata)
@@ -196,33 +196,19 @@ const credentialSchema = new mongoose.Schema(
       type: Date,
     },
 
-    // Legacy fields for backward compatibility (can be migrated to meta)
+    // Simple status field - all credentials are verified once added
     status: {
       type: String,
-      enum: ['draft', 'pending', 'verified', 'rejected'],
-      default: 'draft',
+      enum: ['verified'],
+      default: 'verified',
     },
-    verifiedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-    },
-    verifiedAt: {
-      type: Date,
-    },
-    rejectionReason: {
-      type: String,
-    },
-    verificationRequested: {
-      type: Boolean,
-      default: false,
-    },
-    requestedAt: {
-      type: Date,
-    },
+
+    // Optional verification notes from automated checks
     verificationNotes: {
       type: String,
       maxlength: 500,
     },
+
     pdfPath: {
       type: String, // Path to generated certificate PDF
     },
@@ -233,6 +219,6 @@ const credentialSchema = new mongoose.Schema(
 // Helpful indexes
 credentialSchema.index({ user: 1, status: 1 });
 credentialSchema.index({ user: 1, type: 1 });
-credentialSchema.index({ status: 1, verificationRequested: 1 });
+credentialSchema.index({ verificationStatus: 1 });
 
 export default mongoose.model('Credential', credentialSchema);

@@ -15,7 +15,7 @@ const monthsAgo = (months) => {
 };
 
 // Demo certificate image URL (consistent across all certificates for demo purposes)
-const DEMO_CERT_IMAGE = 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=600&fit=crop';
+const DEMO_CERT_IMAGE = 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=600&fit=crop&q=80';
 
 // 5 Credentials for Priya Sharma (demo learner)
 const credentials = [
@@ -48,9 +48,7 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verificationNotes: 'Certificate verified through Coursera official API. All metadata confirmed valid.',
-    verifiedAt: daysAgo(5),
     meta: {
       platform: 'Coursera',
       verificationMethod: 'api_verified',
@@ -87,9 +85,7 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verificationNotes: 'Degree verified with IIT Delhi registrar office. Student ID and graduation year confirmed.',
-    verifiedAt: daysAgo(10),
     meta: {
       graduationYear: 2019,
       cgpa: 8.5,
@@ -99,53 +95,15 @@ const credentials = [
     createdAt: monthsAgo(6),
     updatedAt: daysAgo(10)
   },
-  // REJECTED - Name Mismatch
-  {
-    user: SEED_IDS.learner1,
-    legalNameSnapshot: 'Priya Sharma',
-    certificateName: 'Priya S.',
-    nameMatchConfidence: 65,
-    verificationStatus: 'REJECTED',
-    finalVerificationScore: 52,
-    autoApproved: false,
-    title: 'Google Cloud Professional Developer',
-    issuer: 'Google Cloud',
-    issueDate: monthsAgo(3),
-    type: 'certificate',
-    credentialId: 'GCP-PD-2024-789',
-    skills: ['Google Cloud', 'GCP', 'Kubernetes', 'Cloud Development'],
-    description: 'Professional certification for developing applications on Google Cloud Platform.',
-    file: {
-      url: DEMO_CERT_IMAGE,
-      fileName: 'gcp-developer-cert.pdf',
-      fileType: 'application/pdf',
-      uploadedAt: monthsAgo(3),
-    },
-    sourceUrl: 'https://cloud.google.com/certification/cloud-developer',
-    sourceDomain: 'cloud.google.com',
-    isDomainTrusted: true,
-    isIssuerVerified: false,
-    isPublic: false,
-    status: 'rejected',
-    verifiedBy: SEED_IDS.regulator1,
-    verificationNotes: 'Name on certificate does not match legal name. Certificate shows "Priya S." but legal name is "Priya Sharma". Unable to verify credential ID in Google Cloud records.',
-    rejectionReason: 'Name mismatch and credential ID not found in issuer records',
-    meta: {
-      rejectedAt: daysAgo(3),
-      nameIssue: true,
-    },
-    createdAt: monthsAgo(3),
-    updatedAt: daysAgo(3)
-  },
-  // PENDING #1 - Under Manual Review
+  // VERIFIED #3 - AWS Developer Certification
   {
     user: SEED_IDS.learner1,
     legalNameSnapshot: 'Priya Sharma',
     certificateName: 'Priya Sharma',
     nameMatchConfidence: 100,
-    verificationStatus: 'REVIEW_REQUIRED',
-    finalVerificationScore: 78,
-    autoApproved: false,
+    verificationStatus: 'VERIFIED',
+    finalVerificationScore: 92,
+    autoApproved: true,
     title: 'AWS Certified Developer - Associate',
     issuer: 'Amazon Web Services',
     issueDate: monthsAgo(2),
@@ -163,28 +121,25 @@ const credentials = [
     sourceUrl: 'https://aws.amazon.com/certification/certified-developer-associate/',
     sourceDomain: 'aws.amazon.com',
     isDomainTrusted: true,
-    isIssuerVerified: false,
-    isPublic: false,
-    status: 'pending',
-    verificationRequested: true,
-    requestedAt: daysAgo(15),
+    isIssuerVerified: true,
+    isPublic: true,
+    status: 'verified',
+    verificationNotes: 'Certificate automatically verified. Name matches, trusted domain, valid credential ID.',
     meta: {
       expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 3)),
-      requiresManualReview: true,
-      reviewReason: 'Domain trusted but credential ID verification pending',
     },
     createdAt: daysAgo(15),
     updatedAt: daysAgo(15)
   },
-  // PENDING #2 - Auto-approval threshold not met
+  // VERIFIED #4 - Full Stack Web Development
   {
     user: SEED_IDS.learner1,
     legalNameSnapshot: 'Priya Sharma',
     certificateName: 'Priya Sharma',
     nameMatchConfidence: 100,
-    verificationStatus: 'REVIEW_REQUIRED',
-    finalVerificationScore: 82,
-    autoApproved: false,
+    verificationStatus: 'VERIFIED',
+    finalVerificationScore: 90,
+    autoApproved: true,
     title: 'Full Stack Web Development Bootcamp',
     issuer: 'Udemy',
     issueDate: monthsAgo(1),
@@ -202,11 +157,10 @@ const credentials = [
     sourceUrl: 'https://www.udemy.com/certificate/UC-FULLSTACK-2024-654/',
     sourceDomain: 'udemy.com',
     isDomainTrusted: true,
-    isIssuerVerified: false,
-    isPublic: false,
-    status: 'pending',
-    verificationRequested: true,
-    requestedAt: daysAgo(7),
+    isIssuerVerified: true,
+    isPublic: true,
+    status: 'verified',
+    verificationNotes: 'Certificate automatically verified. Name matches, trusted domain, valid credential format.',
     meta: {
       completionRate: 100,
       projectCount: 52,
@@ -251,7 +205,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verifiedAt: monthsAgo(3),
     meta: {
       platform: 'Udemy',
@@ -292,7 +245,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator2,
     verifiedAt: monthsAgo(4),
     meta: {
       platform: 'Coursera',
@@ -333,7 +285,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verifiedAt: monthsAgo(2),
     meta: {
       platform: 'Udemy',
@@ -375,7 +326,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator3,
     verifiedAt: monthsAgo(8),
     meta: {
       platform: 'edX',
@@ -416,7 +366,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator2,
     verifiedAt: monthsAgo(5),
     meta: {
       platform: 'Udemy',
@@ -457,7 +406,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verifiedAt: monthsAgo(1),
     meta: {
       platform: 'LinkedIn Learning',
@@ -497,7 +445,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator3,
     verifiedAt: monthsAgo(6),
     meta: {
       platform: 'Coursera',
@@ -538,7 +485,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verifiedAt: monthsAgo(9),
     meta: {
       platform: 'Udemy',
@@ -579,7 +525,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator2,
     verifiedAt: monthsAgo(10),
     meta: {
       platform: 'LinkedIn Learning',
@@ -619,7 +564,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator3,
     verifiedAt: monthsAgo(11),
     meta: {
       platform: 'Udemy',
@@ -664,7 +608,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verifiedAt: monthsAgo(4),
     meta: {
       platform: 'Coursera',
@@ -704,7 +647,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator2,
     verifiedAt: monthsAgo(2),
     meta: {
       platform: 'Udemy',
@@ -745,7 +687,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verifiedAt: monthsAgo(3),
     meta: {
       platform: 'Udemy',
@@ -786,7 +727,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator3,
     verifiedAt: monthsAgo(5),
     meta: {
       platform: 'AWS',
@@ -827,7 +767,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verifiedAt: monthsAgo(1),
     meta: {
       platform: 'LinkedIn Learning',
@@ -867,7 +806,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator2,
     verifiedAt: monthsAgo(6),
     meta: {
       platform: 'edX',
@@ -908,7 +846,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator3,
     verifiedAt: monthsAgo(3),
     meta: {
       platform: 'Coursera',
@@ -948,7 +885,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verifiedAt: monthsAgo(7),
     meta: {
       platform: 'Udemy',
@@ -989,7 +925,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator2,
     verifiedAt: monthsAgo(1),
     meta: {
       platform: 'Udemy',
@@ -1029,7 +964,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator3,
     verifiedAt: monthsAgo(4),
     meta: {
       platform: 'Coursera',
@@ -1069,7 +1003,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verifiedAt: monthsAgo(2),
     meta: {
       platform: 'Google Cloud',
@@ -1110,7 +1043,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator2,
     verifiedAt: monthsAgo(5),
     meta: {
       platform: 'Coursera',
@@ -1150,7 +1082,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verifiedAt: monthsAgo(3),
     meta: { platform: 'Udemy', category: 'Web Development', rating: 4.8 },
     createdAt: monthsAgo(4),
@@ -1182,7 +1113,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verifiedAt: monthsAgo(3),
     meta: { platform: 'Udemy', category: 'Web Development', rating: 4.8 },
     createdAt: monthsAgo(4),
@@ -1214,7 +1144,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verifiedAt: monthsAgo(3),
     meta: { platform: 'Udemy', category: 'Web Development', rating: 4.8 },
     createdAt: monthsAgo(4),
@@ -1246,7 +1175,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verifiedAt: monthsAgo(3),
     meta: { platform: 'Udemy', category: 'Web Development', rating: 4.8 },
     createdAt: monthsAgo(4),
@@ -1278,7 +1206,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verifiedAt: monthsAgo(3),
     meta: { platform: 'Udemy', category: 'Web Development', rating: 4.8 },
     createdAt: monthsAgo(4),
@@ -1310,7 +1237,6 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verifiedBy: SEED_IDS.regulator1,
     verifiedAt: monthsAgo(3),
     meta: { platform: 'Udemy', category: 'Web Development', rating: 4.8 },
     createdAt: monthsAgo(4),

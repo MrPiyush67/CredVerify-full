@@ -157,7 +157,6 @@ export const getStats = async (userId) => {
       total: totalJobs,
       active: statusMap.active || 0,
       closed: statusMap.closed || 0,
-      draft: statusMap.draft || 0,
       recent: jobStats[0].recentJobs[0]?.count || 0,
     },
     applications: {

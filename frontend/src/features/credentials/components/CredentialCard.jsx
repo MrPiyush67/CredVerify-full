@@ -10,10 +10,10 @@ const getStatusIcon = (status) => {
   switch (status) {
     case 'verified':
       return <CheckCircle className="h-3 w-3" />;
-    case 'pending':
-      return <Clock className="h-3 w-3" />;
-    default:
+    case 'rejected':
       return <XCircle className="h-3 w-3" />;
+    default:
+      return <CheckCircle className="h-3 w-3" />;
   }
 };
 
@@ -21,10 +21,10 @@ const getStatusColor = (status) => {
   switch (status) {
     case 'verified':
       return 'bg-green-500/10 text-green-600 border-green-500/20';
-    case 'pending':
-      return 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20';
-    default:
+    case 'rejected':
       return 'bg-red-500/10 text-red-600 border-red-500/20';
+    default:
+      return 'bg-green-500/10 text-green-600 border-green-500/20';
   }
 };
 
@@ -273,7 +273,7 @@ export default function CredentialCard({ credential, onViewDetails, subcategory 
             {/* Status Badge */}
             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border shrink-0 ${getStatusColor(credential.status)}`}>
               {getStatusIcon(credential.status)}
-              <span className="capitalize">{credential.status || 'draft'}</span>
+              <span className="capitalize">{credential.status || 'verified'}</span>
             </span>
           </div>
           {credential.issuer && (

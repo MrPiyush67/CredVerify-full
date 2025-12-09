@@ -64,19 +64,6 @@ export const deleteCredential = asyncHandler(async (req, res) => {
   return sendSuccess(res, 200, 'Credential deleted successfully');
 });
 
-// @desc    Request verification for a credential
-// @route   POST /api/credentials/:id/request-verification
-// @access  Private (Learner only)
-export const requestVerification = asyncHandler(async (req, res) => {
-  const credential = await credentialService.requestVerification(
-    req.user._id,
-    req.params.id
-  );
-  return sendSuccess(res, 200, MESSAGES.CREDENTIAL.VERIFICATION_REQUESTED, {
-    credential,
-  });
-});
-
 // @desc    Get verified credentials
 // @route   GET /api/credentials/verified
 // @access  Private (Learner only)
@@ -108,48 +95,6 @@ export const getPublicCredentials = asyncHandler(async (req, res) => {
 
   const credentials = await credentialService.getPublicCredentials(filters);
   return sendSuccess(res, 200, 'Public credentials fetched successfully', { credentials });
-});
-
-// @desc    Get pending credentials for regulator review
-// @route   GET /api/credentials/pending
-// @access  Private (Regulator only)
-export const getPendingCredentials = asyncHandler(async (req, res) => {
-  const { type, issuer, status, statusIn } = req.query;
-  const filters = {};
-
-  if (type) filters.type = type;
-  if (issuer) filters.issuer = issuer;
-  if (status) filters.status = status;
-  if (statusIn) filters.statusIn = statusIn;
-
-  const credentials = await credentialService.getPendingCredentialsForRegulator(filters);
-  return sendSuccess(res, 200, 'Credentials fetched successfully', { credentials });
-});
-
-// @desc    Verify a credential (regulator action)
-// @route   POST /api/credentials/:id/verify
-// @access  Private (Regulator only)
-export const verifyCredential = asyncHandler(async (req, res) => {
-  const { verificationNotes } = req.body;
-  const credential = await credentialService.verifyCredential(
-    req.user._id,
-    req.params.id,
-    verificationNotes
-  );
-  return sendSuccess(res, 200, MESSAGES.CREDENTIAL.VERIFIED, { credential });
-});
-
-// @desc    Reject a credential (regulator action)
-// @route   POST /api/credentials/:id/reject
-// @access  Private (Regulator only)
-export const rejectCredential = asyncHandler(async (req, res) => {
-  const { rejectionReason } = req.body;
-  const credential = await credentialService.rejectCredential(
-    req.user._id,
-    req.params.id,
-    rejectionReason
-  );
-  return sendSuccess(res, 200, MESSAGES.CREDENTIAL.REJECTED, { credential });
 });
 
 import { generateCertificatePDF } from '../../core/utils/certificateGenerator.js';

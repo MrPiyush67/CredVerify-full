@@ -8,12 +8,12 @@ import { Button, PageHeader } from '@common';
 import CertificateQrUploadModal from '../components/CertificateQrUploadModal.jsx';
 import LinkVerificationModal from '../components/LinkVerificationModal.jsx';
 import PortfolioGeneratorModal from '../components/PortfolioGeneratorModal.jsx';
-import RegulatorVerificationModal from '../components/RegulatorVerificationModal.jsx';
+// import RegulatorVerificationModal from '../components/RegulatorVerificationModal.jsx';
 import ExtensionInstallModal from '../components/ExtensionInstallModal.jsx';
 import PlatformVerificationModal from '../components/PlatformVerificationModal.jsx';
 import DigilockerModal from '../components/DigilockerModal.jsx';
 import OrganizationVerificationModal from '../components/OrganizationVerificationModal.jsx';
-import PlatformRow from '../components/PlatformRow.jsx';
+// import PlatformRow from '../components/PlatformRow.jsx';
 import UploadMethodCard from '../components/UploadMethodCard.jsx';
 import usePlatformHandlers from '../hooks/usePlatformHandlers.js';
 import useUploadModals from '../hooks/useUploadModals.js';
@@ -154,7 +154,7 @@ export default function AddCredentialsPage() {
 
   const uploadMethods = [
     { id: 'extension', onClick: () => openModal('extension'), icon: Puzzle, title: 'Browser Extension', description: 'Install extension to auto-extract certificates from websites' },
-    { id: 'regulator', onClick: () => openModal('regulator'), icon: ShieldCheck, title: 'Verify with Regulator', description: 'Upload academic credentials for institutional verification' },
+    // { id: 'regulator', onClick: () => openModal('regulator'), icon: ShieldCheck, title: 'Verify with Regulator', description: 'Upload academic credentials for institutional verification' },
     { id: 'organization', onClick: () => openModal('organization'), icon: Building2, title: 'Organization Verification', description: 'Verify certificates from registered organizations' },
     { id: 'certificate', onClick: () => openModal('certificateQr'), icon: QrCode, title: 'Certificate/QR Upload', description: 'Upload certificate image or PDF with QR code for verification' },
     { id: 'link', onClick: () => openModal('linkVerification'), icon: LinkIcon, title: 'Link Verification', description: 'Enter verification link from Coursera, NPTEL, HackerRank, etc.' },
@@ -187,7 +187,7 @@ export default function AddCredentialsPage() {
         className="mb-8"
       >
         <h2 className="text-xl font-semibold mb-4 text-[#116466]">Upload Methods</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {uploadMethods.map((method) => (
             <UploadMethodCard key={method.id} method={method} />
           ))}
@@ -195,7 +195,7 @@ export default function AddCredentialsPage() {
       </motion.section>
 
       {/* Submitted Credentials Preview */}
-      {submittedCredentials.length > 0 && (
+      {/* {submittedCredentials.length > 0 && (
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -232,10 +232,10 @@ export default function AddCredentialsPage() {
             </div>
           </div>
         </motion.section>
-      )}
+      )} */}
 
       {/* Profile Link Sections (DSA/CP & Developer) */}
-      {PROFILE_CATEGORIES.map((category, idx) => {
+      {/* {PROFILE_CATEGORIES.map((category, idx) => {
         const platforms = getPlatformsByCategory(category);
         const hasVerifiedPlatforms = platforms.some(p => platformProfile?.[p.id]?.isVerified);
 
@@ -301,7 +301,7 @@ export default function AddCredentialsPage() {
             </AnimatePresence>
           </motion.section>
         );
-      })}
+      })} */}
 
       {/* Certificate/QR Upload Modal */}
       <CertificateQrUploadModal
@@ -318,14 +318,14 @@ export default function AddCredentialsPage() {
       />
 
       {/* Portfolio Generator Modal */}
-      <PortfolioGeneratorModal
+      {/* <PortfolioGeneratorModal
         isOpen={modals.isPortfolioOpen}
         onClose={closeModal}
         platformProfile={platformProfile}
         userName={currentUser?.name || 'Your Name'}
         userBio={currentUser?.bio || 'Software Engineer'}
         userAvatar={currentUser?.avatar || null}
-      />
+      /> */}
 
       {/* Platform Verification Modal */}
       <PlatformVerificationModal
@@ -337,11 +337,11 @@ export default function AddCredentialsPage() {
       />
 
       {/* Regulator Verification Modal */}
-      <RegulatorVerificationModal
+      {/* <RegulatorVerificationModal
         isOpen={modals.isRegulatorOpen}
         onClose={closeModal}
         onSubmit={handleRegulatorSubmit}
-      />
+      /> */}
 
       {/* Organization Verification Modal */}
       <OrganizationVerificationModal

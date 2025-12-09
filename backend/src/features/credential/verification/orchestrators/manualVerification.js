@@ -369,32 +369,22 @@ export async function verifyFromManualInput(params) {
     if (autoSave && finalCandidate.verification.status === 'VERIFIED' && !testMode) {
       console.log(`📍 STAGE 14: Saving verified credential...`);
 
-      try {
-        savedCredential = await uploadAndSaveCredential({
-          userId,
-          imageBuffer: finalCandidate.image,
-          verificationData: {
-            verificationUrl,
-            domainValidation,
-            extractedData: finalCandidate.extractedData,
-            nameValidation: finalCandidate.nameValidation,
-            verification: finalCandidate.verification,
-            courseAnalysis: courseAnalysisResult, // NEW: Include course analysis
-          },
-          user,
-        });
+      // Don't catch errors here - let them propagate up to stop the pipeline
+      savedCredential = await uploadAndSaveCredential({
+        userId,
+        imageBuffer: finalCandidate.image,
+        verificationData: {
+          verificationUrl,
+          domainValidation,
+          extractedData: finalCandidate.extractedData,
+          nameValidation: finalCandidate.nameValidation,
+          verification: finalCandidate.verification,
+          courseAnalysis: courseAnalysisResult, // NEW: Include course analysis
+        },
+        user,
+      });
 
-        console.log(`✅ Credential saved with ID: ${savedCredential._id}\n`);
-      } catch (saveError) {
-        console.error(`⚠️  Failed to save credential:`, saveError.message);
-
-        // If it's a duplicate certificate error, throw it to be handled by the controller
-        if (saveError.message === 'DUPLICATE_CERTIFICATE') {
-          throw saveError;
-        }
-
-        // For other errors, continue - return verification result even if save failed
-      }
+      console.log(`✅ Credential saved with ID: ${savedCredential._id}\n`);
     }
 
     // Return complete result

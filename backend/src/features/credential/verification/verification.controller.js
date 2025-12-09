@@ -90,6 +90,17 @@ export async function verifyCertificate(req, res) {
   } catch (error) {
     console.error('❌ [EXTENSION-VERIFY-CONTROLLER] Verification failed:', error);
 
+    // Handle duplicate certificate error
+    if (error.message === 'DUPLICATE_CERTIFICATE') {
+      return res.status(error.statusCode || 409).json({
+        success: false,
+        message: error.data?.message || 'This certificate has already been uploaded',
+        error: 'DUPLICATE_CERTIFICATE',
+        data: error.data,
+      });
+    }
+
+    // Handle other errors
     return res.status(500).json({
       success: false,
       message: 'Certificate verification failed',

@@ -247,32 +247,22 @@ export async function verifyFromExtension(params) {
     if (autoSave && verification.status === 'VERIFIED' && !testMode) {
       console.log(`📍 STAGE 9: Saving verified credential...`);
 
-      try {
-        savedCredential = await uploadAndSaveCredential({
-          userId,
-          imageBuffer: certificateImage,
-          verificationData: {
-            verificationUrl,
-            domainValidation,
-            extractedData,
-            nameValidation,
-            verification,
-            courseAnalysis,
-          },
-          user,
-        });
+      // Don't catch errors here - let them propagate up to stop the pipeline
+      savedCredential = await uploadAndSaveCredential({
+        userId,
+        imageBuffer: certificateImage,
+        verificationData: {
+          verificationUrl,
+          domainValidation,
+          extractedData,
+          nameValidation,
+          verification,
+          courseAnalysis,
+        },
+        user,
+      });
 
-        console.log(`✅ Credential saved with ID: ${savedCredential._id}\n`);
-      } catch (saveError) {
-        console.error(`⚠️  Failed to save credential:`, saveError.message);
-
-        // If it's a duplicate certificate error, throw it to be handled by the controller
-        if (saveError.message === 'DUPLICATE_CERTIFICATE') {
-          throw saveError;
-        }
-
-        // For other errors, continue - return verification result even if save failed
-      }
+      console.log(`✅ Credential saved with ID: ${savedCredential._id}\n`);
     }
 
     // Return complete result
