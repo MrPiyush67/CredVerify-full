@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@common';
-import { Briefcase, ShieldCheck, Users, ArrowUp } from 'lucide-react';
+import { Briefcase, ShieldCheck, Users, ArrowUp, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@common/ui/tabs';
 import PageHeader from '@common/components/PageHeader.jsx';
 import RoleTab from '@features/home/components/RoleTab.jsx';
 import JobsTab from '@features/home/components/JobsTab.jsx';
+import CoursesTab from '@features/home/components/CoursesTab.jsx';
 import { useHome } from '../hooks/useHome.js';
 
 export default function HomePage() {
@@ -21,7 +22,8 @@ export default function HomePage() {
     users,
     admins,
     employers,
-    jobs
+    jobs,
+    credentialHistory
   } = useHome();
 
   // Initialize dashboard data on mount
@@ -46,28 +48,55 @@ export default function HomePage() {
 
   // Reset tab to valid tab based on user role
   useEffect(() => {
-    const validTabs = ['learner', 'job'];
-    if (canViewAdmins) validTabs.push('regulator');
-    if (canViewEmployers) validTabs.push('employer');
+    let validTabs = [];
+
+    if (userRole === 'learner') {
+      validTabs = ['courses', 'job'];
+    } else if (userRole === 'regulator') {
+      validTabs = ['learner'];
+    } else if (userRole === 'employer') {
+      validTabs = ['learner', 'job'];
+      if (canViewAdmins) validTabs.push('regulator');
+      if (canViewEmployers) validTabs.push('employer');
+    } else {
+      // Default fallback
+      validTabs = ['learner', 'job'];
+      if (canViewAdmins) validTabs.push('regulator');
+      if (canViewEmployers) validTabs.push('employer');
+    }
 
     if (!validTabs.includes(tab)) {
-      setTab('learner'); // Default to learner tab
+      setTab(validTabs[0]); // Default to first valid tab
     }
-  }, [tab, canViewAdmins, canViewEmployers]);
+  }, [tab, canViewAdmins, canViewEmployers, userRole]);
 
   // Simple count display - components will handle their own counts
   const getTabCount = (tabType) => {
-    switch (tabType) {
-      case 'learner':
-        return `(${users.data?.length || 0})`;
-      case 'regulator':
-        return `(${admins.data?.length || 0})`;
-      case 'employer':
-        return `(${employers.data?.length || 0})`;
-      case 'job':
-        return `(${jobs.data?.length || 0})`;
-      default:
-        return '';
+    try {
+      switch (tabType) {
+        case 'learner':
+          return `(${Array.isArray(users.data) ? users.data.length : 0})`;
+        case 'regulator':
+          return `(${Array.isArray(admins.data) ? admins.data.length : 0})`;
+        case 'employer':
+          return `(${Array.isArray(employers.data) ? employers.data.length : 0})`;
+        case 'job':
+          return `(${Array.isArray(jobs.data) ? jobs.data.length : 0})`;
+        case 'courses':
+          if (!Array.isArray(credentialHistory.data)) {
+            return '(0)';
+          }
+          const verifiedCourses = credentialHistory.data.filter(
+            c => c && c.verificationStatus === 'VERIFIED' &&
+                 (c.type === 'certificate' || c.type === 'micro_credential')
+          );
+          return `(${verifiedCourses.length})`;
+        default:
+          return '';
+      }
+    } catch (error) {
+      console.error('Error in getTabCount:', error);
+      return '(0)';
     }
   };
 
@@ -92,14 +121,27 @@ export default function HomePage() {
         transition={{ duration: 0.6, delay: 0.2 }}
       >
         <Tabs value={tab} onValueChange={setTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:flex lg:w-auto lg:justify-start">
-            <TabsTrigger value="learner" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Learners</span>
-              <span className="text-xs opacity-70">{getTabCount('learner')}</span>
-            </TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 lg:w-auto">
+            {/* Courses Tab - Learners Only */}
+            {userRole === 'learner' && (
+              <TabsTrigger value="courses" className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4" />
+                <span className="hidden sm:inline">Courses</span>
+                <span className="text-xs opacity-70">{getTabCount('courses')}</span>
+              </TabsTrigger>
+            )}
 
-            {canViewAdmins && (
+            {/* Learners Tab - Not for Learners */}
+            {userRole !== 'learner' && (
+              <TabsTrigger value="learner" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">Learners</span>
+                <span className="text-xs opacity-70">{getTabCount('learner')}</span>
+              </TabsTrigger>
+            )}
+
+            {/* Regulators Tab - Employers Only (if permitted) */}
+            {userRole === 'employer' && canViewAdmins && (
               <TabsTrigger value="regulator" className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4" />
                 <span className="hidden sm:inline">Regulators</span>
@@ -107,7 +149,8 @@ export default function HomePage() {
               </TabsTrigger>
             )}
 
-            {canViewEmployers && (
+            {/* Employers Tab - Employers Only */}
+            {userRole === 'employer' && canViewEmployers && (
               <TabsTrigger value="employer" className="flex items-center gap-2">
                 <Briefcase className="h-4 w-4" />
                 <span className="hidden sm:inline">Employers</span>
@@ -115,32 +158,50 @@ export default function HomePage() {
               </TabsTrigger>
             )}
 
-            <TabsTrigger value="job" className="flex items-center gap-2">
-              <Briefcase className="h-4 w-4" />
-              <span className="hidden sm:inline">Jobs</span>
-              <span className="text-xs opacity-70">{getTabCount('job')}</span>
-            </TabsTrigger>
+            {/* Jobs Tab - Learners and Employers */}
+            {(userRole === 'learner' || userRole === 'employer') && (
+              <TabsTrigger value="job" className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4" />
+                <span className="hidden sm:inline">Jobs</span>
+                <span className="text-xs opacity-70">{getTabCount('job')}</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
-          <TabsContent value="learner" className="space-y-4">
-            <RoleTab role="learner" />
-          </TabsContent>
+          {/* Courses Tab Content - Learners Only */}
+          {userRole === 'learner' && (
+            <TabsContent value="courses" className="space-y-4">
+              <CoursesTab />
+            </TabsContent>
+          )}
 
-          {canViewAdmins && (
+          {/* Learners Tab Content - Not for Learners */}
+          {userRole !== 'learner' && (
+            <TabsContent value="learner" className="space-y-4">
+              <RoleTab role="learner" />
+            </TabsContent>
+          )}
+
+          {/* Regulators Tab Content - Employers Only */}
+          {userRole === 'employer' && canViewAdmins && (
             <TabsContent value="regulator" className="space-y-4">
               <RoleTab role="regulator" />
             </TabsContent>
           )}
 
-          {canViewEmployers && (
+          {/* Employers Tab Content - Employers Only */}
+          {userRole === 'employer' && canViewEmployers && (
             <TabsContent value="employer" className="space-y-4">
               <RoleTab role="employer" />
             </TabsContent>
           )}
 
-          <TabsContent value="job" className="space-y-4">
-            <JobsTab />
-          </TabsContent>
+          {/* Jobs Tab Content - Learners and Employers */}
+          {(userRole === 'learner' || userRole === 'employer') && (
+            <TabsContent value="job" className="space-y-4">
+              <JobsTab />
+            </TabsContent>
+          )}
         </Tabs>
       </motion.div>
 

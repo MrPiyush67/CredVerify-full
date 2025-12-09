@@ -1,13 +1,17 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Outlet, Navigate } from 'react-router-dom';
-import { selectIsAuthenticated } from '@features/auth/redux/authSlice.js';
+import { selectIsAuthenticated, selectRole } from '@features/auth/redux/authSlice.js';
 
 export default function PublicRoute() {
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const userRole = useSelector(selectRole);
 
-  // If user is authenticated, redirect to home
-  if (isAuthenticated) return <Navigate to="/home" replace />;
+  // If user is authenticated, redirect based on role
+  if (isAuthenticated) {
+    const redirectPath = userRole === 'employer' ? '/jobs' : '/home';
+    return <Navigate to={redirectPath} replace />;
+  }
 
   // Otherwise show public pages (landing, login, signup)
   return <Outlet />;

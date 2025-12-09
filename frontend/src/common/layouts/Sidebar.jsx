@@ -21,8 +21,6 @@ export const navigationItems = {
     { label: 'Chat', href: '/chat' },
   ],
   employer: [
-    { label: 'Home', href: '/home' },
-    // { label: 'Dashboard', href: '/dashboard' },
     { label: 'Jobs', href: '/jobs' },
     { label: 'Post Job', href: '/post-job' },
     { label: 'Profile', href: '/profile' },
