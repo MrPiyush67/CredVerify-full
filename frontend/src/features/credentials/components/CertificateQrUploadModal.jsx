@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { X, Upload, QrCode, CheckCircle, Info } from 'lucide-react';
-import { Button } from '@common';
+import { X, Upload, QrCode, CheckCircle, Info, Link as LinkIcon } from 'lucide-react';
+import { Button, Input } from '@common';
 import { BrowserQRCodeReader } from '@zxing/browser';
 import toast from 'react-hot-toast';
 import { env } from '@utils/env';
@@ -19,6 +19,7 @@ export default function CertificateQrUploadModal({
     file: null,
     qrData: '',
   });
+  const [courseLink, setCourseLink] = useState('');
   const [qrProcessing, setQrProcessing] = useState(false);
   const [qrError, setQrError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,6 +68,9 @@ export default function CertificateQrUploadModal({
     // Prepare FormData for API call
     const formData = new FormData();
     formData.append('certificateImage', uploadData.file);
+    if (courseLink.trim()) {
+      formData.append('courseUrl', courseLink.trim());
+    }
 
     try {
       // Call the manual verification API
@@ -109,6 +113,7 @@ export default function CertificateQrUploadModal({
       file: null,
       qrData: '',
     });
+    setCourseLink('');
     setQrError('');
     onClose();
   };
@@ -227,6 +232,26 @@ export default function CertificateQrUploadModal({
                       </p>
                     </div>
                   )}
+
+                  {/* Course Link Input (Optional) */}
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Course Link <span className="text-gray-400 font-normal">(Optional - for NCrF/NSQF analysis)</span>
+                    </label>
+                    <div className="relative">
+                      <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        type="url"
+                        placeholder="https://udemy.com/course/your-course-name/"
+                        value={courseLink}
+                        onChange={(e) => setCourseLink(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      Provide the course URL to calculate NCrF credits and NSQF level
+                    </p>
+                  </div>
               </div>
 
             {/* Footer */}

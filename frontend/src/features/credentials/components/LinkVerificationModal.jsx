@@ -15,6 +15,7 @@ export default function LinkVerificationModal({
   onSubmit
 }) {
   const [verificationLink, setVerificationLink] = useState('');
+  const [courseLink, setCourseLink] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
@@ -43,6 +44,7 @@ export default function LinkVerificationModal({
         },
         body: JSON.stringify({
           link: verificationLink,
+          courseUrl: courseLink.trim() || null,
         }),
       });
 
@@ -74,6 +76,7 @@ export default function LinkVerificationModal({
 
   const handleClose = () => {
     setVerificationLink('');
+    setCourseLink('');
     setIsSubmitting(false);
     onClose();
   };
@@ -161,6 +164,26 @@ export default function LinkVerificationModal({
                 </div>
                 <p className="text-xs text-muted-foreground mt-1.5">
                   Paste the complete URL where your certificate can be verified
+                </p>
+              </div>
+
+              {/* Course Link Input (Optional) */}
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Course Link <span className="text-gray-400 font-normal">(Optional - for NCrF/NSQF analysis)</span>
+                </label>
+                <div className="relative">
+                  <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    type="url"
+                    placeholder="https://udemy.com/course/your-course-name/"
+                    value={courseLink}
+                    onChange={(e) => setCourseLink(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  Provide the course URL to calculate NCrF credits and NSQF level
                 </p>
               </div>
 

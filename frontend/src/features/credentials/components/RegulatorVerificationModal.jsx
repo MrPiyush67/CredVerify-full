@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Upload, FileText, AlertCircle } from 'lucide-react';
+import { X, Upload, FileText, AlertCircle, Link as LinkIcon } from 'lucide-react';
 import { Input, Button } from '@common';
 import { INDIAN_INSTITUTIONS } from '../constants/institutions.js';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +13,7 @@ export default function RegulatorVerificationModal({ isOpen, onClose, onSubmit }
     issueDate: '',
     file: null,
     learnerComments: '',
+    courseUrl: '',
   });
   const [errors, setErrors] = useState({});
   const [filePreview, setFilePreview] = useState(null);
@@ -101,6 +102,8 @@ export default function RegulatorVerificationModal({ isOpen, onClose, onSubmit }
         fileName: formData.file.name,
         fileType: formData.file.type,
         fileSize: formData.file.size,
+        // Course URL for NCrF/NSQF analysis
+        courseUrl: formData.courseUrl.trim() || null,
       };
 
       onSubmit(credentialData);
@@ -125,6 +128,7 @@ export default function RegulatorVerificationModal({ isOpen, onClose, onSubmit }
       issueDate: '',
       file: null,
       learnerComments: '',
+      courseUrl: '',
     });
     setErrors({});
     setFilePreview(null);
@@ -317,6 +321,26 @@ export default function RegulatorVerificationModal({ isOpen, onClose, onSubmit }
                   />
                   <p className="mt-1 text-xs text-gray-500 text-right">
                     {formData.learnerComments.length}/500 characters
+                  </p>
+                </div>
+
+                {/* Course Link (Optional) */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Course Link <span className="text-gray-500 font-normal">(Optional - for NCrF/NSQF analysis)</span>
+                  </label>
+                  <div className="relative">
+                    <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      type="url"
+                      value={formData.courseUrl}
+                      onChange={(e) => handleInputChange('courseUrl', e.target.value)}
+                      placeholder="https://udemy.com/course/your-course-name/"
+                      className="pl-10"
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Provide the course URL to calculate NCrF credits and NSQF level
                   </p>
                 </div>
 
