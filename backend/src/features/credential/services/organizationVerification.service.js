@@ -282,11 +282,13 @@ export const verifyOrganizationCertificate = async (userId, certificateData, com
 
         if (existingCredential) {
           console.log(`[OrgVerification] ❌ Duplicate certificate detected: ${fingerprint}`);
-          throw new Error(
+          const duplicateError = new Error(
             `This certificate has already been uploaded and verified. ` +
             `Certificate ID: ${finalMetadata.certificateId}. ` +
             `You cannot upload the same certificate multiple times.`
           );
+          duplicateError.isDuplicateCertificate = true;
+          throw duplicateError;
         }
 
         console.log('[OrgVerification] ✅ No duplicate found, proceeding with verification');
@@ -312,7 +314,12 @@ export const verifyOrganizationCertificate = async (userId, certificateData, com
         }
 
       } catch (error) {
-        // Non-critical errors: log but continue
+        // If it's a duplicate certificate error, re-throw to stop the process
+        if (error.isDuplicateCertificate) {
+          throw error;
+        }
+
+        // For other errors (IPFS/blockchain), log but continue
         console.error('[OrgVerification] Warning: IPFS/Blockchain step failed:', error.message);
         // Continue with credential creation even if IPFS/blockchain fails
       }
