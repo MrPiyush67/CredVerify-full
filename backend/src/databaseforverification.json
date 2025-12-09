@@ -1,0 +1,37 @@
+[
+  {
+    "credential_id": "MCRED-001",
+    "name": "Gaurav Singh",
+    "micro_credential_name": "AI Fundamentals",
+    "institute_name": "IIT Delhi",
+    "email": "gaurav.singh01@example.com"
+  },
+  {
+    "credential_id": "MCRED-002",
+    "name": "Riya Sharma",
+    "micro_credential_name": "Data Analytics",
+    "institute_name": "IIT Bombay",
+    "email": "riya.sharma02@example.com"
+  },
+  {
+    "credential_id": "MCRED-003",
+    "name": "Aman Verma",
+    "micro_credential_name": "Cloud Computing",
+    "institute_name": "NPTEL",
+    "email": "aman.verma03@example.com"
+  },
+  {
+    "credential_id": "MCRED-004",
+    "name": "Neha Gupta",
+    "micro_credential_name": "Cybersecurity Basics",
+    "institute_name": "IIT Kanpur",
+    "email": "neha.gupta04@example.com"
+  },
+  {
+    "credential_id": "MCRED-005",
+    "name": "Rohit Mehta",
+    "micro_credential_name": "Machine Learning",
+    "institute_name": "IISc Bangalore",
+    "email": "rohit.mehta05@example.com"
+  }
+]

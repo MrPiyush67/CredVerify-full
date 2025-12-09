@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { FileText, Plus, Trash2, Send } from 'lucide-react';
+import { FileText, Plus, Trash2, Send, Upload, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import Papa from 'papaparse';
 import axiosClient from '@services/axiosClient';
 
 const IssueCredentialsPage = () => {
@@ -15,6 +16,10 @@ const IssueCredentialsPage = () => {
   const [recipients, setRecipients] = useState([
     { id: 1, name: '', email: '' },
   ]);
+
+  const [csvFile, setCsvFile] = useState(null);
+  const [csvData, setCsvData] = useState([]);
+  const [uploadMode, setUploadMode] = useState('manual'); // 'manual' or 'csv'
 
   // Handle credential details change
   const handleInputChange = (e) => {
@@ -49,6 +54,98 @@ const IssueCredentialsPage = () => {
     setRecipients((prev) => prev.filter((recipient) => recipient.id !== id));
   };
 
+  // Handle CSV file upload
+  const handleCsvUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.csv')) {
+      toast.error('Please upload a valid CSV file');
+      return;
+    }
+
+    setCsvFile(file);
+
+    // Parse CSV file
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        if (results.errors.length > 0) {
+          toast.error('Error parsing CSV file');
+          console.error('CSV parsing errors:', results.errors);
+          return;
+        }
+
+        // Extract name and email, ignore other fields
+        const parsedData = results.data
+          .map((row, index) => {
+            // Try different common column names for name
+            const name = row['name'] || row['Name'] || row['full name'] || 
+                        row['Full Name'] || row['fullname'] || row['FullName'] || '';
+            
+            // Try different common column names for email
+            const email = row['email'] || row['Email'] || row['EMAIL'] || 
+                         row['e-mail'] || row['E-mail'] || '';
+
+            if (!name.trim() && !email.trim()) {
+              return null; // Skip empty rows
+            }
+
+            return {
+              id: index + 1,
+              name: name.trim(),
+              email: email.trim(),
+            };
+          })
+          .filter(Boolean); // Remove null entries
+
+        if (parsedData.length === 0) {
+          toast.error('No valid recipients found in CSV. Ensure columns are named "name" and "email"');
+          setCsvFile(null);
+          return;
+        }
+
+        // Validate that we have at least name or email
+        const validData = parsedData.filter(r => r.name || r.email);
+        
+        if (validData.length === 0) {
+          toast.error('CSV must contain "name" and "email" columns');
+          setCsvFile(null);
+          return;
+        }
+
+        setCsvData(validData);
+        setUploadMode('csv');
+        toast.success(`✅ Loaded ${validData.length} recipients from CSV`);
+      },
+      error: (error) => {
+        toast.error('Failed to parse CSV file');
+        console.error('CSV parsing error:', error);
+      },
+    });
+  };
+
+  // Remove CSV file
+  const removeCsvFile = () => {
+    setCsvFile(null);
+    setCsvData([]);
+    setUploadMode('manual');
+    toast.success('CSV file removed');
+  };
+
+  // Switch to manual mode
+  const switchToManual = () => {
+    setUploadMode('manual');
+    setCsvFile(null);
+    setCsvData([]);
+  };
+
+  // Switch to CSV mode
+  const switchToCsv = () => {
+    setUploadMode('csv');
+  };
+
   // Validate form
   const validateForm = () => {
     if (!formData.credentialName.trim()) {
@@ -68,21 +165,46 @@ const IssueCredentialsPage = () => {
       return false;
     }
 
-    // Validate recipients
-    const validRecipients = recipients.filter(
-      (r) => r.name.trim() && r.email.trim()
-    );
-    if (validRecipients.length === 0) {
-      toast.error('Please add at least one recipient with name and email');
-      return false;
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    for (const recipient of validRecipients) {
-      if (!emailRegex.test(recipient.email)) {
-        toast.error(`Invalid email format: ${recipient.email}`);
+    // Validate recipients based on mode
+    if (uploadMode === 'csv') {
+      if (csvData.length === 0) {
+        toast.error('Please upload a CSV file with recipients');
         return false;
+      }
+
+      // Validate email format for CSV data
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      for (const recipient of csvData) {
+        if (!recipient.name || !recipient.name.trim()) {
+          toast.error('All recipients must have a name');
+          return false;
+        }
+        if (!recipient.email || !recipient.email.trim()) {
+          toast.error('All recipients must have an email');
+          return false;
+        }
+        if (!emailRegex.test(recipient.email)) {
+          toast.error(`Invalid email format: ${recipient.email}`);
+          return false;
+        }
+      }
+    } else {
+      // Manual mode validation
+      const validRecipients = recipients.filter(
+        (r) => r.name.trim() && r.email.trim()
+      );
+      if (validRecipients.length === 0) {
+        toast.error('Please add at least one recipient with name and email');
+        return false;
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      for (const recipient of validRecipients) {
+        if (!emailRegex.test(recipient.email)) {
+          toast.error(`Invalid email format: ${recipient.email}`);
+          return false;
+        }
       }
     }
 
@@ -97,10 +219,12 @@ const IssueCredentialsPage = () => {
       return;
     }
 
-    // Filter out empty recipients
-    const validRecipients = recipients
-      .filter((r) => r.name.trim() && r.email.trim())
-      .map((r) => ({ name: r.name.trim(), email: r.email.trim() }));
+    // Get recipients based on mode
+    const validRecipients = uploadMode === 'csv' 
+      ? csvData.map((r) => ({ name: r.name.trim(), email: r.email.trim() }))
+      : recipients
+          .filter((r) => r.name.trim() && r.email.trim())
+          .map((r) => ({ name: r.name.trim(), email: r.email.trim() }));
 
     // Show immediate success toast
     toast.success(
@@ -116,6 +240,9 @@ const IssueCredentialsPage = () => {
       nsqfLevel: '',
     });
     setRecipients([{ id: 1, name: '', email: '' }]);
+    setCsvFile(null);
+    setCsvData([]);
+    setUploadMode('manual');
 
     // Send request to backend (fire and forget - admin is free to continue)
     axiosClient.post('/credentials/bulk-issue', {
@@ -227,7 +354,111 @@ const IssueCredentialsPage = () => {
                 </div>
               </div>
 
-              {/* Recipients Section */}
+              {/* Upload Mode Selection */}
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b">
+                  Add Recipients
+                </h2>
+                
+                <div className="flex gap-4 mb-6">
+                  <button
+                    type="button"
+                    onClick={switchToManual}
+                    className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+                      uploadMode === 'manual'
+                        ? 'border-teal-600 bg-teal-50 text-teal-700 font-semibold'
+                        : 'border-gray-300 bg-white text-gray-600 hover:border-gray-400'
+                    }`}
+                  >
+                    <Plus className="w-5 h-5 inline mr-2" />
+                    Manual Entry
+                  </button>
+                  <button
+                    type="button"
+                    onClick={switchToCsv}
+                    className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+                      uploadMode === 'csv'
+                        ? 'border-teal-600 bg-teal-50 text-teal-700 font-semibold'
+                        : 'border-gray-300 bg-white text-gray-600 hover:border-gray-400'
+                    }`}
+                  >
+                    <Upload className="w-5 h-5 inline mr-2" />
+                    Upload CSV
+                  </button>
+                </div>
+
+                {/* CSV Upload Section */}
+                {uploadMode === 'csv' && (
+                  <div className="space-y-4">
+                    {!csvFile ? (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-teal-500 transition-colors">
+                        <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                        <label htmlFor="csv-upload" className="cursor-pointer">
+                          <span className="text-teal-600 hover:text-teal-700 font-semibold">
+                            Click to upload CSV file
+                          </span>
+                          <input
+                            id="csv-upload"
+                            type="file"
+                            accept=".csv"
+                            onChange={handleCsvUpload}
+                            className="hidden"
+                          />
+                        </label>
+                        <p className="text-sm text-gray-500 mt-2">
+                          CSV should contain columns: <strong>name</strong> and <strong>email</strong>
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <FileText className="w-5 h-5 text-teal-600" />
+                            <div>
+                              <p className="font-semibold text-gray-800">{csvFile.name}</p>
+                              <p className="text-sm text-gray-600">
+                                {csvData.length} recipient{csvData.length !== 1 ? 's' : ''} loaded
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={removeCsvFile}
+                            className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
+                        
+                        {/* Preview CSV Data */}
+                        <div className="max-h-60 overflow-y-auto bg-white rounded-lg p-3 border border-gray-200">
+                          <table className="w-full text-sm">
+                            <thead className="bg-gray-50 sticky top-0">
+                              <tr>
+                                <th className="px-3 py-2 text-left text-gray-600">#</th>
+                                <th className="px-3 py-2 text-left text-gray-600">Name</th>
+                                <th className="px-3 py-2 text-left text-gray-600">Email</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {csvData.map((recipient, index) => (
+                                <tr key={index} className="border-t border-gray-100">
+                                  <td className="px-3 py-2 text-gray-500">{index + 1}</td>
+                                  <td className="px-3 py-2 text-gray-800">{recipient.name}</td>
+                                  <td className="px-3 py-2 text-gray-600">{recipient.email}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Recipients Section - Manual Entry */}
+              {uploadMode === 'manual' && (
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-4 pb-2 border-b">
                   <h2 className="text-xl font-semibold text-gray-800">Recipients</h2>
@@ -282,6 +513,7 @@ const IssueCredentialsPage = () => {
                   ))}
                 </div>
               </div>
+              )}
 
               {/* Submit Button */}
               <div className="flex justify-end gap-4">
@@ -322,12 +554,13 @@ const IssueCredentialsPage = () => {
           <h3 className="font-semibold text-blue-900 mb-2">📧 How it works:</h3>
           <ul className="text-sm text-blue-800 space-y-1">
             <li>• Fill in the credential details that will be common for all recipients</li>
-            <li>• Add recipients by entering their name and email address</li>
+            <li>• Add recipients manually or upload a CSV file with name and email columns</li>
             <li>
               • Each recipient will receive a personalized PDF certificate via email to{' '}
               <strong>piyushtest10067@gmail.com</strong>
             </li>
             <li>• The certificate will be generated with the format provided by WEV DEV LOPED BY TO BOOT CAMP</li>
+            <li>• CSV format: First row should have headers "name" and "email", subsequent rows contain recipient data</li>
           </ul>
         </motion.div>
       </div>
