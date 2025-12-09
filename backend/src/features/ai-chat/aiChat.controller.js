@@ -28,6 +28,13 @@ export const sendMessage = asyncHandler(async (req, res) => {
     userId
   );
 
+  console.log('=== AI Chat Controller Response ===');
+  console.log('Message sent:', message);
+  console.log('Response type:', typeof aiResponse);
+  console.log('Response length:', aiResponse?.length);
+  console.log('First 100 chars:', aiResponse?.substring(0, 100));
+  console.log('Is JSON-like:', aiResponse?.trim().startsWith('{'));
+
   return sendSuccess(res, 200, 'AI response generated successfully', {
     message: aiResponse,
   });

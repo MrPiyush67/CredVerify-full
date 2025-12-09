@@ -18,6 +18,7 @@ const RequestsPage = lazy(() => import('@features/verification/pages/RequestsPag
 const IssueCredentialsPage = lazy(() => import('@features/verification/pages/IssueCredentialsPage.jsx'));
 const JobsPage = lazy(() => import('@features/jobs/pages/JobsPage.jsx'));
 const PostJobPage = lazy(() => import('@features/jobs/pages/PostJobPage.jsx'));
+const PremiumPlans = lazy(() => import('@features/premium/pages/PremiumPlans.jsx'));
 
 export default function AppRoutes() {
   return (
@@ -44,6 +45,7 @@ export default function AppRoutes() {
         <Route path="/credentials" element={<CredentialsPage />} />
         <Route path="/credentials/add" element={<AddCredentialsPage />} />
         <Route path="/credentials/upload-guide" element={<UploadMethodsGuidePage />} />
+        <Route path="/premium" element={<PremiumPlans />} />
       </Route>
 
       {/* Regulator-only routes */}

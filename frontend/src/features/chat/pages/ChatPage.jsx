@@ -66,7 +66,7 @@ export default function ChatPage() {
           // The conversation is already added to the list by startConversation.fulfilled reducer
           const conversation = result.conversation || result;
           const conversationId = conversation._id || conversation.id;
-          
+
           if (conversationId) {
             dispatch(setActiveConversation(conversationId));
           }

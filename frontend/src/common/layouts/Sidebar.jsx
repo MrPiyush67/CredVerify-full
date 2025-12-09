@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@common';
 import { selectUser, selectRole, logout } from '@features/auth/redux/authSlice.js';
 import * as authApi from '@features/auth/api/authApi.js';
-import { Home, BarChart3, Bell, User, Settings, MessageSquare, Briefcase, FileText, Menu, X, Award, Plus } from 'lucide-react';
+import { Home, BarChart3, Bell, User, Settings, MessageSquare, Briefcase, FileText, Menu, X, Award, Plus, Crown } from 'lucide-react';
 import GoogleTranslate from '../components/GoogleTranslate.jsx';
 
 
@@ -37,6 +37,7 @@ export const navigationItems = {
     { label: 'Notifications', href: '/notifications' },
     { label: 'Settings', href: '/settings' },
     { label: 'Chat', href: '/chat' },
+    { label: 'Premium Plans', href: '/premium' },
   ],
 };
 
@@ -51,6 +52,7 @@ const iconMap = {
   'Post Job': FileText,
   'Credentials': Award,
   'Add Credentials': Plus,
+  'Premium Plans': Crown,
   // 'Requests': FileText,
   'Issue Credential': Plus,
 };

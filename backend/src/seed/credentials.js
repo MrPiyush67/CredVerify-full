@@ -15,7 +15,7 @@ const monthsAgo = (months) => {
 };
 
 // Demo certificate image URL (consistent across all certificates for demo purposes)
-const DEMO_CERT_IMAGE = 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=600&fit=crop&q=80';
+const DEMO_CERT_IMAGE = 'https://media.licdn.com/dms/image/v2/D5622AQHNw-eZBMN7SA/feedshare-shrink_1280/feedshare-shrink_1280/0/1723112482035?e=1766620800&v=beta&t=ahQdAIJcsXxlNCQ7PCMRcirNfwDaU98exjmZwSZ4tjs';
 
 // 5 Credentials for Priya Sharma (demo learner)
 const credentials = [

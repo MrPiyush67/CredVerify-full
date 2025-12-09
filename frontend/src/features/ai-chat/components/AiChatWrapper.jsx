@@ -1,14 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Loader2, Sparkles, ArrowRight, Download, Maximize2, Minimize2, MapIcon } from 'lucide-react';
+import { MessageSquare, X, Send, Loader2, Sparkles, ArrowRight, Download, Maximize2, Minimize2, MapIcon, Crown, Move } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 import axiosClient from '@services/axiosClient';
 import RoadmapViewer from './RoadmapViewer';
 import { downloadRoadmapHTML } from './RoadmapGenerator';
 
 const AiChatWrapper = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [hasSubscription, setHasSubscription] = useState(false);
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -18,8 +21,89 @@ const AiChatWrapper = () => {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [chatDimensions, setChatDimensions] = useState({
+    width: 900,
+    height: window.innerHeight * 0.9
+  });
+  const [isResizing, setIsResizing] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const chatRef = useRef(null);
+  const resizeStartRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
+
+  // Check subscription status
+  useEffect(() => {
+    const checkSubscription = () => {
+      const subscription = localStorage.getItem('userSubscription');
+      if (subscription) {
+        try {
+          const subData = JSON.parse(subscription);
+          // Check if subscription is Plus plan and active
+          setHasSubscription(subData.plan === 'Plus' && subData.active);
+        } catch (error) {
+          console.error('Error parsing subscription data:', error);
+          setHasSubscription(false);
+        }
+      } else {
+        setHasSubscription(false);
+      }
+    };
+
+    checkSubscription();
+    // Check subscription every time window gains focus
+    window.addEventListener('focus', checkSubscription);
+    return () => window.removeEventListener('focus', checkSubscription);
+  }, []);
+
+  // Resize handlers
+  const handleResizeStart = (e) => {
+    if (isFullscreen) return;
+    e.preventDefault();
+    setIsResizing(true);
+
+    const rect = chatRef.current.getBoundingClientRect();
+    resizeStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      width: rect.width,
+      height: rect.height
+    };
+  };
+
+  useEffect(() => {
+    const handleResizeMove = (e) => {
+      if (!isResizing || isFullscreen) return;
+
+      const deltaX = resizeStartRef.current.x - e.clientX;
+      const deltaY = resizeStartRef.current.y - e.clientY;
+
+      const newWidth = Math.max(400, Math.min(window.innerWidth - 100, resizeStartRef.current.width + deltaX));
+      const newHeight = Math.max(400, Math.min(window.innerHeight - 100, resizeStartRef.current.height + deltaY));
+
+      setChatDimensions({
+        width: newWidth,
+        height: newHeight
+      });
+    };
+
+    const handleResizeEnd = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleResizeMove);
+      document.addEventListener('mouseup', handleResizeEnd);
+      document.body.style.cursor = 'nwse-resize';
+      document.body.style.userSelect = 'none';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleResizeMove);
+      document.removeEventListener('mouseup', handleResizeEnd);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isResizing, isFullscreen]);
 
   // Scroll to bottom when messages change
   const scrollToBottom = () => {
@@ -58,22 +142,31 @@ const AiChatWrapper = () => {
       });
 
       const responseContent = response.data.data.message;
-      
+      console.log('=== AI Response ===');
+      console.log('Raw response:', responseContent);
+      console.log('Response type:', typeof responseContent);
+
       // Check if response is a roadmap JSON
       let assistantMessage;
-      
+
       try {
         // Try to parse as JSON
         const trimmedContent = responseContent.trim();
-        
+        console.log('Trimmed content:', trimmedContent);
+        console.log('Starts with {:', trimmedContent.startsWith('{'));
+        console.log('Ends with }:', trimmedContent.endsWith('}'));
+
         // Check if it looks like JSON
-        if ((trimmedContent.startsWith('{') && trimmedContent.endsWith('}')) || 
-            (trimmedContent.startsWith('[') && trimmedContent.endsWith(']'))) {
+        if ((trimmedContent.startsWith('{') && trimmedContent.endsWith('}')) ||
+          (trimmedContent.startsWith('[') && trimmedContent.endsWith(']'))) {
           try {
             const parsedContent = JSON.parse(trimmedContent);
-            
+            console.log('Parsed JSON:', parsedContent);
+            console.log('Parsed type:', parsedContent?.type);
+
             if (parsedContent && typeof parsedContent === 'object') {
               if (parsedContent.type === 'ROADMAP') {
+                console.log('✅ Detected ROADMAP type');
                 assistantMessage = {
                   role: 'assistant',
                   content: responseContent,
@@ -82,6 +175,7 @@ const AiChatWrapper = () => {
                   roadmapData: parsedContent,
                 };
               } else if (parsedContent.type === 'GENERATE_ROADMAP_PROMPT') {
+                console.log('✅ Detected GENERATE_ROADMAP_PROMPT type');
                 assistantMessage = {
                   role: 'assistant',
                   content: parsedContent.message || 'Ready to generate your roadmap!',
@@ -94,26 +188,36 @@ const AiChatWrapper = () => {
           } catch (parseError) {
             console.log('JSON parse failed, treating as regular message:', parseError.message);
           }
+        } else {
+          console.log('Response does not look like JSON, treating as text');
         }
       } catch (error) {
         console.error('Error processing response:', error);
       }
-      
+
       // Default to regular message if not handled above
       if (!assistantMessage) {
+        console.log('⚠️ No special handling, treating as regular message');
         assistantMessage = {
           role: 'assistant',
           content: responseContent,
           timestamp: new Date(),
         };
+      } else {
+        console.log('✅ Assistant message created:', {
+          isRoadmap: assistantMessage.isRoadmap,
+          showGenerateButton: assistantMessage.showGenerateButton,
+          hasSelectionPath: !!assistantMessage.selectionPath
+        });
       }
 
+      console.log('Final assistant message:', assistantMessage);
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Failed to send message:', error);
       console.error('Error details:', error.response?.data);
       console.error('Error status:', error.response?.status);
-      
+
       // Check for authentication error
       if (error.response?.status === 401) {
         toast.error('Please log in to use the AI assistant');
@@ -125,19 +229,19 @@ const AiChatWrapper = () => {
         setMessages((prev) => [...prev, errorMessage]);
       } else {
         // Get specific error message from backend
-        const errorMsg = error.response?.data?.message || 
-                        error.response?.data?.error || 
-                        error.message || 
-                        'Failed to get response from AI. Please try again.';
-        
+        const errorMsg = error.response?.data?.message ||
+          error.response?.data?.error ||
+          error.message ||
+          'Failed to get response from AI. Please try again.';
+
         toast.error(errorMsg);
-        
+
         const errorMessage = {
           role: 'assistant',
           content: `Error: ${errorMsg}`,
           timestamp: new Date(),
         };
-        
+
         setMessages((prev) => [...prev, errorMessage]);
       }
     } finally {
@@ -166,7 +270,10 @@ const AiChatWrapper = () => {
   const handleGenerateFinalRoadmap = async (selectionPath) => {
     try {
       setIsLoading(true);
-      
+
+      console.log('=== Generating Final Roadmap ===');
+      console.log('Selection path:', selectionPath);
+
       // Make API call to generate detailed roadmap based on selection path
       const response = await axiosClient.post('/ai-chat/message', {
         message: `Generate final roadmap for: ${selectionPath.join(' → ')}`,
@@ -175,15 +282,21 @@ const AiChatWrapper = () => {
 
       const responseContent = response.data.data.message;
       console.log('Roadmap response:', responseContent);
-      
+      console.log('Response type:', typeof responseContent);
+
       // Parse the roadmap data
       try {
         const trimmedContent = responseContent.trim();
-        
+        console.log('Trimmed response:', trimmedContent);
+        console.log('Is JSON-like:', trimmedContent.startsWith('{') && trimmedContent.endsWith('}'));
+
         if (trimmedContent.startsWith('{') && trimmedContent.endsWith('}')) {
           const parsedContent = JSON.parse(trimmedContent);
           console.log('Parsed roadmap:', parsedContent);
-          
+          console.log('Has type:', parsedContent?.type);
+          console.log('Has steps:', Array.isArray(parsedContent?.steps));
+          console.log('Steps count:', parsedContent?.steps?.length);
+
           // Normalize topics field - convert string to array if needed
           if (parsedContent && parsedContent.steps && Array.isArray(parsedContent.steps)) {
             parsedContent.steps = parsedContent.steps.map((step, idx) => {
@@ -200,7 +313,7 @@ const AiChatWrapper = () => {
               } else if (!step.topics || !Array.isArray(step.topics)) {
                 step.topics = [];
               }
-              
+
               // Ensure all required fields exist
               return {
                 title: step.title || 'Learning Step',
@@ -211,12 +324,12 @@ const AiChatWrapper = () => {
               };
             }).filter(step => step !== null); // Remove invalid steps
           }
-          
+
           if (parsedContent && parsedContent.type === 'ROADMAP' && parsedContent.steps && Array.isArray(parsedContent.steps) && parsedContent.steps.length > 0) {
             // Download the HTML roadmap
             downloadRoadmapHTML(parsedContent);
             toast.success('Roadmap downloaded successfully!');
-            
+
             // Add the roadmap to chat
             const roadmapMessage = {
               role: 'assistant',
@@ -247,6 +360,18 @@ const AiChatWrapper = () => {
     }
   };
 
+  // Handle opening chat with subscription check
+  const handleOpenChat = () => {
+    if (!hasSubscription) {
+      toast.error('AI Chatbot is only available for Plus subscribers!');
+      setTimeout(() => {
+        navigate('/premium');
+      }, 1500);
+      return;
+    }
+    setIsOpen(true);
+  };
+
   return (
     <>
       {/* Floating Chat Button */}
@@ -258,12 +383,21 @@ const AiChatWrapper = () => {
             exit={{ scale: 0 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setIsOpen(true)}
-            className="fixed bottom-8 right-8 z-50 bg-teal-600 text-white p-4 rounded-full shadow-2xl hover:bg-teal-700 transition-all border border-teal-500"
+            onClick={handleOpenChat}
+            className={`fixed bottom-8 right-8 z-50 text-white p-4 rounded-full shadow-2xl transition-all border ${hasSubscription
+              ? 'bg-teal-600 hover:bg-teal-700 border-teal-500'
+              : 'bg-gray-400 hover:bg-gray-500 border-gray-300'
+              }`}
             aria-label="Open AI Chat"
           >
-            <MessageSquare className="w-6 h-6" />
-            <span className="absolute top-0 right-0 w-3 h-3 bg-white rounded-full animate-pulse border-2 border-teal-600"></span>
+            {hasSubscription ? (
+              <MessageSquare className="w-6 h-6" />
+            ) : (
+              <Crown className="w-6 h-6" />
+            )}
+            {hasSubscription && (
+              <span className="absolute top-0 right-0 w-3 h-3 bg-white rounded-full animate-pulse border-2 border-teal-600"></span>
+            )}
           </motion.button>
         )}
       </AnimatePresence>
@@ -272,21 +406,38 @@ const AiChatWrapper = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            ref={chatRef}
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className={`fixed z-50 bg-white shadow-2xl border border-gray-200 flex flex-col overflow-hidden font-sans transition-all duration-300 ${
-              isFullscreen 
-                ? 'inset-4 rounded-lg' 
-                : 'bottom-8 right-8 w-[500px] md:w-[700px] lg:w-[900px] xl:w-[1100px] h-[90vh] rounded-xl'
-            }`}
+            className={`fixed z-50 bg-white shadow-2xl border border-gray-200 flex flex-col overflow-hidden font-sans transition-all duration-300 ${isFullscreen
+              ? 'inset-4 rounded-lg'
+              : 'bottom-8 right-8 rounded-xl'
+              }`}
+            style={!isFullscreen ? {
+              width: `${chatDimensions.width}px`,
+              height: `${chatDimensions.height}px`
+            } : {}}
           >
+            {/* Resize Handle - Top Left Corner */}
+            {!isFullscreen && (
+              <div
+                onMouseDown={handleResizeStart}
+                className="absolute top-0 left-0 w-8 h-8 cursor-nwse-resize z-10 group"
+                title="Drag to resize"
+              >
+                <div className="absolute top-1 left-1 w-6 h-6 flex items-center justify-center bg-teal-600/10 group-hover:bg-teal-600/20 rounded-br-lg transition-colors">
+                  <Move className="w-4 h-4 text-teal-600 group-hover:text-teal-700" />
+                </div>
+              </div>
+            )}
+
             {/* Header */}
             <div className="bg-teal-600 text-white p-4 flex items-center justify-between border-b border-teal-700">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                    <Sparkles className="w-5 h-5 text-white" />
+                  <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <div>
                   <h3 className="font-bold text-lg tracking-tight">AI Assistant</h3>
@@ -369,17 +520,15 @@ const AiChatWrapper = () => {
                     </div>
                   ) : (
                     <div
-                      className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm ${
-                        message.role === 'user'
-                          ? 'bg-teal-600 text-white rounded-br-none'
-                          : 'bg-gray-50 border border-gray-100 text-gray-800 rounded-bl-none'
-                      }`}
+                      className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm ${message.role === 'user'
+                        ? 'bg-teal-600 text-white rounded-br-none'
+                        : 'bg-gray-50 border border-gray-100 text-gray-800 rounded-bl-none'
+                        }`}
                     >
                       <p className="whitespace-pre-wrap break-words">{message.content}</p>
                       <p
-                        className={`text-[10px] mt-2 font-medium ${
-                          message.role === 'user' ? 'text-teal-100' : 'text-gray-400'
-                        }`}
+                        className={`text-[10px] mt-2 font-medium ${message.role === 'user' ? 'text-teal-100' : 'text-gray-400'
+                          }`}
                       >
                         {new Date(message.timestamp).toLocaleTimeString([], {
                           hour: '2-digit',
