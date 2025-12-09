@@ -10,10 +10,6 @@ yarn.lock
 **/.env/
 **/venv/
 **/.venv/
-<<<<<<< HEAD
-
-=======
->>>>>>> 5c844b9783fae562beefd096579cb3159a299a3f
 # Logs
 logs/
 *.log
