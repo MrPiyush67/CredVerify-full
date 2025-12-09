@@ -54,27 +54,54 @@ const CATEGORIES = [
 ];
 
 const generateDummyCredentials = (category) => {
-  return category.subcategories.map((sub, index) => ({
-    _id: `dummy-${category.id}-${index}`,
-    title: `${sub} Certificate`,
-    issuer: 'Government of India',
-    status: 'verified',
-    createdAt: new Date().toISOString(),
-    isPublic: true,
-    file: {
-      url: null, // Dummy link as requested
-      fileType: 'image/png'
-    },
-    subcategory: sub,
-    category: category.title // Keep category in data for internal organization
-  }));
+  return category.subcategories.map((sub, index) => {
+    // Generate varied dates (some recent, some older)
+    const now = new Date();
+    const daysAgo = [15, 45, 120, 200, 400][index % 5]; // Mix of different ages
+    const createdDate = new Date(now);
+    createdDate.setDate(now.getDate() - daysAgo);
+
+    return {
+      _id: `dummy-${category.id}-${index}`,
+      title: `${sub} Certificate`,
+      issuer: 'Government of India',
+      status: 'verified',
+      createdAt: createdDate.toISOString(),
+      isPublic: index % 3 !== 0, // Mix: public (67%), private (33%)
+      file: {
+        url: null, // Dummy link as requested
+        fileType: 'image/png'
+      },
+      subcategory: sub,
+      category: category.title // Keep category in data for internal organization
+    };
+  });
 };
 
-export default function CategorizedCredentialsList({ credentials, onViewDetails, searchQuery = '', selectedIndustry = '' }) {
+export default function CategorizedCredentialsList({
+  credentials,
+  onViewDetails,
+  searchQuery = '',
+  selectedIndustry = '',
+  selectedDate = '',
+  visibilityFilter = ''
+}) {
   // Generate all credentials from all categories and flatten them into a single array
   const allCredentials = CATEGORIES.flatMap(category => generateDummyCredentials(category));
 
-  // Filter credentials based on search query and selected industry
+  // Helper function to check date filter
+  const matchesDateFilter = (credential) => {
+    if (!selectedDate) return true;
+
+    const createdDate = new Date(credential.createdAt);
+    const filterDate = new Date(selectedDate);
+    const now = new Date();
+
+    // Check if credential was created between selected date and today
+    return createdDate >= filterDate && createdDate <= now;
+  };
+
+  // Filter credentials based on all filters
   const filteredCredentials = allCredentials.filter((credential) => {
     // Search filter
     const matchesSearch = !searchQuery.trim() ||
@@ -86,7 +113,15 @@ export default function CategorizedCredentialsList({ credentials, onViewDetails,
     const matchesIndustry = !selectedIndustry ||
       credential.subcategory.toLowerCase().includes(selectedIndustry.toLowerCase());
 
-    return matchesSearch && matchesIndustry;
+    // Date filter
+    const matchesDate = matchesDateFilter(credential);
+
+    // Visibility filter
+    const matchesVisibility = !visibilityFilter ||
+      (visibilityFilter === 'public' && credential.isPublic) ||
+      (visibilityFilter === 'private' && !credential.isPublic);
+
+    return matchesSearch && matchesIndustry && matchesDate && matchesVisibility;
   });
 
   return (

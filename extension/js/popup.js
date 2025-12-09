@@ -7,6 +7,7 @@
   const imageSelectionCard = document.getElementById('imageSelectionCard');
   const imageList = document.getElementById('imageList');
   const imageCount = document.getElementById('imageCount');
+  const courseUrlInput = document.getElementById('courseUrlInput');
   const progressContainer = document.getElementById('progressContainer');
   const progressBar = document.getElementById('progressBar');
   const progressText = document.getElementById('progressText');
@@ -712,13 +713,24 @@
 
       showProgress(80, 'Analyzing with AI and verification engine...');
 
+      // Get course URL from input (optional)
+      const courseUrl = courseUrlInput.value.trim() || null;
+      console.log('📋 [POPUP] Course URL from input:', courseUrl);
+
+      const requestData = {
+        fileData,
+        imageUrl: !fileData ? selectedImageUrl : null,
+        pageUrl: currentPageUrl,
+        courseUrl: courseUrl
+      };
+      console.log('📋 [POPUP] Sending verification request:', {
+        ...requestData,
+        fileData: requestData.fileData ? 'present' : 'null'
+      });
+
       const response = await chrome.runtime.sendMessage({
         action: 'verifyCertificate',
-        data: {
-          fileData,
-          imageUrl: !fileData ? selectedImageUrl : null,
-          pageUrl: currentPageUrl
-        }
+        data: requestData
       });
 
       if (!response || !response.success) {

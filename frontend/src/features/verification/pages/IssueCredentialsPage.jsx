@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import Papa from 'papaparse';
 import axiosClient from '@services/axiosClient';
+import AiChatWrapper from '@features/ai-chat/components/AiChatWrapper.jsx';
 
 const IssueCredentialsPage = () => {
   const [formData, setFormData] = useState({
@@ -81,12 +82,12 @@ const IssueCredentialsPage = () => {
         const parsedData = results.data
           .map((row, index) => {
             // Try different common column names for name
-            const name = row['name'] || row['Name'] || row['full name'] || 
-                        row['Full Name'] || row['fullname'] || row['FullName'] || '';
-            
+            const name = row['name'] || row['Name'] || row['full name'] ||
+              row['Full Name'] || row['fullname'] || row['FullName'] || '';
+
             // Try different common column names for email
-            const email = row['email'] || row['Email'] || row['EMAIL'] || 
-                         row['e-mail'] || row['E-mail'] || '';
+            const email = row['email'] || row['Email'] || row['EMAIL'] ||
+              row['e-mail'] || row['E-mail'] || '';
 
             if (!name.trim() && !email.trim()) {
               return null; // Skip empty rows
@@ -108,7 +109,7 @@ const IssueCredentialsPage = () => {
 
         // Validate that we have at least name or email
         const validData = parsedData.filter(r => r.name || r.email);
-        
+
         if (validData.length === 0) {
           toast.error('CSV must contain "name" and "email" columns');
           setCsvFile(null);
@@ -220,11 +221,11 @@ const IssueCredentialsPage = () => {
     }
 
     // Get recipients based on mode
-    const validRecipients = uploadMode === 'csv' 
+    const validRecipients = uploadMode === 'csv'
       ? csvData.map((r) => ({ name: r.name.trim(), email: r.email.trim() }))
       : recipients
-          .filter((r) => r.name.trim() && r.email.trim())
-          .map((r) => ({ name: r.name.trim(), email: r.email.trim() }));
+        .filter((r) => r.name.trim() && r.email.trim())
+        .map((r) => ({ name: r.name.trim(), email: r.email.trim() }));
 
     // Show immediate success toast
     toast.success(
@@ -287,178 +288,176 @@ const IssueCredentialsPage = () => {
             {/* Credential Details Section */}
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b">
-                  Credential Details
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Micro-Credential Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="credentialName"
-                      value={formData.credentialName}
-                      onChange={handleInputChange}
-                      placeholder="e.g., Web Development Fundamentals"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
+                Credential Details
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Micro-Credential Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="credentialName"
+                    value={formData.credentialName}
+                    onChange={handleInputChange}
+                    placeholder="e.g., Web Development Fundamentals"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    required
+                  />
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Issue Date *
-                    </label>
-                    <input
-                      type="date"
-                      name="issueDate"
-                      value={formData.issueDate}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Issue Date *
+                  </label>
+                  <input
+                    type="date"
+                    name="issueDate"
+                    value={formData.issueDate}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    required
+                  />
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Hours *
-                    </label>
-                    <input
-                      type="number"
-                      name="hours"
-                      value={formData.hours}
-                      onChange={handleInputChange}
-                      placeholder="e.g., 40"
-                      min="1"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Hours *
+                  </label>
+                  <input
+                    type="number"
+                    name="hours"
+                    value={formData.hours}
+                    onChange={handleInputChange}
+                    placeholder="e.g., 40"
+                    min="1"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    required
+                  />
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      NSQF Level * (1-10)
-                    </label>
-                    <input
-                      type="number"
-                      name="nsqfLevel"
-                      value={formData.nsqfLevel}
-                      onChange={handleInputChange}
-                      placeholder="e.g., 4"
-                      min="1"
-                      max="10"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    NSQF Level * (1-10)
+                  </label>
+                  <input
+                    type="number"
+                    name="nsqfLevel"
+                    value={formData.nsqfLevel}
+                    onChange={handleInputChange}
+                    placeholder="e.g., 4"
+                    min="1"
+                    max="10"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    required
+                  />
                 </div>
               </div>
+            </div>
 
-              {/* Upload Mode Selection */}
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b">
-                  Add Recipients
-                </h2>
-                
-                <div className="flex gap-4 mb-6">
-                  <button
-                    type="button"
-                    onClick={switchToManual}
-                    className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
-                      uploadMode === 'manual'
-                        ? 'border-teal-600 bg-teal-50 text-teal-700 font-semibold'
-                        : 'border-gray-300 bg-white text-gray-600 hover:border-gray-400'
-                    }`}
-                  >
-                    <Plus className="w-5 h-5 inline mr-2" />
-                    Manual Entry
-                  </button>
-                  <button
-                    type="button"
-                    onClick={switchToCsv}
-                    className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
-                      uploadMode === 'csv'
-                        ? 'border-teal-600 bg-teal-50 text-teal-700 font-semibold'
-                        : 'border-gray-300 bg-white text-gray-600 hover:border-gray-400'
-                    }`}
-                  >
-                    <Upload className="w-5 h-5 inline mr-2" />
-                    Upload CSV
-                  </button>
-                </div>
+            {/* Upload Mode Selection */}
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b">
+                Add Recipients
+              </h2>
 
-                {/* CSV Upload Section */}
-                {uploadMode === 'csv' && (
-                  <div className="space-y-4">
-                    {!csvFile ? (
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-teal-500 transition-colors">
-                        <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                        <label htmlFor="csv-upload" className="cursor-pointer">
-                          <span className="text-teal-600 hover:text-teal-700 font-semibold">
-                            Click to upload CSV file
-                          </span>
-                          <input
-                            id="csv-upload"
-                            type="file"
-                            accept=".csv"
-                            onChange={handleCsvUpload}
-                            className="hidden"
-                          />
-                        </label>
-                        <p className="text-sm text-gray-500 mt-2">
-                          CSV should contain columns: <strong>name</strong> and <strong>email</strong>
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <FileText className="w-5 h-5 text-teal-600" />
-                            <div>
-                              <p className="font-semibold text-gray-800">{csvFile.name}</p>
-                              <p className="text-sm text-gray-600">
-                                {csvData.length} recipient{csvData.length !== 1 ? 's' : ''} loaded
-                              </p>
-                            </div>
+              <div className="flex gap-4 mb-6">
+                <button
+                  type="button"
+                  onClick={switchToManual}
+                  className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${uploadMode === 'manual'
+                    ? 'border-teal-600 bg-teal-50 text-teal-700 font-semibold'
+                    : 'border-gray-300 bg-white text-gray-600 hover:border-gray-400'
+                    }`}
+                >
+                  <Plus className="w-5 h-5 inline mr-2" />
+                  Manual Entry
+                </button>
+                <button
+                  type="button"
+                  onClick={switchToCsv}
+                  className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${uploadMode === 'csv'
+                    ? 'border-teal-600 bg-teal-50 text-teal-700 font-semibold'
+                    : 'border-gray-300 bg-white text-gray-600 hover:border-gray-400'
+                    }`}
+                >
+                  <Upload className="w-5 h-5 inline mr-2" />
+                  Upload CSV
+                </button>
+              </div>
+
+              {/* CSV Upload Section */}
+              {uploadMode === 'csv' && (
+                <div className="space-y-4">
+                  {!csvFile ? (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-teal-500 transition-colors">
+                      <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                      <label htmlFor="csv-upload" className="cursor-pointer">
+                        <span className="text-teal-600 hover:text-teal-700 font-semibold">
+                          Click to upload CSV file
+                        </span>
+                        <input
+                          id="csv-upload"
+                          type="file"
+                          accept=".csv"
+                          onChange={handleCsvUpload}
+                          className="hidden"
+                        />
+                      </label>
+                      <p className="text-sm text-gray-500 mt-2">
+                        CSV should contain columns: <strong>name</strong> and <strong>email</strong>
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-5 h-5 text-teal-600" />
+                          <div>
+                            <p className="font-semibold text-gray-800">{csvFile.name}</p>
+                            <p className="text-sm text-gray-600">
+                              {csvData.length} recipient{csvData.length !== 1 ? 's' : ''} loaded
+                            </p>
                           </div>
-                          <button
-                            type="button"
-                            onClick={removeCsvFile}
-                            className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                          >
-                            <X className="w-5 h-5" />
-                          </button>
                         </div>
-                        
-                        {/* Preview CSV Data */}
-                        <div className="max-h-60 overflow-y-auto bg-white rounded-lg p-3 border border-gray-200">
-                          <table className="w-full text-sm">
-                            <thead className="bg-gray-50 sticky top-0">
-                              <tr>
-                                <th className="px-3 py-2 text-left text-gray-600">#</th>
-                                <th className="px-3 py-2 text-left text-gray-600">Name</th>
-                                <th className="px-3 py-2 text-left text-gray-600">Email</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {csvData.map((recipient, index) => (
-                                <tr key={index} className="border-t border-gray-100">
-                                  <td className="px-3 py-2 text-gray-500">{index + 1}</td>
-                                  <td className="px-3 py-2 text-gray-800">{recipient.name}</td>
-                                  <td className="px-3 py-2 text-gray-600">{recipient.email}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={removeCsvFile}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
 
-              {/* Recipients Section - Manual Entry */}
-              {uploadMode === 'manual' && (
+                      {/* Preview CSV Data */}
+                      <div className="max-h-60 overflow-y-auto bg-white rounded-lg p-3 border border-gray-200">
+                        <table className="w-full text-sm">
+                          <thead className="bg-gray-50 sticky top-0">
+                            <tr>
+                              <th className="px-3 py-2 text-left text-gray-600">#</th>
+                              <th className="px-3 py-2 text-left text-gray-600">Name</th>
+                              <th className="px-3 py-2 text-left text-gray-600">Email</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {csvData.map((recipient, index) => (
+                              <tr key={index} className="border-t border-gray-100">
+                                <td className="px-3 py-2 text-gray-500">{index + 1}</td>
+                                <td className="px-3 py-2 text-gray-800">{recipient.name}</td>
+                                <td className="px-3 py-2 text-gray-600">{recipient.email}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Recipients Section - Manual Entry */}
+            {uploadMode === 'manual' && (
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-4 pb-2 border-b">
                   <h2 className="text-xl font-semibold text-gray-800">Recipients</h2>
@@ -513,35 +512,35 @@ const IssueCredentialsPage = () => {
                   ))}
                 </div>
               </div>
-              )}
+            )}
 
-              {/* Submit Button */}
-              <div className="flex justify-end gap-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormData({
-                      credentialName: '',
-                      issueDate: new Date().toISOString().split('T')[0],
-                      hours: '',
-                      nsqfLevel: '',
-                    });
-                    setRecipients([{ id: 1, name: '', email: '' }]);
-                  }}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Reset
-                </button>
+            {/* Submit Button */}
+            <div className="flex justify-end gap-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({
+                    credentialName: '',
+                    issueDate: new Date().toISOString().split('T')[0],
+                    hours: '',
+                    nsqfLevel: '',
+                  });
+                  setRecipients([{ id: 1, name: '', email: '' }]);
+                }}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Reset
+              </button>
 
-                <button
-                  type="submit"
-                  className="flex items-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
-                >
-                  <Send className="w-5 h-5" />
-                  Issue Credentials
-                </button>
-              </div>
-            </form>
+              <button
+                type="submit"
+                className="flex items-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
+              >
+                <Send className="w-5 h-5" />
+                Issue Credentials
+              </button>
+            </div>
+          </form>
         </motion.div>
 
         {/* Info Box */}
@@ -564,6 +563,8 @@ const IssueCredentialsPage = () => {
           </ul>
         </motion.div>
       </div>
+
+      <AiChatWrapper />
     </div>
   );
 };

@@ -7,7 +7,7 @@ import { verifyFromExtension } from './orchestrators/extensionVerification.js';
  */
 export async function verifyCertificate(req, res) {
   try {
-    const { imageData, sourceUrl, imageType = 'base64', fileData, autoSave = true, testMode, testUserName, extractedText } = req.body;
+    const { imageData, sourceUrl, imageType = 'base64', fileData, autoSave = true, testMode, testUserName, extractedText, courseUrl } = req.body;
 
     // Support test mode (no auth required)
     const userId = testMode ? 'test-user-id' : req.user?._id;
@@ -36,6 +36,14 @@ export async function verifyCertificate(req, res) {
 
     console.log('🔵 [EXTENSION-VERIFY-CONTROLLER] Starting verification for user:', userId);
     console.log('🔵 [EXTENSION-VERIFY-CONTROLLER] Source URL:', sourceUrl);
+    console.log('🔵 [EXTENSION-VERIFY-CONTROLLER] Course URL received:', courseUrl || 'NOT PROVIDED');
+    console.log('🔵 [EXTENSION-VERIFY-CONTROLLER] Request body:', JSON.stringify({
+      imageData: imageData ? `${imageData.substring(0, 50)}...` : 'none',
+      sourceUrl,
+      courseUrl,
+      autoSave,
+      testMode
+    }));
 
     // Call the orchestrator
     const result = await verifyFromExtension({
@@ -46,6 +54,7 @@ export async function verifyCertificate(req, res) {
       autoSave,
       testMode,
       testUserName,
+      courseUrl,
     });
 
     // Handle early rejections (untrusted domain)
@@ -74,6 +83,7 @@ export async function verifyCertificate(req, res) {
         extractedData: result.extractedData,
         nameValidation: result.nameValidation,
         domainValidation: result.domainValidation,
+        courseAnalysis: result.courseAnalysis, // Include course analysis if available
       },
     });
 

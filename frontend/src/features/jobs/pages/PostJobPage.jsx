@@ -9,6 +9,7 @@ import PageHeader from '@common/components/PageHeader.jsx';
 import { createJob, updateJob, selectJobsLoading, selectJobsErrors, clearErrors, selectMyJobs } from '../redux/jobsSlice';
 import { getJob } from '../api/jobsApi';
 import JobForm from '../components/JobForm.jsx';
+import AiChatWrapper from '@features/ai-chat/components/AiChatWrapper.jsx';
 
 export default function PostJobPage() {
   const dispatch = useDispatch();
@@ -147,6 +148,8 @@ export default function PostJobPage() {
           />
         </CardContent>
       </Card>
+
+      <AiChatWrapper />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { PageHeader } from '@common';
 import NotificationList from '../components/NotificationList.jsx';
+import AiChatWrapper from '@features/ai-chat/components/AiChatWrapper.jsx';
 
 export default function NotificationsPage() {
   return (
@@ -10,6 +11,8 @@ export default function NotificationsPage() {
         description="Stay updated with your latest activities and alerts"
       />
       <NotificationList />
+
+      <AiChatWrapper />
     </div>
   );
 }

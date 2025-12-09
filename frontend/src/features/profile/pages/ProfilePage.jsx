@@ -19,13 +19,14 @@ import { ContactCard } from '../components/ContactCard';
 import { RoleDetailsCard } from '../components/RoleDetailsCard';
 import { SkillsCard, ExperienceCard, EducationCard, AchievementsCard } from '../components/ProfileCards';
 import { CredentialsCard } from '../components/CredentialsCard';
+import AiChatWrapper from '@features/ai-chat/components/AiChatWrapper.jsx';
 
 export default function ProfilePage() {
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   const userId = searchParams.get('userId');
   const role = searchParams.get('role');
-  
+
   const user = useSelector(selectUser);
   const roleProfile = useSelector(selectRoleProfile);
   const isLoading = useSelector(selectProfileLoading);
@@ -102,6 +103,8 @@ export default function ProfilePage() {
         <AchievementsCard achievements={user.achievements} />
         <CredentialsCard credentials={credentials} isOwnProfile={isOwnProfile} />
       </BentoGrid>
+
+      <AiChatWrapper />
     </div>
   );
 }

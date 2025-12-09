@@ -10,6 +10,7 @@ import GeneralSettings from '../components/GeneralSettings.jsx';
 import AdminSettingsView from '../components/role-views/AdminSettingsView.jsx';
 import EmployerSettingsView from '../components/role-views/EmployerSettingsView.jsx';
 import { selectRole } from '@features/auth/redux/authSlice.js';
+import AiChatWrapper from '@features/ai-chat/components/AiChatWrapper.jsx';
 import {
   fetchUserSettings,
   updateUserSettings,
@@ -162,6 +163,8 @@ export default function SettingsPage() {
           </motion.div>
         </div>
       </div>
+
+      <AiChatWrapper />
     </div>
   );
 }
