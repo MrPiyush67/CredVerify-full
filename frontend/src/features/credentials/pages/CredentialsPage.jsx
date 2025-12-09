@@ -295,10 +295,10 @@ export default function CredentialsPage() {
               {selectedDate && (
                 <div className="flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-xs">
                   <span>
-                    Date: From {new Date(selectedDate).toLocaleDateString('en-US', { 
-                      year: 'numeric', 
-                      month: 'short', 
-                      day: 'numeric' 
+                    Date: From {new Date(selectedDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
                     })} to Today
                   </span>
                   <X

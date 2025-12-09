@@ -78,10 +78,10 @@ const generateDummyCredentials = (category) => {
   });
 };
 
-export default function CategorizedCredentialsList({ 
-  credentials, 
-  onViewDetails, 
-  searchQuery = '', 
+export default function CategorizedCredentialsList({
+  credentials,
+  onViewDetails,
+  searchQuery = '',
   selectedIndustry = '',
   selectedDate = '',
   visibilityFilter = ''
@@ -92,11 +92,11 @@ export default function CategorizedCredentialsList({
   // Helper function to check date filter
   const matchesDateFilter = (credential) => {
     if (!selectedDate) return true;
-    
+
     const createdDate = new Date(credential.createdAt);
     const filterDate = new Date(selectedDate);
     const now = new Date();
-    
+
     // Check if credential was created between selected date and today
     return createdDate >= filterDate && createdDate <= now;
   };
