@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, Clock, XCircle, Eye, MoreVertical, Download, Lock, Trash2, Share2, FileText, Globe } from 'lucide-react';
+import { CheckCircle, Clock, XCircle, Eye, MoreVertical, Download, Lock, Trash2, Share2, FileText, Globe, Shield } from 'lucide-react';
 import { Card, CardContent, Button } from '@common';
 import { useDispatch } from 'react-redux';
 import { removeCredential, editCredential } from '../redux/credentialsSlice';
@@ -127,14 +127,14 @@ export default function CredentialCard({ credential, onViewDetails, subcategory 
   return (
     <Card className="h-full hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer min-w-[300px] max-w-[300px]" onClick={() => onViewDetails(credential)}>
       {/* Image Preview Section */}
-      <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+      <div className="relative w-full h-48 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden flex items-center justify-center">
         {credential.file?.url ? (
-          <div className="relative w-full h-full">
+          <div className="relative w-full h-full flex items-center justify-center">
             {credential.file.fileType?.includes('image') ? (
               <img
                 src={credential.file.url}
                 alt={credential.title}
-                className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+                className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
                   e.target.style.display = 'none';
                   e.target.nextElementSibling.style.display = 'flex';
@@ -248,6 +248,16 @@ export default function CredentialCard({ credential, onViewDetails, subcategory 
           <div className="absolute bottom-2 left-2">
             <div className="flex items-center px-2.5 py-1 bg-blue-50/90 backdrop-blur-sm rounded-full shadow-md text-xs font-medium w-fit">
               <span className="text-blue-700">{subcategory}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Blockchain Badge - Show when IPFS/blockchain data exists */}
+        {(credential.file?.ipfs?.cid || credential.file?.blockchain?.txHash) && (
+          <div className="absolute bottom-2 right-2">
+            <div className="flex items-center gap-1 px-2.5 py-1 bg-green-50/90 backdrop-blur-sm rounded-full shadow-md text-xs font-medium w-fit border border-green-200">
+              <Shield className="h-3 w-3 text-green-600" />
+              <span className="text-green-700">Blockchain</span>
             </div>
           </div>
         )}

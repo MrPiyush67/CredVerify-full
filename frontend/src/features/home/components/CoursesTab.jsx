@@ -1,124 +1,107 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Input } from '@common';
+import { Card, CardContent, Button, Badge, Input } from '@common';
 import {
   Filter,
-  BookOpen,
-  Award,
-  Clock,
-  TrendingUp,
   X,
-  GraduationCap
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@common/ui/Select';
 import { Separator } from '@common/ui/separator';
 import { Skeleton } from '@common/ui/skeleton';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@common/ui/accordion';
+import CourseCards from './CourseCards.jsx';
 
 import {
-  fetchCredentialHistory,
-  selectCredentialHistory
+  fetchExternalCourses,
+  selectExternalCourses
 } from '../redux/homeSlice.js';
 
 export default function CoursesTab({ id, tabpanelProps = {} }) {
   const dispatch = useDispatch();
-  const [expandedCourseId, setExpandedCourseId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('recent');
+  const [sortBy, setSortBy] = useState('rating');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [refreshKey, setRefreshKey] = useState(0); // Key to force new shuffle
 
   const [filters, setFilters] = useState({
     platform: '',
+    category: '',
     nsqfLevel: '',
     minHours: '',
     maxHours: ''
   });
 
-  // Get credentials data from Redux store
-  const credentialHistory = useSelector(selectCredentialHistory);
+  // Get external courses from Redux store
+  const externalCourses = useSelector(selectExternalCourses);
 
-  // Fetch credentials on mount
+  // Reset to page 1 when filters or search changes
   useEffect(() => {
-    dispatch(fetchCredentialHistory());
-  }, [dispatch]);
+    setCurrentPage(1);
+  }, [searchQuery, filters]);
 
-  // Filter courses from credentials
+  // Fetch external courses when filters, page, or refreshKey changes
+  useEffect(() => {
+    const params = {
+      page: currentPage,
+      limit: 36,
+      shuffle: true, // Always shuffle
+      _refresh: refreshKey, // Add refresh key to force new request
+      ...(searchQuery && { query: searchQuery }),
+      ...(filters.platform && { platform: filters.platform }),
+      ...(filters.category && { category: filters.category }),
+      ...(filters.nsqfLevel && { nsqfLevel: filters.nsqfLevel }),
+      ...(filters.minHours && { minHours: filters.minHours }),
+      ...(filters.maxHours && { maxHours: filters.maxHours })
+    };
+    dispatch(fetchExternalCourses(params));
+  }, [dispatch, currentPage, searchQuery, filters, refreshKey]);
+
   const courses = useMemo(() => {
-    const data = Array.isArray(credentialHistory.data) ? credentialHistory.data : [];
-    // Filter for verified certificates and micro-credentials only
-    return data.filter(
-      c => c.verificationStatus === 'VERIFIED' &&
-        (c.type === 'certificate' || c.type === 'micro_credential')
-    );
-  }, [credentialHistory.data]);
+    return Array.isArray(externalCourses.data) ? externalCourses.data : [];
+  }, [externalCourses.data]);
 
-  const isLoading = credentialHistory.loading;
+  const pagination = externalCourses.pagination || {
+    currentPage: 1,
+    totalPages: 0,
+    totalCourses: 0,
+    hasNextPage: false,
+    hasPrevPage: false
+  };
 
-  // Extract unique platforms from courses
-  const availablePlatforms = useMemo(() => {
+  const isLoading = externalCourses.loading;
+
+  // Extract unique platforms and categories from fetched courses
+  const { availablePlatforms, availableCategories } = useMemo(() => {
     const platforms = new Set();
+    const categories = new Set();
+
     courses.forEach(course => {
-      // Try to extract platform from meta or issuer
-      let platform = course.meta?.platform || course.issuer?.split(' - ')[0] || course.issuer?.split(' ')[0];
-
-      // Handle case where platform is an object
-      if (typeof platform === 'object' && platform !== null) {
-        platform = platform.name || platform.id || platform.category || platform.title || 'Unknown Platform';
-      }
-
-      if (platform && typeof platform === 'string') {
-        platforms.add(platform);
-      }
+      if (course.platform) platforms.add(course.platform);
+      if (course.category) categories.add(course.category);
     });
-    return Array.from(platforms).sort();
+
+    return {
+      availablePlatforms: Array.from(platforms).sort(),
+      availableCategories: Array.from(categories).sort()
+    };
   }, [courses]);
 
-  // Filter and sort courses
-  const filteredCourses = useMemo(() => {
-    let result = courses;
+  // Sort courses (backend already filters, we just sort on frontend)
+  const sortedCourses = useMemo(() => {
+    const result = [...courses];
 
-    // Search by title or issuer
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter((course) =>
-        (course.title || '').toLowerCase().includes(query) ||
-        (course.issuer || '').toLowerCase().includes(query)
-      );
-    }
-
-    // Filter by platform
-    if (filters.platform) {
-      result = result.filter(course => {
-        const platform = course.meta?.platform || course.issuer?.split(' - ')[0] || course.issuer?.split(' ')[0];
-        return platform && platform.toLowerCase() === filters.platform.toLowerCase();
-      });
-    }
-
-    // Filter by NSQF level
-    if (filters.nsqfLevel) {
-      const level = parseInt(filters.nsqfLevel);
-      result = result.filter(course => course.nsqfLevel === level);
-    }
-
-    // Filter by hours range
-    if (filters.minHours || filters.maxHours) {
-      result = result.filter(course => {
-        if (!course.totalHours) return false;
-        const hours = course.totalHours;
-        const filterMin = filters.minHours ? parseInt(filters.minHours) : 0;
-        const filterMax = filters.maxHours ? parseInt(filters.maxHours) : Infinity;
-        return hours >= filterMin && hours <= filterMax;
-      });
-    }
-
-    // Sort courses
-    result = [...result].sort((a, b) => {
+    result.sort((a, b) => {
       switch (sortBy) {
+        case 'rating':
+          return (b.rating || 0) - (a.rating || 0);
         case 'recent':
-          return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+          return (b.id || 0) - (a.id || 0);
         case 'hours-high':
-          return (b.totalHours || 0) - (a.totalHours || 0);
+          return (b.duration || 0) - (a.duration || 0);
         case 'hours-low':
-          return (a.totalHours || 0) - (b.totalHours || 0);
+          return (a.duration || 0) - (b.duration || 0);
         case 'nsqf-level':
           return (b.nsqfLevel || 0) - (a.nsqfLevel || 0);
         case 'title':
@@ -129,12 +112,13 @@ export default function CoursesTab({ id, tabpanelProps = {} }) {
     });
 
     return result;
-  }, [courses, searchQuery, filters, sortBy]);
+  }, [courses, sortBy]);
 
   // Helper to count active filters
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (filters.platform) count++;
+    if (filters.category) count++;
     if (filters.nsqfLevel) count++;
     if (filters.minHours || filters.maxHours) count++;
     return count;
@@ -144,11 +128,24 @@ export default function CoursesTab({ id, tabpanelProps = {} }) {
   const clearFilters = () => {
     setFilters({
       platform: '',
+      category: '',
       nsqfLevel: '',
       minHours: '',
       maxHours: ''
     });
     setSearchQuery('');
+    setCurrentPage(1);
+  };
+
+  // Refresh courses with new shuffle
+  const refreshCourses = () => {
+    setRefreshKey(prev => prev + 1); // Increment key to force new shuffle
+  };
+
+  // Handle page changes
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -166,24 +163,36 @@ export default function CoursesTab({ id, tabpanelProps = {} }) {
                 </Badge>
               )}
             </div>
-            {activeFilterCount > 0 && (
+            <div className="flex gap-2">
+              {activeFilterCount > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="h-8 text-xs"
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Clear all
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={clearFilters}
+                onClick={refreshCourses}
                 className="h-8 text-xs"
+                disabled={isLoading}
               >
-                <X className="h-3 w-3 mr-1" />
-                Clear all
+                <RefreshCw className={`h-3 w-3 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
+                Re-shuffle
               </Button>
-            )}
+            </div>
           </div>
 
           <div className="space-y-4">
             {/* Search and Sort Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <Input
-                placeholder="Search by course title or issuer..."
+                placeholder="Search by course title, instructor, or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="text-sm"
@@ -194,6 +203,7 @@ export default function CoursesTab({ id, tabpanelProps = {} }) {
                   <SelectValue placeholder="Sort by..." />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="rating">Highest Rating</SelectItem>
                   <SelectItem value="recent">Most Recent</SelectItem>
                   <SelectItem value="hours-high">Longest Duration</SelectItem>
                   <SelectItem value="hours-low">Shortest Duration</SelectItem>
@@ -206,7 +216,7 @@ export default function CoursesTab({ id, tabpanelProps = {} }) {
             <Separator />
 
             {/* Filter Options */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {/* Platform Filter */}
               <div className="space-y-2">
                 <label className="text-xs text-muted-foreground">Platform</label>
@@ -221,7 +231,28 @@ export default function CoursesTab({ id, tabpanelProps = {} }) {
                     <SelectItem value="all">All Platforms</SelectItem>
                     {availablePlatforms.map(platform => (
                       <SelectItem key={platform} value={platform}>
-                        {typeof platform === 'string' ? platform : 'Unknown Platform'}
+                        {platform}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Category Filter */}
+              <div className="space-y-2">
+                <label className="text-xs text-muted-foreground">Category</label>
+                <Select
+                  value={filters.category || "all"}
+                  onValueChange={(value) => setFilters(prev => ({ ...prev, category: value === "all" ? "" : value }))}
+                >
+                  <SelectTrigger className="text-sm">
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {availableCategories.map(category => (
+                      <SelectItem key={category} value={category}>
+                        {category}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -276,168 +307,126 @@ export default function CoursesTab({ id, tabpanelProps = {} }) {
       {!isLoading && (
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <p>
-            Showing <span className="font-medium text-foreground">{filteredCourses.length}</span> of{' '}
-            <span className="font-medium text-foreground">{courses.length}</span> courses
+            Showing <span className="font-medium text-foreground">{sortedCourses.length}</span> courses on page {pagination.currentPage} of {pagination.totalPages}
+            {' '}(<span className="font-medium text-foreground">{pagination.totalCourses}</span> total)
           </p>
         </div>
       )}
 
       {/* Loading Skeletons */}
-      {isLoading && Array.from({ length: 6 }).map((_, i) => (
-        <Card key={`c-skel-${i}`}>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <Skeleton className="h-5 w-48" />
-              <Skeleton className="h-5 w-16" />
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Skeleton className="h-4 w-32" />
-            <div className="flex gap-2">
+      {isLoading && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Card key={`c-skel-${i}`} className="p-3 space-y-2">
+              <Skeleton className="w-full aspect-[16/9] rounded-lg" />
               <Skeleton className="h-6 w-20" />
-              <Skeleton className="h-6 w-24" />
-            </div>
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-          </CardContent>
-        </Card>
-      ))}
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-6 w-full" />
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* No Results */}
-      {!isLoading && filteredCourses.length === 0 && (
+      {!isLoading && sortedCourses.length === 0 && (
         <Card className="col-span-full">
           <CardContent className="text-center py-8">
             <p className="text-sm text-muted-foreground">No courses found matching your search.</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={clearFilters}
+              className="mt-4"
+            >
+              Clear Filters
+            </Button>
           </CardContent>
         </Card>
       )}
 
-      {/* Course Cards */}
-      {!isLoading && filteredCourses.map((course) => {
-        const courseId = course._id || course.id;
-        // const isExpanded = expandedCourseId === courseId;
-        const platform = course.meta?.platform || course.issuer?.split(' - ')[0] || '';
+      {/* Course Cards - Udemy Style */}
+      {!isLoading && sortedCourses.length > 0 && (
+        <CourseCards courses={sortedCourses} />
+      )}
 
-        return (
-          <Card key={courseId} className="hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 border-border/60">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base flex items-center gap-2 flex-1 min-w-0">
-                  <BookOpen className="h-4 w-4 flex-shrink-0 text-primary" />
-                  <span className="truncate">{typeof course.title === 'object' ? (course.title.name || course.title.id || 'Untitled Course') : (course.title || 'Untitled Course')}</span>
-                </CardTitle>
-                <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                  <Badge variant="success" className="text-xs">
-                    <Award className="h-3 w-3 mr-1" />
-                    Verified
-                  </Badge>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {/* Issuer Info */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                  <span>{typeof course.issuer === 'object' ? (course.issuer.name || course.issuer.id || 'Issuer Not Specified') : (course.issuer || 'Issuer Not Specified')}</span>
-                </div>
-                {platform && (
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">
-                      {typeof platform === 'object' ? (platform.name || platform.id || 'Platform') : platform}
-                    </Badge>
-                  </div>
-                )}
-              </div>
+      {/* Pagination Controls */}
+      {!isLoading && sortedCourses.length > 0 && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-8">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={!pagination.hasPrevPage}
+            className="gap-2"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Previous
+          </Button>
 
-              <Separator />
+          <div className="flex items-center gap-1">
+            {/* First page */}
+            {currentPage > 3 && (
+              <>
+                <Button
+                  variant={currentPage === 1 ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handlePageChange(1)}
+                  className="w-10"
+                >
+                  1
+                </Button>
+                {currentPage > 4 && <span className="px-2 text-muted-foreground">...</span>}
+              </>
+            )}
 
-              {/* Course Details */}
-              <div className="flex items-center gap-2 flex-wrap">
-                {course.totalHours && (
-                  <Badge variant="secondary" className="text-xs">
-                    <Clock className="h-3 w-3 mr-1" />
-                    {course.totalHours} hours
-                  </Badge>
-                )}
-                {course.nsqfLevel && (
-                  <Badge variant="outline" className="text-xs">
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                    NSQF Level {course.nsqfLevel}
-                  </Badge>
-                )}
-                {course.type && (
-                  <Badge variant="secondary" className="text-xs capitalize">
-                    {course.type.replace('_', ' ')}
-                  </Badge>
-                )}
-              </div>
+            {/* Page numbers around current page */}
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+              .filter(page => {
+                const distance = Math.abs(page - currentPage);
+                return distance <= 2;
+              })
+              .map(page => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handlePageChange(page)}
+                  className="w-10"
+                >
+                  {page}
+                </Button>
+              ))}
 
-              {/* Skills */}
-              {course.skills && course.skills.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {course.skills.slice(0, 5).map((skill, i) => {
-                    const skillName = typeof skill === 'object' ? (skill.name || skill.id || 'Skill') : skill;
-                    return (
-                      <Badge key={i} variant="outline" className="text-xs">
-                        {skillName}
-                      </Badge>
-                    );
-                  })}
-                  {course.skills.length > 5 && (
-                    <Badge variant="secondary" className="text-xs">
-                      +{course.skills.length - 5} more
-                    </Badge>
-                  )}
-                </div>
-              )}
+            {/* Last page */}
+            {currentPage < pagination.totalPages - 2 && (
+              <>
+                {currentPage < pagination.totalPages - 3 && <span className="px-2 text-muted-foreground">...</span>}
+                <Button
+                  variant={currentPage === pagination.totalPages ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handlePageChange(pagination.totalPages)}
+                  className="w-10"
+                >
+                  {pagination.totalPages}
+                </Button>
+              </>
+            )}
+          </div>
 
-              {/* Description with Accordion */}
-              {course.description && course.description.length > 150 ? (
-                <Accordion type="single" collapsible>
-                  <AccordionItem value="description" className="border-0">
-                    <div className="text-sm text-muted-foreground">
-                      {course.description.substring(0, 150)}...
-                    </div>
-                    <AccordionTrigger className="py-2 text-xs hover:no-underline">
-                      Read full description
-                    </AccordionTrigger>
-                    <AccordionContent className="text-sm text-muted-foreground">
-                      {course.description}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              ) : course.description ? (
-                <p className="text-sm text-muted-foreground">{course.description}</p>
-              ) : null}
-
-              <Separator />
-
-              {/* Meta Info */}
-              <div className="flex items-center justify-between pt-1">
-                <div className="flex items-center gap-2">
-                  {course.meta?.category && (
-                    <Badge variant="secondary" className="text-xs">
-                      {typeof course.meta.category === 'object'
-                        ? (course.meta.category.name || course.meta.category.id || 'Category')
-                        : course.meta.category}
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Clock className="h-3 w-3" />
-                  <span>
-                    {course.issueDate ? new Date(course.issueDate).toLocaleDateString('en-US', {
-                      month: 'short',
-                      year: 'numeric'
-                    }) : 'Date N/A'}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={!pagination.hasNextPage}
+            className="gap-2"
+          >
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

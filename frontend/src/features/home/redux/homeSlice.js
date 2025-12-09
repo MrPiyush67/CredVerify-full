@@ -75,6 +75,27 @@ const initialState = {
     error: null,
   },
 
+  // External courses data
+  externalCourses: {
+    data: [],
+    pagination: {
+      currentPage: 1,
+      totalPages: 0,
+      totalCourses: 0,
+      coursesPerPage: 36,
+      hasNextPage: false,
+      hasPrevPage: false,
+    },
+    loading: false,
+    error: null,
+  },
+
+  courseCategories: {
+    data: {},
+    loading: false,
+    error: null,
+  },
+
   jobStats: {
     data: null,
     loading: false,
@@ -228,6 +249,51 @@ export const fetchJobStats = createAsyncThunk(
   }
 );
 
+// Fetch external courses from all platforms
+export const fetchExternalCourses = createAsyncThunk(
+  'home/fetchExternalCourses',
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      logger.debug('Fetching external courses', { params });
+      const data = await homeAPI.getExternalCourses(params);
+      return data;
+    } catch (error) {
+      logger.error('Failed to fetch external courses', { error: error.message });
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Fetch course categories
+export const fetchCourseCategories = createAsyncThunk(
+  'home/fetchCourseCategories',
+  async (_, { rejectWithValue }) => {
+    try {
+      logger.debug('Fetching course categories');
+      const data = await homeAPI.getCourseCategories();
+      return data;
+    } catch (error) {
+      logger.error('Failed to fetch course categories', { error: error.message });
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Fetch courses by category
+export const fetchCoursesByCategory = createAsyncThunk(
+  'home/fetchCoursesByCategory',
+  async (category, { rejectWithValue }) => {
+    try {
+      logger.debug('Fetching courses by category', { category });
+      const data = await homeAPI.getCoursesByCategory(category);
+      return data;
+    } catch (error) {
+      logger.error('Failed to fetch courses by category', { category, error: error.message });
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 // Helper thunk to fetch role-specific data
 export const fetchRoleData = createAsyncThunk(
   'home/fetchRoleData',
@@ -304,6 +370,14 @@ const homeSlice = createSlice({
 
     resetCredentialHistory: (state) => {
       state.credentialHistory = initialState.credentialHistory;
+    },
+
+    resetExternalCourses: (state) => {
+      state.externalCourses = initialState.externalCourses;
+    },
+
+    resetCourseCategories: (state) => {
+      state.courseCategories = initialState.courseCategories;
     },
 
     resetJobStats: (state) => {
@@ -467,6 +541,55 @@ const homeSlice = createSlice({
         state.jobStats.loading = false;
         state.jobStats.error = action.payload;
       });
+
+    // External Courses
+    builder
+      .addCase(fetchExternalCourses.pending, (state) => {
+        state.externalCourses.loading = true;
+        state.externalCourses.error = null;
+      })
+      .addCase(fetchExternalCourses.fulfilled, (state, action) => {
+        state.externalCourses.loading = false;
+        state.externalCourses.data = action.payload.courses || [];
+        state.externalCourses.pagination = action.payload.pagination || state.externalCourses.pagination;
+        state.externalCourses.error = null;
+      })
+      .addCase(fetchExternalCourses.rejected, (state, action) => {
+        state.externalCourses.loading = false;
+        state.externalCourses.error = action.payload;
+      });
+
+    // Course Categories
+    builder
+      .addCase(fetchCourseCategories.pending, (state) => {
+        state.courseCategories.loading = true;
+        state.courseCategories.error = null;
+      })
+      .addCase(fetchCourseCategories.fulfilled, (state, action) => {
+        state.courseCategories.loading = false;
+        state.courseCategories.data = action.payload;
+        state.courseCategories.error = null;
+      })
+      .addCase(fetchCourseCategories.rejected, (state, action) => {
+        state.courseCategories.loading = false;
+        state.courseCategories.error = action.payload;
+      });
+
+    // Courses by Category
+    builder
+      .addCase(fetchCoursesByCategory.pending, (state) => {
+        state.externalCourses.loading = true;
+        state.externalCourses.error = null;
+      })
+      .addCase(fetchCoursesByCategory.fulfilled, (state, action) => {
+        state.externalCourses.loading = false;
+        state.externalCourses.data = action.payload;
+        state.externalCourses.error = null;
+      })
+      .addCase(fetchCoursesByCategory.rejected, (state, action) => {
+        state.externalCourses.loading = false;
+        state.externalCourses.error = action.payload;
+      });
   },
 });
 
@@ -481,6 +604,8 @@ export const {
   resetMyJobs,
   resetMyApplications,
   resetCredentialHistory,
+  resetExternalCourses,
+  resetCourseCategories,
   resetJobStats,
   resetAll,
 } = homeSlice.actions;
@@ -492,6 +617,8 @@ export const selectJobs = (state) => state.home.jobs;
 export const selectMyJobs = (state) => state.home.myJobs;
 export const selectMyApplications = (state) => state.home.myApplications;
 export const selectCredentialHistory = (state) => state.home.credentialHistory;
+export const selectExternalCourses = (state) => state.home.externalCourses;
+export const selectCourseCategories = (state) => state.home.courseCategories;
 export const selectJobStats = (state) => state.home.jobStats;
 export const selectActiveTab = (state) => state.home.activeTab;
 export const selectFilters = (state, section) => state.home.filters[section];
@@ -507,6 +634,8 @@ export const selectIsLoading = (state) => {
     state.home.myJobs.loading ||
     state.home.myApplications.loading ||
     state.home.credentialHistory.loading ||
+    state.home.externalCourses.loading ||
+    state.home.courseCategories.loading ||
     state.home.jobStats.loading
   );
 };
@@ -521,6 +650,8 @@ export const selectHasErrors = (state) => {
     state.home.myJobs.error ||
     state.home.myApplications.error ||
     state.home.credentialHistory.error ||
+    state.home.externalCourses.error ||
+    state.home.courseCategories.error ||
     state.home.jobStats.error
   );
 };

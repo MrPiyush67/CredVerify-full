@@ -7,6 +7,7 @@ import PageHeader from '@common/components/PageHeader.jsx';
 import RoleTab from '@features/home/components/RoleTab.jsx';
 import JobsTab from '@features/home/components/JobsTab.jsx';
 import CoursesTab from '@features/home/components/CoursesTab.jsx';
+import ExternalJobsTab from '@features/home/components/ExternalJobsTab.jsx';
 import { useHome } from '../hooks/useHome.js';
 
 export default function HomePage() {
@@ -88,7 +89,7 @@ export default function HomePage() {
           }
           const verifiedCourses = credentialHistory.data.filter(
             c => c && c.verificationStatus === 'VERIFIED' &&
-                 (c.type === 'certificate' || c.type === 'micro_credential')
+              (c.type === 'certificate' || c.type === 'micro_credential')
           );
           return `(${verifiedCourses.length})`;
         default:
@@ -121,13 +122,13 @@ export default function HomePage() {
         transition={{ duration: 0.6, delay: 0.2 }}
       >
         <Tabs value={tab} onValueChange={setTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 lg:w-auto">
+          <TabsList className="inline-flex w-auto">
             {/* Courses Tab - Learners Only */}
             {userRole === 'learner' && (
               <TabsTrigger value="courses" className="flex items-center gap-2">
                 <BookOpen className="h-4 w-4" />
                 <span className="hidden sm:inline">Courses</span>
-                <span className="text-xs opacity-70">{getTabCount('courses')}</span>
+                {/* <span className="text-xs opacity-70">{getTabCount('courses')}</span> */}
               </TabsTrigger>
             )}
 
@@ -136,7 +137,7 @@ export default function HomePage() {
               <TabsTrigger value="learner" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 <span className="hidden sm:inline">Learners</span>
-                <span className="text-xs opacity-70">{getTabCount('learner')}</span>
+                {/* <span className="text-xs opacity-70">{getTabCount('learner')}</span> */}
               </TabsTrigger>
             )}
 
@@ -145,7 +146,7 @@ export default function HomePage() {
               <TabsTrigger value="regulator" className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4" />
                 <span className="hidden sm:inline">Regulators</span>
-                <span className="text-xs opacity-70">{getTabCount('regulator')}</span>
+                {/* <span className="text-xs opacity-70">{getTabCount('regulator')}</span> */}
               </TabsTrigger>
             )}
 
@@ -154,7 +155,7 @@ export default function HomePage() {
               <TabsTrigger value="employer" className="flex items-center gap-2">
                 <Briefcase className="h-4 w-4" />
                 <span className="hidden sm:inline">Employers</span>
-                <span className="text-xs opacity-70">{getTabCount('employer')}</span>
+                {/* <span className="text-xs opacity-70">{getTabCount('employer')}</span> */}
               </TabsTrigger>
             )}
 
@@ -163,7 +164,7 @@ export default function HomePage() {
               <TabsTrigger value="job" className="flex items-center gap-2">
                 <Briefcase className="h-4 w-4" />
                 <span className="hidden sm:inline">Jobs</span>
-                <span className="text-xs opacity-70">{getTabCount('job')}</span>
+                {/* <span className="text-xs opacity-70">{getTabCount('job')}</span> */}
               </TabsTrigger>
             )}
           </TabsList>
@@ -199,7 +200,7 @@ export default function HomePage() {
           {/* Jobs Tab Content - Learners and Employers */}
           {(userRole === 'learner' || userRole === 'employer') && (
             <TabsContent value="job" className="space-y-4">
-              <JobsTab />
+              {userRole === 'learner' ? <ExternalJobsTab /> : <JobsTab />}
             </TabsContent>
           )}
         </Tabs>

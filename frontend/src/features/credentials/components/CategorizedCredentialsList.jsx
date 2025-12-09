@@ -86,8 +86,15 @@ export default function CategorizedCredentialsList({
   selectedDate = '',
   visibilityFilter = ''
 }) {
-  // Generate all credentials from all categories and flatten them into a single array
-  const allCredentials = CATEGORIES.flatMap(category => generateDummyCredentials(category));
+  // Generate mock credentials from all categories
+  const mockCredentials = CATEGORIES.flatMap(category => generateDummyCredentials(category));
+
+  // Combine real credentials from backend (fetched) with mock data
+  // Real credentials from backend should be prioritized and displayed first
+  const realCredentials = Array.isArray(credentials) ? credentials : [];
+
+  // Merge real and mock credentials - real credentials come first
+  const allCredentials = [...realCredentials, ...mockCredentials];
 
   // Helper function to check date filter
   const matchesDateFilter = (credential) => {
@@ -103,23 +110,24 @@ export default function CategorizedCredentialsList({
 
   // Filter credentials based on all filters
   const filteredCredentials = allCredentials.filter((credential) => {
-    // Search filter
+    // Search filter - support both backend and dummy credentials
     const matchesSearch = !searchQuery.trim() ||
-      credential.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      credential.subcategory.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      credential.issuer.toLowerCase().includes(searchQuery.toLowerCase());
+      credential.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      credential.subcategory?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      credential.issuer?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    // Industry filter (map industry to subcategory)
+    // Industry filter (map industry to subcategory or issuer for real credentials)
     const matchesIndustry = !selectedIndustry ||
-      credential.subcategory.toLowerCase().includes(selectedIndustry.toLowerCase());
+      credential.subcategory?.toLowerCase().includes(selectedIndustry.toLowerCase()) ||
+      credential.issuer?.toLowerCase().includes(selectedIndustry.toLowerCase());
 
     // Date filter
     const matchesDate = matchesDateFilter(credential);
 
     // Visibility filter
     const matchesVisibility = !visibilityFilter ||
-      (visibilityFilter === 'public' && credential.isPublic) ||
-      (visibilityFilter === 'private' && !credential.isPublic);
+      (visibilityFilter === 'public' && credential.isPublic === true) ||
+      (visibilityFilter === 'private' && credential.isPublic === false);
 
     return matchesSearch && matchesIndustry && matchesDate && matchesVisibility;
   });

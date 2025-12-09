@@ -223,6 +223,71 @@ export const getRoleData = async (role, params = {}) => {
   }
 };
 
+/**
+ * Get external courses from all platforms
+ * @param {Object} params - Query parameters (query, platform, category, nsqfLevel, minHours, maxHours, page, limit)
+ * @returns {Promise} - API response with external courses and pagination data
+ */
+export const getExternalCourses = async (params = {}) => {
+  try {
+    logger.debug('Fetching external courses', { params });
+    const response = await axiosClient.get('/credentials/external-courses', { params });
+
+    logger.debug('External courses fetched successfully', {
+      count: response.data?.data?.courses?.length || 0,
+      pagination: response.data?.data?.pagination
+    });
+
+    return {
+      courses: response.data?.data?.courses || [],
+      pagination: response.data?.data?.pagination || {}
+    };
+  } catch (error) {
+    logger.error('Failed to fetch external courses', { error: error.message });
+    throw error;
+  }
+};
+
+/**
+ * Get course categories with counts
+ * @returns {Promise} - API response with categories
+ */
+export const getCourseCategories = async () => {
+  try {
+    logger.debug('Fetching course categories');
+    const response = await axiosClient.get('/credentials/course-categories');
+
+    logger.debug('Course categories fetched successfully');
+
+    return response.data?.data?.categories || {};
+  } catch (error) {
+    logger.error('Failed to fetch course categories', { error: error.message });
+    throw error;
+  }
+};
+
+/**
+ * Get courses by category
+ * @param {string} category - Category name
+ * @returns {Promise} - API response with courses
+ */
+export const getCoursesByCategory = async (category) => {
+  try {
+    logger.debug('Fetching courses by category', { category });
+    const response = await axiosClient.get(`/credentials/courses-by-category/${encodeURIComponent(category)}`);
+
+    logger.debug('Courses fetched successfully', {
+      category,
+      count: response.data?.data?.courses?.length || 0
+    });
+
+    return response.data?.data?.courses || [];
+  } catch (error) {
+    logger.error('Failed to fetch courses by category', { category, error: error.message });
+    throw error;
+  }
+};
+
 // Export all functions as default
 const homeAPI = {
   getDashboardStats,
@@ -235,6 +300,9 @@ const homeAPI = {
   getCredentialHistory,
   getJobStats,
   getRoleData,
+  getExternalCourses,
+  getCourseCategories,
+  getCoursesByCategory,
 };
 
 export default homeAPI;

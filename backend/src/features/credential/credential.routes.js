@@ -18,6 +18,12 @@ import {
   createCredentialFromExtension,
   issueBulkCredentials,
   previewCertificate,
+  getExternalCourses,
+  getCourseCategories,
+  getCoursesByCategory,
+  getExternalJobs,
+  getJobSectors,
+  getJobsBySector,
 } from './credential.controller.js';
 import {
   verifyCertificate,
@@ -35,6 +41,16 @@ const router = express.Router();
 // Public routes
 router.get('/credentials/public', getPublicCredentials);
 router.get('/credentials/trusted-domains', getTrustedDomainsList);
+
+// External courses routes (public)
+router.get('/credentials/external-courses', getExternalCourses);
+router.get('/credentials/course-categories', getCourseCategories);
+router.get('/credentials/courses-by-category/:category', getCoursesByCategory);
+
+// External jobs routes (public)
+router.get('/credentials/external-jobs', getExternalJobs);
+router.get('/credentials/job-sectors', getJobSectors);
+router.get('/credentials/jobs-by-sector/:sector', getJobsBySector);
 
 // Extension routes (requires auth but not role-specific)
 router.post('/credentials/from-extension', protect, createCredentialFromExtension);

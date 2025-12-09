@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle, Clock, XCircle, ExternalLink, Calendar, User, FileText, Award, Hash, Globe, Lock, Shield, Send } from 'lucide-react';
+import { X, CheckCircle, Clock, XCircle, ExternalLink, Calendar, User, FileText, Award, Hash, Globe, Lock, Shield, Send, Database, Link2 } from 'lucide-react';
 import { Button, Badge, Loader } from '@common';
 import { useDispatch } from 'react-redux';
 import { requestCredentialVerification, editCredential } from '../redux/credentialsSlice';
@@ -221,6 +221,61 @@ export default function CredentialDetailsModal({ isOpen, onClose, credential, lo
                       </div>
                     )}
                   </div>
+
+                  {/* Blockchain & IPFS Information */}
+                  {(credential.file?.ipfs?.cid || credential.file?.blockchain?.txHash) && (
+                    <div className="space-y-4">
+                      <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide border-b pb-2 flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-green-600" />
+                        Blockchain Verification
+                      </h4>
+
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
+                        {credential.file.ipfs?.cid && (
+                          <div className="flex items-start gap-3">
+                            <Database className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-green-900">IPFS Storage</p>
+                              <p className="text-xs text-green-700 break-all font-mono bg-white/50 px-2 py-1 rounded mt-1">
+                                {credential.file.ipfs.cid}
+                              </p>
+                              {credential.file.ipfs.provider && (
+                                <p className="text-xs text-green-600 mt-1">Provider: {credential.file.ipfs.provider}</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {credential.file.blockchain?.txHash && (
+                          <div className="flex items-start gap-3">
+                            <Link2 className="h-5 w-5 text-green-600 mt-0.5 shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-green-900">Blockchain Transaction</p>
+                              <p className="text-xs text-green-700 break-all font-mono bg-white/50 px-2 py-1 rounded mt-1">
+                                {credential.file.blockchain.txHash}
+                              </p>
+                              <a
+                                href={`https://sepolia.etherscan.io/tx/${credential.file.blockchain.txHash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-green-600 hover:text-green-700 hover:underline flex items-center gap-1 mt-2"
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                                View on Etherscan
+                              </a>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="pt-2 border-t border-green-200">
+                          <p className="text-xs text-green-700 flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4" />
+                            This credential is stored on IPFS and verified on the blockchain
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Source Information */}
                   {(credential.sourceUrl || credential.sourceDomain) && (

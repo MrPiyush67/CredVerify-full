@@ -3,6 +3,8 @@ import { sendSuccess } from '../../core/utils/response.js';
 import { MESSAGES } from '../../core/constants/messages.js';
 import * as credentialService from './services/credential.service.js';
 import * as bulkCredentialService from './services/bulkCredential.service.js';
+import * as externalCoursesService from './services/externalCourses.service.js';
+import * as externalJobsService from './services/externalJobs.service.js';
 
 // @desc    Upload a credential
 // @route   POST /api/credentials
@@ -214,4 +216,128 @@ export const issueBulkCredentials = asyncHandler(async (req, res) => {
   );
 
   return sendSuccess(res, 200, 'Bulk credential issuance completed', { results });
+});
+
+// @desc    Get external courses from all platforms with pagination
+// @route   GET /api/credentials/external-courses
+// @access  Public
+export const getExternalCourses = asyncHandler(async (req, res) => {
+  const { query, platform, category, nsqfLevel, minHours, maxHours, page, limit } = req.query;
+
+  const filters = {};
+  if (platform) filters.platform = platform;
+  if (category) filters.category = category;
+  if (nsqfLevel) filters.nsqfLevel = nsqfLevel;
+  if (minHours) filters.minHours = minHours;
+  if (maxHours) filters.maxHours = maxHours;
+
+  const pagination = {
+    page: page || 1,
+    limit: limit || 36, // Default 36 courses per page
+  };
+
+  const result = await externalCoursesService.searchExternalCourses(query || '', filters, pagination);
+
+  return sendSuccess(res, 200, 'External courses fetched successfully', {
+    courses: result.courses,
+    pagination: result.pagination
+  });
+});
+
+// @desc    Get course categories with counts
+// @route   GET /api/credentials/course-categories
+// @access  Public
+export const getCourseCategories = asyncHandler(async (req, res) => {
+  const categories = await externalCoursesService.getCourseCategoriesWithCounts();
+
+  return sendSuccess(res, 200, 'Course categories fetched successfully', { categories });
+});
+
+// @desc    Get courses by category
+// @route   GET /api/credentials/courses-by-category/:category
+// @access  Public
+export const getCoursesByCategory = asyncHandler(async (req, res) => {
+  const { category } = req.params;
+  const courses = await externalCoursesService.getCoursesByCategory(category);
+
+  return sendSuccess(res, 200, `Courses in ${category} fetched successfully`, {
+    courses,
+    category,
+    count: courses.length
+  });
+});
+
+// ==================== JOB ENDPOINTS ====================
+
+// @desc    Get external jobs from all sectors
+// @route   GET /api/credentials/external-jobs
+// @access  Public
+export const getExternalJobs = asyncHandler(async (req, res) => {
+  const { sector, search, limit, useMock } = req.query;
+
+  let result;
+
+  if (search) {
+    // Search across all sectors
+    result = await externalJobsService.searchJobs(search, {
+      limit: limit ? parseInt(limit) : 20,
+    });
+
+    return sendSuccess(res, 200, 'Jobs search completed', {
+      jobs: result,
+      count: result.length,
+      search,
+    });
+  } else if (sector) {
+    // Fetch jobs for specific sector
+    const jobs = await externalJobsService.fetchJobsForSector(sector, {
+      limit: limit ? parseInt(limit) : 20,
+      useMock: useMock === 'true',
+    });
+
+    return sendSuccess(res, 200, `Jobs for ${sector} fetched successfully`, {
+      jobs,
+      sector,
+      count: jobs.length,
+    });
+  } else {
+    // Fetch jobs for all sectors
+    result = await externalJobsService.fetchAllSectorJobs({
+      limit: limit ? parseInt(limit) : 10,
+      useMock: useMock === 'true',
+    });
+
+    return sendSuccess(res, 200, 'Jobs for all sectors fetched successfully', result);
+  }
+});
+
+// @desc    Get job sectors list
+// @route   GET /api/credentials/job-sectors
+// @access  Public
+export const getJobSectors = asyncHandler(async (req, res) => {
+  const sectors = externalJobsService.getAllSectors();
+
+  return sendSuccess(res, 200, 'Job sectors fetched successfully', {
+    sectors,
+    count: sectors.length,
+  });
+});
+
+// @desc    Get jobs by sector
+// @route   GET /api/credentials/jobs-by-sector/:sector
+// @access  Public
+export const getJobsBySector = asyncHandler(async (req, res) => {
+  const { sector } = req.params;
+  const { limit, useMock } = req.query;
+
+  const jobs = await externalJobsService.fetchJobsForSector(sector, {
+    limit: limit ? parseInt(limit) : 20,
+    useMock: useMock === 'true',
+  });
+
+  return sendSuccess(res, 200, `Jobs in ${sector} fetched successfully`, {
+    jobs,
+    sector,
+    count: jobs.length,
+  });
 });
