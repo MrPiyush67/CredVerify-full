@@ -23,15 +23,15 @@ export default function ConversationSidebar({ onConversationSelect }) {
 
   if (conversations.loading) {
     return (
-      <div className="flex-1 p-4">
-        <div className="space-y-3">
+      <div className="flex-1 p-5">
+        <div className="space-y-4">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="animate-pulse">
-              <div className="flex items-center space-x-3 p-3">
-                <div className="w-12 h-12 bg-muted rounded-full"></div>
+              <div className="flex items-center space-x-4 p-4">
+                <div className="w-14 h-14 bg-muted rounded-full"></div>
                 <div className="flex-1">
-                  <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-muted rounded w-1/2"></div>
+                  <div className="h-5 bg-muted rounded w-3/4 mb-3"></div>
+                  <div className="h-4 bg-muted rounded w-1/2"></div>
                 </div>
               </div>
             </div>
@@ -43,8 +43,8 @@ export default function ConversationSidebar({ onConversationSelect }) {
 
   if (conversations.error) {
     return (
-      <div className="flex-1 p-4 text-center">
-        <p className="text-red-500 dark:text-red-400 text-sm">
+      <div className="flex-1 p-5 text-center">
+        <p className="text-destructive text-base">
           Failed to load conversations: {conversations.error}
         </p>
       </div>
@@ -53,8 +53,8 @@ export default function ConversationSidebar({ onConversationSelect }) {
 
   if (!conversations.data.length) {
     return (
-      <div className="flex-1 p-4 text-center">
-        <p className="text-muted-foreground text-sm">
+      <div className="flex-1 p-5 text-center">
+        <p className="text-muted-foreground text-base">
           No conversations yet. Start a new conversation!
         </p>
       </div>
@@ -63,7 +63,7 @@ export default function ConversationSidebar({ onConversationSelect }) {
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="space-y-1 p-2">
+      <div className="space-y-2 p-3">
         {conversations.data
           .filter(conversation => conversation && conversation._id) // Filter out null/invalid conversations
           .map((conversation) => (
@@ -106,20 +106,20 @@ const ConversationItem = React.memo(({ conversation, isActive, onClick }) => {
 
   return (
     <motion.div
-      whileHover={{ backgroundColor: 'rgba(59, 130, 246, 0.05)' }}
+      whileHover={{ backgroundColor: 'hsl(var(--muted))' }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
       className={`
-        relative p-3 rounded-lg cursor-pointer transition-all duration-200
+        relative p-4 rounded-lg cursor-pointer transition-all duration-200
         ${isActive
-          ? 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500'
-          : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+          ? 'bg-muted border-l-4 border-primary'
+          : 'hover:bg-muted/50'
         }
       `}
     >
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-4">
         {/* Avatar */}
-        <div className="w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+        <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
           {otherParticipant?.avatar ? (
             <img
               src={otherParticipant.avatar}
@@ -142,12 +142,12 @@ const ConversationItem = React.memo(({ conversation, isActive, onClick }) => {
 
         {/* Content */}
         <div className="flex-1 min-w-0 relative">
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between mb-2">
             <h4 className={`
-              font-medium truncate
+              font-semibold truncate text-base
               ${isActive
-                ? 'text-blue-900 dark:text-blue-100'
-                : 'text-gray-900 dark:text-white'
+                ? 'text-foreground'
+                : 'text-foreground'
               }
             `}>
               {otherParticipant?.name || 'Unknown User'}
@@ -157,7 +157,7 @@ const ConversationItem = React.memo(({ conversation, isActive, onClick }) => {
               <span className={`
                 text-xs flex-shrink-0 ml-2
                 ${isActive
-                  ? 'text-blue-700 dark:text-blue-300'
+                  ? 'text-muted-foreground'
                   : 'text-muted-foreground'
                 }
               `}>
@@ -170,8 +170,8 @@ const ConversationItem = React.memo(({ conversation, isActive, onClick }) => {
             <p className={`
               text-sm truncate flex-1
               ${unreadCount > 0
-                ? 'font-medium text-gray-900 dark:text-white'
-                : 'text-gray-600 dark:text-gray-400'
+                ? 'font-medium text-foreground'
+                : 'text-muted-foreground'
               }
             `}>
               {lastMessage?.isOwn ? 'You: ' : ''}
@@ -180,8 +180,8 @@ const ConversationItem = React.memo(({ conversation, isActive, onClick }) => {
 
             {/* Unread badge moved here */}
             {unreadCount > 0 && (
-              <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-xs font-bold text-white">
+              <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-xs font-bold text-primary-foreground">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               </div>

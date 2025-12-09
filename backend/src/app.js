@@ -18,6 +18,7 @@ import notificationRoutes from './features/notification/notification.routes.js';
 import dashboardRoutes from './features/dashboard/dashboard.routes.js';
 import platformRoutes from './features/platform/platform.routes.js';
 import digilockerRoutes from './features/digilocker/routes.js';
+import aiChatRoutes from './features/ai-chat/aiChat.routes.js';
 
 const app = express();
 
@@ -87,6 +88,9 @@ app.use('/api', [
   dashboardRoutes,
   platformRoutes,
 ]);
+
+// Mount AI Chat routes
+app.use('/api/ai-chat', aiChatRoutes);
 
 // Mount Digilocker routes separately to handle specific middleware
 app.use('/api/digilocker', digilockerRoutes);

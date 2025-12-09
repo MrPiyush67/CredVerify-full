@@ -110,14 +110,14 @@ export default function MessageArea() {
 
   if (!activeConversation.id || !activeConversation.data) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="flex-1 flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="text-gray-400 dark:text-gray-600 mb-2">
-            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="text-muted-foreground mb-3">
+            <svg className="w-20 h-20 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
           </div>
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-muted-foreground text-lg">
             Select a conversation to start messaging
           </p>
         </div>
@@ -126,7 +126,7 @@ export default function MessageArea() {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-white dark:bg-gray-800 overflow-hidden">
+    <div className="flex-1 flex flex-col h-full bg-card overflow-hidden">
       {/* Messages List */}
       <div className="flex-1 overflow-y-auto">
         <MessageList
@@ -149,27 +149,27 @@ export default function MessageArea() {
       </div>
 
       {/* Input Area */}
-      <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
-        <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
+      <div className="flex-shrink-0 border-t border-border bg-card p-5">
+        <form onSubmit={handleSendMessage} className="flex items-center space-x-3">
           <input
             type="text"
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Type a message..."
-            className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            className="flex-1 px-5 py-4 text-base border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             disabled={sendingMessage.loading}
           />
 
           <Button
             type="submit"
             disabled={!messageText.trim() || sendingMessage.loading}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-7 py-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
             {sendingMessage.loading ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
             ) : (
-              <Send className="w-5 h-5" />
+              <Send className="w-6 h-6" />
             )}
           </Button>
         </form>
