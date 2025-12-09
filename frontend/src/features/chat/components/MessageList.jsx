@@ -78,17 +78,17 @@ export default function MessageList({
 
   if (!messages || messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-10">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4 mx-auto">
-            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-5 mx-auto">
+            <svg className="w-10 h-10 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          <h3 className="text-xl font-medium text-foreground mb-3">
             No messages yet
           </h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base text-muted-foreground">
             Start the conversation by sending a message!
           </p>
         </div>
@@ -100,7 +100,7 @@ export default function MessageList({
     <div
       ref={listRef}
       onScroll={handleScroll}
-      className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth"
+      className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth"
     >
       {/* Load More Button */}
       {hasMore && (
@@ -112,7 +112,7 @@ export default function MessageList({
               variant="ghost"
               size="sm"
               onClick={onLoadMore}
-              className="text-blue-600 hover:text-blue-700"
+              className="text-foreground hover:text-foreground/80"
             >
               Load more messages
             </Button>
@@ -122,10 +122,10 @@ export default function MessageList({
 
       {/* Message Groups */}
       {messageGroups.map((group) => (
-        <div key={group.dateKey} className="space-y-4">
+        <div key={group.dateKey} className="space-y-5">
           {/* Date Header */}
           <div className="text-center">
-            <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full text-sm">
+            <span className="bg-muted text-muted-foreground px-4 py-2 rounded-full text-sm font-medium">
               {formatDateHeader(group.date)}
             </span>
           </div>
@@ -231,29 +231,29 @@ const MessageBubble = React.memo(({ message, isOwn, showAvatar, showTime, userRo
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-1`}
+      className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-2`}
     >
       {/* Message Content */}
-      <div className={`max-w-xs lg:max-w-md xl:max-w-lg`}>
-        {/* Message Bubble - Role-based colors */}
+      <div className={`max-w-md lg:max-w-lg xl:max-w-2xl`}>
+        {/* Message Bubble - Black/White theme */}
         <div
           className={`
-            px-3 py-2 relative shadow-sm rounded-lg
+            px-4 py-3 relative shadow-md rounded-lg
             ${isOwn
-              ? `${getThemeClass(userRole)} bg-primary text-primary-foreground rounded-br-none`
-              : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-bl-none border border-gray-200 dark:border-gray-700'
+              ? 'bg-primary text-primary-foreground rounded-br-none'
+              : 'bg-card text-card-foreground rounded-bl-none border border-border'
             }
             ${message.tempId || message.sending ? 'opacity-70' : ''}
-            ${message.failed ? 'bg-red-100 border border-red-300' : ''}
+            ${message.failed ? 'bg-destructive/10 border-destructive' : ''}
           `}
         >
           {/* Content and Time in same line */}
-          <div className="flex items-end gap-2">
-            <p className="text-sm whitespace-pre-wrap break-words flex-1">
+          <div className="flex items-end gap-3">
+            <p className="text-base whitespace-pre-wrap break-words flex-1">
               {message.content}
             </p>
-            <div className="flex items-center gap-1 self-end flex-shrink-0">
-              <span className={`text-[11px] ${isOwn ? 'text-white' : 'text-gray-500'} dark:text-gray-400`}>
+            <div className="flex items-center gap-1.5 self-end flex-shrink-0">
+              <span className={`text-xs ${isOwn ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
                 {formatTime(message.createdAt)}
               </span>
               {isOwn && (

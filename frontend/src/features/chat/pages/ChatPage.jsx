@@ -218,15 +218,15 @@ export default function ChatPage() {
                   {activeConversation.data && activeConversation.data.participant && (
                     <div className="flex items-center space-x-3">
                       <div className="relative">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold">
+                        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-foreground font-semibold text-lg">
                           {activeConversation.data.participant.avatar ||
                             activeConversation.data.participant.name?.charAt(0).toUpperCase() ||
                             'U'}
                         </div>
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-card"></div>
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                        <h3 className="font-semibold text-foreground text-base">
                           {activeConversation.data.participant.name}
                         </h3>
                         <p className="text-sm text-muted-foreground">
