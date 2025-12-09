@@ -77,6 +77,24 @@ const credentialSchema = new mongoose.Schema(
       min: 0,
     },
 
+    // NEW: Course link and NCrF/NSQF analysis
+    courseUrl: {
+      type: String,   // Optional course page URL
+      trim: true,
+    },
+    ncrfScore: {
+      type: Number,   // Rounded NCrF credits (2, 3, etc.)
+      min: 0,
+    },
+    ncrfScoreRaw: {
+      type: Number,   // Raw decimal value (2.2, 3.7, etc.)
+      min: 0,
+    },
+    credentialCategory: {
+      type: String,   // NCrF sector category
+      trim: true,
+    },
+
     // Skills + description
     skills: [String],
     description: {

@@ -81,6 +81,7 @@ export async function saveCredential(params) {
       extractedData,
       nameValidation,
       verification,
+      courseAnalysis, // NEW: Course analysis results
     } = verificationData;
 
     // Get user name for legalNameSnapshot
@@ -111,9 +112,15 @@ export async function saveCredential(params) {
       duration: extractedData.duration || null,
       totalHours: extractedData.learningHours || null,
       grade: extractedData.grade || null,
-      nsqfLevel: extractedData.NSQFLevel || null,
+      nsqfLevel: courseAnalysis?.nsqf?.level || extractedData.NSQFLevel || null, // Prefer course-calculated NSQF
       skills: extractedData.skills || [],
       description: extractedData.description || null,
+
+      // NEW: Course link and NCrF/NSQF data
+      courseUrl: courseAnalysis?.courseUrl || null,
+      ncrfScore: courseAnalysis?.ncrf?.credits_rounded || null,
+      ncrfScoreRaw: courseAnalysis?.ncrf?.credits_raw || null,
+      credentialCategory: courseAnalysis?.category || null,
 
       // REQUIRED: File info
       file: {
@@ -161,6 +168,8 @@ export async function saveCredential(params) {
           name: domainValidation.issuer?.name || 'Unknown',
           category: domainValidation.issuer?.category || 'unknown',
         },
+        // NEW: Store complete course analysis
+        courseAnalysis: courseAnalysis || null,
       },
 
       // Legacy status field

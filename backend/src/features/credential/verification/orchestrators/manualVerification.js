@@ -6,15 +6,20 @@ import { interpretText, validateMetadata } from '../pipeline/05_llmInterpreter.j
 import { matchName } from '../pipeline/06_nameMatcher.js';
 import { calculateScore } from '../pipeline/07_scoreCalculator.js';
 import { uploadAndSaveCredential } from '../pipeline/08_credentialSaver.js';
+import { validateCourseLink, detectPlatform } from '../pipeline/09_courseLinkValidator.js';
+import { scrapeCourse } from '../pipeline/10_courseScraper.js';
+import { analyzeCourse } from '../pipeline/11_courseAnalyzer.js';
+import { calculateNcrfNsqf } from '../pipeline/12_ncrfNsqfCalculator.js';
 import { scrapeCertificate } from '../../services/manualVerification.service.js';
 import User from '../../../user/user.model.js';
 
 /**
  * Main orchestrator for manual verification (link or QR code)
- * 
+ *
  * @param {Object} params
  * @param {string} params.userId - User ID
  * @param {string} params.link - Direct verification URL (optional)
+ * @param {string} params.courseUrl - Course URL for NCrF/NSQF analysis (optional)
  * @param {Buffer} params.certificateImage - Image buffer with QR code (optional)
  * @param {boolean} params.autoSave - Whether to auto-save if verified
  * @param {boolean} params.testMode - Test mode flag
@@ -25,6 +30,7 @@ export async function verifyFromManualInput(params) {
   const {
     userId,
     link,
+    courseUrl, // NEW: Optional course URL
     certificateImage,
     autoSave = true,
     testMode = false,
@@ -265,11 +271,83 @@ export async function verifyFromManualInput(params) {
       verification,
     };
 
-    // STAGE 10: Save credential (if auto-save enabled and verified)
+    // NEW STAGES 10-13: Course Link Analysis (OPTIONAL)
+    let courseAnalysisResult = null;
+
+    if (courseUrl) {
+      console.log(`📍 STAGE 10: Validating course link...`);
+
+      const courseLinkValidation = validateCourseLink(courseUrl);
+
+      if (courseLinkValidation.isValid) {
+        console.log(`✅ Course link is valid: ${courseLinkValidation.domain}\n`);
+
+        // Detect platform
+        const platform = detectPlatform(courseUrl);
+        if (platform) {
+          console.log(`   Detected platform: ${platform}`);
+        }
+
+        // STAGE 11: Scrape course data
+        console.log(`📍 STAGE 11: Scraping course data...`);
+
+        const scrapeResult = await scrapeCourse({
+          courseUrl: courseLinkValidation.url,
+          platform: platform || courseLinkValidation.domain,
+        });
+
+        if (scrapeResult.success && scrapeResult.courseData) {
+          console.log(`✅ Course data scraped successfully\n`);
+
+          // STAGE 12: Analyze and categorize course
+          console.log(`📍 STAGE 12: Analyzing and categorizing course...`);
+
+          const analysisResult = await analyzeCourse(scrapeResult.courseData);
+
+          if (analysisResult.success) {
+            console.log(`✅ Course analysis complete\n`);
+
+            // STAGE 13: Calculate NCrF/NSQF
+            console.log(`📍 STAGE 13: Calculating NCrF credits and NSQF level...`);
+
+            const calculationResult = await calculateNcrfNsqf(scrapeResult.courseData);
+
+            console.log(`✅ NCrF/NSQF calculations complete\n`);
+
+            // Store complete analysis
+            courseAnalysisResult = {
+              courseUrl,
+              platform: scrapeResult.platform,
+              scrapedData: scrapeResult.courseData,
+              category: analysisResult.category,
+              categoryConfidence: analysisResult.confidence,
+              categoryReasoning: analysisResult.reasoning,
+              ncrf: calculationResult.ncrf,
+              nsqf: calculationResult.nsqf,
+            };
+
+            console.log(`📋 Course Analysis Summary:`);
+            console.log(`   Category: ${courseAnalysisResult.category}`);
+            console.log(`   NCrF Credits: ${courseAnalysisResult.ncrf?.credits_rounded || 'N/A'}`);
+            console.log(`   NSQF Level: ${courseAnalysisResult.nsqf?.level || 'N/A'}\n`);
+          } else {
+            console.warn(`⚠️  Course analysis failed: ${analysisResult.error || 'Unknown error'}\n`);
+          }
+        } else {
+          console.warn(`⚠️  Course scraping failed: ${scrapeResult.error || 'Unknown error'}\n`);
+        }
+      } else {
+        console.warn(`⚠️  Course link invalid: ${courseLinkValidation.reason}\n`);
+      }
+    } else {
+      console.log(`⚠️  STAGES 10-13: Skipped (no course URL provided)\n`);
+    }
+
+    // STAGE 14 (formerly STAGE 10): Save credential (if auto-save enabled and verified)
     let savedCredential = null;
 
     if (autoSave && finalCandidate.verification.status === 'VERIFIED' && !testMode) {
-      console.log(`📍 STAGE 10: Saving verified credential...`);
+      console.log(`📍 STAGE 14: Saving verified credential...`);
 
       try {
         savedCredential = await uploadAndSaveCredential({
@@ -281,6 +359,7 @@ export async function verifyFromManualInput(params) {
             extractedData: finalCandidate.extractedData,
             nameValidation: finalCandidate.nameValidation,
             verification: finalCandidate.verification,
+            courseAnalysis: courseAnalysisResult, // NEW: Include course analysis
           },
           user,
         });
@@ -310,6 +389,7 @@ export async function verifyFromManualInput(params) {
       extractedData: finalCandidate.extractedData,
       nameValidation: finalCandidate.nameValidation,
       verification: finalCandidate.verification,
+      courseAnalysis: courseAnalysisResult, // NEW: Course analysis results
       credential: savedCredential,
       ocrText: finalCandidate.ocrResult.text, // For debugging
       screenshot: finalCandidate.image, // Return the best certificate image

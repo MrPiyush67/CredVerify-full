@@ -1,20 +1,150 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import Groq from 'groq-sdk';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let genAI = null;
-let model = null;
+let geminiModel = null;
+let groqClient = null;
+let categoriesData = null;
+
+// LLM Configuration
+const USE_GROQ_FALLBACK = process.env.USE_GROQ_FALLBACK !== 'false'; // Default to true
+const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
 
 const getGeminiModel = () => {
-  if (!model) {
+  if (!geminiModel) {
     if (!process.env.GEMINI_API_KEY) {
       throw new Error('GEMINI_API_KEY environment variable is not set');
     }
     genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    model = genAI.getGenerativeModel({ model: 'models/gemini-2.5-flash' });
+    geminiModel = genAI.getGenerativeModel({ model: 'models/gemini-2.5-flash' });
   }
-  return model;
+  return geminiModel;
 };
 
+const getGroqClient = () => {
+  if (!groqClient) {
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error('GROQ_API_KEY environment variable is not set');
+    }
+    groqClient = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  }
+  return groqClient;
+};
+
+const loadCategories = () => {
+  if (!categoriesData) {
+    const categoriesPath = path.join(__dirname, 'categories.json');
+    categoriesData = JSON.parse(fs.readFileSync(categoriesPath, 'utf-8'));
+  }
+  return categoriesData;
+};
+
+/**
+ * Extract metadata using Groq (Llama 3.1)
+ */
+async function extractMetadataWithGroq(ocrText) {
+  const groq = getGroqClient();
+
+  const prompt = `You are an information extraction engine.
+Your only task is to extract structured certificate metadata from noisy OCR text and output a SINGLE valid JSON object.
+
+🎯 OUTPUT RULES (VERY IMPORTANT)
+- Output MUST be **only** a valid JSON object.
+- Do NOT wrap JSON in backticks or markdown.
+- Do NOT include any explanation, comments, or text before or after the JSON.
+- Use double quotes for all keys and string values.
+- Do NOT include trailing commas.
+- If a field is unknown or not confidently present, set it to null (or [] for arrays), NOT an empty string and NOT a guess.
+
+🎯 TARGET JSON SHAPE
+Return exactly this shape:
+
+{
+  "recipientName": "string or null",
+  "courseTitle": "string or null",
+  "duration": "string or null",
+  "learningHours": number or null,
+  "grade": "string or null",
+  "NSQFLevel": number or null,
+  "issueDate": "YYYY-MM-DD or null",
+  "completionDate": "YYYY-MM-DD or null",
+  "skills": ["string", ...] or [],
+  "description": "string or null",
+  "certificateUrl": "string or null"
+}
+
+Do not add any extra fields.
+
+────────────────────────────────────────
+🧍‍♂️ FIELD EXTRACTION RULES
+────────────────────────────────────────
+
+1️⃣ recipientName (MOST IMPORTANT)
+- This is the name of the person who RECEIVED the certificate.
+- NEVER leave this null if you can reasonably infer it from the text.
+- Look for patterns near phrases like "This is to certify that", "awarded to", etc.
+- DO NOT use instructor names or organization names.
+
+2️⃣ courseTitle
+- The name of the course, program, or training.
+- Often near "Certificate of", "completed", "in recognition of".
+
+3️⃣ duration
+- Time period of the course (e.g., "3 months", "66 hours", "10 weeks").
+
+4️⃣ learningHours
+- Extract numeric hours if mentioned (e.g., "66 total hours" → 66).
+
+5️⃣ grade
+- Letter grade, percentage, or qualitative result (e.g., "A+", "95%", "Distinction").
+
+6️⃣ NSQFLevel
+- NSQF level if mentioned (1-10).
+
+7️⃣ issueDate and completionDate
+- Parse dates to YYYY-MM-DD format.
+
+8️⃣ skills
+- Array of specific skills mentioned.
+
+9️⃣ description
+- Brief summary of what the certificate is for.
+
+🔟 certificateUrl
+- URL for verification if present.
+
+────────────────────────────────────────
+📥 OCR INPUT
+────────────────────────────────────────
+
+Now extract the metadata from the following OCR text and return ONLY the JSON object as specified:
+
+${ocrText}`;
+
+  const completion = await groq.chat.completions.create({
+    messages: [{ role: 'user', content: prompt }],
+    model: GROQ_MODEL,
+    temperature: 0.1,
+    max_tokens: 1000,
+  });
+
+  const text = completion.choices[0].message.content.trim()
+    .replace(/```json\n?/g, '')
+    .replace(/```\n?/g, '')
+    .trim();
+
+  console.log(`🤖 [GROQ-LLM] Raw response:`, text.substring(0, 500));
+  return JSON.parse(text);
+}
+
 export async function extractCertificateMetadata(ocrText) {
+  // Try Gemini first
   try {
     const geminiModel = getGeminiModel();
     const prompt = `You are an information extraction engine. 
@@ -253,10 +383,204 @@ ${ocrText}
     let text = response.text().trim().replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
     // Log the raw LLM response for debugging
-    console.log(`🤖 [LLM-SERVICE] Raw LLM response:`, text.substring(0, 500));
+    console.log(`🤖 [GEMINI-LLM] Raw response:`, text.substring(0, 500));
+    console.log(`✅ [GEMINI-LLM] Metadata extraction successful`);
 
     return JSON.parse(text);
   } catch (error) {
+    console.warn(`⚠️  [GEMINI-LLM] Failed:`, error.message);
+
+    // Check if it's a quota/rate limit error and Groq fallback is enabled
+    const isQuotaError = error.message.includes('quota') ||
+                        error.message.includes('429') ||
+                        error.message.includes('rate limit');
+
+    if (USE_GROQ_FALLBACK && isQuotaError && process.env.GROQ_API_KEY) {
+      console.log(`🔄 [LLM-SERVICE] Falling back to Groq (Llama 3.1)...`);
+      try {
+        const result = await extractMetadataWithGroq(ocrText);
+        console.log(`✅ [GROQ-LLM] Metadata extraction successful (fallback)`);
+        return result;
+      } catch (groqError) {
+        console.error(`❌ [GROQ-LLM] Fallback failed:`, groqError.message);
+        throw new Error(`All LLM providers failed. Gemini: ${error.message}, Groq: ${groqError.message}`);
+      }
+    }
+
     throw new Error(`LLM failed: ${error.message}`);
+  }
+}
+
+/**
+ * Categorize course using Groq LLM (fallback)
+ * @param {Object} courseData - Scraped course data
+ * @returns {Promise<Object>} - { category, confidence, reasoning }
+ */
+async function categorizeCourseWithGroq(courseData) {
+  const groq = getGroqClient();
+  const categories = loadCategories();
+
+  const categoriesList = categories.categories.join(', ');
+
+  const prompt = `You are a course categorization expert for NCrF (National Credit Framework) in India.
+
+Analyze this course and assign it to ONE sector from this list:
+${categoriesList}
+
+Course:
+- Title: ${courseData.title || 'Unknown'}
+- Description: ${courseData.description || 'N/A'}
+- What You'll Learn: ${courseData.what_you_will_learn?.join(', ') || 'N/A'}
+- Skill Level: ${courseData.skill_level || 'N/A'}
+
+Output ONLY valid JSON:
+{
+  "category": "IT/ITeS",
+  "confidence": 0.95,
+  "reasoning": "Course teaches programming and web development."
+}
+
+The category MUST be from the list above (exact match). Output ONLY JSON, no markdown.`;
+
+  const completion = await groq.chat.completions.create({
+    messages: [{ role: 'user', content: prompt }],
+    model: GROQ_MODEL,
+    temperature: 0.1,
+    max_tokens: 500,
+  });
+
+  const text = completion.choices[0].message.content.trim()
+    .replace(/```json\n?/g, '')
+    .replace(/```\n?/g, '')
+    .trim();
+
+  console.log(`🎯 [GROQ-CATEGORIZATION] Raw response:`, text.substring(0, 200));
+
+  const parsed = JSON.parse(text);
+
+  // Validate category is in list
+  if (!categories.categories.includes(parsed.category)) {
+    console.warn(`⚠️  [GROQ-CATEGORIZATION] Invalid category returned: ${parsed.category}`);
+
+    // Try to find closest match
+    const closestMatch = categories.categories.find(c =>
+      c.toLowerCase().includes(parsed.category.toLowerCase()) ||
+      parsed.category.toLowerCase().includes(c.toLowerCase())
+    );
+
+    if (closestMatch) {
+      console.log(`✅ [GROQ-CATEGORIZATION] Mapped to closest match: ${closestMatch}`);
+      parsed.category = closestMatch;
+    } else {
+      console.warn(`⚠️  [GROQ-CATEGORIZATION] No close match found, using default`);
+      parsed.category = 'Education Training & Research';
+      parsed.confidence = 0.3;
+      parsed.reasoning = 'Category could not be determined accurately; defaulted to Education Training & Research';
+    }
+  }
+
+  return parsed;
+}
+
+/**
+ * Categorize course into NCrF sector
+ * @param {Object} courseData - Scraped course data
+ * @returns {Promise<Object>} - { category, confidence, reasoning }
+ */
+export async function categorizeCourse(courseData) {
+  // Try Gemini first
+  try {
+    const geminiModel = getGeminiModel();
+    const categories = loadCategories();
+
+    const categoriesList = categories.categories.join(', ');
+
+    const prompt = `You are a course categorization expert for the National Credit Framework (NCrF) in India.
+
+Your task is to analyze a course and assign it to ONE of the following ${categories.categories.length} NCrF sectors:
+
+${categoriesList}
+
+Course Information:
+- Title: ${courseData.title || 'Unknown'}
+- Description: ${courseData.description || 'N/A'}
+- What You'll Learn: ${courseData.what_you_will_learn?.join(', ') || 'N/A'}
+- Skill Level: ${courseData.skill_level || 'N/A'}
+- Instructor: ${courseData.instructor || 'N/A'}
+
+INSTRUCTIONS:
+1. Read the course information carefully
+2. Select the MOST appropriate NCrF sector from the list above
+3. Provide your confidence level (0.0 to 1.0)
+4. Explain your reasoning in 1-2 sentences
+
+OUTPUT FORMAT (valid JSON only):
+{
+  "category": "IT/ITeS",
+  "confidence": 0.95,
+  "reasoning": "Course teaches web development and programming, which clearly falls under Information Technology / IT-enabled Services."
+}
+
+IMPORTANT:
+- The category MUST be one of the ${categories.categories.length} categories listed above (exact match, including capitalization and punctuation)
+- Output ONLY the JSON object, no additional text
+- Do NOT wrap JSON in backticks or markdown
+
+Now categorize this course. Output ONLY the JSON object:`;
+
+    const result = await geminiModel.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text().trim().replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+    console.log(`🎯 [GEMINI-CATEGORIZATION] Raw response:`, text.substring(0, 200));
+
+    const parsed = JSON.parse(text);
+
+    // Validate category is in list
+    if (!categories.categories.includes(parsed.category)) {
+      console.warn(`⚠️  [GEMINI-CATEGORIZATION] Invalid category returned: ${parsed.category}`);
+
+      // Try to find closest match
+      const closestMatch = categories.categories.find(c =>
+        c.toLowerCase().includes(parsed.category.toLowerCase()) ||
+        parsed.category.toLowerCase().includes(c.toLowerCase())
+      );
+
+      if (closestMatch) {
+        console.log(`✅ [GEMINI-CATEGORIZATION] Mapped to closest match: ${closestMatch}`);
+        parsed.category = closestMatch;
+      } else {
+        console.warn(`⚠️  [GEMINI-CATEGORIZATION] No close match found, using default`);
+        parsed.category = 'Education Training & Research'; // Default fallback
+        parsed.confidence = 0.3;
+        parsed.reasoning = 'Category could not be determined accurately; defaulted to Education Training & Research';
+      }
+    }
+
+    console.log(`✅ [GEMINI-CATEGORIZATION] Category: ${parsed.category} (${(parsed.confidence * 100).toFixed(0)}%)`);
+
+    return parsed;
+
+  } catch (error) {
+    console.warn(`⚠️  [GEMINI-CATEGORIZATION] Failed:`, error.message);
+
+    // Check if it's a quota/rate limit error and Groq fallback is enabled
+    const isQuotaError = error.message.includes('quota') ||
+                        error.message.includes('429') ||
+                        error.message.includes('rate limit');
+
+    if (USE_GROQ_FALLBACK && isQuotaError && process.env.GROQ_API_KEY) {
+      console.log(`🔄 [LLM-CATEGORIZATION] Falling back to Groq (Llama 3.1)...`);
+      try {
+        const result = await categorizeCourseWithGroq(courseData);
+        console.log(`✅ [GROQ-CATEGORIZATION] Category: ${result.category} (${(result.confidence * 100).toFixed(0)}%) (fallback)`);
+        return result;
+      } catch (groqError) {
+        console.error(`❌ [GROQ-CATEGORIZATION] Fallback failed:`, groqError.message);
+        throw new Error(`All LLM providers failed. Gemini: ${error.message}, Groq: ${groqError.message}`);
+      }
+    }
+
+    throw new Error(`Course categorization failed: ${error.message}`);
   }
 }
