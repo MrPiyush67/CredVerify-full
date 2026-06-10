@@ -2,6 +2,16 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Crash loudly in production if critical env vars are missing
+if (process.env.NODE_ENV === 'production') {
+  const required = ['JWT_SECRET', 'MONGO_URI'];
+  for (const key of required) {
+    if (!process.env[key]) {
+      throw new Error(`❌ Missing required environment variable: ${key}. Refusing to start.`);
+    }
+  }
+}
+
 export const config = {
   port: process.env.PORT || 8003,
   mongoUri: process.env.MONGO_URI || 'mongodb://localhost:27017/microcredentials',

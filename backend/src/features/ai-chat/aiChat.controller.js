@@ -1,10 +1,11 @@
+import { ApiResponse } from '../../core/utils/ApiResponse.js';
+import { AppError } from '../../core/errors/AppError.js';
 /**
  * AI Chat Controller
  * Handles chat interactions with Grok API
  */
 
 import { asyncHandler } from '../../core/utils/asyncHandler.js';
-import { sendSuccess, sendError } from '../../core/utils/response.js';
 import * as aiChatService from './aiChat.service.js';
 
 /**
@@ -18,7 +19,7 @@ export const sendMessage = asyncHandler(async (req, res) => {
 
   // Validate input
   if (!message || typeof message !== 'string' || !message.trim()) {
-    return sendError(res, 400, 'Message is required');
+    throw new AppError(400, 'Message is required');
   }
 
   // Get AI response
@@ -35,9 +36,9 @@ export const sendMessage = asyncHandler(async (req, res) => {
   console.log('First 100 chars:', aiResponse?.substring(0, 100));
   console.log('Is JSON-like:', aiResponse?.trim().startsWith('{'));
 
-  return sendSuccess(res, 200, 'AI response generated successfully', {
+  return res.status(200).json(new ApiResponse(200, {
     message: aiResponse,
-  });
+  }, 'AI response generated successfully'));
 });
 
 /**
@@ -51,9 +52,9 @@ export const getChatHistory = asyncHandler(async (req, res) => {
 
   const history = await aiChatService.getUserChatHistory(userId, parseInt(limit));
 
-  return sendSuccess(res, 200, 'Chat history retrieved successfully', {
+  return res.status(200).json(new ApiResponse(200, {
     history,
-  });
+  }, 'Chat history retrieved successfully'));
 });
 
 /**
@@ -66,5 +67,5 @@ export const clearChatHistory = asyncHandler(async (req, res) => {
 
   await aiChatService.clearUserChatHistory(userId);
 
-  return sendSuccess(res, 200, 'Chat history cleared successfully');
+  return res.status(200).json(new ApiResponse(200, null, 'Chat history cleared successfully'));
 });

@@ -1,7 +1,6 @@
+import { AppError } from '../errors/AppError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
-import { sendError } from '../utils/response.js';
 import { verifyToken } from '../utils/generateToken.js';
-import { MESSAGES } from '../constants/messages.js';
 import User from '../../features/user/user.model.js';
 
 export const protect = asyncHandler(async (req, res, next) => {
@@ -18,21 +17,21 @@ export const protect = asyncHandler(async (req, res, next) => {
   }
 
   if (!token) {
-    return sendError(res, 401, MESSAGES.AUTH.TOKEN_MISSING);
+    return next(new AppError(401, 'No token provided'));
   }
 
   // Verify token
   const decoded = verifyToken(token);
 
   if (!decoded) {
-    return sendError(res, 401, MESSAGES.AUTH.TOKEN_INVALID);
+    return next(new AppError(401, 'Invalid token'));
   }
 
   // Find user and attach to request
   const user = await User.findById(decoded.id).select('-passwordHash');
 
   if (!user) {
-    return sendError(res, 404, MESSAGES.USER.NOT_FOUND);
+    return next(new AppError(404, 'User not found'));
   }
 
   req.user = user;

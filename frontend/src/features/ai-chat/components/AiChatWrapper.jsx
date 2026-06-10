@@ -1,5 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Loader2, Sparkles, ArrowRight, Download, Maximize2, Minimize2, MapIcon, Crown, Move } from 'lucide-react';
+import {
+  MessageSquare,
+  X,
+  Send,
+  Loader2,
+  Sparkles,
+  ArrowRight,
+  Download,
+  Maximize2,
+  Minimize2,
+  MapIcon,
+  Crown,
+  Move,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -15,7 +28,8 @@ const AiChatWrapper = () => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hello! I\'m your AI assistant. I can help you verify credentials or create personalized learning roadmaps. How can I assist you today?',
+      content:
+        "Hello! I'm your AI assistant. I can help you verify credentials or create personalized learning roadmaps. How can I assist you today?",
       timestamp: new Date(),
     },
   ]);
@@ -23,7 +37,7 @@ const AiChatWrapper = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [chatDimensions, setChatDimensions] = useState({
     width: 900,
-    height: window.innerHeight * 0.9
+    height: window.innerHeight * 0.9,
   });
   const [isResizing, setIsResizing] = useState(false);
   const messagesEndRef = useRef(null);
@@ -66,7 +80,7 @@ const AiChatWrapper = () => {
       x: e.clientX,
       y: e.clientY,
       width: rect.width,
-      height: rect.height
+      height: rect.height,
     };
   };
 
@@ -77,12 +91,24 @@ const AiChatWrapper = () => {
       const deltaX = resizeStartRef.current.x - e.clientX;
       const deltaY = resizeStartRef.current.y - e.clientY;
 
-      const newWidth = Math.max(400, Math.min(window.innerWidth - 100, resizeStartRef.current.width + deltaX));
-      const newHeight = Math.max(400, Math.min(window.innerHeight - 100, resizeStartRef.current.height + deltaY));
+      const newWidth = Math.max(
+        400,
+        Math.min(
+          window.innerWidth - 100,
+          resizeStartRef.current.width + deltaX,
+        ),
+      );
+      const newHeight = Math.max(
+        400,
+        Math.min(
+          window.innerHeight - 100,
+          resizeStartRef.current.height + deltaY,
+        ),
+      );
 
       setChatDimensions({
         width: newWidth,
-        height: newHeight
+        height: newHeight,
       });
     };
 
@@ -157,8 +183,10 @@ const AiChatWrapper = () => {
         console.log('Ends with }:', trimmedContent.endsWith('}'));
 
         // Check if it looks like JSON
-        if ((trimmedContent.startsWith('{') && trimmedContent.endsWith('}')) ||
-          (trimmedContent.startsWith('[') && trimmedContent.endsWith(']'))) {
+        if (
+          (trimmedContent.startsWith('{') && trimmedContent.endsWith('}')) ||
+          (trimmedContent.startsWith('[') && trimmedContent.endsWith(']'))
+        ) {
           try {
             const parsedContent = JSON.parse(trimmedContent);
             console.log('Parsed JSON:', parsedContent);
@@ -178,7 +206,8 @@ const AiChatWrapper = () => {
                 console.log('✅ Detected GENERATE_ROADMAP_PROMPT type');
                 assistantMessage = {
                   role: 'assistant',
-                  content: parsedContent.message || 'Ready to generate your roadmap!',
+                  content:
+                    parsedContent.message || 'Ready to generate your roadmap!',
                   timestamp: new Date(),
                   showGenerateButton: true,
                   selectionPath: parsedContent.selectionPath || [],
@@ -186,7 +215,10 @@ const AiChatWrapper = () => {
               }
             }
           } catch (parseError) {
-            console.log('JSON parse failed, treating as regular message:', parseError.message);
+            console.log(
+              'JSON parse failed, treating as regular message:',
+              parseError.message,
+            );
           }
         } else {
           console.log('Response does not look like JSON, treating as text');
@@ -207,7 +239,7 @@ const AiChatWrapper = () => {
         console.log('✅ Assistant message created:', {
           isRoadmap: assistantMessage.isRoadmap,
           showGenerateButton: assistantMessage.showGenerateButton,
-          hasSelectionPath: !!assistantMessage.selectionPath
+          hasSelectionPath: !!assistantMessage.selectionPath,
         });
       }
 
@@ -229,7 +261,8 @@ const AiChatWrapper = () => {
         setMessages((prev) => [...prev, errorMessage]);
       } else {
         // Get specific error message from backend
-        const errorMsg = error.response?.data?.message ||
+        const errorMsg =
+          error.response?.data?.message ||
           error.response?.data?.error ||
           error.message ||
           'Failed to get response from AI. Please try again.';
@@ -260,7 +293,8 @@ const AiChatWrapper = () => {
     setMessages([
       {
         role: 'assistant',
-        content: 'Hello! I\'m your AI assistant. I can help you verify credentials or create personalized learning roadmaps. How can I assist you today?',
+        content:
+          "Hello! I'm your AI assistant. I can help you verify credentials or create personalized learning roadmaps. How can I assist you today?",
         timestamp: new Date(),
       },
     ]);
@@ -288,7 +322,10 @@ const AiChatWrapper = () => {
       try {
         const trimmedContent = responseContent.trim();
         console.log('Trimmed response:', trimmedContent);
-        console.log('Is JSON-like:', trimmedContent.startsWith('{') && trimmedContent.endsWith('}'));
+        console.log(
+          'Is JSON-like:',
+          trimmedContent.startsWith('{') && trimmedContent.endsWith('}'),
+        );
 
         if (trimmedContent.startsWith('{') && trimmedContent.endsWith('}')) {
           const parsedContent = JSON.parse(trimmedContent);
@@ -298,34 +335,49 @@ const AiChatWrapper = () => {
           console.log('Steps count:', parsedContent?.steps?.length);
 
           // Normalize topics field - convert string to array if needed
-          if (parsedContent && parsedContent.steps && Array.isArray(parsedContent.steps)) {
-            parsedContent.steps = parsedContent.steps.map((step, idx) => {
-              // Ensure step is an object
-              if (!step || typeof step !== 'object') {
-                console.warn(`Invalid step at index ${idx}:`, step);
-                return null;
-              }
+          if (
+            parsedContent &&
+            parsedContent.steps &&
+            Array.isArray(parsedContent.steps)
+          ) {
+            parsedContent.steps = parsedContent.steps
+              .map((step, idx) => {
+                // Ensure step is an object
+                if (!step || typeof step !== 'object') {
+                  console.warn(`Invalid step at index ${idx}:`, step);
+                  return null;
+                }
 
-              // Normalize topics
-              if (step.topics && typeof step.topics === 'string') {
-                // Split string topics by comma and trim whitespace
-                step.topics = step.topics.split(',').map(t => t.trim()).filter(t => t);
-              } else if (!step.topics || !Array.isArray(step.topics)) {
-                step.topics = [];
-              }
+                // Normalize topics
+                if (step.topics && typeof step.topics === 'string') {
+                  // Split string topics by comma and trim whitespace
+                  step.topics = step.topics
+                    .split(',')
+                    .map((t) => t.trim())
+                    .filter((t) => t);
+                } else if (!step.topics || !Array.isArray(step.topics)) {
+                  step.topics = [];
+                }
 
-              // Ensure all required fields exist
-              return {
-                title: step.title || 'Learning Step',
-                description: step.description || '',
-                duration: step.duration || '',
-                topics: step.topics,
-                category: step.category || ''
-              };
-            }).filter(step => step !== null); // Remove invalid steps
+                // Ensure all required fields exist
+                return {
+                  title: step.title || 'Learning Step',
+                  description: step.description || '',
+                  duration: step.duration || '',
+                  topics: step.topics,
+                  category: step.category || '',
+                };
+              })
+              .filter((step) => step !== null); // Remove invalid steps
           }
 
-          if (parsedContent && parsedContent.type === 'ROADMAP' && parsedContent.steps && Array.isArray(parsedContent.steps) && parsedContent.steps.length > 0) {
+          if (
+            parsedContent &&
+            parsedContent.type === 'ROADMAP' &&
+            parsedContent.steps &&
+            Array.isArray(parsedContent.steps) &&
+            parsedContent.steps.length > 0
+          ) {
             // Download the HTML roadmap
             downloadRoadmapHTML(parsedContent);
             toast.success('Roadmap downloaded successfully!');
@@ -384,10 +436,11 @@ const AiChatWrapper = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleOpenChat}
-            className={`fixed bottom-8 right-8 z-50 text-white p-4 rounded-full shadow-2xl transition-all border ${hasSubscription
-              ? 'bg-teal-600 hover:bg-teal-700 border-teal-500'
-              : 'bg-gray-400 hover:bg-gray-500 border-gray-300'
-              }`}
+            className={`fixed bottom-8 right-8 z-50 text-white p-4 rounded-full shadow-2xl transition-all border ${
+              hasSubscription
+                ? 'bg-teal-600 hover:bg-teal-700 border-teal-500'
+                : 'bg-gray-400 hover:bg-gray-500 border-gray-300'
+            }`}
             aria-label="Open AI Chat"
           >
             {hasSubscription ? (
@@ -411,14 +464,19 @@ const AiChatWrapper = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className={`fixed z-50 bg-white shadow-2xl border border-gray-200 flex flex-col overflow-hidden font-sans transition-all duration-300 ${isFullscreen
-              ? 'inset-4 rounded-lg'
-              : 'bottom-8 right-8 rounded-xl'
-              }`}
-            style={!isFullscreen ? {
-              width: `${chatDimensions.width}px`,
-              height: `${chatDimensions.height}px`
-            } : {}}
+            className={`fixed z-50 bg-white shadow-2xl border border-gray-200 flex flex-col overflow-hidden font-sans transition-all duration-300 ${
+              isFullscreen
+                ? 'inset-4 rounded-lg'
+                : 'bottom-8 right-8 rounded-xl'
+            }`}
+            style={
+              !isFullscreen
+                ? {
+                    width: `${chatDimensions.width}px`,
+                    height: `${chatDimensions.height}px`,
+                  }
+                : {}
+            }
           >
             {/* Resize Handle - Top Left Corner */}
             {!isFullscreen && (
@@ -440,25 +498,43 @@ const AiChatWrapper = () => {
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg tracking-tight">AI Assistant</h3>
-                  <p className="text-xs text-teal-100 font-medium">Powered by Groq</p>
+                  <h3 className="font-bold text-lg tracking-tight">
+                    AI Assistant
+                  </h3>
+                  <p className="text-xs text-teal-100 font-medium">
+                    Powered by Groq
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsFullscreen(!isFullscreen)}
                   className="p-2 hover:bg-teal-700 rounded-lg transition-colors text-teal-100 hover:text-white"
-                  title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                  title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
                 >
-                  {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+                  {isFullscreen ? (
+                    <Minimize2 className="w-5 h-5" />
+                  ) : (
+                    <Maximize2 className="w-5 h-5" />
+                  )}
                 </button>
                 <button
                   onClick={clearChat}
                   className="p-2 hover:bg-teal-700 rounded-lg transition-colors text-teal-100 hover:text-white"
                   title="Clear chat"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
                   </svg>
                 </button>
                 <button
@@ -493,13 +569,21 @@ const AiChatWrapper = () => {
                           <MapIcon className="w-6 h-6 text-white" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-lg font-bold text-teal-900 mb-2">Ready to Generate Your Roadmap!</h3>
-                          <p className="text-gray-700 mb-4 whitespace-pre-wrap">{message.content}</p>
+                          <h3 className="text-lg font-bold text-teal-900 mb-2">
+                            Ready to Generate Your Roadmap!
+                          </h3>
+                          <p className="text-gray-700 mb-4 whitespace-pre-wrap">
+                            {message.content}
+                          </p>
                           <div className="flex flex-wrap gap-3">
                             <motion.button
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
-                              onClick={() => handleGenerateFinalRoadmap(message.selectionPath)}
+                              onClick={() =>
+                                handleGenerateFinalRoadmap(
+                                  message.selectionPath,
+                                )
+                              }
                               className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transition-all"
                             >
                               <Download className="w-5 h-5" />
@@ -508,7 +592,9 @@ const AiChatWrapper = () => {
                             <motion.button
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
-                              onClick={() => handleSendMessage("Show me different options")}
+                              onClick={() =>
+                                handleSendMessage('Show me different options')
+                              }
                               className="flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all"
                             >
                               <ArrowRight className="w-5 h-5" />
@@ -520,15 +606,21 @@ const AiChatWrapper = () => {
                     </div>
                   ) : (
                     <div
-                      className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm ${message.role === 'user'
-                        ? 'bg-teal-600 text-white rounded-br-none'
-                        : 'bg-gray-50 border border-gray-100 text-gray-800 rounded-bl-none'
-                        }`}
+                      className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm ${
+                        message.role === 'user'
+                          ? 'bg-teal-600 text-white rounded-br-none'
+                          : 'bg-gray-50 border border-gray-100 text-gray-800 rounded-bl-none'
+                      }`}
                     >
-                      <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                      <p className="whitespace-pre-wrap break-words">
+                        {message.content}
+                      </p>
                       <p
-                        className={`text-[10px] mt-2 font-medium ${message.role === 'user' ? 'text-teal-100' : 'text-gray-400'
-                          }`}
+                        className={`text-[10px] mt-2 font-medium ${
+                          message.role === 'user'
+                            ? 'text-teal-100'
+                            : 'text-gray-400'
+                        }`}
                       >
                         {new Date(message.timestamp).toLocaleTimeString([], {
                           hour: '2-digit',
@@ -548,7 +640,9 @@ const AiChatWrapper = () => {
                 >
                   <div className="bg-gray-50 border border-gray-100 rounded-2xl rounded-bl-none px-4 py-3 flex items-center gap-3">
                     <Loader2 className="w-4 h-4 animate-spin text-teal-600" />
-                    <span className="text-sm text-gray-500 font-medium">Thinking...</span>
+                    <span className="text-sm text-gray-500 font-medium">
+                      Thinking...
+                    </span>
                   </div>
                 </motion.div>
               )}
@@ -573,7 +667,8 @@ const AiChatWrapper = () => {
                   }}
                   onInput={(e) => {
                     e.target.style.height = 'auto';
-                    e.target.style.height = Math.min(e.target.scrollHeight, 128) + 'px';
+                    e.target.style.height =
+                      Math.min(e.target.scrollHeight, 128) + 'px';
                   }}
                 />
                 <button

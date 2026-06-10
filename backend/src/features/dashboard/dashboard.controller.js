@@ -1,5 +1,5 @@
+import { ApiResponse } from '../../core/utils/ApiResponse.js';
 import { asyncHandler } from '../../core/utils/asyncHandler.js';
-import { sendSuccess, sendError } from '../../core/utils/response.js';
 import * as dashboardService from './dashboard.service.js';
 
 // @desc    Get comprehensive dashboard statistics
@@ -11,5 +11,5 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
 
   const stats = await dashboardService.getStatsByRole(userId, userRole);
 
-  return sendSuccess(res, 200, 'Dashboard stats fetched successfully', stats);
+  return res.status(200).json(new ApiResponse(200, stats, 'Dashboard stats fetched successfully'));
 });

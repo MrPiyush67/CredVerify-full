@@ -2,6 +2,7 @@ import Job from './job.model.js';
 import { createNotification } from '../notification/notification.service.js';
 import User from '../user/user.model.js';
 import Credential from '../credential/credential.model.js';
+import { AppError } from '../../core/errors/AppError.js';
 
 // Create a new job (employer)
 export const createJob = async (employerId, jobData) => {
@@ -50,7 +51,7 @@ export const getJobById = async (jobId) => {
     .populate('applicants.learner', 'name email avatar');
 
   if (!job) {
-    throw new Error('Job not found');
+    throw new AppError(404, 'Job not found');
   }
 
   return job;
@@ -61,7 +62,7 @@ export const updateJob = async (employerId, jobId, updates) => {
   const job = await Job.findOne({ _id: jobId, employer: employerId });
 
   if (!job) {
-    throw new Error('Job not found or unauthorized');
+    throw new AppError(404, 'Job not found or unauthorized');
   }
 
   Object.assign(job, updates);
@@ -75,7 +76,7 @@ export const deleteJob = async (employerId, jobId) => {
   const job = await Job.findOneAndDelete({ _id: jobId, employer: employerId });
 
   if (!job) {
-    throw new Error('Job not found or unauthorized');
+    throw new AppError(404, 'Job not found or unauthorized');
   }
 
   return job;
@@ -89,7 +90,7 @@ export const getApplicants = async (employerId, jobId) => {
   });
 
   if (!job) {
-    throw new Error('Job not found or unauthorized');
+    throw new AppError(404, 'Job not found or unauthorized');
   }
 
   return job.applicants;
@@ -105,7 +106,7 @@ export const getApplicantDetails = async (employerId, jobId, applicantUserId) =>
   });
 
   if (!job) {
-    throw new Error('Job not found, unauthorized, or applicant not found');
+    throw new AppError(404, 'Job not found, unauthorized, or applicant not found');
   }
 
   // Get full learner profile (even if private)
@@ -139,13 +140,13 @@ export const updateApplicantStatus = async (employerId, jobId, applicantId, stat
   const job = await Job.findOne({ _id: jobId, employer: employerId });
 
   if (!job) {
-    throw new Error('Job not found or unauthorized');
+    throw new AppError(404, 'Job not found or unauthorized');
   }
 
   const applicant = job.applicants.id(applicantId);
 
   if (!applicant) {
-    throw new Error('Applicant not found');
+    throw new AppError(404, 'Applicant not found');
   }
 
   const oldStatus = applicant.status;
@@ -215,11 +216,11 @@ export const applyToJob = async (jobId, learnerId) => {
   const job = await Job.findById(jobId);
 
   if (!job) {
-    throw new Error('Job not found');
+    throw new AppError(404, 'Job not found');
   }
 
   if (job.status !== 'active') {
-    throw new Error('Job is not accepting applications');
+    throw new AppError(400, 'Job is not accepting applications');
   }
 
   // Check if already applied
@@ -228,7 +229,7 @@ export const applyToJob = async (jobId, learnerId) => {
   );
 
   if (alreadyApplied) {
-    throw new Error('You have already applied to this job');
+    throw new AppError(409, 'You have already applied to this job');
   }
 
   job.applicants.push({

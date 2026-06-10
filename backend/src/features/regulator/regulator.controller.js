@@ -1,6 +1,5 @@
+import { ApiResponse } from '../../core/utils/ApiResponse.js';
 import { asyncHandler } from '../../core/utils/asyncHandler.js';
-import { sendSuccess } from '../../core/utils/response.js';
-import { MESSAGES } from '../../core/constants/messages.js';
 import * as regulatorService from './regulator.service.js';
 
 // @desc    Get pending credentials for verification
@@ -8,9 +7,9 @@ import * as regulatorService from './regulator.service.js';
 // @access  Private (Regulator only)
 export const getPendingCredentials = asyncHandler(async (req, res) => {
   const credentials = await regulatorService.getPendingCredentials(req.user._id);
-  return sendSuccess(res, 200, 'Pending credentials fetched successfully', {
+  return res.status(200).json(new ApiResponse(200, {
     credentials,
-  });
+  }, 'Pending credentials fetched successfully'));
 });
 
 // @desc    Verify a credential
@@ -21,7 +20,7 @@ export const verifyCredential = asyncHandler(async (req, res) => {
     req.user._id,
     req.params.id
   );
-  return sendSuccess(res, 200, MESSAGES.CREDENTIAL.VERIFIED, { credential });
+  return res.status(200).json(new ApiResponse(200, { credential }, 'Credential verified successfully'));
 });
 
 // @desc    Reject a credential
@@ -34,7 +33,7 @@ export const rejectCredential = asyncHandler(async (req, res) => {
     req.params.id,
     reason
   );
-  return sendSuccess(res, 200, MESSAGES.CREDENTIAL.REJECTED, { credential });
+  return res.status(200).json(new ApiResponse(200, { credential }, 'Credential rejected'));
 });
 
 // @desc    Get verification stats
@@ -42,7 +41,7 @@ export const rejectCredential = asyncHandler(async (req, res) => {
 // @access  Private (Regulator only)
 export const getStats = asyncHandler(async (req, res) => {
   const data = await regulatorService.getVerificationStats(req.user._id);
-  return sendSuccess(res, 200, 'Stats fetched successfully', data);
+  return res.status(200).json(new ApiResponse(200, data, 'Stats fetched successfully'));
 });
 
 // @desc    Get all regulators
@@ -50,7 +49,7 @@ export const getStats = asyncHandler(async (req, res) => {
 // @access  Public
 export const getAllRegulators = asyncHandler(async (req, res) => {
   const regulators = await regulatorService.getAllRegulators();
-  return sendSuccess(res, 200, 'Regulators fetched successfully', { regulators });
+  return res.status(200).json(new ApiResponse(200, { regulators }, 'Regulators fetched successfully'));
 });
 
 // @desc    Get regulator by ID
@@ -59,7 +58,7 @@ export const getAllRegulators = asyncHandler(async (req, res) => {
 export const getRegulatorById = asyncHandler(async (req, res) => {
   const regulator = await regulatorService.getRegulatorById(req.params.id);
   // Return in format expected by frontend: { user }
-  return sendSuccess(res, 200, 'Regulator fetched successfully', { user: regulator });
+  return res.status(200).json(new ApiResponse(200, { user: regulator }, 'Regulator fetched successfully'));
 });
 
 // @desc    Get regulator settings
@@ -67,7 +66,7 @@ export const getRegulatorById = asyncHandler(async (req, res) => {
 // @access  Private (Regulator only)
 export const getSettings = asyncHandler(async (req, res) => {
   const settings = await regulatorService.getSettings(req.user._id);
-  return sendSuccess(res, 200, 'Settings fetched successfully', settings);
+  return res.status(200).json(new ApiResponse(200, settings, 'Settings fetched successfully'));
 });
 
 // @desc    Update regulator settings
@@ -75,5 +74,5 @@ export const getSettings = asyncHandler(async (req, res) => {
 // @access  Private (Regulator only)
 export const updateSettings = asyncHandler(async (req, res) => {
   const settings = await regulatorService.updateSettings(req.user._id, req.body);
-  return sendSuccess(res, 200, 'Settings updated successfully', settings);
+  return res.status(200).json(new ApiResponse(200, settings, 'Settings updated successfully'));
 });

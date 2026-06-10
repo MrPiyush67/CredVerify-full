@@ -1,6 +1,6 @@
 import { asyncHandler } from '../../core/utils/asyncHandler.js';
-import { sendSuccess } from '../../core/utils/response.js';
-import { MESSAGES } from '../../core/constants/messages.js';
+import { ApiResponse } from '../../core/utils/ApiResponse.js';
+import { AppError } from '../../core/errors/AppError.js';
 import * as credentialService from './services/credential.service.js';
 import * as bulkCredentialService from './services/bulkCredential.service.js';
 import * as externalCoursesService from './services/externalCourses.service.js';
@@ -11,7 +11,7 @@ import * as externalJobsService from './services/externalJobs.service.js';
 // @access  Private (Learner only)
 export const uploadCredential = asyncHandler(async (req, res) => {
   const credential = await credentialService.createCredential(req.user._id, req.body);
-  return sendSuccess(res, 201, MESSAGES.CREDENTIAL.UPLOADED, { credential });
+  return res.status(201).json(new ApiResponse(201, { credential }, 'Credential uploaded successfully'));
 });
 
 // @desc    Get my credentials
@@ -21,7 +21,7 @@ export const getMyCredentials = asyncHandler(async (req, res) => {
   const { status } = req.query;
   const filters = status ? { status } : {};
   const credentials = await credentialService.getMyCredentials(req.user._id, filters);
-  return sendSuccess(res, 200, 'Credentials fetched successfully', { credentials });
+  return res.status(200).json(new ApiResponse(200, { credentials }, 'Credentials fetched successfully'));
 });
 
 // @desc    Get credential by ID
@@ -32,7 +32,7 @@ export const getCredentialById = asyncHandler(async (req, res) => {
     req.params.id,
     req.user._id
   );
-  return sendSuccess(res, 200, 'Credential fetched successfully', { credential });
+  return res.status(200).json(new ApiResponse(200, { credential }, 'Credential fetched successfully'));
 });
 
 // @desc    Update credential
@@ -44,7 +44,7 @@ export const updateCredential = asyncHandler(async (req, res) => {
     req.params.id,
     req.body
   );
-  return sendSuccess(res, 200, 'Credential updated successfully', { credential });
+  return res.status(200).json(new ApiResponse(200, { credential }, 'Credential updated successfully'));
 });
 
 // @desc    Create credential from extension
@@ -53,7 +53,7 @@ export const updateCredential = asyncHandler(async (req, res) => {
 export const createCredentialFromExtension = asyncHandler(async (req, res) => {
   const credential = await credentialService.createCredential(req.user._id, req.body);
 
-  return sendSuccess(res, 201, 'Credential saved successfully from extension', { credential });
+  return res.status(201).json(new ApiResponse(201, { credential }, 'Credential saved successfully from extension'));
 });
 
 // @desc    Delete credential
@@ -61,7 +61,7 @@ export const createCredentialFromExtension = asyncHandler(async (req, res) => {
 // @access  Private (Learner only)
 export const deleteCredential = asyncHandler(async (req, res) => {
   await credentialService.deleteCredential(req.user._id, req.params.id);
-  return sendSuccess(res, 200, 'Credential deleted successfully');
+  return res.status(200).json(new ApiResponse(200, null, 'Credential deleted successfully'));
 });
 
 // @desc    Get verified credentials
@@ -69,9 +69,9 @@ export const deleteCredential = asyncHandler(async (req, res) => {
 // @access  Private (Learner only)
 export const getVerifiedCredentials = asyncHandler(async (req, res) => {
   const credentials = await credentialService.getVerifiedCredentials(req.user._id);
-  return sendSuccess(res, 200, 'Verified credentials fetched successfully', {
+  return res.status(200).json(new ApiResponse(200, {
     credentials,
-  });
+  }, 'Verified credentials fetched successfully'));
 });
 
 // @desc    Get credential stats
@@ -79,7 +79,7 @@ export const getVerifiedCredentials = asyncHandler(async (req, res) => {
 // @access  Private (Learner only)
 export const getCredentialStats = asyncHandler(async (req, res) => {
   const stats = await credentialService.getCredentialStats(req.user._id);
-  return sendSuccess(res, 200, 'Stats fetched successfully', { stats });
+  return res.status(200).json(new ApiResponse(200, { stats }, 'Stats fetched successfully'));
 });
 
 // @desc    Get all public credentials (browse/search)
@@ -94,7 +94,7 @@ export const getPublicCredentials = asyncHandler(async (req, res) => {
   if (skills) filters.skills = skills.split(',');
 
   const credentials = await credentialService.getPublicCredentials(filters);
-  return sendSuccess(res, 200, 'Public credentials fetched successfully', { credentials });
+  return res.status(200).json(new ApiResponse(200, { credentials }, 'Public credentials fetched successfully'));
 });
 
 import { generateCertificatePDF } from '../../core/utils/certificateGenerator.js';
@@ -106,10 +106,7 @@ export const previewCertificate = asyncHandler(async (req, res) => {
   const { credentialName, issueDate, hours, nsqfLevel, recipientName } = req.body;
 
   if (!credentialName || !issueDate || !hours || !nsqfLevel) {
-    return res.status(400).json({
-      success: false,
-      message: 'Please provide all credential details for preview',
-    });
+    throw new AppError(400, 'Please provide all credential details for preview');
   }
 
   // Get regulator name for instructor field
@@ -147,10 +144,7 @@ export const issueBulkCredentials = asyncHandler(async (req, res) => {
 
   // Validate input
   if (!credentialData || !recipients || !Array.isArray(recipients) || recipients.length === 0) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid input. Credential data and recipients array required.',
-    });
+    throw new AppError(400, 'Invalid input. Credential data and recipients array required.');
   }
 
   // Issue credentials to all recipients
@@ -160,7 +154,7 @@ export const issueBulkCredentials = asyncHandler(async (req, res) => {
     recipients
   );
 
-  return sendSuccess(res, 200, 'Bulk credential issuance completed', { results });
+  return res.status(200).json(new ApiResponse(200, { results }, 'Bulk credential issuance completed'));
 });
 
 // @desc    Get external courses from all platforms with pagination
@@ -183,10 +177,10 @@ export const getExternalCourses = asyncHandler(async (req, res) => {
 
   const result = await externalCoursesService.searchExternalCourses(query || '', filters, pagination);
 
-  return sendSuccess(res, 200, 'External courses fetched successfully', {
+  return res.status(200).json(new ApiResponse(200, {
     courses: result.courses,
     pagination: result.pagination
-  });
+  }, 'External courses fetched successfully'));
 });
 
 // @desc    Get course categories with counts
@@ -195,7 +189,7 @@ export const getExternalCourses = asyncHandler(async (req, res) => {
 export const getCourseCategories = asyncHandler(async (req, res) => {
   const categories = await externalCoursesService.getCourseCategoriesWithCounts();
 
-  return sendSuccess(res, 200, 'Course categories fetched successfully', { categories });
+  return res.status(200).json(new ApiResponse(200, { categories }, 'Course categories fetched successfully'));
 });
 
 // @desc    Get courses by category
@@ -205,11 +199,11 @@ export const getCoursesByCategory = asyncHandler(async (req, res) => {
   const { category } = req.params;
   const courses = await externalCoursesService.getCoursesByCategory(category);
 
-  return sendSuccess(res, 200, `Courses in ${category} fetched successfully`, {
+  return res.status(200).json(new ApiResponse(200, {
     courses,
     category,
     count: courses.length
-  });
+  }, `Courses in ${category} fetched successfully`));
 });
 
 // ==================== JOB ENDPOINTS ====================
@@ -228,11 +222,11 @@ export const getExternalJobs = asyncHandler(async (req, res) => {
       limit: limit ? parseInt(limit) : 20,
     });
 
-    return sendSuccess(res, 200, 'Jobs search completed', {
+    return res.status(200).json(new ApiResponse(200, {
       jobs: result,
       count: result.length,
       search,
-    });
+    }, 'Jobs search completed'));
   } else if (sector) {
     // Fetch jobs for specific sector
     const jobs = await externalJobsService.fetchJobsForSector(sector, {
@@ -240,11 +234,11 @@ export const getExternalJobs = asyncHandler(async (req, res) => {
       useMock: useMock === 'true',
     });
 
-    return sendSuccess(res, 200, `Jobs for ${sector} fetched successfully`, {
+    return res.status(200).json(new ApiResponse(200, {
       jobs,
       sector,
       count: jobs.length,
-    });
+    }, `Jobs for ${sector} fetched successfully`));
   } else {
     // Fetch jobs for all sectors
     result = await externalJobsService.fetchAllSectorJobs({
@@ -252,7 +246,7 @@ export const getExternalJobs = asyncHandler(async (req, res) => {
       useMock: useMock === 'true',
     });
 
-    return sendSuccess(res, 200, 'Jobs for all sectors fetched successfully', result);
+    return res.status(200).json(new ApiResponse(200, result, 'Jobs for all sectors fetched successfully'));
   }
 });
 
@@ -262,10 +256,10 @@ export const getExternalJobs = asyncHandler(async (req, res) => {
 export const getJobSectors = asyncHandler(async (req, res) => {
   const sectors = externalJobsService.getAllSectors();
 
-  return sendSuccess(res, 200, 'Job sectors fetched successfully', {
+  return res.status(200).json(new ApiResponse(200, {
     sectors,
     count: sectors.length,
-  });
+  }, 'Job sectors fetched successfully'));
 });
 
 // @desc    Get jobs by sector
@@ -280,9 +274,9 @@ export const getJobsBySector = asyncHandler(async (req, res) => {
     useMock: useMock === 'true',
   });
 
-  return sendSuccess(res, 200, `Jobs in ${sector} fetched successfully`, {
+  return res.status(200).json(new ApiResponse(200, {
     jobs,
     sector,
     count: jobs.length,
-  });
+  }, `Jobs in ${sector} fetched successfully`));
 });

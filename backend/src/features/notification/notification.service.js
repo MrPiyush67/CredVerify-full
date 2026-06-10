@@ -1,4 +1,5 @@
 import Notification from './notification.model.js';
+import { AppError } from '../../core/errors/AppError.js';
 
 // Create a notification
 export const createNotification = async (notificationData) => {
@@ -67,7 +68,7 @@ export const markAsRead = async (userId, notificationId) => {
   );
 
   if (!notification) {
-    throw new Error('Notification not found or unauthorized');
+    throw new AppError(404, 'Notification not found or unauthorized');
   }
 
   return notification;
@@ -93,7 +94,7 @@ export const deleteNotification = async (userId, notificationId) => {
   });
 
   if (!notification) {
-    throw new Error('Notification not found or unauthorized');
+    throw new AppError(404, 'Notification not found or unauthorized');
   }
 
   return notification;
@@ -119,7 +120,7 @@ export const getNotificationById = async (userId, notificationId) => {
   });
 
   if (!notification) {
-    throw new Error('Notification not found');
+    throw new AppError(404, 'Notification not found');
   }
 
   return notification;
@@ -173,4 +174,3 @@ export const getNotificationStats = async (userId) => {
     categories,
   };
 };
-

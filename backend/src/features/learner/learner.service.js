@@ -2,8 +2,9 @@ import User from '../user/user.model.js';
 import LearnerSettings from './learner.settings.model.js';
 import Job from '../job/job.model.js';
 import { flattenSettings, getOrCreateSettings, buildSettingsUpdate } from '../../core/utils/settingsHelper.js';
+import { AppError } from '../../core/errors/AppError.js';
 
-// Helper function to check if a employer can access a private profile
+// Helper function to check if an employer can access a private profile
 export const canEmployerAccessProfile = async (employerId, learnerUserId) => {
   // Check if learner has applied to any of employer's jobs
   const jobWithApplication = await Job.findOne({
@@ -18,7 +19,7 @@ export const getProfile = async (userId) => {
   const profile = await User.findById(userId).select('-passwordHash');
 
   if (!profile || profile.role !== 'learner') {
-    throw new Error('Learner profile not found');
+    throw new AppError(404, 'Learner profile not found');
   }
 
   return profile;
@@ -32,7 +33,7 @@ export const updateProfile = async (userId, updates) => {
   ).select('-passwordHash');
 
   if (!profile || profile.role !== 'learner') {
-    throw new Error('Learner profile not found');
+    throw new AppError(404, 'Learner profile not found');
   }
 
   return profile;
@@ -54,7 +55,7 @@ export const getLearnerById = async (learnerId, requestingUserId = null, request
   const profile = await User.findById(learnerId).select('-passwordHash');
 
   if (!profile || profile.role !== 'learner') {
-    throw new Error('Learner not found');
+    throw new AppError(404, 'Learner not found');
   }
 
   // If profile is public, anyone can view
@@ -64,7 +65,7 @@ export const getLearnerById = async (learnerId, requestingUserId = null, request
 
   // If profile is private, check access permissions
   if (!requestingUserId) {
-    throw new Error('This profile is private');
+    throw new AppError(403, 'This profile is private');
   }
 
   // Owner can always view their own profile
@@ -81,7 +82,7 @@ export const getLearnerById = async (learnerId, requestingUserId = null, request
   }
 
   // Otherwise, profile is private and no access
-  throw new Error('This profile is private');
+  throw new AppError(403, 'This profile is private');
 };
 
 // Get settings
@@ -128,7 +129,7 @@ export const getStats = async (userId) => {
   const profile = await User.findById(userId).lean();
 
   if (!profile || profile.role !== 'learner') {
-    throw new Error('Profile not found');
+    throw new AppError(404, 'Learner profile not found');
   }
 
   // Optimized: Use Promise.all for parallel queries

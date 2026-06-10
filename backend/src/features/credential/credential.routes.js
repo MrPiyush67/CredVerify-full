@@ -14,12 +14,6 @@ import {
   createCredentialFromExtension,
   issueBulkCredentials,
   previewCertificate,
-  getExternalCourses,
-  getCourseCategories,
-  getCoursesByCategory,
-  getExternalJobs,
-  getJobSectors,
-  getJobsBySector,
 } from './credential.controller.js';
 import {
   verifyCertificate,
@@ -31,43 +25,63 @@ import {
   testQrExtraction,
   uploadCertificateImage,
 } from './verification/manualVerification.controller.js';
+import {
+  getExternalCourses,
+  getCourseCategories,
+  getCoursesByCategory,
+  getExternalJobs,
+  getJobSectors,
+  getJobsBySector,
+} from './credential.controller.js';
 
 const router = express.Router();
 
-// Public routes
+// ============================
+// Public credential routes
+// ============================
 router.get('/credentials/public', getPublicCredentials);
 router.get('/credentials/trusted-domains', getTrustedDomainsList);
 
-// External courses routes (public)
+// ============================
+// External courses (public)
+// ============================
 router.get('/credentials/external-courses', getExternalCourses);
 router.get('/credentials/course-categories', getCourseCategories);
 router.get('/credentials/courses-by-category/:category', getCoursesByCategory);
 
-// External jobs routes (public)
+// ============================
+// External jobs (public)
+// ============================
 router.get('/credentials/external-jobs', getExternalJobs);
 router.get('/credentials/job-sectors', getJobSectors);
 router.get('/credentials/jobs-by-sector/:sector', getJobsBySector);
 
-// Extension routes (requires auth but not role-specific)
+// ============================
+// Extension routes
+// ============================
 router.post('/credentials/from-extension', protect, createCredentialFromExtension);
 
-// Certificate verification endpoints (OCR + LLM pipeline)
-// Note: verify-certificate supports testMode for training/testing
-// Uses optionalAuth middleware to handle both authenticated requests and test mode
+// ============================
+// Verification pipeline (OCR + LLM)
+// ============================
 router.post('/credentials/verify-certificate', optionalAuth, verifyCertificate);
 router.post('/credentials/extract-preview', protect, extractCertificatePreview);
 
-// Manual verification endpoints (QR code + web scraping)
-// Note: manual-verify supports testMode for training/testing
-// Uses optionalAuth middleware to handle both authenticated requests and test mode
+// ============================
+// Manual verification (QR + scraping)
+// ============================
 router.post('/credentials/manual-verify', uploadCertificateImage, optionalAuth, manualVerification);
 router.post('/credentials/test-qr', protect, uploadCertificateImage, testQrExtraction);
 
-// Regulator routes (for bulk issuance and certificate preview)
+// ============================
+// Regulator routes
+// ============================
 router.post('/credentials/preview', protect, isRegulator, previewCertificate);
 router.post('/credentials/bulk-issue', protect, isRegulator, issueBulkCredentials);
 
-// Learner routes (specific routes before parameterized)
+// ============================
+// Learner credential CRUD
+// ============================
 router.post('/credentials', protect, isLearner, uploadCredential);
 router.get('/credentials/verified', protect, isLearner, getVerifiedCredentials);
 router.get('/credentials/stats', protect, isLearner, getCredentialStats);

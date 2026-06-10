@@ -3,6 +3,7 @@ import { platformVerifiers, generateCode } from './platform.verifiers.js';
 import Credential from '../credential/credential.model.js';
 import { createNotification } from '../notification/notification.service.js';
 import User from '../user/user.model.js';
+import { AppError } from '../../core/errors/AppError.js';
 
 // Get or create platform profile for a user
 export const getPlatformProfile = async (userId) => {
@@ -20,7 +21,7 @@ export const submitPlatformHandle = async (userId, platform, handle) => {
   const profile = await getPlatformProfile(userId);
   
   if (!profile[platform]) {
-    throw new Error(`Platform ${platform} not supported`);
+    throw new AppError(400, `Platform ${platform} not supported`);
   }
   
   // Update handle and reset verification
@@ -38,14 +39,12 @@ export const requestVerification = async (userId, platform) => {
   const profile = await getPlatformProfile(userId);
   
   if (!profile[platform]) {
-    throw new Error(`Platform ${platform} not supported`);
+    throw new AppError(400, `Platform ${platform} not supported`);
   }
   
   if (!profile[platform].handle) {
-    throw new Error('Please submit your handle first');
+    throw new AppError(400, 'Please submit your handle first');
   }
-  
-  // Generate verification code for all platforms including Codeforces
   
   // Generate verification code
   const code = profile.generateVerificationCode(platform);
@@ -72,11 +71,11 @@ export const verifyPlatformOwnership = async (userId, platform) => {
   const profile = await getPlatformProfile(userId);
   
   if (!profile[platform]) {
-    throw new Error(`Platform ${platform} not supported`);
+    throw new AppError(400, `Platform ${platform} not supported`);
   }
   
   if (!profile[platform].handle) {
-    throw new Error('Handle not found. Please submit your handle first');
+    throw new AppError(400, 'Handle not found. Please submit your handle first');
   }
   
   // For Codeforces, auto-generate verification code if not present (API-based verification)
@@ -97,17 +96,17 @@ export const verifyPlatformOwnership = async (userId, platform) => {
   console.log(`[Service] ==========================================`);
   
   if (!profile[platform].verificationCode) {
-    throw new Error('No verification code found. Please request a verification code first');
+    throw new AppError(400, 'No verification code found. Please request a verification code first');
   }
   
   if (!profile.isVerificationValid(platform)) {
-    throw new Error('Verification code expired. Please request a new one');
+    throw new AppError(400, 'Verification code expired. Please request a new one');
   }
   
   // Call appropriate verifier
   const verifier = platformVerifiers[platform];
   if (!verifier) {
-    throw new Error(`Verifier not implemented for ${platform}`);
+    throw new AppError(501, `Verifier not implemented for ${platform}`);
   }
   
   let result;
@@ -118,12 +117,12 @@ export const verifyPlatformOwnership = async (userId, platform) => {
     );
   } catch (error) {
     console.error(`[Service] Error calling ${platform} verifier:`, error);
-    throw new Error(`Verification failed: ${error.message}`);
+    throw new AppError(502, `Verification failed: ${error.message}`);
   }
   
   if (!result.success) {
     console.error(`[Service] ${platform} verification failed:`, result.message);
-    throw new Error(result.message);
+    throw new AppError(400, result.message);
   }
   
   // Platform names for notifications
@@ -140,12 +139,12 @@ export const verifyPlatformOwnership = async (userId, platform) => {
   };
   
   // Update profile with verification and stats - IMMEDIATELY VERIFIED
-  profile[platform].isVerified = true; // Set to true immediately when code is found
+  profile[platform].isVerified = true;
   profile[platform].stats = result.stats || {};
   profile[platform].lastFetched = new Date();
   profile[platform].verificationCode = null; // Clear code after successful verification
   profile[platform].verificationExpiry = null;
-  profile[platform].pendingValidation = false; // No need for regulator approval
+  profile[platform].pendingValidation = false;
   
   await profile.save();
   
@@ -171,12 +170,12 @@ export const refreshPlatformStats = async (userId, platform) => {
   const profile = await getPlatformProfile(userId);
   
   if (!profile[platform] || !profile[platform].isVerified) {
-    throw new Error('Platform not verified');
+    throw new AppError(400, 'Platform not verified');
   }
   
   const verifier = platformVerifiers[platform];
   if (!verifier) {
-    throw new Error(`Verifier not implemented for ${platform}`);
+    throw new AppError(501, `Verifier not implemented for ${platform}`);
   }
   
   // Refresh stats without verification code (pass null for code parameter)
@@ -196,7 +195,7 @@ export const removePlatform = async (userId, platform) => {
   const profile = await getPlatformProfile(userId);
   
   if (!profile[platform]) {
-    throw new Error(`Platform ${platform} not supported`);
+    throw new AppError(400, `Platform ${platform} not supported`);
   }
   
   // Reset platform data

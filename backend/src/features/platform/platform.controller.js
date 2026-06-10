@@ -1,5 +1,6 @@
+import { ApiResponse } from '../../core/utils/ApiResponse.js';
+import { AppError } from '../../core/errors/AppError.js';
 import { asyncHandler } from '../../core/utils/asyncHandler.js';
-import { sendSuccess, sendError } from '../../core/utils/response.js';
 import * as platformService from './platform.service.js';
 
 // @desc    Get user's platform profile
@@ -7,7 +8,7 @@ import * as platformService from './platform.service.js';
 // @access  Private
 export const getPlatformProfile = asyncHandler(async (req, res) => {
   const profile = await platformService.getPlatformProfile(req.user._id);
-  return sendSuccess(res, 200, 'Platform profile fetched successfully', { profile });
+  return res.status(200).json(new ApiResponse(200, { profile }, 'Platform profile fetched successfully'));
 });
 
 // @desc    Submit platform handle
@@ -18,11 +19,11 @@ export const submitHandle = asyncHandler(async (req, res) => {
   const { handle } = req.body;
   
   if (!handle) {
-    return sendError(res, 400, 'Handle is required');
+    throw new AppError(400, 'Handle is required');
   }
   
   const profile = await platformService.submitPlatformHandle(req.user._id, platform, handle);
-  return sendSuccess(res, 200, 'Handle submitted successfully', { profile });
+  return res.status(200).json(new ApiResponse(200, { profile }, 'Handle submitted successfully'));
 });
 
 // @desc    Request verification code
@@ -34,16 +35,16 @@ export const requestVerification = asyncHandler(async (req, res) => {
   const result = await platformService.requestVerification(req.user._id, platform);
   
   if (result.verified) {
-    return sendSuccess(res, 200, 'Platform verified automatically', { profile: result.profile });
+    return res.status(200).json(new ApiResponse(200, { profile: result.profile }, 'Platform verified automatically'));
   }
   
-  return sendSuccess(res, 200, 'Verification code generated', {
+  return res.status(200).json(new ApiResponse(200, {
     code: result.code,
     platform: result.platform,
     handle: result.handle,
     expiresAt: result.expiresAt,
     instructions: getVerificationInstructions(platform, result.handle, result.code),
-  });
+  }, 'Verification code generated'));
 });
 
 // @desc    Verify platform ownership
@@ -53,7 +54,7 @@ export const verifyOwnership = asyncHandler(async (req, res) => {
   const { platform } = req.params;
   
   const profile = await platformService.verifyPlatformOwnership(req.user._id, platform);
-  return sendSuccess(res, 200, 'Platform verified successfully', { profile });
+  return res.status(200).json(new ApiResponse(200, { profile }, 'Platform verified successfully'));
 });
 
 // @desc    Refresh platform stats
@@ -63,7 +64,7 @@ export const refreshStats = asyncHandler(async (req, res) => {
   const { platform } = req.params;
   
   const profile = await platformService.refreshPlatformStats(req.user._id, platform);
-  return sendSuccess(res, 200, 'Stats refreshed successfully', { profile });
+  return res.status(200).json(new ApiResponse(200, { profile }, 'Stats refreshed successfully'));
 });
 
 // @desc    Remove platform
@@ -73,7 +74,7 @@ export const removePlatform = asyncHandler(async (req, res) => {
   const { platform } = req.params;
   
   const profile = await platformService.removePlatform(req.user._id, platform);
-  return sendSuccess(res, 200, 'Platform removed successfully', { profile });
+  return res.status(200).json(new ApiResponse(200, { profile }, 'Platform removed successfully'));
 });
 
 // Helper function to generate platform-specific instructions

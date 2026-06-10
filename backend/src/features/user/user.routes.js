@@ -13,7 +13,6 @@ router.post('/auth/logout', protect, logout);
 router.post('/users/extension-login', extensionLogin);
 
 // User profile routes
-router.get('/users/profile', protect, getMe);
 router.get('/me/profile', protect, getMe);
 router.put('/me/profile', protect, updateMe);
 router.put('/me/profile/role', protect, updateMyRoleProfile);

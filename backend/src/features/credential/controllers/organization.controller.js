@@ -4,6 +4,8 @@ import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { verifyOrganizationCertificate, validateCertificateData } from '../services/organizationVerification.service.js';
+import { ApiResponse } from '../../../core/utils/ApiResponse.js';
+import { AppError } from '../../../core/errors/AppError.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,10 +20,7 @@ export const submitCertificate = async (req, res) => {
 
     // Validate required fields
     if (!certificate) {
-      return res.status(400).json({
-        success: false,
-        message: 'Certificate data is required'
-      });
+      throw new AppError(400, 'Certificate data is required');
     }
 
     const {
@@ -40,10 +39,7 @@ export const submitCertificate = async (req, res) => {
 
     // Validate required fields
     if (!recipientName || !certificateId || !companyName || !issuer) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing required fields: recipientName, certificateId, companyName, issuer'
-      });
+      throw new AppError(400, 'Missing required fields: recipientName, certificateId, companyName, issuer');
     }
 
     // Check for duplicate certificate
@@ -55,14 +51,7 @@ export const submitCertificate = async (req, res) => {
     });
 
     if (existingCert) {
-      return res.status(409).json({
-        success: false,
-        message: 'Certificate already exists',
-        data: {
-          certificateId: existingCert._id,
-          status: existingCert.processingStatus
-        }
-      });
+      throw new AppError(409, 'Certificate already exists');
     }
 
     // Save certificate image to local storage
@@ -138,22 +127,11 @@ export const submitCertificate = async (req, res) => {
 
     console.log(`[Submit Certificate] Created certificate ${certificateId} for ${companyName}`);
 
-    return res.status(201).json({
-      success: true,
-      message: 'Certificate submitted successfully',
-      data: {
-        certificateId: orgCertificate._id,
-        status: 'pending_processing'
-      }
-    });
+    return res.status(201).json(new ApiResponse(201, { certificateId: orgCertificate._id, status: 'pending_processing' }, 'Certificate submitted successfully'));
 
   } catch (error) {
     console.error('[Submit Certificate] Error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to submit certificate',
-      error: error.message
-    });
+    throw new AppError(500, 'Failed to submit certificate');
   }
 };
 
@@ -169,21 +147,11 @@ export const getPendingCertificates = async (req, res) => {
 
     console.log(`[Get Pending] Returning ${certificates.length} pending certificates`);
 
-    return res.status(200).json({
-      success: true,
-      data: {
-        certificates,
-        count: certificates.length
-      }
-    });
+    return res.status(200).json(new ApiResponse(200, { certificates, count: certificates.length }, 'Success'));
 
   } catch (error) {
     console.error('[Get Pending] Error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to fetch pending certificates',
-      error: error.message
-    });
+    throw new AppError(500, 'Failed to fetch pending certificates');
   }
 };
 
@@ -200,10 +168,7 @@ export const processCertificate = async (req, res) => {
     const certificate = await OrganizationCertificate.findById(id);
 
     if (!certificate) {
-      return res.status(404).json({
-        success: false,
-        message: 'Certificate not found'
-      });
+      throw new AppError(404, 'Certificate not found');
     }
 
     // Update based on processing status
@@ -212,14 +177,7 @@ export const processCertificate = async (req, res) => {
 
       console.log(`[Process Certificate] Marked ${id} as processed`);
 
-      return res.status(200).json({
-        success: true,
-        message: 'Certificate processed successfully',
-        data: {
-          certificateId: certificate._id,
-          status: certificate.processingStatus
-        }
-      });
+      return res.status(200).json(new ApiResponse(200, { certificateId: certificate._id, status: certificate.processingStatus }, 'Certificate processed successfully'));
 
     } else if (processingStatus === 'failed') {
       const error = req.body.processingError || 'Unknown error';
@@ -227,30 +185,15 @@ export const processCertificate = async (req, res) => {
 
       console.log(`[Process Certificate] Marked ${id} as failed: ${error}`);
 
-      return res.status(200).json({
-        success: true,
-        message: 'Certificate marked as failed',
-        data: {
-          certificateId: certificate._id,
-          status: certificate.processingStatus,
-          error
-        }
-      });
+      return res.status(200).json(new ApiResponse(200, { certificateId: certificate._id, status: certificate.processingStatus, error }, 'Certificate marked as failed'));
 
     } else {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid processing data. Required: processingStatus, ocrText, extractedData'
-      });
+      throw new AppError(400, 'Invalid processing data. Required: processingStatus, ocrText, extractedData');
     }
 
   } catch (error) {
     console.error('[Process Certificate] Error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to process certificate',
-      error: error.message
-    });
+    throw new AppError(500, 'Failed to process certificate');
   }
 };
 
@@ -264,20 +207,11 @@ export const getCompanies = async (req, res) => {
 
     console.log(`[Get Companies] Returning ${companies.length} companies`);
 
-    return res.status(200).json({
-      success: true,
-      data: {
-        companies
-      }
-    });
+    return res.status(200).json(new ApiResponse(200, { companies }, 'Success'));
 
   } catch (error) {
     console.error('[Get Companies] Error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to fetch companies',
-      error: error.message
-    });
+    throw new AppError(500, 'Failed to fetch companies');
   }
 };
 
@@ -292,10 +226,7 @@ export const verifyUserCertificate = async (req, res) => {
 
     // Validate required fields
     if (!companyName || !certificateImageBase64) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing required fields: companyName, certificateImageBase64'
-      });
+      throw new AppError(400, 'Missing required fields: companyName, certificateImageBase64');
     }
 
     // Validate certificate data
@@ -305,11 +236,7 @@ export const verifyUserCertificate = async (req, res) => {
     );
 
     if (!validation.isValid) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid certificate data',
-        errors: validation.errors
-      });
+      throw new AppError(400, 'Invalid certificate data', validation.errors);
     }
 
     console.log(`[Verify Certificate] User ${userId} (${req.user.name}) verifying against ${companyName}`);
@@ -328,14 +255,7 @@ export const verifyUserCertificate = async (req, res) => {
     );
 
     // Return result
-    return res.status(200).json({
-      success: true,
-      message: result.verified
-        ? result.autoApproved
-          ? 'Certificate verified successfully'
-          : 'Certificate matched but requires manual review'
-        : 'Certificate submitted for manual review',
-      data: {
+    return res.status(200).json(new ApiResponse(200, {
         verified: result.verified,
         autoApproved: result.autoApproved,
         matchScore: result.matchScore,
@@ -348,15 +268,10 @@ export const verifyUserCertificate = async (req, res) => {
           createdAt: result.credential.createdAt
         },
         processingTime: result.processingTime
-      }
-    });
+      }, result.verified ? (result.autoApproved ? 'Certificate verified successfully' : 'Certificate matched but requires manual review') : 'Certificate submitted for manual review'));
 
   } catch (error) {
     console.error('[Verify Certificate] Error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to verify certificate',
-      error: error.message
-    });
+    throw new AppError(500, 'Failed to verify certificate');
   }
 };

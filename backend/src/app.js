@@ -53,7 +53,10 @@ app.use(
       if (!origin) return callback(null, true);
 
       // Allow chrome-extension and moz-extension origins
-      if (origin.startsWith('chrome-extension://') || origin.startsWith('moz-extension://')) {
+      if (
+        origin.startsWith('chrome-extension://') ||
+        origin.startsWith('moz-extension://')
+      ) {
         return callback(null, true);
       }
 
@@ -64,7 +67,7 @@ app.use(
       }
     },
     credentials: true,
-  })
+  }),
 );
 
 // Health check
@@ -101,7 +104,7 @@ app.use('/api/ai-chat', aiChatRoutes);
 app.use('/api/digilocker', digilockerRoutes);
 
 // 404 handler
-app.use((req, res) => {
+app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
     message: 'Route not found',

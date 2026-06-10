@@ -1,6 +1,6 @@
+import { ApiResponse } from '../../core/utils/ApiResponse.js';
+import { AppError } from '../../core/errors/AppError.js';
 import { asyncHandler } from '../../core/utils/asyncHandler.js';
-import { sendSuccess, sendError } from '../../core/utils/response.js';
-import { MESSAGES } from '../../core/constants/messages.js';
 import * as chatService from './chat.service.js';
 
 // @desc    Get or create a conversation
@@ -12,7 +12,7 @@ export const startConversation = asyncHandler(async (req, res) => {
   const targetUserId = otherUserId || recipientId;
 
   if (!targetUserId) {
-    return sendError(res, 400, 'Recipient user ID is required');
+    throw new AppError(400, 'Recipient user ID is required');
   }
 
   const conversation = await chatService.getOrCreateConversation(
@@ -20,7 +20,7 @@ export const startConversation = asyncHandler(async (req, res) => {
     targetUserId
   );
 
-  return sendSuccess(res, 200, MESSAGES.CHAT.CONVERSATION_STARTED, { conversation });
+  return res.status(200).json(new ApiResponse(200, { conversation }, 'Conversation started'));
 });
 
 // @desc    Get my conversations
@@ -28,7 +28,7 @@ export const startConversation = asyncHandler(async (req, res) => {
 // @access  Private
 export const getMyConversations = asyncHandler(async (req, res) => {
   const conversations = await chatService.getMyConversations(req.user._id);
-  return sendSuccess(res, 200, 'Conversations fetched successfully', { conversations });
+  return res.status(200).json(new ApiResponse(200, { conversations }, 'Conversations fetched successfully'));
 });
 
 // @desc    Get messages in a conversation
@@ -36,7 +36,7 @@ export const getMyConversations = asyncHandler(async (req, res) => {
 // @access  Private
 export const getMessages = asyncHandler(async (req, res) => {
   const messages = await chatService.getMessages(req.params.id, req.user._id);
-  return sendSuccess(res, 200, 'Messages fetched successfully', { messages });
+  return res.status(200).json(new ApiResponse(200, { messages }, 'Messages fetched successfully'));
 });
 
 // @desc    Send a message
@@ -46,12 +46,12 @@ export const sendMessage = asyncHandler(async (req, res) => {
   const { content } = req.body;
 
   if (!content) {
-    return sendError(res, 400, 'Message content is required');
+    throw new AppError(400, 'Message content is required');
   }
 
   const message = await chatService.sendMessage(req.params.id, req.user._id, content);
 
-  return sendSuccess(res, 201, MESSAGES.CHAT.MESSAGE_SENT, { message });
+  return res.status(201).json(new ApiResponse(201, { message }, 'Message sent'));
 });
 
 // @desc    Get unread message count
@@ -59,7 +59,7 @@ export const sendMessage = asyncHandler(async (req, res) => {
 // @access  Private
 export const getUnreadCount = asyncHandler(async (req, res) => {
   const count = await chatService.getUnreadCount(req.user._id);
-  return sendSuccess(res, 200, 'Unread count fetched successfully', { count });
+  return res.status(200).json(new ApiResponse(200, { count }, 'Unread count fetched successfully'));
 });
 
 // @desc    Send a message directly (creates conversation if needed)
@@ -69,7 +69,7 @@ export const sendMessageDirect = asyncHandler(async (req, res) => {
   const { recipientId, content } = req.body;
 
   if (!recipientId || !content) {
-    return sendError(res, 400, 'Recipient ID and message content are required');
+    throw new AppError(400, 'Recipient ID and message content are required');
   }
 
   console.log(`💬 [CHAT API] User ${req.user._id} sending message to recipient ${recipientId}`);
@@ -84,5 +84,5 @@ export const sendMessageDirect = asyncHandler(async (req, res) => {
 
   console.log(`✅ [CHAT API] Message sent successfully to recipient ${recipientId}`);
 
-  return sendSuccess(res, 201, MESSAGES.CHAT.MESSAGE_SENT, { message });
+  return res.status(201).json(new ApiResponse(201, { message }, 'Message sent'));
 });

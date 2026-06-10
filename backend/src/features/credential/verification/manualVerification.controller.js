@@ -1,3 +1,4 @@
+import { ApiResponse } from '../../../core/utils/ApiResponse.js';
 /**
  * Manual Verification Controller
  * Handles certificate verification via QR code image upload or direct link
@@ -5,7 +6,8 @@
 
 import multer from 'multer';
 import { asyncHandler } from '../../../core/utils/asyncHandler.js';
-import { sendSuccess } from '../../../core/utils/response.js';
+import { ApiResponse } from '../../../core/utils/ApiResponse.js';
+import { AppError } from '../../../core/errors/AppError.js';
 import * as verificationService from '../services/manualVerification.service.js';
 import { verifyFromManualInput } from './orchestrators/manualVerification.js';
 
@@ -89,18 +91,12 @@ export const manualVerification = asyncHandler(async (req, res) => {
   console.log(`   userId being used: ${userId}`);
 
   if (!isTestMode && !req.user) {
-    return res.status(401).json({
-      success: false,
-      message: 'Authentication required (or use testMode: true)',
-    });
+    throw new AppError(401, 'Authentication required (or use testMode: true)');
   }
 
   // Validate input
   if (!uploadedFile && !link) {
-    return res.status(400).json({
-      success: false,
-      message: 'Please provide either a certificate image (with QR code) or a direct verification link.',
-    });
+    throw new AppError(400, 'Please provide either a certificate image (with QR code) or a direct verification link.');
   }
 
   console.log('🟢 [MANUAL-VERIFY-CONTROLLER] Starting verification...');
@@ -122,25 +118,14 @@ export const manualVerification = asyncHandler(async (req, res) => {
 
     // Handle early rejections (untrusted domain)
     if (!result.success) {
-      return res.status(400).json({
-        success: false,
-        message: result.message,
-        error: result.error,
-        data: {
-          verificationUrl: result.verificationUrl,
-          domainValidation: result.domainValidation,
-        },
-      });
+      throw new AppError(400, 'An error occurred');
     }
 
     // Success - return complete verification result
     const statusCode = result.verification.status === 'VERIFIED' ? 200 :
       result.verification.status === 'REVIEW_REQUIRED' ? 200 : 400;
 
-    return res.status(statusCode).json({
-      success: true,
-      message: `Certificate ${result.verification.status.toLowerCase()} - ${result.verification.reason}`,
-      data: {
+    return res.status(statusCode).json(new ApiResponse(statusCode, {
         verificationUrl: result.verificationUrl,
         verification: result.verification,
         extractedData: result.extractedData,
@@ -148,8 +133,7 @@ export const manualVerification = asyncHandler(async (req, res) => {
         domainValidation: result.domainValidation,
         credential: result.credential,
         candidatesAnalyzed: result.candidatesAnalyzed,
-      },
-    });
+      }, `Certificate ${result.verification.status.toLowerCase()} - ${result.verification.reason}`));
 
   } catch (error) {
     console.error('❌ [MANUAL-VERIFY-CONTROLLER] Verification failed:', error);
@@ -164,11 +148,7 @@ export const manualVerification = asyncHandler(async (req, res) => {
       });
     }
 
-    return res.status(500).json({
-      success: false,
-      message: 'Certificate verification failed',
-      error: error.message,
-    });
+    throw new AppError(500, 'Certificate verification failed');
   }
 });
 
@@ -181,24 +161,18 @@ export const testQrExtraction = asyncHandler(async (req, res) => {
   const uploadedFile = req.file;
 
   if (!uploadedFile) {
-    return res.status(400).json({
-      success: false,
-      message: 'Please upload an image file',
-    });
+    throw new AppError(400, 'Please upload an image file');
   }
 
   try {
     const url = await verificationService.extractUrlFromImage(uploadedFile.buffer);
 
-    return sendSuccess(res, 200, 'QR code extracted successfully', {
+    return res.status(200).json(new ApiResponse(200, {
       url,
       fileSize: uploadedFile.size,
       mimeType: uploadedFile.mimetype,
-    });
+    }, 'QR code extracted successfully'));
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    throw new AppError(400, 'An error occurred');
   }
 });

@@ -1,7 +1,7 @@
 import User from './user.model.js';
 import { hashPassword, comparePassword } from '../../core/utils/hashPassword.js';
 import { generateToken } from '../../core/utils/generateToken.js';
-import { ROLES } from '../../core/constants/roles.js';
+import { AppError } from '../../core/errors/AppError.js';
 
 export const createUser = async (userData) => {
   const { username, name, email, password, role, ...profileData } = userData;
@@ -9,7 +9,7 @@ export const createUser = async (userData) => {
   // Check if user already exists
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    throw new Error('User already exists');
+    throw new AppError(409, 'User already exists');
   }
 
   // Hash password
@@ -57,14 +57,14 @@ export const authenticateUser = async (email, password) => {
   const user = await User.findOne({ email }).select('+passwordHash');
 
   if (!user) {
-    throw new Error('Invalid email or password');
+    throw new AppError(401, 'Invalid email or password');
   }
 
   // Check password
   const isMatch = await comparePassword(password, user.passwordHash);
 
   if (!isMatch) {
-    throw new Error('Invalid email or password');
+    throw new AppError(401, 'Invalid email or password');
   }
 
   // Generate token
@@ -80,7 +80,7 @@ export const getUserProfile = async (userId) => {
   const user = await User.findById(userId).select('-passwordHash');
 
   if (!user) {
-    throw new Error('User not found');
+    throw new AppError(404, 'User not found');
   }
 
   // Return user directly - all role-specific data is now in the user object
@@ -99,7 +99,7 @@ export const updateUserProfile = async (userId, updates) => {
     });
     
     if (existingUser) {
-      throw new Error('Username already exists. Please choose a different username.');
+      throw new AppError(409, 'Username already exists. Please choose a different username.');
     }
   }
   
@@ -110,7 +110,7 @@ export const updateUserProfile = async (userId, updates) => {
   ).select('-passwordHash');
 
   if (!user) {
-    throw new Error('User not found');
+    throw new AppError(404, 'User not found');
   }
 
   return user;
@@ -124,7 +124,7 @@ export const updateRoleProfile = async (userId, updates) => {
   ).select('-passwordHash');
 
   if (!user) {
-    throw new Error('User not found');
+    throw new AppError(404, 'User not found');
   }
 
   return user;

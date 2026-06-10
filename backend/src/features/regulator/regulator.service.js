@@ -2,12 +2,13 @@ import User from '../user/user.model.js';
 import RegulatorSettings from './regulator.settings.model.js';
 import Credential from '../credential/credential.model.js';
 import { flattenSettings, getOrCreateSettings, buildSettingsUpdate } from '../../core/utils/settingsHelper.js';
+import { AppError } from '../../core/errors/AppError.js';
 
 export const getProfile = async (userId) => {
   const profile = await User.findById(userId).select('-passwordHash');
 
   if (!profile || profile.role !== 'regulator') {
-    throw new Error('Regulator profile not found');
+    throw new AppError(404, 'Regulator profile not found');
   }
 
   return profile;
@@ -21,7 +22,7 @@ export const updateProfile = async (userId, updates) => {
   ).select('-passwordHash');
 
   if (!profile || profile.role !== 'regulator') {
-    throw new Error('Regulator profile not found');
+    throw new AppError(404, 'Regulator profile not found');
   }
 
   return profile;
@@ -31,7 +32,7 @@ export const getPendingCredentials = async (userId) => {
   const regulatorProfile = await User.findById(userId);
 
   if (!regulatorProfile || regulatorProfile.role !== 'regulator') {
-    throw new Error('Regulator profile not found');
+    throw new AppError(403, 'Regulator profile not found');
   }
 
   // Build query - filter by institution if regulator has one
@@ -57,17 +58,17 @@ export const verifyCredential = async (userId, credentialId) => {
   const regulatorProfile = await User.findById(userId);
 
   if (!regulatorProfile || regulatorProfile.role !== 'regulator') {
-    throw new Error('Regulator profile not found');
+    throw new AppError(403, 'Regulator profile not found');
   }
 
   const credential = await Credential.findById(credentialId);
 
   if (!credential) {
-    throw new Error('Credential not found');
+    throw new AppError(404, 'Credential not found');
   }
 
   if (credential.status !== 'pending') {
-    throw new Error('Credential is not pending verification');
+    throw new AppError(400, 'Credential is not pending verification');
   }
 
   // Update credential
@@ -87,17 +88,17 @@ export const rejectCredential = async (userId, credentialId, reason) => {
   const regulatorProfile = await User.findById(userId);
 
   if (!regulatorProfile || regulatorProfile.role !== 'regulator') {
-    throw new Error('Regulator profile not found');
+    throw new AppError(403, 'Regulator profile not found');
   }
 
   const credential = await Credential.findById(credentialId);
 
   if (!credential) {
-    throw new Error('Credential not found');
+    throw new AppError(404, 'Credential not found');
   }
 
   if (credential.status !== 'pending') {
-    throw new Error('Credential is not pending verification');
+    throw new AppError(400, 'Credential is not pending verification');
   }
 
   // Update credential
@@ -118,7 +119,7 @@ export const getVerificationStats = async (userId) => {
   const profile = await User.findById(userId);
 
   if (!profile || profile.role !== 'regulator') {
-    throw new Error('Regulator profile not found');
+    throw new AppError(403, 'Regulator profile not found');
   }
 
   // Single aggregation for all stats
@@ -162,11 +163,11 @@ export const getRegulatorById = async (regulatorId) => {
   const regulator = await User.findById(regulatorId).select('-passwordHash');
 
   if (!regulator || regulator.role !== 'regulator') {
-    throw new Error('Regulator not found');
+    throw new AppError(404, 'Regulator not found');
   }
 
   if (!regulator.isPublic) {
-    throw new Error('This regulator profile is not public');
+    throw new AppError(403, 'This regulator profile is not public');
   }
 
   return regulator;

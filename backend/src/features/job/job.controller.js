@@ -1,6 +1,5 @@
+import { ApiResponse } from '../../core/utils/ApiResponse.js';
 import { asyncHandler } from '../../core/utils/asyncHandler.js';
-import { sendSuccess } from '../../core/utils/response.js';
-import { MESSAGES } from '../../core/constants/messages.js';
 import * as jobService from './job.service.js';
 
 // @desc    Create a job
@@ -8,7 +7,7 @@ import * as jobService from './job.service.js';
 // @access  Private (Employer only)
 export const createJob = asyncHandler(async (req, res) => {
   const job = await jobService.createJob(req.user._id, req.body);
-  return sendSuccess(res, 201, MESSAGES.JOB.CREATED, { job });
+  return res.status(201).json(new ApiResponse(201, { job }, 'Job posted successfully'));
 });
 
 // @desc    Get my posted jobs
@@ -17,7 +16,7 @@ export const createJob = asyncHandler(async (req, res) => {
 export const getMyJobs = asyncHandler(async (req, res) => {
   const { status } = req.query;
   const jobs = await jobService.getJobsByEmployer(req.user._id, status);
-  return sendSuccess(res, 200, 'Jobs fetched successfully', { jobs });
+  return res.status(200).json(new ApiResponse(200, { jobs }, 'Jobs fetched successfully'));
 });
 
 // @desc    Get all active jobs (browse/search)
@@ -32,7 +31,7 @@ export const getAllJobs = asyncHandler(async (req, res) => {
   if (location) filters.location = location;
 
   const jobs = await jobService.getAllJobs(filters);
-  return sendSuccess(res, 200, 'Jobs fetched successfully', { jobs });
+  return res.status(200).json(new ApiResponse(200, { jobs }, 'Jobs fetched successfully'));
 });
 
 // @desc    Get job by ID
@@ -40,7 +39,7 @@ export const getAllJobs = asyncHandler(async (req, res) => {
 // @access  Public
 export const getJobById = asyncHandler(async (req, res) => {
   const job = await jobService.getJobById(req.params.id);
-  return sendSuccess(res, 200, 'Job fetched successfully', { job });
+  return res.status(200).json(new ApiResponse(200, { job }, 'Job fetched successfully'));
 });
 
 // @desc    Update a job
@@ -48,7 +47,7 @@ export const getJobById = asyncHandler(async (req, res) => {
 // @access  Private (Employer only)
 export const updateJob = asyncHandler(async (req, res) => {
   const job = await jobService.updateJob(req.user._id, req.params.id, req.body);
-  return sendSuccess(res, 200, 'Job updated successfully', { job });
+  return res.status(200).json(new ApiResponse(200, { job }, 'Job updated successfully'));
 });
 
 // @desc    Delete a job
@@ -56,7 +55,7 @@ export const updateJob = asyncHandler(async (req, res) => {
 // @access  Private (Employer only)
 export const deleteJob = asyncHandler(async (req, res) => {
   await jobService.deleteJob(req.user._id, req.params.id);
-  return sendSuccess(res, 200, 'Job deleted successfully');
+  return res.status(200).json(new ApiResponse(200, null, 'Job deleted successfully'));
 });
 
 // @desc    Get applicants for a job
@@ -64,7 +63,7 @@ export const deleteJob = asyncHandler(async (req, res) => {
 // @access  Private (Employer only)
 export const getApplicants = asyncHandler(async (req, res) => {
   const applicants = await jobService.getApplicants(req.user._id, req.params.id);
-  return sendSuccess(res, 200, 'Applicants fetched successfully', { applicants });
+  return res.status(200).json(new ApiResponse(200, { applicants }, 'Applicants fetched successfully'));
 });
 
 // @desc    Get full applicant details (profile + credentials)
@@ -76,7 +75,7 @@ export const getApplicantDetails = asyncHandler(async (req, res) => {
     req.params.jobId,
     req.params.applicantUserId
   );
-  return sendSuccess(res, 200, 'Applicant details fetched successfully', details);
+  return res.status(200).json(new ApiResponse(200, details, 'Applicant details fetched successfully'));
 });
 
 // @desc    Update applicant status
@@ -90,7 +89,7 @@ export const updateApplicantStatus = asyncHandler(async (req, res) => {
     req.params.applicantId,
     status
   );
-  return sendSuccess(res, 200, 'Applicant status updated successfully', { job });
+  return res.status(200).json(new ApiResponse(200, { job }, 'Applicant status updated successfully'));
 });
 
 // @desc    Apply to a job
@@ -98,7 +97,7 @@ export const updateApplicantStatus = asyncHandler(async (req, res) => {
 // @access  Private (Learner only)
 export const applyToJob = asyncHandler(async (req, res) => {
   const job = await jobService.applyToJob(req.params.id, req.user._id);
-  return sendSuccess(res, 200, MESSAGES.JOB.APPLIED, { job });
+  return res.status(200).json(new ApiResponse(200, { job }, 'Application submitted successfully'));
 });
 
 // @desc    Get my applications (learner)
@@ -106,7 +105,7 @@ export const applyToJob = asyncHandler(async (req, res) => {
 // @access  Private (Learner only)
 export const getMyApplications = asyncHandler(async (req, res) => {
   const applications = await jobService.getMyApplications(req.user._id);
-  return sendSuccess(res, 200, 'Applications fetched successfully', { applications });
+  return res.status(200).json(new ApiResponse(200, { applications }, 'Applications fetched successfully'));
 });
 
 // @desc    Get job statistics (employer dashboard)
@@ -114,5 +113,5 @@ export const getMyApplications = asyncHandler(async (req, res) => {
 // @access  Private (Employer only)
 export const getJobStats = asyncHandler(async (req, res) => {
   const stats = await jobService.getJobStats(req.user._id);
-  return sendSuccess(res, 200, 'Job stats fetched successfully', { stats });
+  return res.status(200).json(new ApiResponse(200, { stats }, 'Job stats fetched successfully'));
 });

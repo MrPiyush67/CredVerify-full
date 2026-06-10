@@ -1,5 +1,5 @@
+import { ApiResponse } from '../../core/utils/ApiResponse.js';
 import { asyncHandler } from '../../core/utils/asyncHandler.js';
-import { sendSuccess } from '../../core/utils/response.js';
 import * as learnerService from './learner.service.js';
 
 // @desc    Get all learners (public profiles only)
@@ -7,7 +7,7 @@ import * as learnerService from './learner.service.js';
 // @access  Public
 export const getAllLearners = asyncHandler(async (req, res) => {
   const profiles = await learnerService.getAllLearners();
-  return sendSuccess(res, 200, 'Learners fetched successfully', { profiles });
+  return res.status(200).json(new ApiResponse(200, { profiles }, 'Learners fetched successfully'));
 });
 
 // @desc    Get learner by ID (respects privacy settings)
@@ -21,7 +21,7 @@ export const getLearnerById = asyncHandler(async (req, res) => {
     req.user?.role
   );
   // Return in format expected by frontend: { user }
-  return sendSuccess(res, 200, 'Learner fetched successfully', { user: profile });
+  return res.status(200).json(new ApiResponse(200, { user: profile }, 'Learner fetched successfully'));
 });
 
 // @desc    Get learner settings
@@ -29,7 +29,7 @@ export const getLearnerById = asyncHandler(async (req, res) => {
 // @access  Private (Learner only)
 export const getSettings = asyncHandler(async (req, res) => {
   const settings = await learnerService.getSettings(req.user._id);
-  return sendSuccess(res, 200, 'Settings fetched successfully', settings);
+  return res.status(200).json(new ApiResponse(200, settings, 'Settings fetched successfully'));
 });
 
 // @desc    Update learner settings
@@ -37,7 +37,7 @@ export const getSettings = asyncHandler(async (req, res) => {
 // @access  Private (Learner only)
 export const updateSettings = asyncHandler(async (req, res) => {
   const settings = await learnerService.updateSettings(req.user._id, req.body);
-  return sendSuccess(res, 200, 'Settings updated successfully', settings);
+  return res.status(200).json(new ApiResponse(200, settings, 'Settings updated successfully'));
 });
 
 // @desc    Get learner statistics
@@ -45,5 +45,5 @@ export const updateSettings = asyncHandler(async (req, res) => {
 // @access  Private (Learner only)
 export const getStats = asyncHandler(async (req, res) => {
   const stats = await learnerService.getStats(req.user._id);
-  return sendSuccess(res, 200, 'Stats fetched successfully', stats);
+  return res.status(200).json(new ApiResponse(200, stats, 'Stats fetched successfully'));
 });
