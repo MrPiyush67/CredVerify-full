@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import User from '../features/user/user.model.js';
+import User from '../features-old/user/models/user.model.js';
 
 // Predefined IDs for reference in other seed files
 export const SEED_IDS = {
@@ -63,7 +63,16 @@ const learners = [
     avatar: 'https://i.pravatar.cc/150?img=5',
     bio: 'Full-stack developer with 5+ years of experience in MERN stack. Passionate about building scalable web applications and mentoring junior developers.',
     phoneNo: '+91-9876543210',
-    skills: ['JavaScript', 'React', 'Node.js', 'MongoDB', 'Express', 'TypeScript', 'AWS', 'Docker'],
+    skills: [
+      'JavaScript',
+      'React',
+      'Node.js',
+      'MongoDB',
+      'Express',
+      'TypeScript',
+      'AWS',
+      'Docker',
+    ],
     education: [
       {
         institution: 'IIT Delhi',
@@ -80,7 +89,8 @@ const learners = [
         position: 'Senior Full Stack Developer',
         startDate: new Date('2020-01-01'),
         current: true,
-        description: 'Leading development of enterprise applications using MERN stack.',
+        description:
+          'Leading development of enterprise applications using MERN stack.',
       },
     ],
     achievements: [
@@ -109,7 +119,18 @@ const learners = [
     avatar: 'https://i.pravatar.cc/150?img=9',
     bio: 'Data scientist specializing in machine learning and AI. Passionate about leveraging data to solve complex business problems and drive innovation.',
     phoneNo: '+91-9876543211',
-    skills: ['Python', 'Machine Learning', 'TensorFlow', 'PyTorch', 'Data Analysis', 'Pandas', 'NumPy', 'Scikit-learn', 'Deep Learning', 'NLP'],
+    skills: [
+      'Python',
+      'Machine Learning',
+      'TensorFlow',
+      'PyTorch',
+      'Data Analysis',
+      'Pandas',
+      'NumPy',
+      'Scikit-learn',
+      'Deep Learning',
+      'NLP',
+    ],
     education: [
       {
         institution: 'BITS Pilani',
@@ -134,7 +155,8 @@ const learners = [
         position: 'Senior Data Scientist',
         startDate: new Date('2022-03-01'),
         current: true,
-        description: 'Leading ML projects for predictive analytics and recommendation systems. Built models improving customer retention by 25%.',
+        description:
+          'Leading ML projects for predictive analytics and recommendation systems. Built models improving customer retention by 25%.',
       },
       {
         company: 'AI Innovations Pvt Ltd',
@@ -142,7 +164,8 @@ const learners = [
         startDate: new Date('2020-06-01'),
         endDate: new Date('2022-02-28'),
         current: false,
-        description: 'Developed ML models for business intelligence and automated data pipelines.',
+        description:
+          'Developed ML models for business intelligence and automated data pipelines.',
       },
     ],
     achievements: [
@@ -150,7 +173,8 @@ const learners = [
         title: 'Best ML Project Award 2023',
         issuer: 'DataTech Analytics',
         date: new Date('2023-08-15'),
-        description: 'Recognized for developing innovative predictive analytics model.',
+        description:
+          'Recognized for developing innovative predictive analytics model.',
       },
     ],
     socialLinks: {
@@ -170,7 +194,18 @@ const learners = [
     avatar: 'https://i.pravatar.cc/150?img=47',
     bio: 'Mobile app developer with expertise in React Native and Flutter. Published 15+ apps with 500K+ downloads on App Store and Play Store.',
     phoneNo: '+91-9876543212',
-    skills: ['React Native', 'Flutter', 'iOS', 'Android', 'Firebase', 'Redux', 'GraphQL', 'REST APIs', 'Mobile UI/UX', 'CI/CD'],
+    skills: [
+      'React Native',
+      'Flutter',
+      'iOS',
+      'Android',
+      'Firebase',
+      'Redux',
+      'GraphQL',
+      'REST APIs',
+      'Mobile UI/UX',
+      'CI/CD',
+    ],
     education: [
       {
         institution: 'Anna University',
@@ -187,7 +222,8 @@ const learners = [
         position: 'Senior Mobile Developer',
         startDate: new Date('2022-05-01'),
         current: true,
-        description: 'Leading mobile development team. Built flagship app with 200K+ active users.',
+        description:
+          'Leading mobile development team. Built flagship app with 200K+ active users.',
       },
       {
         company: 'AppCraft Solutions',
@@ -195,7 +231,8 @@ const learners = [
         startDate: new Date('2020-08-01'),
         endDate: new Date('2022-04-30'),
         current: false,
-        description: 'Developed cross-platform mobile applications for various clients.',
+        description:
+          'Developed cross-platform mobile applications for various clients.',
       },
     ],
     achievements: [
@@ -223,7 +260,18 @@ const learners = [
     avatar: 'https://i.pravatar.cc/150?img=25',
     bio: 'UI/UX designer creating beautiful digital experiences. Specialized in user-centered design with focus on accessibility and inclusivity.',
     phoneNo: '+91-9876543213',
-    skills: ['Figma', 'Adobe XD', 'UI Design', 'UX Research', 'Prototyping', 'Sketch', 'User Testing', 'Wireframing', 'Design Systems', 'Adobe Creative Suite'],
+    skills: [
+      'Figma',
+      'Adobe XD',
+      'UI Design',
+      'UX Research',
+      'Prototyping',
+      'Sketch',
+      'User Testing',
+      'Wireframing',
+      'Design Systems',
+      'Adobe Creative Suite',
+    ],
     education: [
       {
         institution: 'NID Ahmedabad',
@@ -240,7 +288,8 @@ const learners = [
         position: 'Senior UI/UX Designer',
         startDate: new Date('2023-01-01'),
         current: true,
-        description: 'Leading design team and managing end-to-end design process for multiple products.',
+        description:
+          'Leading design team and managing end-to-end design process for multiple products.',
       },
       {
         company: 'CreativeHub Agency',
@@ -248,7 +297,8 @@ const learners = [
         startDate: new Date('2020-07-01'),
         endDate: new Date('2022-12-31'),
         current: false,
-        description: 'Designed user interfaces for web and mobile applications for various clients.',
+        description:
+          'Designed user interfaces for web and mobile applications for various clients.',
       },
     ],
     achievements: [
@@ -276,7 +326,18 @@ const learners = [
     avatar: 'https://i.pravatar.cc/150?img=38',
     bio: 'Backend engineer specializing in Python and Django. Expert in building high-performance RESTful APIs and microservices architecture.',
     phoneNo: '+91-9876543214',
-    skills: ['Python', 'Django', 'PostgreSQL', 'Redis', 'Docker', 'FastAPI', 'Celery', 'REST APIs', 'GraphQL', 'Microservices'],
+    skills: [
+      'Python',
+      'Django',
+      'PostgreSQL',
+      'Redis',
+      'Docker',
+      'FastAPI',
+      'Celery',
+      'REST APIs',
+      'GraphQL',
+      'Microservices',
+    ],
     education: [
       {
         institution: 'Pune University',
@@ -293,7 +354,8 @@ const learners = [
         position: 'Senior Backend Developer',
         startDate: new Date('2021-10-01'),
         current: true,
-        description: 'Architecting and building scalable backend systems handling 10M+ requests daily.',
+        description:
+          'Architecting and building scalable backend systems handling 10M+ requests daily.',
       },
       {
         company: 'TechStart Solutions',
@@ -301,7 +363,8 @@ const learners = [
         startDate: new Date('2019-09-01'),
         endDate: new Date('2021-09-30'),
         current: false,
-        description: 'Developed backend services and APIs for web applications.',
+        description:
+          'Developed backend services and APIs for web applications.',
       },
     ],
     achievements: [
@@ -328,7 +391,18 @@ const learners = [
     avatar: 'https://i.pravatar.cc/150?img=31',
     bio: 'DevOps engineer with focus on CI/CD and cloud infrastructure. AWS certified solutions architect with expertise in container orchestration.',
     phoneNo: '+91-9876543215',
-    skills: ['AWS', 'Kubernetes', 'Terraform', 'Jenkins', 'Linux', 'Docker', 'GitLab CI', 'Ansible', 'Prometheus', 'Grafana'],
+    skills: [
+      'AWS',
+      'Kubernetes',
+      'Terraform',
+      'Jenkins',
+      'Linux',
+      'Docker',
+      'GitLab CI',
+      'Ansible',
+      'Prometheus',
+      'Grafana',
+    ],
     education: [
       {
         institution: 'VIT Vellore',
@@ -345,7 +419,8 @@ const learners = [
         position: 'Senior DevOps Engineer',
         startDate: new Date('2022-01-01'),
         current: true,
-        description: 'Leading DevOps team managing multi-cloud infrastructure for 50+ microservices.',
+        description:
+          'Leading DevOps team managing multi-cloud infrastructure for 50+ microservices.',
       },
       {
         company: 'TechInfra Pvt Ltd',
@@ -353,7 +428,8 @@ const learners = [
         startDate: new Date('2019-07-01'),
         endDate: new Date('2021-12-31'),
         current: false,
-        description: 'Implemented CI/CD pipelines and managed AWS infrastructure.',
+        description:
+          'Implemented CI/CD pipelines and managed AWS infrastructure.',
       },
     ],
     achievements: [
@@ -367,7 +443,8 @@ const learners = [
         title: 'Infrastructure Excellence Award',
         issuer: 'CloudOps Solutions',
         date: new Date('2023-09-01'),
-        description: 'Reduced infrastructure costs by 40% through optimization.',
+        description:
+          'Reduced infrastructure costs by 40% through optimization.',
       },
     ],
     socialLinks: {
@@ -386,7 +463,18 @@ const learners = [
     avatar: 'https://i.pravatar.cc/150?img=27',
     bio: 'QA engineer ensuring software quality through automation. Specialized in end-to-end testing and continuous quality assurance.',
     phoneNo: '+91-9876543216',
-    skills: ['Selenium', 'Cypress', 'Jest', 'API Testing', 'Automation', 'Postman', 'JMeter', 'TestNG', 'Cucumber', 'Performance Testing'],
+    skills: [
+      'Selenium',
+      'Cypress',
+      'Jest',
+      'API Testing',
+      'Automation',
+      'Postman',
+      'JMeter',
+      'TestNG',
+      'Cucumber',
+      'Performance Testing',
+    ],
     education: [
       {
         institution: 'JNTU Hyderabad',
@@ -403,7 +491,8 @@ const learners = [
         position: 'Senior QA Engineer',
         startDate: new Date('2022-08-01'),
         current: true,
-        description: 'Leading QA team and implementing comprehensive test automation frameworks. Reduced testing time by 70%.',
+        description:
+          'Leading QA team and implementing comprehensive test automation frameworks. Reduced testing time by 70%.',
       },
       {
         company: 'TestPro Solutions',
@@ -411,7 +500,8 @@ const learners = [
         startDate: new Date('2020-08-01'),
         endDate: new Date('2022-07-31'),
         current: false,
-        description: 'Developed automated test suites for web and mobile applications.',
+        description:
+          'Developed automated test suites for web and mobile applications.',
       },
     ],
     achievements: [
@@ -438,7 +528,18 @@ const learners = [
     avatar: 'https://i.pravatar.cc/150?img=41',
     bio: 'Frontend developer with passion for creating responsive UIs. Expert in modern JavaScript frameworks and performance optimization.',
     phoneNo: '+91-9876543217',
-    skills: ['React', 'Vue.js', 'JavaScript', 'CSS', 'HTML', 'TypeScript', 'Next.js', 'Tailwind CSS', 'Webpack', 'Redux'],
+    skills: [
+      'React',
+      'Vue.js',
+      'JavaScript',
+      'CSS',
+      'HTML',
+      'TypeScript',
+      'Next.js',
+      'Tailwind CSS',
+      'Webpack',
+      'Redux',
+    ],
     education: [
       {
         institution: 'Delhi University',
@@ -455,7 +556,8 @@ const learners = [
         position: 'Senior Frontend Developer',
         startDate: new Date('2022-06-01'),
         current: true,
-        description: 'Building modern, accessible web interfaces. Leading frontend architecture decisions.',
+        description:
+          'Building modern, accessible web interfaces. Leading frontend architecture decisions.',
       },
       {
         company: 'DigitalWeb Studios',
@@ -463,7 +565,8 @@ const learners = [
         startDate: new Date('2020-06-01'),
         endDate: new Date('2022-05-31'),
         current: false,
-        description: 'Developed responsive web applications using React and Vue.js.',
+        description:
+          'Developed responsive web applications using React and Vue.js.',
       },
     ],
     achievements: [
@@ -471,7 +574,8 @@ const learners = [
         title: 'Best Frontend Implementation 2023',
         issuer: 'WebCraft Agency',
         date: new Date('2023-07-20'),
-        description: 'Built award-winning e-commerce platform with exceptional UX.',
+        description:
+          'Built award-winning e-commerce platform with exceptional UX.',
       },
     ],
     socialLinks: {
@@ -491,7 +595,18 @@ const learners = [
     avatar: 'https://i.pravatar.cc/150?img=42',
     bio: 'Blockchain developer working on Web3 technologies. Pioneering DeFi solutions and smart contract security.',
     phoneNo: '+91-9876543218',
-    skills: ['Solidity', 'Ethereum', 'Web3.js', 'Smart Contracts', 'Hardhat', 'Truffle', 'IPFS', 'DeFi', 'NFTs', 'Rust'],
+    skills: [
+      'Solidity',
+      'Ethereum',
+      'Web3.js',
+      'Smart Contracts',
+      'Hardhat',
+      'Truffle',
+      'IPFS',
+      'DeFi',
+      'NFTs',
+      'Rust',
+    ],
     education: [
       {
         institution: 'IIT Bombay',
@@ -508,7 +623,8 @@ const learners = [
         position: 'Lead Blockchain Developer',
         startDate: new Date('2023-01-01'),
         current: true,
-        description: 'Leading blockchain development team. Built multiple DeFi protocols handling $50M+ in TVL.',
+        description:
+          'Leading blockchain development team. Built multiple DeFi protocols handling $50M+ in TVL.',
       },
       {
         company: 'CryptoStart Labs',
@@ -516,7 +632,8 @@ const learners = [
         startDate: new Date('2020-09-01'),
         endDate: new Date('2022-12-31'),
         current: false,
-        description: 'Developed smart contracts and decentralized applications on Ethereum.',
+        description:
+          'Developed smart contracts and decentralized applications on Ethereum.',
       },
     ],
     achievements: [
@@ -524,13 +641,15 @@ const learners = [
         title: 'Best DeFi Project 2023',
         issuer: 'Web3 Conference India',
         date: new Date('2023-05-25'),
-        description: 'Built innovative yield farming protocol with advanced security features.',
+        description:
+          'Built innovative yield farming protocol with advanced security features.',
       },
       {
         title: 'Ethereum Foundation Grant',
         issuer: 'Ethereum Foundation',
         date: new Date('2022-09-15'),
-        description: 'Received grant for open-source blockchain tools development.',
+        description:
+          'Received grant for open-source blockchain tools development.',
       },
     ],
     socialLinks: {
@@ -550,7 +669,18 @@ const learners = [
     avatar: 'https://i.pravatar.cc/150?img=36',
     bio: 'Cloud solutions architect specializing in AWS and Azure. Expert in designing scalable, cost-effective cloud infrastructure.',
     phoneNo: '+91-9876543219',
-    skills: ['AWS', 'Azure', 'Cloud Architecture', 'Microservices', 'Lambda', 'S3', 'EC2', 'Cloud Security', 'Cost Optimization', 'Multi-Cloud'],
+    skills: [
+      'AWS',
+      'Azure',
+      'Cloud Architecture',
+      'Microservices',
+      'Lambda',
+      'S3',
+      'EC2',
+      'Cloud Security',
+      'Cost Optimization',
+      'Multi-Cloud',
+    ],
     education: [
       {
         institution: 'BITS Pilani',
@@ -575,7 +705,8 @@ const learners = [
         position: 'Principal Cloud Architect',
         startDate: new Date('2022-04-01'),
         current: true,
-        description: 'Leading cloud transformation projects for Fortune 500 companies. Designed infrastructure serving 100M+ users.',
+        description:
+          'Leading cloud transformation projects for Fortune 500 companies. Designed infrastructure serving 100M+ users.',
       },
       {
         company: 'TechCloud Services',
@@ -583,7 +714,8 @@ const learners = [
         startDate: new Date('2019-08-01'),
         endDate: new Date('2022-03-31'),
         current: false,
-        description: 'Architected cloud solutions for enterprise clients across various industries.',
+        description:
+          'Architected cloud solutions for enterprise clients across various industries.',
       },
     ],
     achievements: [
@@ -597,7 +729,8 @@ const learners = [
         title: 'Cloud Innovation Award',
         issuer: 'CloudScale Solutions',
         date: new Date('2023-08-15'),
-        description: 'Reduced cloud costs by 45% for major client through optimization.',
+        description:
+          'Reduced cloud costs by 45% for major client through optimization.',
       },
     ],
     socialLinks: {
@@ -622,7 +755,13 @@ const regulators = [
     avatar: 'https://i.pravatar.cc/150?img=47',
     bio: 'Senior credential verifier with 8+ years of experience in educational and professional certification validation.',
     phoneNo: '+91-11-4567-8901',
-    skills: ['Credential Verification', 'Document Authentication', 'Academic Assessment', 'Compliance Review', 'Data Analysis'],
+    skills: [
+      'Credential Verification',
+      'Document Authentication',
+      'Academic Assessment',
+      'Compliance Review',
+      'Data Analysis',
+    ],
     education: [
       {
         institution: 'University of Delhi',
@@ -647,7 +786,8 @@ const regulators = [
         position: 'Senior Credential Verifier',
         startDate: new Date('2017-05-01'),
         current: true,
-        description: 'Leading the technology credentials verification division. Verified 500+ credentials with 99.8% accuracy.',
+        description:
+          'Leading the technology credentials verification division. Verified 500+ credentials with 99.8% accuracy.',
       },
       {
         company: 'National Skill Development Corporation',
@@ -655,7 +795,8 @@ const regulators = [
         startDate: new Date('2014-07-01'),
         endDate: new Date('2017-04-30'),
         current: false,
-        description: 'Verified professional certifications and skill credentials across various industries.',
+        description:
+          'Verified professional certifications and skill credentials across various industries.',
       },
     ],
     achievements: [
@@ -663,7 +804,8 @@ const regulators = [
         title: 'Excellence in Verification Award 2023',
         issuer: 'CredVerify Central Authority',
         date: new Date('2023-11-15'),
-        description: 'Recognized for maintaining highest accuracy and efficiency standards.',
+        description:
+          'Recognized for maintaining highest accuracy and efficiency standards.',
       },
     ],
     socialLinks: {
@@ -690,7 +832,12 @@ const regulators = [
     avatar: 'https://i.pravatar.cc/150?img=28',
     bio: 'Professor specializing in IT education and credential verification.',
     phoneNo: '+91-824-247-3456',
-    skills: ['Academic Verification', 'IT Education', 'Credential Assessment', 'Research Evaluation'],
+    skills: [
+      'Academic Verification',
+      'IT Education',
+      'Credential Assessment',
+      'Research Evaluation',
+    ],
     education: [
       {
         institution: 'Indian Institute of Science',
@@ -735,7 +882,13 @@ const regulators = [
     avatar: 'https://i.pravatar.cc/150?img=32',
     bio: 'Senior faculty member handling credential verification for technology programs. Specialized in academic integrity and credential authentication.',
     phoneNo: '+91-11-2766-7890',
-    skills: ['Academic Verification', 'Credential Assessment', 'Educational Standards', 'Document Authentication', 'Compliance Review'],
+    skills: [
+      'Academic Verification',
+      'Credential Assessment',
+      'Educational Standards',
+      'Document Authentication',
+      'Compliance Review',
+    ],
     education: [
       {
         institution: 'University of Delhi',
@@ -760,7 +913,8 @@ const regulators = [
         position: 'Associate Professor & Credential Verifier',
         startDate: new Date('2015-07-01'),
         current: true,
-        description: 'Teaching computer applications and managing credential verification for the department.',
+        description:
+          'Teaching computer applications and managing credential verification for the department.',
       },
       {
         company: 'Ramjas College, DU',
@@ -768,7 +922,8 @@ const regulators = [
         startDate: new Date('2013-08-01'),
         endDate: new Date('2015-06-30'),
         current: false,
-        description: 'Taught computer science courses and assisted in academic verification.',
+        description:
+          'Taught computer science courses and assisted in academic verification.',
       },
     ],
     achievements: [
@@ -776,7 +931,8 @@ const regulators = [
         title: 'Excellence in Academic Verification',
         issuer: 'University of Delhi',
         date: new Date('2023-03-15'),
-        description: 'Recognized for maintaining high standards in credential verification.',
+        description:
+          'Recognized for maintaining high standards in credential verification.',
       },
     ],
     socialLinks: {
@@ -802,7 +958,13 @@ const regulators = [
     avatar: 'https://i.pravatar.cc/150?img=45',
     bio: 'Associate Professor specializing in computer science education and credential verification for graduate programs.',
     phoneNo: '+91-11-2670-4567',
-    skills: ['Graduate Credential Assessment', 'Research Validation', 'Academic Standards', 'CS Education', 'Thesis Evaluation'],
+    skills: [
+      'Graduate Credential Assessment',
+      'Research Validation',
+      'Academic Standards',
+      'CS Education',
+      'Thesis Evaluation',
+    ],
     education: [
       {
         institution: 'IIT Delhi',
@@ -827,7 +989,8 @@ const regulators = [
         position: 'Associate Professor',
         startDate: new Date('2016-01-01'),
         current: true,
-        description: 'Teaching and research in computer science. Managing graduate credential verification.',
+        description:
+          'Teaching and research in computer science. Managing graduate credential verification.',
       },
       {
         company: 'JNU',
@@ -862,7 +1025,13 @@ const regulators = [
     avatar: 'https://i.pravatar.cc/150?img=20',
     bio: 'Assistant Professor and credential validator for CS degrees. Focus on technology skill verification and academic assessment.',
     phoneNo: '+91-1596-242-345',
-    skills: ['CS Credential Verification', 'Skill Assessment', 'Academic Evaluation', 'Technology Education', 'Standards Compliance'],
+    skills: [
+      'CS Credential Verification',
+      'Skill Assessment',
+      'Academic Evaluation',
+      'Technology Education',
+      'Standards Compliance',
+    ],
     education: [
       {
         institution: 'IISc Bangalore',
@@ -887,7 +1056,8 @@ const regulators = [
         position: 'Assistant Professor',
         startDate: new Date('2017-07-01'),
         current: true,
-        description: 'Teaching CS courses and handling credential verification for the department.',
+        description:
+          'Teaching CS courses and handling credential verification for the department.',
       },
     ],
     achievements: [
@@ -895,7 +1065,8 @@ const regulators = [
         title: 'Best Teacher Award',
         issuer: 'BITS Pilani',
         date: new Date('2022-08-15'),
-        description: 'Recognized for excellence in teaching and mentoring students.',
+        description:
+          'Recognized for excellence in teaching and mentoring students.',
       },
     ],
     socialLinks: {
@@ -921,7 +1092,13 @@ const regulators = [
     avatar: 'https://i.pravatar.cc/150?img=35',
     bio: 'Professor with expertise in verifying engineering credentials. Over 15 years of experience in academic administration.',
     phoneNo: '+91-416-220-2345',
-    skills: ['Engineering Credential Verification', 'Academic Assessment', 'Quality Assurance', 'Accreditation', 'Educational Standards'],
+    skills: [
+      'Engineering Credential Verification',
+      'Academic Assessment',
+      'Quality Assurance',
+      'Accreditation',
+      'Educational Standards',
+    ],
     education: [
       {
         institution: 'Anna University',
@@ -946,7 +1123,8 @@ const regulators = [
         position: 'Professor & Verification Head',
         startDate: new Date('2013-06-01'),
         current: true,
-        description: 'Leading credential verification division and teaching senior-level courses.',
+        description:
+          'Leading credential verification division and teaching senior-level courses.',
       },
       {
         company: 'VIT',
@@ -954,7 +1132,8 @@ const regulators = [
         startDate: new Date('2008-08-01'),
         endDate: new Date('2013-05-31'),
         current: false,
-        description: 'Taught ECE courses and assisted in academic administration.',
+        description:
+          'Taught ECE courses and assisted in academic administration.',
       },
     ],
     achievements: [],
@@ -981,7 +1160,13 @@ const regulators = [
     avatar: 'https://i.pravatar.cc/150?img=43',
     bio: 'Professor at IIT Bombay specializing in CS degree verification. Leading expert in academic credential authentication.',
     phoneNo: '+91-22-2576-7890',
-    skills: ['IIT Credential Verification', 'Academic Integrity', 'Research Validation', 'Quality Control', 'Educational Policy'],
+    skills: [
+      'IIT Credential Verification',
+      'Academic Integrity',
+      'Research Validation',
+      'Quality Control',
+      'Educational Policy',
+    ],
     education: [
       {
         institution: 'Stanford University',
@@ -1006,7 +1191,8 @@ const regulators = [
         position: 'Professor',
         startDate: new Date('2017-01-01'),
         current: true,
-        description: 'Teaching advanced CS courses and managing credential verification committee.',
+        description:
+          'Teaching advanced CS courses and managing credential verification committee.',
       },
       {
         company: 'IIT Bombay',
@@ -1022,7 +1208,8 @@ const regulators = [
         title: 'Excellence in Teaching Award',
         issuer: 'IIT Bombay',
         date: new Date('2019-11-05'),
-        description: 'Recognized for outstanding teaching and student mentorship.',
+        description:
+          'Recognized for outstanding teaching and student mentorship.',
       },
     ],
     socialLinks: {
@@ -1048,7 +1235,13 @@ const regulators = [
     avatar: 'https://i.pravatar.cc/150?img=48',
     bio: 'Professor and credential verification committee head at IIT Madras. Expert in maintaining academic standards and credential integrity.',
     phoneNo: '+91-44-2257-8901',
-    skills: ['Credential Verification', 'Academic Standards', 'Committee Leadership', 'Quality Assurance', 'Educational Assessment'],
+    skills: [
+      'Credential Verification',
+      'Academic Standards',
+      'Committee Leadership',
+      'Quality Assurance',
+      'Educational Assessment',
+    ],
     education: [
       {
         institution: 'MIT, USA',
@@ -1073,7 +1266,8 @@ const regulators = [
         position: 'Professor & Verification Committee Head',
         startDate: new Date('2016-06-01'),
         current: true,
-        description: 'Leading verification committee and teaching CS courses. Processed 1000+ credential verifications.',
+        description:
+          'Leading verification committee and teaching CS courses. Processed 1000+ credential verifications.',
       },
       {
         company: 'IIT Madras',
@@ -1089,7 +1283,8 @@ const regulators = [
         title: 'Outstanding Contribution to Academic Excellence',
         issuer: 'IIT Madras',
         date: new Date('2022-12-10'),
-        description: 'Recognized for maintaining highest standards in credential verification.',
+        description:
+          'Recognized for maintaining highest standards in credential verification.',
       },
     ],
     socialLinks: {
@@ -1115,7 +1310,13 @@ const regulators = [
     avatar: 'https://i.pravatar.cc/150?img=44',
     bio: 'Senior academic administrator with expertise in degree verification and maintaining institutional academic standards.',
     phoneNo: '+91-11-2787-1234',
-    skills: ['Degree Verification', 'Academic Administration', 'Institutional Compliance', 'Educational Standards', 'Document Authentication'],
+    skills: [
+      'Degree Verification',
+      'Academic Administration',
+      'Institutional Compliance',
+      'Educational Standards',
+      'Document Authentication',
+    ],
     education: [
       {
         institution: 'Delhi Technological University',
@@ -1140,7 +1341,8 @@ const regulators = [
         position: 'Dean Academic Affairs & Verifier',
         startDate: new Date('2018-01-01'),
         current: true,
-        description: 'Managing academic affairs and overseeing credential verification process university-wide.',
+        description:
+          'Managing academic affairs and overseeing credential verification process university-wide.',
       },
       {
         company: 'DTU',
@@ -1148,7 +1350,8 @@ const regulators = [
         startDate: new Date('2012-08-01'),
         endDate: new Date('2017-12-31'),
         current: false,
-        description: 'Teaching and research in computer engineering department.',
+        description:
+          'Teaching and research in computer engineering department.',
       },
     ],
     achievements: [
@@ -1156,7 +1359,8 @@ const regulators = [
         title: 'Administrative Excellence Award',
         issuer: 'Delhi Technological University',
         date: new Date('2022-03-25'),
-        description: 'Recognized for streamlining academic verification processes.',
+        description:
+          'Recognized for streamlining academic verification processes.',
       },
     ],
     socialLinks: {
@@ -1182,7 +1386,13 @@ const regulators = [
     avatar: 'https://i.pravatar.cc/150?img=46',
     bio: 'Professor leading credential verification division at IIT Kharagpur. Pioneering digital credential verification systems.',
     phoneNo: '+91-3222-28-3456',
-    skills: ['Credential Verification', 'Digital Authentication', 'Blockchain for Credentials', 'Academic Standards', 'Technology Integration'],
+    skills: [
+      'Credential Verification',
+      'Digital Authentication',
+      'Blockchain for Credentials',
+      'Academic Standards',
+      'Technology Integration',
+    ],
     education: [
       {
         institution: 'University of Cambridge',
@@ -1207,7 +1417,8 @@ const regulators = [
         position: 'Professor & Head of Credential Division',
         startDate: new Date('2015-07-01'),
         current: true,
-        description: 'Leading credential verification division. Implementing blockchain-based verification system.',
+        description:
+          'Leading credential verification division. Implementing blockchain-based verification system.',
       },
       {
         company: 'IIT Kharagpur',
@@ -1215,7 +1426,8 @@ const regulators = [
         startDate: new Date('2009-08-01'),
         endDate: new Date('2015-06-30'),
         current: false,
-        description: 'Teaching CS courses and conducting research in digital systems.',
+        description:
+          'Teaching CS courses and conducting research in digital systems.',
       },
     ],
     achievements: [
@@ -1223,7 +1435,8 @@ const regulators = [
         title: 'Innovation in Academic Verification',
         issuer: 'IIT Kharagpur',
         date: new Date('2023-02-15'),
-        description: 'Developed blockchain-based credential verification system.',
+        description:
+          'Developed blockchain-based credential verification system.',
       },
     ],
     socialLinks: {
@@ -1251,7 +1464,11 @@ const regulators = [
     avatar: 'https://i.pravatar.cc/150?img=60',
     bio: 'Senior verification officer at NSDC, specializing in skill development certifications.',
     phoneNo: '+91-11-4915-4900',
-    skills: ['Skill Certification', 'PMKVY Verification', 'Vocational Training Assessment'],
+    skills: [
+      'Skill Certification',
+      'PMKVY Verification',
+      'Vocational Training Assessment',
+    ],
     institution: 'NSDC (National Skill Development Corporation)',
     verificationAuthorityId: 'NSDC-VER-001',
     department: 'Certification Verification',
@@ -1271,7 +1488,11 @@ const regulators = [
     avatar: 'https://i.pravatar.cc/150?img=48',
     bio: 'Ministry of Education certification officer, handling digital credential verification.',
     phoneNo: '+91-11-2338-5360',
-    skills: ['Educational Credentials', 'NSQF Verification', 'Academic Standards'],
+    skills: [
+      'Educational Credentials',
+      'NSQF Verification',
+      'Academic Standards',
+    ],
     institution: 'Ministry of Education',
     verificationAuthorityId: 'MOE-VER-001',
     department: 'Digital Credentials Division',
@@ -1331,7 +1552,11 @@ const regulators = [
     avatar: 'https://i.pravatar.cc/150?img=49',
     bio: 'NIELIT verification officer for IT and electronics certifications.',
     phoneNo: '+91-11-2430-5800',
-    skills: ['IT Certification', 'CCC Verification', 'Cyber Security Credentials'],
+    skills: [
+      'IT Certification',
+      'CCC Verification',
+      'Cyber Security Credentials',
+    ],
     institution: 'NIELIT (National Institute of Electronics and IT)',
     verificationAuthorityId: 'NIELIT-VER-001',
     department: 'Certification Cell',
@@ -1351,7 +1576,11 @@ const regulators = [
     avatar: 'https://i.pravatar.cc/150?img=54',
     bio: 'AICTE certification coordinator for technical education programs.',
     phoneNo: '+91-11-2958-1000',
-    skills: ['Technical Education', 'AICTE Approvals', 'Engineering Credentials'],
+    skills: [
+      'Technical Education',
+      'AICTE Approvals',
+      'Engineering Credentials',
+    ],
     institution: 'AICTE (All India Council for Technical Education)',
     verificationAuthorityId: 'AICTE-VER-001',
     department: 'Accreditation & Verification',
@@ -1371,7 +1600,12 @@ const regulators = [
     avatar: 'https://i.pravatar.cc/150?img=45',
     bio: 'SWAYAM program coordinator for online learning credential verification.',
     phoneNo: '+91-11-2674-9000',
-    skills: ['MOOC Verification', 'Online Learning', 'SWAYAM Credentials', 'Digital Certificates'],
+    skills: [
+      'MOOC Verification',
+      'Online Learning',
+      'SWAYAM Credentials',
+      'Digital Certificates',
+    ],
     institution: 'SWAYAM (Study Webs of Active Learning)',
     verificationAuthorityId: 'SWAYAM-VER-001',
     department: 'Online Certification Division',
@@ -1396,7 +1630,16 @@ const employers = [
     avatar: 'https://i.pravatar.cc/150?img=20',
     bio: 'Co-founder and CTO of StartupX Technologies. Building innovative SaaS products.',
     phoneNo: '+91-22-3456-7890',
-    skills: ['JavaScript', 'Python', 'Cloud Architecture', 'Team Leadership', 'Product Strategy', 'SaaS', 'Microservices', 'DevOps'],
+    skills: [
+      'JavaScript',
+      'Python',
+      'Cloud Architecture',
+      'Team Leadership',
+      'Product Strategy',
+      'SaaS',
+      'Microservices',
+      'DevOps',
+    ],
     education: [
       {
         institution: 'IIT Bombay',
@@ -1421,7 +1664,8 @@ const employers = [
         position: 'Co-founder & CTO',
         startDate: new Date('2018-03-01'),
         current: true,
-        description: 'Building innovative SaaS products for enterprise clients. Leading tech team of 25+ engineers.',
+        description:
+          'Building innovative SaaS products for enterprise clients. Leading tech team of 25+ engineers.',
       },
       {
         company: 'TechCorp India',
@@ -1429,7 +1673,8 @@ const employers = [
         startDate: new Date('2014-06-01'),
         endDate: new Date('2018-02-28'),
         current: false,
-        description: 'Led multiple product development teams. Scaled infrastructure to support 1M+ users.',
+        description:
+          'Led multiple product development teams. Scaled infrastructure to support 1M+ users.',
       },
     ],
     achievements: [
@@ -1455,7 +1700,8 @@ const employers = [
     companyName: 'StartupX Technologies',
     industry: 'SaaS / Technology',
     companySize: '50-100',
-    companyDescription: 'Fast-growing startup building innovative SaaS products for enterprise clients. Focus on AI, blockchain, and IoT solutions. Dynamic work environment with equity options and unlimited learning opportunities.',
+    companyDescription:
+      'Fast-growing startup building innovative SaaS products for enterprise clients. Focus on AI, blockchain, and IoT solutions. Dynamic work environment with equity options and unlimited learning opportunities.',
     companyLocation: 'Mumbai, India',
     isPublic: true,
   },
@@ -1469,7 +1715,15 @@ const employers = [
     avatar: 'https://i.pravatar.cc/150?img=14',
     bio: 'CEO of TechInnovate Solutions with 15+ years in IT services. Leading digital transformation initiatives for global enterprises.',
     phoneNo: '+91-80-4123-5678',
-    skills: ['Leadership', 'Digital Transformation', 'Business Strategy', 'Client Management', 'Enterprise Solutions', 'Cloud Computing', 'Agile Methodology'],
+    skills: [
+      'Leadership',
+      'Digital Transformation',
+      'Business Strategy',
+      'Client Management',
+      'Enterprise Solutions',
+      'Cloud Computing',
+      'Agile Methodology',
+    ],
     education: [
       {
         institution: 'IIM Bangalore',
@@ -1494,7 +1748,8 @@ const employers = [
         position: 'CEO & Founder',
         startDate: new Date('2010-01-01'),
         current: true,
-        description: 'Founded and scaled company to 300+ employees. Delivered 200+ successful digital transformation projects.',
+        description:
+          'Founded and scaled company to 300+ employees. Delivered 200+ successful digital transformation projects.',
       },
       {
         company: 'Infosys Technologies',
@@ -1502,7 +1757,8 @@ const employers = [
         startDate: new Date('2007-08-01'),
         endDate: new Date('2009-12-31'),
         current: false,
-        description: 'Managed large-scale IT implementation projects for global clients.',
+        description:
+          'Managed large-scale IT implementation projects for global clients.',
       },
     ],
     achievements: [
@@ -1520,7 +1776,8 @@ const employers = [
     companyName: 'TechInnovate Solutions',
     industry: 'Information Technology',
     companySize: '200-500',
-    companyDescription: 'Leading IT services and consulting company specializing in digital transformation and enterprise software development.',
+    companyDescription:
+      'Leading IT services and consulting company specializing in digital transformation and enterprise software development.',
     companyLocation: 'Bangalore, India',
     isPublic: true,
   },
@@ -1534,7 +1791,15 @@ const employers = [
     avatar: 'https://i.pravatar.cc/150?img=32',
     bio: 'Head of Product at HealthTech Innovations. Building healthcare solutions that improve patient outcomes through technology.',
     phoneNo: '+91-44-8765-4321',
-    skills: ['Product Management', 'Healthcare Technology', 'UX Design', 'Data Analytics', 'Regulatory Compliance', 'Team Leadership', 'Agile'],
+    skills: [
+      'Product Management',
+      'Healthcare Technology',
+      'UX Design',
+      'Data Analytics',
+      'Regulatory Compliance',
+      'Team Leadership',
+      'Agile',
+    ],
     education: [
       {
         institution: 'ISB Hyderabad',
@@ -1559,7 +1824,8 @@ const employers = [
         position: 'VP Product',
         startDate: new Date('2019-03-01'),
         current: true,
-        description: 'Leading product strategy for telemedicine and patient management platforms. Scaled user base to 500K+ patients.',
+        description:
+          'Leading product strategy for telemedicine and patient management platforms. Scaled user base to 500K+ patients.',
       },
       {
         company: 'MedTech Solutions',
@@ -1567,7 +1833,8 @@ const employers = [
         startDate: new Date('2014-09-01'),
         endDate: new Date('2019-02-28'),
         current: false,
-        description: 'Managed healthcare SaaS products and led cross-functional teams.',
+        description:
+          'Managed healthcare SaaS products and led cross-functional teams.',
       },
     ],
     achievements: [
@@ -1575,7 +1842,8 @@ const employers = [
         title: 'Healthcare Innovation Award',
         issuer: 'HealthTech Summit',
         date: new Date('2023-06-10'),
-        description: 'Recognized for developing patient-centric telemedicine platform.',
+        description:
+          'Recognized for developing patient-centric telemedicine platform.',
       },
     ],
     socialLinks: {
@@ -1584,7 +1852,8 @@ const employers = [
     companyName: 'HealthTech Innovations',
     industry: 'Healthcare Technology',
     companySize: '100-200',
-    companyDescription: 'Healthcare technology company revolutionizing patient care through digital innovation.',
+    companyDescription:
+      'Healthcare technology company revolutionizing patient care through digital innovation.',
     companyLocation: 'Chennai, India',
     isPublic: true,
   },
@@ -1598,7 +1867,15 @@ const employers = [
     avatar: 'https://i.pravatar.cc/150?img=69',
     bio: 'Chief Product Officer at FinanceAI Technologies. Expert in building AI-powered financial products and driving product innovation.',
     phoneNo: '+91-22-7654-3210',
-    skills: ['Product Strategy', 'FinTech', 'AI/ML Products', 'Financial Services', 'Risk Management', 'Team Building', 'Data-Driven Decisions'],
+    skills: [
+      'Product Strategy',
+      'FinTech',
+      'AI/ML Products',
+      'Financial Services',
+      'Risk Management',
+      'Team Building',
+      'Data-Driven Decisions',
+    ],
     education: [
       {
         institution: 'Harvard Business School',
@@ -1623,7 +1900,8 @@ const employers = [
         position: 'Chief Product Officer',
         startDate: new Date('2018-06-01'),
         current: true,
-        description: 'Leading product development for AI-powered lending and investment platforms. Managing 10M+ user base.',
+        description:
+          'Leading product development for AI-powered lending and investment platforms. Managing 10M+ user base.',
       },
       {
         company: 'PayTech Global',
@@ -1631,7 +1909,8 @@ const employers = [
         startDate: new Date('2013-08-01'),
         endDate: new Date('2018-05-31'),
         current: false,
-        description: 'Built digital payment solutions and managed product lifecycle.',
+        description:
+          'Built digital payment solutions and managed product lifecycle.',
       },
     ],
     achievements: [
@@ -1639,7 +1918,8 @@ const employers = [
         title: 'FinTech Leader of the Year',
         issuer: 'FinTech Awards India',
         date: new Date('2022-10-15'),
-        description: 'Recognized for innovation in AI-powered financial products.',
+        description:
+          'Recognized for innovation in AI-powered financial products.',
       },
     ],
     socialLinks: {
@@ -1649,7 +1929,8 @@ const employers = [
     companyName: 'FinanceAI Technologies',
     industry: 'FinTech',
     companySize: '200-500',
-    companyDescription: 'FinTech company using AI and machine learning for intelligent financial solutions.',
+    companyDescription:
+      'FinTech company using AI and machine learning for intelligent financial solutions.',
     companyLocation: 'Mumbai, India',
     isPublic: true,
   },
@@ -1663,7 +1944,15 @@ const employers = [
     avatar: 'https://i.pravatar.cc/150?img=36',
     bio: 'VP of Technology at ShopEase E-Commerce. Building scalable e-commerce platforms serving millions of customers daily.',
     phoneNo: '+91-80-9876-5432',
-    skills: ['Technology Leadership', 'E-Commerce Platforms', 'Scalable Architecture', 'Team Management', 'Cloud Infrastructure', 'Microservices', 'DevOps'],
+    skills: [
+      'Technology Leadership',
+      'E-Commerce Platforms',
+      'Scalable Architecture',
+      'Team Management',
+      'Cloud Infrastructure',
+      'Microservices',
+      'DevOps',
+    ],
     education: [
       {
         institution: 'Stanford University',
@@ -1688,7 +1977,8 @@ const employers = [
         position: 'VP of Technology',
         startDate: new Date('2017-01-01'),
         current: true,
-        description: 'Leading tech team of 150+ engineers. Built platform handling 50M+ monthly transactions.',
+        description:
+          'Leading tech team of 150+ engineers. Built platform handling 50M+ monthly transactions.',
       },
       {
         company: 'Amazon India',
@@ -1714,7 +2004,8 @@ const employers = [
     companyName: 'ShopEase E-Commerce',
     industry: 'E-Commerce',
     companySize: '500-1000',
-    companyDescription: 'Leading e-commerce platform connecting buyers and sellers across India.',
+    companyDescription:
+      'Leading e-commerce platform connecting buyers and sellers across India.',
     companyLocation: 'Bangalore, India',
     isPublic: true,
   },
@@ -1728,7 +2019,17 @@ const employers = [
     avatar: 'https://i.pravatar.cc/150?img=27',
     bio: 'Chief Data Officer at DataAnalytics Pro. Leading data-driven transformation for enterprises globally.',
     phoneNo: '+91-40-5678-9012',
-    skills: ['Data Strategy', 'Business Intelligence', 'Analytics', 'Big Data', 'ML/AI', 'Leadership', 'Data Governance', 'Tableau', 'Power BI'],
+    skills: [
+      'Data Strategy',
+      'Business Intelligence',
+      'Analytics',
+      'Big Data',
+      'ML/AI',
+      'Leadership',
+      'Data Governance',
+      'Tableau',
+      'Power BI',
+    ],
     education: [
       {
         institution: 'MIT Sloan',
@@ -1753,7 +2054,8 @@ const employers = [
         position: 'Chief Data Officer',
         startDate: new Date('2018-05-01'),
         current: true,
-        description: 'Leading data strategy and analytics for 100+ enterprise clients. Built analytics platform processing 10TB+ daily.',
+        description:
+          'Leading data strategy and analytics for 100+ enterprise clients. Built analytics platform processing 10TB+ daily.',
       },
       {
         company: 'McKinsey & Company',
@@ -1761,7 +2063,8 @@ const employers = [
         startDate: new Date('2014-08-01'),
         endDate: new Date('2018-04-30'),
         current: false,
-        description: 'Provided data analytics consulting to Fortune 500 companies.',
+        description:
+          'Provided data analytics consulting to Fortune 500 companies.',
       },
     ],
     achievements: [
@@ -1778,7 +2081,8 @@ const employers = [
     companyName: 'DataAnalytics Pro',
     industry: 'Data Analytics',
     companySize: '200-500',
-    companyDescription: 'Data analytics and business intelligence solutions provider helping enterprises make data-driven decisions.',
+    companyDescription:
+      'Data analytics and business intelligence solutions provider helping enterprises make data-driven decisions.',
     companyLocation: 'Hyderabad, India',
     isPublic: true,
   },
@@ -1792,7 +2096,16 @@ const employers = [
     avatar: 'https://i.pravatar.cc/150?img=61',
     bio: 'Creative Director at GameForge Studios. Creating award-winning games with focus on storytelling and immersive gameplay.',
     phoneNo: '+91-22-8765-4321',
-    skills: ['Game Design', 'Creative Direction', 'Unity', 'Unreal Engine', 'Team Leadership', 'Storytelling', 'Game Mechanics', 'Project Management'],
+    skills: [
+      'Game Design',
+      'Creative Direction',
+      'Unity',
+      'Unreal Engine',
+      'Team Leadership',
+      'Storytelling',
+      'Game Mechanics',
+      'Project Management',
+    ],
     education: [
       {
         institution: 'USC School of Cinematic Arts',
@@ -1817,7 +2130,8 @@ const employers = [
         position: 'Creative Director & Co-founder',
         startDate: new Date('2015-03-01'),
         current: true,
-        description: 'Leading creative vision for 10+ AAA mobile games. Won multiple industry awards.',
+        description:
+          'Leading creative vision for 10+ AAA mobile games. Won multiple industry awards.',
       },
       {
         company: 'Ubisoft India',
@@ -1849,7 +2163,8 @@ const employers = [
     companyName: 'GameForge Studios',
     industry: 'Gaming',
     companySize: '100-200',
-    companyDescription: 'Award-winning game development studio creating immersive gaming experiences.',
+    companyDescription:
+      'Award-winning game development studio creating immersive gaming experiences.',
     companyLocation: 'Mumbai, India',
     isPublic: true,
   },
@@ -1863,7 +2178,16 @@ const employers = [
     avatar: 'https://i.pravatar.cc/150?img=62',
     bio: 'Co-founder of EduTech Learning Platform. Democratizing education through technology and AI-powered learning.',
     phoneNo: '+91-33-2345-6789',
-    skills: ['EdTech', 'Product Development', 'Educational Content', 'AI/ML', 'Business Strategy', 'Team Building', 'Fundraising', 'Marketing'],
+    skills: [
+      'EdTech',
+      'Product Development',
+      'Educational Content',
+      'AI/ML',
+      'Business Strategy',
+      'Team Building',
+      'Fundraising',
+      'Marketing',
+    ],
     education: [
       {
         institution: 'IIM Calcutta',
@@ -1888,7 +2212,8 @@ const employers = [
         position: 'Co-founder & CEO',
         startDate: new Date('2016-01-01'),
         current: true,
-        description: 'Built online learning platform serving 2M+ students. Raised $25M in funding.',
+        description:
+          'Built online learning platform serving 2M+ students. Raised $25M in funding.',
       },
       {
         company: 'Pearson India',
@@ -1920,7 +2245,8 @@ const employers = [
     companyName: 'EduTech Learning Platform',
     industry: 'Education Technology',
     companySize: '100-200',
-    companyDescription: 'Making quality education accessible through technology with AI-powered personalized learning paths.',
+    companyDescription:
+      'Making quality education accessible through technology with AI-powered personalized learning paths.',
     companyLocation: 'Kolkata, India',
     isPublic: true,
   },
@@ -1934,7 +2260,16 @@ const employers = [
     avatar: 'https://i.pravatar.cc/150?img=45',
     bio: 'Founder and Lead Designer at WebTech Solutions. Creating stunning web experiences with focus on user-centered design.',
     phoneNo: '+91-20-9876-5432',
-    skills: ['Web Design', 'UX/UI', 'Creative Direction', 'Team Management', 'Client Relations', 'Front-end Development', 'Branding', 'Figma'],
+    skills: [
+      'Web Design',
+      'UX/UI',
+      'Creative Direction',
+      'Team Management',
+      'Client Relations',
+      'Front-end Development',
+      'Branding',
+      'Figma',
+    ],
     education: [
       {
         institution: 'NID Ahmedabad',
@@ -1959,7 +2294,8 @@ const employers = [
         position: 'Founder & Lead Designer',
         startDate: new Date('2015-06-01'),
         current: true,
-        description: 'Founded award-winning web agency. Delivered 200+ successful projects for global clients.',
+        description:
+          'Founded award-winning web agency. Delivered 200+ successful projects for global clients.',
       },
       {
         company: 'Ogilvy Digital',
@@ -1986,7 +2322,8 @@ const employers = [
     companyName: 'WebTech Solutions',
     industry: 'Web Development',
     companySize: '100-200',
-    companyDescription: 'Full-service web development agency creating stunning websites and web applications.',
+    companyDescription:
+      'Full-service web development agency creating stunning websites and web applications.',
     companyLocation: 'Pune, India',
     isPublic: true,
   },
@@ -2000,7 +2337,17 @@ const employers = [
     avatar: 'https://i.pravatar.cc/150?img=51',
     bio: 'VP of Engineering at CloudCorp India. Leading cloud transformation initiatives for Fortune 500 companies.',
     phoneNo: '+91-120-456-7890',
-    skills: ['Cloud Architecture', 'Engineering Leadership', 'AWS', 'Azure', 'GCP', 'DevOps', 'Kubernetes', 'Team Scaling', 'Technical Strategy'],
+    skills: [
+      'Cloud Architecture',
+      'Engineering Leadership',
+      'AWS',
+      'Azure',
+      'GCP',
+      'DevOps',
+      'Kubernetes',
+      'Team Scaling',
+      'Technical Strategy',
+    ],
     education: [
       {
         institution: 'Carnegie Mellon University',
@@ -2025,7 +2372,8 @@ const employers = [
         position: 'VP of Engineering',
         startDate: new Date('2016-04-01'),
         current: true,
-        description: 'Leading engineering org of 400+ engineers. Architected cloud solutions for 50+ enterprise clients.',
+        description:
+          'Leading engineering org of 400+ engineers. Architected cloud solutions for 50+ enterprise clients.',
       },
       {
         company: 'Microsoft India',
@@ -2041,7 +2389,8 @@ const employers = [
         title: 'Cloud Architect of the Year',
         issuer: 'Cloud Summit Asia',
         date: new Date('2022-08-20'),
-        description: 'Recognized for excellence in cloud architecture and leadership.',
+        description:
+          'Recognized for excellence in cloud architecture and leadership.',
       },
       {
         title: 'AWS Partner Award',
@@ -2057,7 +2406,8 @@ const employers = [
     companyName: 'CloudCorp India',
     industry: 'Cloud Computing',
     companySize: '500-1000',
-    companyDescription: 'Premier cloud solutions provider offering AWS, Azure, and GCP services.',
+    companyDescription:
+      'Premier cloud solutions provider offering AWS, Azure, and GCP services.',
     companyLocation: 'Gurgaon, India',
     isPublic: true,
   },
@@ -2076,10 +2426,12 @@ export const seedUsers = async () => {
         ...userWithoutPassword,
         passwordHash,
       };
-    })
+    }),
   );
 
   const createdUsers = await User.insertMany(usersWithHashedPasswords);
-  console.log(`✅ Users created: ${createdUsers.length} (10 learners, 10 regulators, 10 employers)`);
+  console.log(
+    `✅ Users created: ${createdUsers.length} (10 learners, 10 regulators, 10 employers)`,
+  );
   return createdUsers;
 };

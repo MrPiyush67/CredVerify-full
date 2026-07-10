@@ -1,4 +1,4 @@
-import { Conversation, Message } from '../features/chat/chat.model.js';
+import { Conversation, Message } from '../features-old/chat/chat.model.js';
 import { SEED_IDS } from './users.js';
 
 // Helper to generate past dates
@@ -46,7 +46,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv1._id,
       sender: SEED_IDS.learner1,
-      content: 'Hi Dr. Kavita! I submitted my Machine Learning Specialization certificate from Coursera for verification. Could you please review it when you have time?',
+      content:
+        'Hi Dr. Kavita! I submitted my Machine Learning Specialization certificate from Coursera for verification. Could you please review it when you have time?',
       readBy: [SEED_IDS.learner1, SEED_IDS.regulator1],
       isRead: true,
       createdAt: daysAgo(12),
@@ -54,7 +55,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv1._id,
       sender: SEED_IDS.regulator1,
-      content: 'Hello Priya! Yes, I saw your submission. Let me check the Coursera API to verify your certificate.',
+      content:
+        'Hello Priya! Yes, I saw your submission. Let me check the Coursera API to verify your certificate.',
       readBy: [SEED_IDS.learner1, SEED_IDS.regulator1],
       isRead: true,
       createdAt: daysAgo(11),
@@ -70,7 +72,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv1._id,
       sender: SEED_IDS.regulator1,
-      content: 'Your Machine Learning Specialization has been verified successfully! The certificate is authentic and all metadata checks out.',
+      content:
+        'Your Machine Learning Specialization has been verified successfully! The certificate is authentic and all metadata checks out.',
       readBy: [SEED_IDS.learner1, SEED_IDS.regulator1],
       isRead: true,
       createdAt: daysAgo(10),
@@ -78,7 +81,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv1._id,
       sender: SEED_IDS.learner1,
-      content: 'Wonderful! That\'s great news. I also uploaded my IIT Delhi degree. Hope that one is straightforward too.',
+      content:
+        "Wonderful! That's great news. I also uploaded my IIT Delhi degree. Hope that one is straightforward too.",
       readBy: [SEED_IDS.learner1, SEED_IDS.regulator1],
       isRead: true,
       createdAt: daysAgo(9),
@@ -86,7 +90,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv1._id,
       sender: SEED_IDS.regulator1,
-      content: 'I verified your IIT Delhi degree as well. Everything checks out with their records.',
+      content:
+        'I verified your IIT Delhi degree as well. Everything checks out with their records.',
       readBy: [SEED_IDS.learner1, SEED_IDS.regulator1],
       isRead: true,
       createdAt: daysAgo(7),
@@ -94,7 +99,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv1._id,
       sender: SEED_IDS.learner1,
-      content: 'Perfect! I noticed my GCP certificate was rejected. Could you tell me what went wrong?',
+      content:
+        'Perfect! I noticed my GCP certificate was rejected. Could you tell me what went wrong?',
       readBy: [SEED_IDS.learner1, SEED_IDS.regulator1],
       isRead: true,
       createdAt: daysAgo(5),
@@ -102,7 +108,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv1._id,
       sender: SEED_IDS.regulator1,
-      content: 'The credential ID you provided couldn\'t be found in Google Cloud\'s verification system. Please double-check the ID on your certificate and resubmit with the correct information.',
+      content:
+        "The credential ID you provided couldn't be found in Google Cloud's verification system. Please double-check the ID on your certificate and resubmit with the correct information.",
       readBy: [SEED_IDS.learner1, SEED_IDS.regulator1],
       isRead: true,
       createdAt: daysAgo(4),
@@ -110,7 +117,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv1._id,
       sender: SEED_IDS.learner1,
-      content: 'Oh I see! I might have made a typo. Let me check my original certificate and resubmit. Thanks for the clarification!',
+      content:
+        'Oh I see! I might have made a typo. Let me check my original certificate and resubmit. Thanks for the clarification!',
       readBy: [SEED_IDS.learner1, SEED_IDS.regulator1],
       isRead: true,
       createdAt: daysAgo(4),
@@ -118,7 +126,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv1._id,
       sender: SEED_IDS.regulator1,
-      content: 'No problem! Always happy to help. Just make sure to upload the correct document.',
+      content:
+        'No problem! Always happy to help. Just make sure to upload the correct document.',
       readBy: [SEED_IDS.learner1, SEED_IDS.regulator1],
       isRead: true,
       createdAt: daysAgo(3),
@@ -126,7 +135,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv1._id,
       sender: SEED_IDS.learner1,
-      content: 'Will do! I also have two more certifications pending review. Hopefully those will be verified soon.',
+      content:
+        'Will do! I also have two more certifications pending review. Hopefully those will be verified soon.',
       readBy: [SEED_IDS.learner1, SEED_IDS.regulator1],
       isRead: true,
       createdAt: hoursAgo(48),
@@ -134,7 +144,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv1._id,
       sender: SEED_IDS.regulator1,
-      content: 'I\'ll review them this week. The queue is a bit long but I should get to them soon!',
+      content:
+        "I'll review them this week. The queue is a bit long but I should get to them soon!",
       readBy: [SEED_IDS.learner1, SEED_IDS.regulator1],
       isRead: true,
       createdAt: hoursAgo(2),
@@ -146,7 +157,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv2._id,
       sender: SEED_IDS.learner1,
-      content: 'Hi Meera! I saw the Senior Full Stack Developer position at StartupX Technologies. The role looks really interesting!',
+      content:
+        'Hi Meera! I saw the Senior Full Stack Developer position at StartupX Technologies. The role looks really interesting!',
       readBy: [SEED_IDS.learner1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(8),
@@ -154,7 +166,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv2._id,
       sender: SEED_IDS.employer1,
-      content: 'Hi Priya! Thank you for your interest. I\'d love to learn more about your background. Do you have experience with React and Node.js?',
+      content:
+        "Hi Priya! Thank you for your interest. I'd love to learn more about your background. Do you have experience with React and Node.js?",
       readBy: [SEED_IDS.learner1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(8),
@@ -162,7 +175,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv2._id,
       sender: SEED_IDS.learner1,
-      content: 'Yes! I have about 4 years of experience with both technologies. I\'ve built several full-stack applications using the MERN stack.',
+      content:
+        "Yes! I have about 4 years of experience with both technologies. I've built several full-stack applications using the MERN stack.",
       readBy: [SEED_IDS.learner1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(7),
@@ -170,7 +184,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv2._id,
       sender: SEED_IDS.employer1,
-      content: 'That\'s excellent! I see you have AWS certification as well. That\'s a big plus for us since we\'re heavily invested in AWS infrastructure.',
+      content:
+        "That's excellent! I see you have AWS certification as well. That's a big plus for us since we're heavily invested in AWS infrastructure.",
       readBy: [SEED_IDS.learner1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(7),
@@ -178,7 +193,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv2._id,
       sender: SEED_IDS.learner1,
-      content: 'Yes, I just got it verified recently! I\'ve worked with EC2, S3, Lambda, and several other AWS services in my previous projects.',
+      content:
+        "Yes, I just got it verified recently! I've worked with EC2, S3, Lambda, and several other AWS services in my previous projects.",
       readBy: [SEED_IDS.learner1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(6),
@@ -186,7 +202,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv2._id,
       sender: SEED_IDS.employer1,
-      content: 'Perfect! Would you be available for a technical interview next week? I\'d like to discuss your experience in more detail.',
+      content:
+        "Perfect! Would you be available for a technical interview next week? I'd like to discuss your experience in more detail.",
       readBy: [SEED_IDS.learner1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(6),
@@ -194,7 +211,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv2._id,
       sender: SEED_IDS.learner1,
-      content: 'Absolutely! I\'m available on Tuesday or Thursday afternoon. Which day works better for you?',
+      content:
+        "Absolutely! I'm available on Tuesday or Thursday afternoon. Which day works better for you?",
       readBy: [SEED_IDS.learner1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(5),
@@ -202,7 +220,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv2._id,
       sender: SEED_IDS.employer1,
-      content: 'Thursday at 3 PM would be great! I\'ll send you a calendar invite with the video call link.',
+      content:
+        "Thursday at 3 PM would be great! I'll send you a calendar invite with the video call link.",
       readBy: [SEED_IDS.learner1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(5),
@@ -210,7 +229,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv2._id,
       sender: SEED_IDS.learner1,
-      content: 'Sounds good! Should I prepare anything specific for the interview?',
+      content:
+        'Sounds good! Should I prepare anything specific for the interview?',
       readBy: [SEED_IDS.learner1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(4),
@@ -218,7 +238,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv2._id,
       sender: SEED_IDS.employer1,
-      content: 'Just be ready to discuss your past projects and maybe solve a couple of coding challenges. Nothing too complex - we want to see your problem-solving approach.',
+      content:
+        'Just be ready to discuss your past projects and maybe solve a couple of coding challenges. Nothing too complex - we want to see your problem-solving approach.',
       readBy: [SEED_IDS.learner1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(4),
@@ -226,7 +247,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv2._id,
       sender: SEED_IDS.learner1,
-      content: 'Got it! I\'ll review my recent projects and brush up on algorithms. Looking forward to it!',
+      content:
+        "Got it! I'll review my recent projects and brush up on algorithms. Looking forward to it!",
       readBy: [SEED_IDS.learner1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(3),
@@ -246,7 +268,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv3._id,
       sender: SEED_IDS.regulator1,
-      content: 'Hi Meera! I\'m reaching out because I saw your job postings on the platform. Are you looking for candidates with verified credentials?',
+      content:
+        "Hi Meera! I'm reaching out because I saw your job postings on the platform. Are you looking for candidates with verified credentials?",
       readBy: [SEED_IDS.regulator1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(10),
@@ -254,7 +277,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv3._id,
       sender: SEED_IDS.employer1,
-      content: 'Hi Dr. Kavita! Yes, absolutely. Verified credentials are very important to us. It helps us trust that candidates have the qualifications they claim.',
+      content:
+        'Hi Dr. Kavita! Yes, absolutely. Verified credentials are very important to us. It helps us trust that candidates have the qualifications they claim.',
       readBy: [SEED_IDS.regulator1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(10),
@@ -262,7 +286,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv3._id,
       sender: SEED_IDS.regulator1,
-      content: 'That\'s wonderful to hear! We at CredVerify Central Authority are committed to maintaining the highest verification standards.',
+      content:
+        "That's wonderful to hear! We at CredVerify Central Authority are committed to maintaining the highest verification standards.",
       readBy: [SEED_IDS.regulator1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(9),
@@ -270,7 +295,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv3._id,
       sender: SEED_IDS.employer1,
-      content: 'Your work is invaluable! It saves us so much time during the hiring process. We don\'t have to manually verify every certificate.',
+      content:
+        "Your work is invaluable! It saves us so much time during the hiring process. We don't have to manually verify every certificate.",
       readBy: [SEED_IDS.regulator1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(9),
@@ -278,7 +304,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv3._id,
       sender: SEED_IDS.regulator1,
-      content: 'I\'m glad we can help! By the way, I noticed you\'re hiring for a DevOps position. Do you need help verifying cloud certifications?',
+      content:
+        "I'm glad we can help! By the way, I noticed you're hiring for a DevOps position. Do you need help verifying cloud certifications?",
       readBy: [SEED_IDS.regulator1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(8),
@@ -286,7 +313,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv3._id,
       sender: SEED_IDS.employer1,
-      content: 'Yes! Cloud certifications are critical for that role. AWS and GCP certifications in particular.',
+      content:
+        'Yes! Cloud certifications are critical for that role. AWS and GCP certifications in particular.',
       readBy: [SEED_IDS.regulator1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(8),
@@ -294,7 +322,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv3._id,
       sender: SEED_IDS.regulator1,
-      content: 'Perfect! We have direct verification channels with both AWS and Google Cloud. If you get any applications, feel free to send them my way for priority verification.',
+      content:
+        'Perfect! We have direct verification channels with both AWS and Google Cloud. If you get any applications, feel free to send them my way for priority verification.',
       readBy: [SEED_IDS.regulator1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(7),
@@ -302,7 +331,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv3._id,
       sender: SEED_IDS.employer1,
-      content: 'That would be amazing! We have a few candidates in the pipeline. I\'ll make sure they get their credentials verified through your authority.',
+      content:
+        "That would be amazing! We have a few candidates in the pipeline. I'll make sure they get their credentials verified through your authority.",
       readBy: [SEED_IDS.regulator1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(6),
@@ -310,7 +340,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv3._id,
       sender: SEED_IDS.regulator1,
-      content: 'Sounds good! Also, if you ever need verification statistics or reports for your hiring analytics, just let me know.',
+      content:
+        'Sounds good! Also, if you ever need verification statistics or reports for your hiring analytics, just let me know.',
       readBy: [SEED_IDS.regulator1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(5),
@@ -318,7 +349,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv3._id,
       sender: SEED_IDS.employer1,
-      content: 'That\'s a great offer! We\'re actually building a dashboard for tracking verified vs unverified applicants. Your data would be really helpful.',
+      content:
+        "That's a great offer! We're actually building a dashboard for tracking verified vs unverified applicants. Your data would be really helpful.",
       readBy: [SEED_IDS.regulator1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(4),
@@ -326,7 +358,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv3._id,
       sender: SEED_IDS.regulator1,
-      content: 'Excellent! Let\'s schedule a call to discuss how we can collaborate more closely. I think there\'s a lot of potential here.',
+      content:
+        "Excellent! Let's schedule a call to discuss how we can collaborate more closely. I think there's a lot of potential here.",
       readBy: [SEED_IDS.regulator1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(3),
@@ -334,7 +367,8 @@ const createMessages = async (conversations) => {
     {
       conversation: conv3._id,
       sender: SEED_IDS.employer1,
-      content: 'Agreed! I\'ll send you my availability. Looking forward to working together!',
+      content:
+        "Agreed! I'll send you my availability. Looking forward to working together!",
       readBy: [SEED_IDS.regulator1, SEED_IDS.employer1],
       isRead: true,
       createdAt: daysAgo(2),
@@ -379,7 +413,7 @@ const seedChat = async () => {
 
   console.log(`✅ Conversations created: 3 (between demo users)`);
   console.log(
-    `✅ Messages created: ${messages.messages1.length + messages.messages2.length + messages.messages3.length} total`
+    `✅ Messages created: ${messages.messages1.length + messages.messages2.length + messages.messages3.length} total`,
   );
   console.log(`   - Priya ↔ Dr. Kavita: ${messages.messages1.length} messages`);
   console.log(`   - Priya ↔ Meera: ${messages.messages2.length} messages`);

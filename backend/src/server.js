@@ -1,21 +1,31 @@
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error(`❌ Uncaught Exception: ${err.message}`);
+  process.exit(1);
+});
+
+import { config } from './config/env.js';
+import { connectDB } from './config/db.js';
 import http from 'http';
 import app from './app.js';
-import { config } from './core/config/env.js';
-import { initializeSocket } from './core/utils/socket.js';
+import { initializeSocket } from '#src/features-old/chat/socket.js';
 
-const PORT = config.port;
-const HOST = "0.0.0.0";
-
-// Create HTTP server
 const server = http.createServer(app);
 
-// Initialize Socket.IO
-initializeSocket(server);
+const startServer = async () => {
+  try {
+    await connectDB();
 
-// Start server
-server.listen(PORT, HOST, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+    initializeSocket(server);
+
+    server.listen(config.PORT, () => {
+      console.log(`🚀 Server running on port ${config.PORT}`);
+    });
+  } catch (error) {
+    console.log('❌ failed to start the server', error.message);
+    process.exit(1);
+  }
+};
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
@@ -23,8 +33,13 @@ process.on('unhandledRejection', (err) => {
   server.close(() => process.exit(1));
 });
 
-// Handle uncaught exceptions
-process.on('uncaughtException', (err) => {
-  console.error(`❌ Uncaught Exception: ${err.message}`);
-  process.exit(1);
+// Intercept graceful termination sequences
+process.on('SIGTERM', () => {
+  console.log('SIGTERM signal received. Closing server components...');
+  server.close(() => {
+    console.log('📦 Server process terminated securely.');
+    process.exit(0);
+  });
 });
+
+startServer();

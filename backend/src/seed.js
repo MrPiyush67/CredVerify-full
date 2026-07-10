@@ -5,7 +5,7 @@ import seedCredentials from './seed/credentials.js';
 import seedJobs from './seed/jobs.js';
 import seedChat from './seed/chat.js';
 import seedNotifications from './seed/notifications.js';
-import { connectDB } from './core/config/db.js';
+import { connectDB } from './config/db.js';
 
 // Load environment variables
 dotenv.config();
