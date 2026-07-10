@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/Skeleton.jsx';
+import { Skeleton } from '@/components/ui/skeleton.jsx';
 
 function PageSkeleton() {
   return (
