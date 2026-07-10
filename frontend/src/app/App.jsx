@@ -1,29 +1,29 @@
-import React, { Suspense } from 'react';
-import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter } from 'react-router';
 import { Toaster } from 'react-hot-toast';
-import AppRoutes from './routes.jsx';
-import { store } from './store.js';
-import ErrorBoundary from '../common/components/ErrorBoundary.jsx';
-import { Loader } from '@common';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { ErrorBoundary } from 'react-error-boundary';
 
+import ErrorBoundaryFallback from './components/ErrorBoundaryFallback.jsx';
+import { queryClient } from '@/lib/queryClient';
+import AppRoutes from './routes.jsx';
+// import Test from './test.jsx';
 
 export default function App() {
   return (
-    // redux store
-    <Provider store={store}>
-      {/* browser routing */}
-      <BrowserRouter>
-        <ErrorBoundary>
-          {/* lazy loading handler */}
-          <Suspense fallback={<Loader type="page" />}>
+    <>
+      <ErrorBoundary fallbackRender={<ErrorBoundaryFallback />} />
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
 
-            <AppRoutes />
+          <AppRoutes />
+          {/* <Test /> */}
 
-            <Toaster position="top-right" />
-          </Suspense>
-        </ErrorBoundary>
-      </BrowserRouter>
-    </Provider>
+        </BrowserRouter>
+          <Toaster position="top-right" />
+        <ReactQueryDevtools initialIsOpen={false} position="bottom" />
+      </QueryClientProvider>
+    </>
   );
 }

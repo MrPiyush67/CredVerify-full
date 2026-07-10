@@ -1,4 +1,4 @@
-import Job from '../features/job/job.model.js';
+import Job from '../features-old/job/job.model.js';
 import { SEED_IDS } from './users.js';
 
 // Helper to generate random past dates for applications
@@ -21,7 +21,8 @@ const jobs = [
   {
     employer: SEED_IDS.employer1,
     title: 'Senior Full Stack Developer',
-    description: 'We are looking for an experienced Full Stack Developer to join our growing team at StartupX Technologies. You will be responsible for developing and maintaining web applications using React, Node.js, and MongoDB. The ideal candidate has 4+ years of experience in building scalable applications and working in agile environments.',
+    description:
+      'We are looking for an experienced Full Stack Developer to join our growing team at StartupX Technologies. You will be responsible for developing and maintaining web applications using React, Node.js, and MongoDB. The ideal candidate has 4+ years of experience in building scalable applications and working in agile environments.',
     requirements: [
       '4+ years of experience in full stack development',
       'Proficiency in React, Node.js, and MongoDB',
@@ -67,7 +68,8 @@ const jobs = [
   {
     employer: SEED_IDS.employer1,
     title: 'UI/UX Designer',
-    description: 'StartupX Technologies is seeking a creative UI/UX Designer to design intuitive and engaging user interfaces for our SaaS products. You will work closely with product managers and developers to create beautiful, functional designs that enhance user experience.',
+    description:
+      'StartupX Technologies is seeking a creative UI/UX Designer to design intuitive and engaging user interfaces for our SaaS products. You will work closely with product managers and developers to create beautiful, functional designs that enhance user experience.',
     requirements: [
       '3+ years of experience in UI/UX design',
       'Proficiency in Figma, Adobe XD, or Sketch',
@@ -108,7 +110,8 @@ const jobs = [
   {
     employer: SEED_IDS.employer1,
     title: 'DevOps Engineer',
-    description: 'Join our team as a DevOps Engineer to help build and maintain our cloud infrastructure. You will automate deployment pipelines, manage containerized applications, and ensure high availability of our services. This is a great opportunity to work with modern DevOps tools and practices.',
+    description:
+      'Join our team as a DevOps Engineer to help build and maintain our cloud infrastructure. You will automate deployment pipelines, manage containerized applications, and ensure high availability of our services. This is a great opportunity to work with modern DevOps tools and practices.',
     requirements: [
       '3+ years of DevOps experience',
       'Expertise in Docker, Kubernetes, and CI/CD pipelines',
@@ -144,7 +147,8 @@ const jobs = [
   {
     employer: SEED_IDS.employer1,
     title: 'Product Manager',
-    description: 'We are looking for a passionate Product Manager to drive the vision and execution of our SaaS products. You will work with cross-functional teams to define product strategy, prioritize features, and deliver value to our customers.',
+    description:
+      'We are looking for a passionate Product Manager to drive the vision and execution of our SaaS products. You will work with cross-functional teams to define product strategy, prioritize features, and deliver value to our customers.',
     requirements: [
       '4+ years of product management experience',
       'Experience in SaaS or B2B products',
@@ -180,9 +184,10 @@ const jobs = [
   {
     employer: SEED_IDS.employer1,
     title: 'Frontend Developer Intern',
-    description: 'StartupX Technologies is offering an exciting internship opportunity for aspiring frontend developers. You will work on real projects, learn modern web development technologies, and gain hands-on experience in a fast-paced startup environment.',
+    description:
+      'StartupX Technologies is offering an exciting internship opportunity for aspiring frontend developers. You will work on real projects, learn modern web development technologies, and gain hands-on experience in a fast-paced startup environment.',
     requirements: [
-      'Pursuing or recently completed Bachelor\'s in Computer Science',
+      "Pursuing or recently completed Bachelor's in Computer Science",
       'Basic knowledge of HTML, CSS, and JavaScript',
       'Familiarity with React or other frontend frameworks',
       'Passion for web development and learning',
@@ -232,7 +237,9 @@ const jobs = [
 
 const seedJobs = async () => {
   const createdJobs = await Job.insertMany(jobs);
-  console.log(`✅ Jobs created: ${createdJobs.length} (posted by demo employer Meera)`);
+  console.log(
+    `✅ Jobs created: ${createdJobs.length} (posted by demo employer Meera)`,
+  );
   return createdJobs;
 };
 

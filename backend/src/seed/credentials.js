@@ -1,4 +1,4 @@
-import Credential from '../features/credential/credential.model.js';
+import Credential from '../features-old/credential/credential.model.js';
 import { SEED_IDS } from './users.js';
 
 // Helper to generate past dates
@@ -15,7 +15,8 @@ const monthsAgo = (months) => {
 };
 
 // Demo certificate image URL (consistent across all certificates for demo purposes)
-const DEMO_CERT_IMAGE = 'https://media.licdn.com/dms/image/v2/D5622AQHNw-eZBMN7SA/feedshare-shrink_1280/feedshare-shrink_1280/0/1723112482035?e=1766620800&v=beta&t=ahQdAIJcsXxlNCQ7PCMRcirNfwDaU98exjmZwSZ4tjs';
+const DEMO_CERT_IMAGE =
+  'https://media.licdn.com/dms/image/v2/D5622AQHNw-eZBMN7SA/feedshare-shrink_1280/feedshare-shrink_1280/0/1723112482035?e=1766620800&v=beta&t=ahQdAIJcsXxlNCQ7PCMRcirNfwDaU98exjmZwSZ4tjs';
 
 // 5 Credentials for Priya Sharma (demo learner)
 const credentials = [
@@ -34,28 +35,37 @@ const credentials = [
     type: 'certificate',
     credentialId: 'COURSERA-ML-2024-PS123',
     totalHours: 120,
-    skills: ['Machine Learning', 'Python', 'Neural Networks', 'TensorFlow', 'Supervised Learning'],
-    description: 'Comprehensive machine learning specialization covering supervised learning, neural networks, and deep learning. Completed 3-course series with hands-on projects.',
+    skills: [
+      'Machine Learning',
+      'Python',
+      'Neural Networks',
+      'TensorFlow',
+      'Supervised Learning',
+    ],
+    description:
+      'Comprehensive machine learning specialization covering supervised learning, neural networks, and deep learning. Completed 3-course series with hands-on projects.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'coursera-ml-certificate.jpg',
       fileType: 'image/jpeg',
       uploadedAt: monthsAgo(8),
     },
-    sourceUrl: 'https://www.coursera.org/account/accomplishments/specialization/ABC123XYZ',
+    sourceUrl:
+      'https://www.coursera.org/account/accomplishments/specialization/ABC123XYZ',
     sourceDomain: 'coursera.org',
     isDomainTrusted: true,
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verificationNotes: 'Certificate verified through Coursera official API. All metadata confirmed valid.',
+    verificationNotes:
+      'Certificate verified through Coursera official API. All metadata confirmed valid.',
     meta: {
       platform: 'Coursera',
       verificationMethod: 'api_verified',
       courseCount: 3,
     },
     createdAt: monthsAgo(8),
-    updatedAt: daysAgo(5)
+    updatedAt: daysAgo(5),
   },
   // VERIFIED #2 - Degree Certificate
   {
@@ -71,8 +81,16 @@ const credentials = [
     issueDate: new Date('2019-06-15'),
     type: 'degree',
     credentialId: 'IIT-DEL-CS-2019-456',
-    skills: ['Computer Science', 'Algorithms', 'Data Structures', 'DBMS', 'Operating Systems', 'Computer Networks'],
-    description: 'Bachelor of Technology degree in Computer Science and Engineering from IIT Delhi. Graduated with honors.',
+    skills: [
+      'Computer Science',
+      'Algorithms',
+      'Data Structures',
+      'DBMS',
+      'Operating Systems',
+      'Computer Networks',
+    ],
+    description:
+      'Bachelor of Technology degree in Computer Science and Engineering from IIT Delhi. Graduated with honors.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'btech-degree-iitdelhi.pdf',
@@ -85,7 +103,8 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verificationNotes: 'Degree verified with IIT Delhi registrar office. Student ID and graduation year confirmed.',
+    verificationNotes:
+      'Degree verified with IIT Delhi registrar office. Student ID and graduation year confirmed.',
     meta: {
       graduationYear: 2019,
       cgpa: 8.5,
@@ -93,7 +112,7 @@ const credentials = [
       department: 'Computer Science and Engineering',
     },
     createdAt: monthsAgo(6),
-    updatedAt: daysAgo(10)
+    updatedAt: daysAgo(10),
   },
   // VERIFIED #3 - AWS Developer Certification
   {
@@ -110,26 +129,38 @@ const credentials = [
     type: 'certificate',
     credentialId: 'AWS-DEV-2024-321',
     totalHours: 40,
-    skills: ['AWS', 'Lambda', 'DynamoDB', 'API Gateway', 'CloudFormation', 'S3'],
-    description: 'AWS certification for developers building and maintaining applications on AWS platform. Covers core AWS services and best practices.',
+    skills: [
+      'AWS',
+      'Lambda',
+      'DynamoDB',
+      'API Gateway',
+      'CloudFormation',
+      'S3',
+    ],
+    description:
+      'AWS certification for developers building and maintaining applications on AWS platform. Covers core AWS services and best practices.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'aws-developer-cert.pdf',
       fileType: 'application/pdf',
       uploadedAt: daysAgo(15),
     },
-    sourceUrl: 'https://aws.amazon.com/certification/certified-developer-associate/',
+    sourceUrl:
+      'https://aws.amazon.com/certification/certified-developer-associate/',
     sourceDomain: 'aws.amazon.com',
     isDomainTrusted: true,
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verificationNotes: 'Certificate automatically verified. Name matches, trusted domain, valid credential ID.',
+    verificationNotes:
+      'Certificate automatically verified. Name matches, trusted domain, valid credential ID.',
     meta: {
-      expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 3)),
+      expiryDate: new Date(
+        new Date().setFullYear(new Date().getFullYear() + 3),
+      ),
     },
     createdAt: daysAgo(15),
-    updatedAt: daysAgo(15)
+    updatedAt: daysAgo(15),
   },
   // VERIFIED #4 - Full Stack Web Development
   {
@@ -146,8 +177,18 @@ const credentials = [
     type: 'micro_credential',
     credentialId: 'UC-FULLSTACK-2024-654',
     totalHours: 80,
-    skills: ['React', 'Node.js', 'Express', 'MongoDB', 'JavaScript', 'HTML', 'CSS', 'REST API'],
-    description: 'Comprehensive full-stack development bootcamp covering MERN stack. Completed with 50+ hands-on projects and real-world applications.',
+    skills: [
+      'React',
+      'Node.js',
+      'Express',
+      'MongoDB',
+      'JavaScript',
+      'HTML',
+      'CSS',
+      'REST API',
+    ],
+    description:
+      'Comprehensive full-stack development bootcamp covering MERN stack. Completed with 50+ hands-on projects and real-world applications.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'udemy-fullstack-cert.pdf',
@@ -160,14 +201,15 @@ const credentials = [
     isIssuerVerified: true,
     isPublic: true,
     status: 'verified',
-    verificationNotes: 'Certificate automatically verified. Name matches, trusted domain, valid credential format.',
+    verificationNotes:
+      'Certificate automatically verified. Name matches, trusted domain, valid credential format.',
     meta: {
       completionRate: 100,
       projectCount: 52,
       rating: 4.8,
     },
     createdAt: daysAgo(7),
-    updatedAt: daysAgo(7)
+    updatedAt: daysAgo(7),
   },
 
   // ============================================
@@ -191,8 +233,15 @@ const credentials = [
     credentialId: 'UC-REACT-ADV-2024-101',
     totalHours: 45,
     nsqfLevel: 6,
-    skills: ['React', 'React Hooks', 'Context API', 'Performance Optimization', 'Redux'],
-    description: 'Advanced React course covering hooks, context, performance optimization, and state management patterns.',
+    skills: [
+      'React',
+      'React Hooks',
+      'Context API',
+      'Performance Optimization',
+      'Redux',
+    ],
+    description:
+      'Advanced React course covering hooks, context, performance optimization, and state management patterns.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'react-advanced-cert.pdf',
@@ -212,7 +261,7 @@ const credentials = [
       rating: 4.8,
     },
     createdAt: monthsAgo(4),
-    updatedAt: monthsAgo(3)
+    updatedAt: monthsAgo(3),
   },
 
   // COURSE - Cloud Computing Fundamentals (learner1)
@@ -232,14 +281,16 @@ const credentials = [
     totalHours: 60,
     nsqfLevel: 5,
     skills: ['Cloud Computing', 'AWS', 'Azure', 'GCP', 'Cloud Architecture'],
-    description: 'Comprehensive introduction to cloud computing covering major platforms, architectures, and deployment models.',
+    description:
+      'Comprehensive introduction to cloud computing covering major platforms, architectures, and deployment models.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'cloud-computing-cert.jpg',
       fileType: 'image/jpeg',
       uploadedAt: monthsAgo(5),
     },
-    sourceUrl: 'https://www.coursera.org/account/accomplishments/certificate/CLOUD-2024-102',
+    sourceUrl:
+      'https://www.coursera.org/account/accomplishments/certificate/CLOUD-2024-102',
     sourceDomain: 'coursera.org',
     isDomainTrusted: true,
     isIssuerVerified: true,
@@ -252,7 +303,7 @@ const credentials = [
       university: 'IBM',
     },
     createdAt: monthsAgo(5),
-    updatedAt: monthsAgo(4)
+    updatedAt: monthsAgo(4),
   },
 
   // COURSE - Docker & Kubernetes (learner1)
@@ -271,8 +322,15 @@ const credentials = [
     credentialId: 'UC-DOCKER-K8S-2024-103',
     totalHours: 75,
     nsqfLevel: 7,
-    skills: ['Docker', 'Kubernetes', 'Containerization', 'DevOps', 'Microservices'],
-    description: 'Complete guide to containerization with Docker and orchestration with Kubernetes. Includes hands-on projects.',
+    skills: [
+      'Docker',
+      'Kubernetes',
+      'Containerization',
+      'DevOps',
+      'Microservices',
+    ],
+    description:
+      'Complete guide to containerization with Docker and orchestration with Kubernetes. Includes hands-on projects.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'docker-kubernetes-cert.pdf',
@@ -293,7 +351,7 @@ const credentials = [
       projectCount: 12,
     },
     createdAt: monthsAgo(3),
-    updatedAt: monthsAgo(2)
+    updatedAt: monthsAgo(2),
   },
 
   // COURSE - Data Structures & Algorithms (learner1)
@@ -312,8 +370,15 @@ const credentials = [
     credentialId: 'EDX-DSA-2024-104',
     totalHours: 100,
     nsqfLevel: 7,
-    skills: ['Data Structures', 'Algorithms', 'Problem Solving', 'Coding Interview', 'Big O Notation'],
-    description: 'Comprehensive course on data structures and algorithms with focus on problem-solving and coding interviews.',
+    skills: [
+      'Data Structures',
+      'Algorithms',
+      'Problem Solving',
+      'Coding Interview',
+      'Big O Notation',
+    ],
+    description:
+      'Comprehensive course on data structures and algorithms with focus on problem-solving and coding interviews.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'dsa-masterclass-cert.pdf',
@@ -333,7 +398,7 @@ const credentials = [
       university: 'UC San Diego',
     },
     createdAt: monthsAgo(9),
-    updatedAt: monthsAgo(8)
+    updatedAt: monthsAgo(8),
   },
 
   // COURSE - TypeScript Programming (learner1)
@@ -345,15 +410,21 @@ const credentials = [
     verificationStatus: 'VERIFIED',
     finalVerificationScore: 95,
     autoApproved: true,
-    title: 'TypeScript: The Complete Developer\'s Guide',
+    title: "TypeScript: The Complete Developer's Guide",
     issuer: 'Udemy',
     issueDate: monthsAgo(6),
     type: 'micro_credential',
     credentialId: 'UC-TS-2024-105',
     totalHours: 40,
     nsqfLevel: 6,
-    skills: ['TypeScript', 'JavaScript', 'Type Systems', 'Object-Oriented Programming'],
-    description: 'Complete TypeScript course covering type systems, generics, decorators, and integration with popular frameworks.',
+    skills: [
+      'TypeScript',
+      'JavaScript',
+      'Type Systems',
+      'Object-Oriented Programming',
+    ],
+    description:
+      'Complete TypeScript course covering type systems, generics, decorators, and integration with popular frameworks.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'typescript-cert.jpg',
@@ -373,7 +444,7 @@ const credentials = [
       rating: 4.7,
     },
     createdAt: monthsAgo(6),
-    updatedAt: monthsAgo(5)
+    updatedAt: monthsAgo(5),
   },
 
   // COURSE - GraphQL & Apollo (learner1)
@@ -392,15 +463,23 @@ const credentials = [
     credentialId: 'LIL-GRAPHQL-2024-106',
     totalHours: 25,
     nsqfLevel: 5,
-    skills: ['GraphQL', 'Apollo Client', 'Apollo Server', 'React', 'API Design'],
-    description: 'Modern GraphQL course covering schema design, queries, mutations, and integration with React.',
+    skills: [
+      'GraphQL',
+      'Apollo Client',
+      'Apollo Server',
+      'React',
+      'API Design',
+    ],
+    description:
+      'Modern GraphQL course covering schema design, queries, mutations, and integration with React.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'graphql-apollo-cert.pdf',
       fileType: 'application/pdf',
       uploadedAt: monthsAgo(2),
     },
-    sourceUrl: 'https://www.linkedin.com/learning/certificates/GRAPHQL-2024-106',
+    sourceUrl:
+      'https://www.linkedin.com/learning/certificates/GRAPHQL-2024-106',
     sourceDomain: 'linkedin.com',
     isDomainTrusted: true,
     isIssuerVerified: true,
@@ -412,7 +491,7 @@ const credentials = [
       category: 'Web Development',
     },
     createdAt: monthsAgo(2),
-    updatedAt: monthsAgo(1)
+    updatedAt: monthsAgo(1),
   },
 
   // COURSE - System Design (learner1)
@@ -431,15 +510,23 @@ const credentials = [
     credentialId: 'COURSERA-SYS-2024-107',
     totalHours: 90,
     nsqfLevel: 8,
-    skills: ['System Design', 'Software Architecture', 'Scalability', 'Distributed Systems', 'Microservices'],
-    description: 'Advanced course on system design covering scalability, reliability, and distributed systems architecture.',
+    skills: [
+      'System Design',
+      'Software Architecture',
+      'Scalability',
+      'Distributed Systems',
+      'Microservices',
+    ],
+    description:
+      'Advanced course on system design covering scalability, reliability, and distributed systems architecture.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'system-design-cert.jpg',
       fileType: 'image/jpeg',
       uploadedAt: monthsAgo(7),
     },
-    sourceUrl: 'https://www.coursera.org/account/accomplishments/certificate/SYS-2024-107',
+    sourceUrl:
+      'https://www.coursera.org/account/accomplishments/certificate/SYS-2024-107',
     sourceDomain: 'coursera.org',
     isDomainTrusted: true,
     isIssuerVerified: true,
@@ -452,7 +539,7 @@ const credentials = [
       university: 'University of Alberta',
     },
     createdAt: monthsAgo(7),
-    updatedAt: monthsAgo(6)
+    updatedAt: monthsAgo(6),
   },
 
   // COURSE - MongoDB Developer (learner1)
@@ -464,7 +551,7 @@ const credentials = [
     verificationStatus: 'VERIFIED',
     finalVerificationScore: 92,
     autoApproved: true,
-    title: 'MongoDB - The Complete Developer\'s Guide',
+    title: "MongoDB - The Complete Developer's Guide",
     issuer: 'Udemy',
     issueDate: monthsAgo(10),
     type: 'micro_credential',
@@ -472,7 +559,8 @@ const credentials = [
     totalHours: 55,
     nsqfLevel: 5,
     skills: ['MongoDB', 'NoSQL', 'Database Design', 'Aggregation', 'Node.js'],
-    description: 'Complete MongoDB course covering CRUD operations, aggregation framework, indexing, and performance optimization.',
+    description:
+      'Complete MongoDB course covering CRUD operations, aggregation framework, indexing, and performance optimization.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'mongodb-cert.pdf',
@@ -492,7 +580,7 @@ const credentials = [
       rating: 4.6,
     },
     createdAt: monthsAgo(10),
-    updatedAt: monthsAgo(9)
+    updatedAt: monthsAgo(9),
   },
 
   // COURSE - Git & GitHub (learner1)
@@ -512,7 +600,8 @@ const credentials = [
     totalHours: 20,
     nsqfLevel: 4,
     skills: ['Git', 'GitHub', 'Version Control', 'Collaboration', 'CI/CD'],
-    description: 'Master class on Git and GitHub covering branching strategies, collaboration workflows, and GitHub Actions.',
+    description:
+      'Master class on Git and GitHub covering branching strategies, collaboration workflows, and GitHub Actions.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'git-github-cert.jpg',
@@ -531,7 +620,7 @@ const credentials = [
       category: 'DevOps',
     },
     createdAt: monthsAgo(11),
-    updatedAt: monthsAgo(10)
+    updatedAt: monthsAgo(10),
   },
 
   // COURSE - RESTful API Design (learner1)
@@ -550,8 +639,16 @@ const credentials = [
     credentialId: 'UC-REST-API-2024-110',
     totalHours: 50,
     nsqfLevel: 6,
-    skills: ['REST API', 'API Design', 'Node.js', 'Express', 'Authentication', 'Swagger'],
-    description: 'Comprehensive course on designing and building RESTful APIs with best practices, security, and documentation.',
+    skills: [
+      'REST API',
+      'API Design',
+      'Node.js',
+      'Express',
+      'Authentication',
+      'Swagger',
+    ],
+    description:
+      'Comprehensive course on designing and building RESTful APIs with best practices, security, and documentation.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'restful-api-cert.pdf',
@@ -571,7 +668,7 @@ const credentials = [
       rating: 4.8,
     },
     createdAt: monthsAgo(12),
-    updatedAt: monthsAgo(11)
+    updatedAt: monthsAgo(11),
   },
 
   // ============================================
@@ -594,15 +691,24 @@ const credentials = [
     credentialId: 'COURSERA-PY-DS-2024-001',
     totalHours: 80,
     nsqfLevel: 5,
-    skills: ['Python', 'Data Science', 'Pandas', 'NumPy', 'Data Visualization', 'Jupyter'],
-    description: 'Comprehensive course on data science fundamentals using Python. Covers pandas, numpy, matplotlib, and machine learning basics.',
+    skills: [
+      'Python',
+      'Data Science',
+      'Pandas',
+      'NumPy',
+      'Data Visualization',
+      'Jupyter',
+    ],
+    description:
+      'Comprehensive course on data science fundamentals using Python. Covers pandas, numpy, matplotlib, and machine learning basics.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'python-datascience-cert.jpg',
       fileType: 'image/jpeg',
       uploadedAt: monthsAgo(5),
     },
-    sourceUrl: 'https://www.coursera.org/account/accomplishments/certificate/PY-DS-001',
+    sourceUrl:
+      'https://www.coursera.org/account/accomplishments/certificate/PY-DS-001',
     sourceDomain: 'coursera.org',
     isDomainTrusted: true,
     isIssuerVerified: true,
@@ -614,7 +720,7 @@ const credentials = [
       category: 'Data Science',
     },
     createdAt: monthsAgo(5),
-    updatedAt: monthsAgo(4)
+    updatedAt: monthsAgo(4),
   },
 
   // COURSE #2 - Digital Marketing (learner3)
@@ -633,8 +739,15 @@ const credentials = [
     credentialId: 'UC-DM-MC-2024-002',
     totalHours: 40,
     nsqfLevel: 4,
-    skills: ['Digital Marketing', 'SEO', 'Social Media Marketing', 'Email Marketing', 'Content Marketing'],
-    description: 'Complete digital marketing course covering SEO, social media, email marketing, and analytics.',
+    skills: [
+      'Digital Marketing',
+      'SEO',
+      'Social Media Marketing',
+      'Email Marketing',
+      'Content Marketing',
+    ],
+    description:
+      'Complete digital marketing course covering SEO, social media, email marketing, and analytics.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'digital-marketing-cert.pdf',
@@ -654,7 +767,7 @@ const credentials = [
       rating: 4.7,
     },
     createdAt: monthsAgo(3),
-    updatedAt: monthsAgo(2)
+    updatedAt: monthsAgo(2),
   },
 
   // COURSE #3 - UI/UX Design (learner4)
@@ -673,8 +786,16 @@ const credentials = [
     credentialId: 'UC-UIUX-2024-003',
     totalHours: 60,
     nsqfLevel: 5,
-    skills: ['UI Design', 'UX Design', 'Figma', 'Wireframing', 'Prototyping', 'User Research'],
-    description: 'Complete UI/UX design course covering design principles, Figma, wireframing, and user testing.',
+    skills: [
+      'UI Design',
+      'UX Design',
+      'Figma',
+      'Wireframing',
+      'Prototyping',
+      'User Research',
+    ],
+    description:
+      'Complete UI/UX design course covering design principles, Figma, wireframing, and user testing.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'uiux-design-cert.jpg',
@@ -694,7 +815,7 @@ const credentials = [
       projectCount: 15,
     },
     createdAt: monthsAgo(4),
-    updatedAt: monthsAgo(3)
+    updatedAt: monthsAgo(3),
   },
 
   // COURSE #4 - AWS Solutions Architect (learner5)
@@ -714,14 +835,16 @@ const credentials = [
     totalHours: 100,
     nsqfLevel: 6,
     skills: ['AWS', 'Cloud Architecture', 'EC2', 'S3', 'VPC', 'IAM'],
-    description: 'AWS certification for designing distributed systems on AWS. Covers core AWS services and best practices.',
+    description:
+      'AWS certification for designing distributed systems on AWS. Covers core AWS services and best practices.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'aws-solutions-architect.pdf',
       fileType: 'application/pdf',
       uploadedAt: monthsAgo(6),
     },
-    sourceUrl: 'https://aws.amazon.com/certification/certified-solutions-architect-associate/',
+    sourceUrl:
+      'https://aws.amazon.com/certification/certified-solutions-architect-associate/',
     sourceDomain: 'aws.amazon.com',
     isDomainTrusted: true,
     isIssuerVerified: true,
@@ -731,10 +854,12 @@ const credentials = [
     meta: {
       platform: 'AWS',
       category: 'Cloud Computing',
-      expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 3)),
+      expiryDate: new Date(
+        new Date().setFullYear(new Date().getFullYear() + 3),
+      ),
     },
     createdAt: monthsAgo(6),
-    updatedAt: monthsAgo(5)
+    updatedAt: monthsAgo(5),
   },
 
   // COURSE #5 - Product Management (learner6)
@@ -753,8 +878,15 @@ const credentials = [
     credentialId: 'LIL-PM-2024-005',
     totalHours: 30,
     nsqfLevel: 5,
-    skills: ['Product Management', 'Agile', 'User Stories', 'Product Strategy', 'Roadmapping'],
-    description: 'Essential product management skills including strategy, roadmapping, and agile methodologies.',
+    skills: [
+      'Product Management',
+      'Agile',
+      'User Stories',
+      'Product Strategy',
+      'Roadmapping',
+    ],
+    description:
+      'Essential product management skills including strategy, roadmapping, and agile methodologies.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'product-mgmt-cert.jpg',
@@ -773,7 +905,7 @@ const credentials = [
       category: 'Business',
     },
     createdAt: monthsAgo(2),
-    updatedAt: monthsAgo(1)
+    updatedAt: monthsAgo(1),
   },
 
   // COURSE #6 - Full Stack JavaScript (learner7)
@@ -792,8 +924,16 @@ const credentials = [
     credentialId: 'EDX-FSJS-2024-006',
     totalHours: 150,
     nsqfLevel: 6,
-    skills: ['JavaScript', 'React', 'Node.js', 'Express', 'MongoDB', 'REST API'],
-    description: 'Comprehensive full-stack JavaScript course covering MERN stack development and deployment.',
+    skills: [
+      'JavaScript',
+      'React',
+      'Node.js',
+      'Express',
+      'MongoDB',
+      'REST API',
+    ],
+    description:
+      'Comprehensive full-stack JavaScript course covering MERN stack development and deployment.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'fullstack-js-cert.pdf',
@@ -813,7 +953,7 @@ const credentials = [
       university: 'MIT',
     },
     createdAt: monthsAgo(7),
-    updatedAt: monthsAgo(6)
+    updatedAt: monthsAgo(6),
   },
 
   // COURSE #7 - Blockchain Fundamentals (learner2)
@@ -832,15 +972,23 @@ const credentials = [
     credentialId: 'COURSERA-BC-2024-007',
     totalHours: 50,
     nsqfLevel: 5,
-    skills: ['Blockchain', 'Cryptocurrency', 'Smart Contracts', 'Ethereum', 'Distributed Systems'],
-    description: 'Introduction to blockchain technology, cryptocurrencies, and smart contracts development.',
+    skills: [
+      'Blockchain',
+      'Cryptocurrency',
+      'Smart Contracts',
+      'Ethereum',
+      'Distributed Systems',
+    ],
+    description:
+      'Introduction to blockchain technology, cryptocurrencies, and smart contracts development.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'blockchain-cert.jpg',
       fileType: 'image/jpeg',
       uploadedAt: monthsAgo(4),
     },
-    sourceUrl: 'https://www.coursera.org/account/accomplishments/certificate/BC-2024-007',
+    sourceUrl:
+      'https://www.coursera.org/account/accomplishments/certificate/BC-2024-007',
     sourceDomain: 'coursera.org',
     isDomainTrusted: true,
     isIssuerVerified: true,
@@ -852,7 +1000,7 @@ const credentials = [
       category: 'Technology',
     },
     createdAt: monthsAgo(4),
-    updatedAt: monthsAgo(3)
+    updatedAt: monthsAgo(3),
   },
 
   // COURSE #8 - Machine Learning A-Z (learner3)
@@ -871,8 +1019,16 @@ const credentials = [
     credentialId: 'UC-ML-AZ-2024-008',
     totalHours: 120,
     nsqfLevel: 7,
-    skills: ['Machine Learning', 'Python', 'R', 'Deep Learning', 'Neural Networks', 'TensorFlow'],
-    description: 'Advanced machine learning course covering supervised and unsupervised learning, deep learning, and neural networks.',
+    skills: [
+      'Machine Learning',
+      'Python',
+      'R',
+      'Deep Learning',
+      'Neural Networks',
+      'TensorFlow',
+    ],
+    description:
+      'Advanced machine learning course covering supervised and unsupervised learning, deep learning, and neural networks.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'ml-az-cert.pdf',
@@ -892,7 +1048,7 @@ const credentials = [
       rating: 4.9,
     },
     createdAt: monthsAgo(8),
-    updatedAt: monthsAgo(7)
+    updatedAt: monthsAgo(7),
   },
 
   // COURSE #9 - Agile Project Management (learner4)
@@ -911,8 +1067,15 @@ const credentials = [
     credentialId: 'UC-AGILE-2024-009',
     totalHours: 35,
     nsqfLevel: 4,
-    skills: ['Agile', 'Scrum', 'Project Management', 'Sprint Planning', 'Kanban'],
-    description: 'Agile project management certification covering Scrum, Kanban, and agile best practices.',
+    skills: [
+      'Agile',
+      'Scrum',
+      'Project Management',
+      'Sprint Planning',
+      'Kanban',
+    ],
+    description:
+      'Agile project management certification covering Scrum, Kanban, and agile best practices.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'agile-pm-cert.jpg',
@@ -931,7 +1094,7 @@ const credentials = [
       category: 'Business',
     },
     createdAt: monthsAgo(2),
-    updatedAt: monthsAgo(1)
+    updatedAt: monthsAgo(1),
   },
 
   // COURSE #10 - Cybersecurity Basics (learner5)
@@ -950,15 +1113,23 @@ const credentials = [
     credentialId: 'COURSERA-CS-2024-010',
     totalHours: 70,
     nsqfLevel: 6,
-    skills: ['Cybersecurity', 'Network Security', 'Cryptography', 'Ethical Hacking', 'Risk Management'],
-    description: 'Introduction to cybersecurity covering network security, cryptography, and ethical hacking principles.',
+    skills: [
+      'Cybersecurity',
+      'Network Security',
+      'Cryptography',
+      'Ethical Hacking',
+      'Risk Management',
+    ],
+    description:
+      'Introduction to cybersecurity covering network security, cryptography, and ethical hacking principles.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'cybersecurity-cert.pdf',
       fileType: 'application/pdf',
       uploadedAt: monthsAgo(5),
     },
-    sourceUrl: 'https://www.coursera.org/account/accomplishments/certificate/CS-2024-010',
+    sourceUrl:
+      'https://www.coursera.org/account/accomplishments/certificate/CS-2024-010',
     sourceDomain: 'coursera.org',
     isDomainTrusted: true,
     isIssuerVerified: true,
@@ -970,7 +1141,7 @@ const credentials = [
       category: 'Technology',
     },
     createdAt: monthsAgo(5),
-    updatedAt: monthsAgo(4)
+    updatedAt: monthsAgo(4),
   },
 
   // COURSE #11 - Google Cloud Professional (learner6)
@@ -989,8 +1160,16 @@ const credentials = [
     credentialId: 'GCP-PCA-2024-011',
     totalHours: 90,
     nsqfLevel: 7,
-    skills: ['Google Cloud', 'GCP', 'Kubernetes', 'Cloud Architecture', 'DevOps', 'Terraform'],
-    description: 'Professional certification for designing and managing Google Cloud solutions.',
+    skills: [
+      'Google Cloud',
+      'GCP',
+      'Kubernetes',
+      'Cloud Architecture',
+      'DevOps',
+      'Terraform',
+    ],
+    description:
+      'Professional certification for designing and managing Google Cloud solutions.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'gcp-architect-cert.pdf',
@@ -1007,10 +1186,12 @@ const credentials = [
     meta: {
       platform: 'Google Cloud',
       category: 'Cloud Computing',
-      expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 2)),
+      expiryDate: new Date(
+        new Date().setFullYear(new Date().getFullYear() + 2),
+      ),
     },
     createdAt: monthsAgo(3),
-    updatedAt: monthsAgo(2)
+    updatedAt: monthsAgo(2),
   },
 
   // COURSE #12 - Data Analytics (learner7)
@@ -1029,15 +1210,24 @@ const credentials = [
     credentialId: 'COURSERA-GDA-2024-012',
     totalHours: 180,
     nsqfLevel: 6,
-    skills: ['Data Analytics', 'SQL', 'Tableau', 'R Programming', 'Data Visualization', 'Spreadsheets'],
-    description: 'Comprehensive data analytics program covering data cleaning, analysis, visualization, and storytelling.',
+    skills: [
+      'Data Analytics',
+      'SQL',
+      'Tableau',
+      'R Programming',
+      'Data Visualization',
+      'Spreadsheets',
+    ],
+    description:
+      'Comprehensive data analytics program covering data cleaning, analysis, visualization, and storytelling.',
     file: {
       url: DEMO_CERT_IMAGE,
       fileName: 'google-data-analytics.jpg',
       fileType: 'image/jpeg',
       uploadedAt: monthsAgo(6),
     },
-    sourceUrl: 'https://www.coursera.org/account/accomplishments/professional-cert/GDA-2024-012',
+    sourceUrl:
+      'https://www.coursera.org/account/accomplishments/professional-cert/GDA-2024-012',
     sourceDomain: 'coursera.org',
     isDomainTrusted: true,
     isIssuerVerified: true,
@@ -1050,7 +1240,7 @@ const credentials = [
       courseCount: 8,
     },
     createdAt: monthsAgo(6),
-    updatedAt: monthsAgo(5)
+    updatedAt: monthsAgo(5),
   },
 
   // ============================================
@@ -1073,9 +1263,21 @@ const credentials = [
     credentialId: 'UC-REACT-ADV-2024-L2-101',
     totalHours: 45,
     nsqfLevel: 6,
-    skills: ['React', 'React Hooks', 'Context API', 'Performance Optimization', 'Redux'],
-    description: 'Advanced React course covering hooks, context, performance optimization, and state management patterns.',
-    file: { url: DEMO_CERT_IMAGE, fileName: 'react-advanced-cert.pdf', fileType: 'application/pdf', uploadedAt: monthsAgo(4) },
+    skills: [
+      'React',
+      'React Hooks',
+      'Context API',
+      'Performance Optimization',
+      'Redux',
+    ],
+    description:
+      'Advanced React course covering hooks, context, performance optimization, and state management patterns.',
+    file: {
+      url: DEMO_CERT_IMAGE,
+      fileName: 'react-advanced-cert.pdf',
+      fileType: 'application/pdf',
+      uploadedAt: monthsAgo(4),
+    },
     sourceUrl: 'https://www.udemy.com/certificate/UC-REACT-ADV-2024-L2-101/',
     sourceDomain: 'udemy.com',
     isDomainTrusted: true,
@@ -1085,7 +1287,7 @@ const credentials = [
     verifiedAt: monthsAgo(3),
     meta: { platform: 'Udemy', category: 'Web Development', rating: 4.8 },
     createdAt: monthsAgo(4),
-    updatedAt: monthsAgo(3)
+    updatedAt: monthsAgo(3),
   },
 
   // learner3 - React Advanced Concepts
@@ -1104,9 +1306,21 @@ const credentials = [
     credentialId: 'UC-REACT-ADV-2024-L3-101',
     totalHours: 45,
     nsqfLevel: 6,
-    skills: ['React', 'React Hooks', 'Context API', 'Performance Optimization', 'Redux'],
-    description: 'Advanced React course covering hooks, context, performance optimization, and state management patterns.',
-    file: { url: DEMO_CERT_IMAGE, fileName: 'react-advanced-cert.pdf', fileType: 'application/pdf', uploadedAt: monthsAgo(4) },
+    skills: [
+      'React',
+      'React Hooks',
+      'Context API',
+      'Performance Optimization',
+      'Redux',
+    ],
+    description:
+      'Advanced React course covering hooks, context, performance optimization, and state management patterns.',
+    file: {
+      url: DEMO_CERT_IMAGE,
+      fileName: 'react-advanced-cert.pdf',
+      fileType: 'application/pdf',
+      uploadedAt: monthsAgo(4),
+    },
     sourceUrl: 'https://www.udemy.com/certificate/UC-REACT-ADV-2024-L3-101/',
     sourceDomain: 'udemy.com',
     isDomainTrusted: true,
@@ -1116,7 +1330,7 @@ const credentials = [
     verifiedAt: monthsAgo(3),
     meta: { platform: 'Udemy', category: 'Web Development', rating: 4.8 },
     createdAt: monthsAgo(4),
-    updatedAt: monthsAgo(3)
+    updatedAt: monthsAgo(3),
   },
 
   // learner4 - React Advanced Concepts
@@ -1135,9 +1349,21 @@ const credentials = [
     credentialId: 'UC-REACT-ADV-2024-L4-101',
     totalHours: 45,
     nsqfLevel: 6,
-    skills: ['React', 'React Hooks', 'Context API', 'Performance Optimization', 'Redux'],
-    description: 'Advanced React course covering hooks, context, performance optimization, and state management patterns.',
-    file: { url: DEMO_CERT_IMAGE, fileName: 'react-advanced-cert.pdf', fileType: 'application/pdf', uploadedAt: monthsAgo(4) },
+    skills: [
+      'React',
+      'React Hooks',
+      'Context API',
+      'Performance Optimization',
+      'Redux',
+    ],
+    description:
+      'Advanced React course covering hooks, context, performance optimization, and state management patterns.',
+    file: {
+      url: DEMO_CERT_IMAGE,
+      fileName: 'react-advanced-cert.pdf',
+      fileType: 'application/pdf',
+      uploadedAt: monthsAgo(4),
+    },
     sourceUrl: 'https://www.udemy.com/certificate/UC-REACT-ADV-2024-L4-101/',
     sourceDomain: 'udemy.com',
     isDomainTrusted: true,
@@ -1147,7 +1373,7 @@ const credentials = [
     verifiedAt: monthsAgo(3),
     meta: { platform: 'Udemy', category: 'Web Development', rating: 4.8 },
     createdAt: monthsAgo(4),
-    updatedAt: monthsAgo(3)
+    updatedAt: monthsAgo(3),
   },
 
   // learner5 - React Advanced Concepts
@@ -1166,9 +1392,21 @@ const credentials = [
     credentialId: 'UC-REACT-ADV-2024-L5-101',
     totalHours: 45,
     nsqfLevel: 6,
-    skills: ['React', 'React Hooks', 'Context API', 'Performance Optimization', 'Redux'],
-    description: 'Advanced React course covering hooks, context, performance optimization, and state management patterns.',
-    file: { url: DEMO_CERT_IMAGE, fileName: 'react-advanced-cert.pdf', fileType: 'application/pdf', uploadedAt: monthsAgo(4) },
+    skills: [
+      'React',
+      'React Hooks',
+      'Context API',
+      'Performance Optimization',
+      'Redux',
+    ],
+    description:
+      'Advanced React course covering hooks, context, performance optimization, and state management patterns.',
+    file: {
+      url: DEMO_CERT_IMAGE,
+      fileName: 'react-advanced-cert.pdf',
+      fileType: 'application/pdf',
+      uploadedAt: monthsAgo(4),
+    },
     sourceUrl: 'https://www.udemy.com/certificate/UC-REACT-ADV-2024-L5-101/',
     sourceDomain: 'udemy.com',
     isDomainTrusted: true,
@@ -1178,7 +1416,7 @@ const credentials = [
     verifiedAt: monthsAgo(3),
     meta: { platform: 'Udemy', category: 'Web Development', rating: 4.8 },
     createdAt: monthsAgo(4),
-    updatedAt: monthsAgo(3)
+    updatedAt: monthsAgo(3),
   },
 
   // learner6 - React Advanced Concepts
@@ -1197,9 +1435,21 @@ const credentials = [
     credentialId: 'UC-REACT-ADV-2024-L6-101',
     totalHours: 45,
     nsqfLevel: 6,
-    skills: ['React', 'React Hooks', 'Context API', 'Performance Optimization', 'Redux'],
-    description: 'Advanced React course covering hooks, context, performance optimization, and state management patterns.',
-    file: { url: DEMO_CERT_IMAGE, fileName: 'react-advanced-cert.pdf', fileType: 'application/pdf', uploadedAt: monthsAgo(4) },
+    skills: [
+      'React',
+      'React Hooks',
+      'Context API',
+      'Performance Optimization',
+      'Redux',
+    ],
+    description:
+      'Advanced React course covering hooks, context, performance optimization, and state management patterns.',
+    file: {
+      url: DEMO_CERT_IMAGE,
+      fileName: 'react-advanced-cert.pdf',
+      fileType: 'application/pdf',
+      uploadedAt: monthsAgo(4),
+    },
     sourceUrl: 'https://www.udemy.com/certificate/UC-REACT-ADV-2024-L6-101/',
     sourceDomain: 'udemy.com',
     isDomainTrusted: true,
@@ -1209,7 +1459,7 @@ const credentials = [
     verifiedAt: monthsAgo(3),
     meta: { platform: 'Udemy', category: 'Web Development', rating: 4.8 },
     createdAt: monthsAgo(4),
-    updatedAt: monthsAgo(3)
+    updatedAt: monthsAgo(3),
   },
 
   // learner7 - React Advanced Concepts
@@ -1228,9 +1478,21 @@ const credentials = [
     credentialId: 'UC-REACT-ADV-2024-L7-101',
     totalHours: 45,
     nsqfLevel: 6,
-    skills: ['React', 'React Hooks', 'Context API', 'Performance Optimization', 'Redux'],
-    description: 'Advanced React course covering hooks, context, performance optimization, and state management patterns.',
-    file: { url: DEMO_CERT_IMAGE, fileName: 'react-advanced-cert.pdf', fileType: 'application/pdf', uploadedAt: monthsAgo(4) },
+    skills: [
+      'React',
+      'React Hooks',
+      'Context API',
+      'Performance Optimization',
+      'Redux',
+    ],
+    description:
+      'Advanced React course covering hooks, context, performance optimization, and state management patterns.',
+    file: {
+      url: DEMO_CERT_IMAGE,
+      fileName: 'react-advanced-cert.pdf',
+      fileType: 'application/pdf',
+      uploadedAt: monthsAgo(4),
+    },
     sourceUrl: 'https://www.udemy.com/certificate/UC-REACT-ADV-2024-L7-101/',
     sourceDomain: 'udemy.com',
     isDomainTrusted: true,
@@ -1240,13 +1502,15 @@ const credentials = [
     verifiedAt: monthsAgo(3),
     meta: { platform: 'Udemy', category: 'Web Development', rating: 4.8 },
     createdAt: monthsAgo(4),
-    updatedAt: monthsAgo(3)
+    updatedAt: monthsAgo(3),
   },
 ];
 
 const seedCredentials = async () => {
   const createdCredentials = await Credential.insertMany(credentials);
-  console.log(`✅ Credentials created: ${createdCredentials.length} (including demo courses)`);
+  console.log(
+    `✅ Credentials created: ${createdCredentials.length} (including demo courses)`,
+  );
   return createdCredentials;
 };
 
