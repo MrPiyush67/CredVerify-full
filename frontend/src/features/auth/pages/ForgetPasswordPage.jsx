@@ -1,7 +1,11 @@
 import React from 'react';
 
 const ForgetPasswordPage = () => {
-  return <div>ForgetPasswordPage</div>;
+  return (
+    <div className="h-screen flex items-center justify-center text-lg font-bold">
+      ForgetPasswordPage
+    </div>
+  );
 };
 
 export default ForgetPasswordPage;

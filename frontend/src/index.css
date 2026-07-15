@@ -3,10 +3,10 @@
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/geist';
 @import '@fontsource-variable/figtree';
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
-@import "@fontsource-variable/figtree";
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/figtree';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -43,6 +43,12 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
+
+  /* profile page */
+  --verified: hsl(172 78% 26%); /* teal — "this has been checked" */
+  --verified-foreground: hsl(0 0% 100%);
+  --seal: hsl(42 40% 60%); /* muted gold — used only on the seal ribbon */
+  --seal-foreground: hsl(222.2 47.4% 11.2%);
 }
 
 .dark {
@@ -77,6 +83,12 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285.938);
+
+  /* profile page */
+  --verified: hsl(172 60% 45%);
+  --verified-foreground: hsl(222.2 47.4% 11.2%);
+  --seal: hsl(42 40% 60%);
+  --seal-foreground: hsl(222.2 47.4% 11.2%);
 }
 
 @theme inline {
@@ -120,6 +132,12 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* profile page */
+  --color-seal-foreground: var(--seal-foreground);
+  --color-seal: var(--seal);
+  --color-verified-foreground: var(--verified-foreground);
+  --color-verified: var(--verified);
 }
 
 @layer base {

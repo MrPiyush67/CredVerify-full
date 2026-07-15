@@ -86,7 +86,7 @@ const userSchema = new mongoose.Schema(
     // System
     isPublic: {
       type: Boolean,
-      default: true,
+      default: false,
     },
 
     isActive: {

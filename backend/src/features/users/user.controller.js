@@ -6,7 +6,7 @@ import User from './user.model.js';
 export const getUsers = asyncHandler(async (req, res) => {
   const { skip = 0, limit = 20 } = req.query;
 
-  const users = await User.find({ role: 'learner' })
+  const users = await User.find({ role: 'learner', isPublic: true })
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
