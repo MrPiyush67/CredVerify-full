@@ -4,7 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import PublicRoute from './components/PublicRoute.jsx';
 import PageSkeleton from './components/PageSkeleton.jsx';
 
-import UnderDevelopmentPage from '@/features/underDevelopment/UnderDevelopmentPage.jsx';
+// import UnderDevelopmentPage from '@/features/underDevelopment/UnderDevelopmentPage.jsx';
 
 import LandingPage from '@/features/landing/LandingPage.jsx';
 import { LoginPage, SignupPage, ForgetPasswordPage } from '@/features/auth';
