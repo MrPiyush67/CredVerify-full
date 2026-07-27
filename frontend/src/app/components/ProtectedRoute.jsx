@@ -15,7 +15,7 @@ const ProtectedRoute = ({ requiredRole }) => {
     );
   }
 
-  if (!user) return <Navigate to={'/login'} replace />;
+  if (!user) return <Navigate to={'/'} replace />;
   if (requiredRole && user.role != requiredRole)
     return <Navigate to={'/discover'} replace />;
 

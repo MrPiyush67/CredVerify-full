@@ -5,7 +5,7 @@ export default function UnderDevelopmentPage() {
     <main className="flex min-h-screen items-center justify-center bg-background px-6">
       <div className="mx-auto max-w-3xl text-center">
         <div className="flex gap-2 justify-center items-center">
-          <img src="/logo.png" alt="CredVerify Logo" className="size-10" />
+          <img src="/logo.svg" alt="CredVerify Logo" className="size-10" />
           <h1 className="text-5xl font-bold tracking-tight">CredVerify</h1>
         </div>
 

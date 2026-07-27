@@ -4,12 +4,16 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import compression from 'compression';
 import { config } from '#src/config/env.js';
+
+//import middlewares
+import { protect } from './middleware/auth.js';
 import { errorHandler } from '#src/middleware/errorHandler.js';
 
 // Import feature routes
 import authRouter from '#src/features/auth/auth.route.js';
 import userRouter from './features/users/user.routes.js';
-import { protect } from './middleware/auth.js';
+import credentialRouter from './features/credentials/credential.routes.js';
+import organizationRouter from './features/organizations/org.routes.js';
 // import userRoutes from './features/user/user.routes.js';
 // import credentialRoutes from './features/credential/credential.routes.js';
 // import learnerRoutes from './features/learner/learner.routes.js';
@@ -73,9 +77,10 @@ app.get('/health', (req, res) => {
 // Mount feature routes
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/user', protect, userRouter);
+app.use('/api/v1/credential', protect, credentialRouter);
+app.use('/api/v1/organization', protect, organizationRouter);
+
 // app.use('/api/v1', [
-//   userRoutes,
-//   credentialRoutes,
 //   learnerRoutes,
 //   regulatorRoutes,
 //   employerRoutes,

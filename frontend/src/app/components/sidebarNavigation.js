@@ -1,5 +1,7 @@
 import {
+  Bell,
   Building2,
+  Crown,
   Home,
   LifeBuoy,
   Plus,
@@ -17,21 +19,23 @@ export const sidebarNavigation = {
       title: 'Main',
       items: [
         { label: 'Discover', href: '/discover', icon: Search },
-        { label: 'Credentials', href: '/credentials', icon: Home },
-        { label: 'Support', href: '/support', icon: LifeBuoy },
+        { label: 'Notifications', href: '/notifications', icon: Bell },
       ],
     },
     {
       title: 'Workspace',
       items: [
+        { label: 'Credentials', href: '/credentials', icon: Home },
         { label: 'Add Credential', href: '/credentials/add', icon: Plus },
       ],
     },
     {
       title: 'Account',
       items: [
-        { label: 'Profile', href: '/profile', icon: User },
+        { label: 'Profile', href: '/profile/:username', icon: User },
         { label: 'Settings', href: '/settings', icon: Settings },
+        { label: 'Premium', href: '/premium', icon: Crown },
+        { label: 'Support', href: '/support', icon: LifeBuoy },
       ],
     },
   ],
@@ -46,7 +50,7 @@ export const sidebarNavigation = {
           href: '/issue-credentials',
           icon: ShieldCheck,
         },
-        { label: 'Support', href: '/support', icon: LifeBuoy },
+        { label: 'Review Queue', href: '/requests', icon: ShieldCheck },
       ],
     },
     {
@@ -58,8 +62,9 @@ export const sidebarNavigation = {
     {
       title: 'Account',
       items: [
-        { label: 'Profile', href: '/profile', icon: User },
+        { label: 'Profile', href: '/profile/:username', icon: User },
         { label: 'Settings', href: '/settings', icon: Settings },
+        { label: 'Support', href: '/support', icon: LifeBuoy },
       ],
     },
   ],
@@ -67,46 +72,24 @@ export const sidebarNavigation = {
   regulator: [
     {
       title: 'Main',
-      items: [
-        { label: 'Discover', href: '/discover', icon: Search },
-        { label: 'Review Queue', href: '/requests', icon: ShieldCheck },
-        { label: 'Support', href: '/support', icon: LifeBuoy },
-      ],
+      items: [{ label: 'Discover', href: '/discover', icon: Search }],
     },
     {
       title: 'Workspace',
       items: [
-        { label: 'Credential Ratings', href: '/ratings', icon: Sparkles },
+        {
+          label: 'Verify Organization',
+          href: '/verify-organization',
+          icon: Building2,
+        },
       ],
     },
     {
       title: 'Account',
       items: [
-        { label: 'Profile', href: '/profile', icon: User },
+        { label: 'Profile', href: '/profile/:username', icon: User },
         { label: 'Settings', href: '/settings', icon: Settings },
-      ],
-    },
-  ],
-
-  org_admin: [
-    {
-      title: 'Main',
-      items: [
-        { label: 'Discover', href: '/discover', icon: Search },
-        { label: 'Manage Issuers', href: '/issuers', icon: Users },
-        { label: 'Manage Regulators', href: '/regulators', icon: ShieldCheck },
         { label: 'Support', href: '/support', icon: LifeBuoy },
-      ],
-    },
-    {
-      title: 'Workspace',
-      items: [{ label: 'Org Profile', href: '/profile', icon: Building2 }],
-    },
-    {
-      title: 'Account',
-      items: [
-        { label: 'Profile', href: '/profile', icon: User },
-        { label: 'Settings', href: '/settings', icon: Settings },
       ],
     },
   ],
@@ -118,18 +101,20 @@ export const sidebarNavigation = {
         { label: 'Discover', href: '/discover', icon: Search },
         { label: 'Manage Issuers', href: '/issuers', icon: Users },
         { label: 'Manage Regulators', href: '/regulators', icon: ShieldCheck },
-        { label: 'Support', href: '/support', icon: LifeBuoy },
       ],
     },
     {
       title: 'Workspace',
-      items: [{ label: 'Org Profile', href: '/profile', icon: Building2 }],
+      items: [
+        { label: 'Org Profile', href: '/profile/:organizationName', icon: Building2 },
+      ],
     },
     {
       title: 'Account',
       items: [
-        { label: 'Profile', href: '/profile', icon: User },
+        { label: 'Profile', href: '/profile/:username', icon: User },
         { label: 'Settings', href: '/settings', icon: Settings },
+        { label: 'Support', href: '/support', icon: LifeBuoy },
       ],
     },
   ],

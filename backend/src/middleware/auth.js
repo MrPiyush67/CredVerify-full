@@ -7,14 +7,14 @@ export const protect = asyncHandler(async (req, res, next) => {
   let token = req.cookies?.token;
 
   if (!token) {
-    return next(new AppError(401, 'No token provided'));
+    throw new AppError(401, 'No token provided');
   }
 
   // Verify token
   const decoded = jwt.verify(token, config.JWT_SECRET);
 
   if (!decoded) {
-    return next(new AppError(401, 'Invalid token'));
+    throw new AppError(401, 'Invalid token');
   }
 
   // Find user and attach to request
@@ -22,7 +22,7 @@ export const protect = asyncHandler(async (req, res, next) => {
 
   if (!user) {
     res.clearCookie('token');
-    return next(new AppError(401, 'User not found'));
+    throw new AppError(401, 'User not found');
   }
 
   req.user = user;
