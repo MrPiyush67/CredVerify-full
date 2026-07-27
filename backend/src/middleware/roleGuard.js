@@ -1,20 +1,13 @@
-import { AppError } from '../errors/AppError.js';
+import { AppError } from '#src/utils/index.js';
 
-import { ROLES } from '../core/constants/roles.js';
-
-export const authorize = (...roles) => {
+const authorize = (role) => {
   return (req, res, next) => {
     if (!req.user) {
-      return next(new AppError(401, 'Not authorized to access this route'));
+      throw new AppError(401, 'Not authorized to access this route');
     }
 
-    if (!roles.includes(req.user.role)) {
-      return next(
-        new AppError(
-          403,
-          `Access denied. Required role: ${roles.join(' or ')}`,
-        ),
-      );
+    if (req.user.role !== role) {
+      throw new AppError(403, 'Access denied');
     }
 
     next();
@@ -22,6 +15,6 @@ export const authorize = (...roles) => {
 };
 
 // Shorthand guards
-export const isLearner = authorize(ROLES.LEARNER);
-export const isRegulator = authorize(ROLES.REGULATOR);
-export const isEmployer = authorize(ROLES.EMPLOYER);
+export const isLearner = authorize('learner');
+export const isRegulator = authorize('regulator');
+export const isIssuer = authorize('issuer');

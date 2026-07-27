@@ -32,11 +32,14 @@ export default function AppSidebar() {
   const { pathname } = useLocation();
   const { isMobile } = useSidebar();
 
-  const handleLogout = () => {
-    logoutMutation();
-  };
-
   const navigation = sidebarNavigation[user?.role];
+  navigation.forEach((group) => {
+    group.items.forEach((item) => {
+      if (item.href.includes(':username')) {
+        item.href = item.href.replace(':username', user?.username);
+      }
+    });
+  });
 
   return (
     <Sidebar collapsible="icon">
@@ -50,11 +53,7 @@ export default function AppSidebar() {
               className="data-[state=open]:bg-sidebar-accent gap-3"
             >
               <Link to="/discover">
-                <img
-                  src="/logo.png"
-                  alt="logo"
-                  className="size-6 rounded-md shrink-0"
-                />
+                <img src="/logo.svg" alt="logo" className="size-6 shrink-0" />
 
                 <div className="grid flex-1 text-left leading-tight">
                   <span className="truncate font-semibold">CredVerify</span>
@@ -156,7 +155,7 @@ export default function AppSidebar() {
 
                 <DropdownMenuGroup>
                   <DropdownMenuItem asChild>
-                    <Link to="/profile">
+                    <Link to={`/profile/${user?.username}`}>
                       <User className="size-4" />
                       Profile
                     </Link>
@@ -181,7 +180,7 @@ export default function AppSidebar() {
 
                 <DropdownMenuItem
                   className="text-destructive focus:text-destructive"
-                  onClick={handleLogout}
+                  onClick={() => logoutMutation()}
                 >
                   <LogOut className="size-4" />
                   Log out

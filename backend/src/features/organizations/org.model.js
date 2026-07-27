@@ -7,7 +7,10 @@ const organizationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
+    isRoot: {
+      type: Boolean,
+      default: false,
+    },
     // university | company | training_provider | edtech | government
     type: {
       type: String,
@@ -37,7 +40,10 @@ const organizationSchema = new mongoose.Schema(
       default: 'pending',
     },
 
-    verifiedAt: Date,
+    verifiedAt: {
+      type: Date,
+      default: null,
+    },
 
     verifiedBy: {
       type: mongoose.Schema.Types.ObjectId,

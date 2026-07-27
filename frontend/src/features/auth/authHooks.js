@@ -4,7 +4,7 @@ import { axiosClient } from '@/lib/axiosClient.js';
 export const useGetMe = () => {
   return useQuery({
     queryKey: ['me'],
-    queryFn: () => axiosClient.get('/auth/me'),
+    queryFn: () => axiosClient.get('/user/me'),
   });
 };
 

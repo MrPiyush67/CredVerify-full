@@ -7,6 +7,7 @@ import { AccountTab } from './components/AccountTab.jsx';
 import { SecurityTab } from './components/SecurityTab.jsx';
 import { NotificationsTab } from './components/NotificationsTab.jsx';
 import { SettingsPageSkeleton } from './components/SettingsPageSkeleton.jsx';
+import { useGetMe } from '../auth/authHooks.js';
 
 // Example shape — replace with the logged-in user from your auth/session layer.
 const MOCK_USER = {
@@ -45,7 +46,8 @@ const MOCK_USER = {
   updatedAt: '2026-07-11T14:00:57.630939Z',
 };
 
-export default function SettingsPage({ user = MOCK_USER, isPending = false }) {
+export default function SettingsPage() {
+  const { data: user, isPending } = useGetMe();
   const [activeTab, setActiveTab] = useState('personal');
 
   const handleSavePersonal = async (data) => {

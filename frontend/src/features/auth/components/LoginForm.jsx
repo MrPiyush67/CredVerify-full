@@ -18,6 +18,7 @@ import { loginSchema } from '../auth.schema.js';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
 import { LoaderCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert.jsx';
 
 export function LoginForm({ className, ...props }) {
   const { mutateAsync: loginMutation, isPending } = useLogin();
@@ -128,6 +129,17 @@ export function LoginForm({ className, ...props }) {
                   <span className="sr-only">Login with Google</span>
                 </Button>
               </Field>
+              <Alert>
+                <AlertTitle>Demo Creds</AlertTitle>
+                <AlertDescription>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Learner: piyush@credverify.dev</li>
+                    <li>Issuer: rahul@manit.ac.in</li>
+                    <li>Regulator: anjali@ncvet.gov.in</li>
+                    <li>Password (for all accounts): Password@123</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
               <FieldDescription className="text-center">
                 Don&apos;t have an account? <Link to="/signup">Sign up</Link>
               </FieldDescription>
@@ -142,6 +154,7 @@ export function LoginForm({ className, ...props }) {
           </div>
         </CardContent>
       </Card>
+
       <FieldDescription className="px-6 text-center">
         By clicking continue, you agree to our{' '}
         <Link onClick={() => toast('Coming soon')}>Terms of Service</Link> and{' '}

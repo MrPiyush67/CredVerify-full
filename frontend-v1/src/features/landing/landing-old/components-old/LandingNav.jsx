@@ -45,7 +45,7 @@ export function LandingNav({
     >
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="CredVerify Logo" className="w-10 h-10" />
+          <img src="/logo.svg" alt="CredVerify Logo" className="w-10 h-10" />
           <span className="text-2xl font-bold tracking-tight text-foreground">
             Cred<span className="text-primary">Verify</span>
           </span>

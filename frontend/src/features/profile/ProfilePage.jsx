@@ -3,6 +3,9 @@ import { CredentialsSection } from './components/CredentialsSection.jsx';
 import { ExperienceSection } from './components/ExperienceSection.jsx';
 import { EducationSection } from './components/EducationSection.jsx';
 import { Separator } from '@/components/ui/separator.jsx';
+import ProfilePageSkeleton from './components/ProfilePageSkeleton.jsx';
+import { useGetUser } from './profileHooks.js';
+import { useParams } from 'react-router';
 
 // Placeholder raw Credential documents (shape matches the real schema) —
 // replace with a fetch against your Credential collection, filtered by user id.
@@ -88,6 +91,10 @@ const user = {
 };
 
 export default function ProfilePage() {
+  const { username } = useParams();
+  const { data: user, isPending } = useGetUser(username);
+
+  if (isPending) return <ProfilePageSkeleton />;
   return (
     <div className="flex gap-6">
       <div className="flex ml-4 gap-6 sticky top-6 self-start shrink-0 w-72">
@@ -96,8 +103,8 @@ export default function ProfilePage() {
       </div>
       <div className="space-y-6 flex-1">
         <CredentialsSection credentials={credentials} />
-        <ExperienceSection experience={user.experience} />
-        <EducationSection education={user.education} />
+        <ExperienceSection experience={user?.experience} />
+        <EducationSection education={user?.education} />
       </div>
     </div>
   );

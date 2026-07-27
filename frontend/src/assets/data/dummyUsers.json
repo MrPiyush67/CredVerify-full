@@ -1,0 +1,92 @@
+[
+  {
+    "username": "piyush",
+    "name": "Piyush Agrawal",
+    "email": "piyush@credverify.dev",
+    "passwordHash": "$2b$10$fak8ZkrEkHMLsmdnDgvEfeP9SAD9EeZ6Bd5Kk0FE06UMzijdSCdby",
+    "role": "learner",
+    "organization": null,
+    "avatar": "",
+    "bio": "B.Tech Mechanical Engineering student passionate about software development and digital credentials.",
+    "phoneNo": "+91-8349420480",
+    "location": "Bhopal, Madhya Pradesh, India",
+    "socialLinks": {
+      "linkedin": "https://linkedin.com/in/mrpiyush67",
+      "github": "https://github.com/MrPiyush67",
+      "portfolio": "",
+      "website": ""
+    },
+    "education": [
+      {
+        "institution": "Maulana Azad National Institute of Technology, Bhopal",
+        "degree": "Bachelor of Technology",
+        "fieldOfStudy": "Mechanical Engineering",
+        "startYear": 2023,
+        "endYear": 2027,
+        "current": true
+      }
+    ],
+    "experience": [],
+    "skills": [
+      "JavaScript",
+      "React",
+      "Node.js",
+      "Express.js",
+      "MongoDB",
+      "C++",
+      "DSA"
+    ],
+    "isPublic": true,
+    "isActive": true
+  },
+  {
+    "username": "rahul.sharma",
+    "name": "Rahul Sharma",
+    "email": "rahul@manit.ac.in",
+    "passwordHash": "$2b$10$fak8ZkrEkHMLsmdnDgvEfeP9SAD9EeZ6Bd5Kk0FE06UMzijdSCdby",
+    "role": "issuer",
+    "organization": {
+      "$oid": "6a5b8555a9ca46f3b28465a3"
+    },
+    "avatar": "",
+    "bio": "Assistant Professor responsible for issuing verified academic credentials.",
+    "phoneNo": "+91-9876543210",
+    "location": "Bhopal, Madhya Pradesh, India",
+    "socialLinks": {
+      "linkedin": "",
+      "github": "",
+      "portfolio": "",
+      "website": "https://manit.ac.in"
+    },
+    "education": [],
+    "experience": [],
+    "skills": ["Credential Verification", "Academic Administration"],
+    "isPublic": true,
+    "isActive": true
+  },
+  {
+    "username": "anjali.verma",
+    "name": "Anjali Verma",
+    "email": "anjali@ncvet.gov.in",
+    "passwordHash": "$2b$10$fak8ZkrEkHMLsmdnDgvEfeP9SAD9EeZ6Bd5Kk0FE06UMzijdSCdby",
+    "role": "regulator",
+    "organization": {
+      "$oid": "6a5b8555a9ca46f3b284659f"
+    },
+    "avatar": "",
+    "bio": "NCVET regulator responsible for organization verification and governance.",
+    "phoneNo": "+91-9876501234",
+    "location": "New Delhi, India",
+    "socialLinks": {
+      "linkedin": "",
+      "github": "",
+      "portfolio": "",
+      "website": "https://ncvet.gov.in"
+    },
+    "education": [],
+    "experience": [],
+    "skills": ["Governance", "Policy", "Organization Verification"],
+    "isPublic": true,
+    "isActive": true
+  }
+]

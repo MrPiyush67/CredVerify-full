@@ -389,7 +389,6 @@ export function PersonalTab({ user, onSave }) {
                     <div className="space-y-2">
                       <Label>Start year</Label>
                       <Input
-                        type="number"
                         value={entry.startYear}
                         onChange={updateEducationField(entry._id, 'startYear')}
                         placeholder="2019"
@@ -398,11 +397,9 @@ export function PersonalTab({ user, onSave }) {
                     <div className="space-y-2">
                       <Label>End year</Label>
                       <Input
-                        type="number"
                         value={entry.endYear}
                         onChange={updateEducationField(entry._id, 'endYear')}
                         placeholder="2023"
-                        disabled={entry.current}
                       />
                     </div>
                   </div>

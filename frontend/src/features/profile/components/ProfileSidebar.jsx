@@ -30,7 +30,10 @@ export function ProfileSidebar({ user }) {
         <Avatar className="h-24 w-24 mt-2">
           <AvatarImage src={user?.avatar} alt={user?.name} />
           <AvatarFallback className="text-2xl font-medium text-muted-foreground">
-            {user?.name}
+            {user?.name
+              ?.split(' ')
+              .map((n) => n[0])
+              .join('')}
           </AvatarFallback>
         </Avatar>
 

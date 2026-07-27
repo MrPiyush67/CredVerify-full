@@ -1,8 +1,18 @@
 import { Link } from 'react-router';
-import { Bell, LogOut, Monitor, Moon, Settings, Sun, User } from 'lucide-react';
+import {
+  Bell,
+  LogOut,
+  Monitor,
+  Moon,
+  Settings,
+  Star,
+  Sun,
+  User,
+  Video,
+} from 'lucide-react';
 
 import { useThemeStore } from '@/app/store/themeStore';
-import { useGetMe } from '@/features/auth/authHooks';
+import { useGetMe, useLogout } from '@/features/auth/authHooks';
 
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -24,6 +34,7 @@ import {
 export default function Navbar() {
   const { theme, setTheme } = useThemeStore();
   const { data: user } = useGetMe();
+  const { mutateAsync: LogoutMutation } = useLogout();
 
   // TODO: Replace with dynamic page title
   const pageTitle = 'Discover';
@@ -75,6 +86,36 @@ export default function Navbar() {
                 <Monitor className="mr-1 h-4 w-4" />
               </div>
               System
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon" className="size-8">
+              <Bell className="size-4" />
+              <span className="sr-only">Notifications</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" sideOffset={12} className="w-80">
+            <DropdownMenuLabel className="flex justify-between items-center">
+              <p>Notifications</p>
+              <Button variant="ghost" size="xs" className="mb-0.5" asChild>
+                <Link to="/notifications">View All</Link>
+              </Button>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <div className="flex items-center gap-2">
+                <Star className="size-4" />
+                <span>Event Today</span>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <div className="flex items-center gap-2">
+                <Video className="size-4" />
+                <span>Team Meeting</span>
+              </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -141,9 +182,15 @@ export default function Navbar() {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem className="text-destructive focus:text-destructive">
-              <LogOut className="size-4" />
-              Log out
+            <DropdownMenuItem
+              className="text-destructive focus:text-destructive"
+              onClick={() => LogoutMutation()}
+              asChild
+            >
+              <Link>
+                <LogOut className="size-4" />
+                Log out
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

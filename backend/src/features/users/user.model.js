@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema(
     // Authorization
     role: {
       type: String,
-      enum: ['learner', 'issuer', 'regulator', 'organization_admin'],
+      enum: ['learner', 'issuer', 'regulator'],
       required: true,
       default: 'learner',
     },

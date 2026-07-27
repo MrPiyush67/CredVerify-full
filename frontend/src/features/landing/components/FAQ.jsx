@@ -1,76 +1,83 @@
-import { useState } from "react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
+import { PlusIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-const FAQ = () => {
-  const [openIndex, setOpenIndex] = useState(0);
-  const faqs = [
-    {
-      q: 'Is CredVerify free for individuals?',
-      a: 'Yes, maintaining a digital wallet and public profile is 100% free for individual professionals.',
-    },
-    {
-      q: 'How do employers verify my credentials?',
-      a: 'Employers can click the verification link on your public profile or scan your personalized QR code to instantly verify authenticity.',
-    },
-    {
-      q: 'What if an issuer is not on CredVerify?',
-      a: 'You can manually upload certificates and request verification, which will ping the issuer to confirm via email or organizational portal.',
-    },
-    {
-      q: 'How secure is the platform?',
-      a: 'We use state-of-the-art cryptographic signatures to ensure credentials cannot be tampered with or forged.',
-    },
-    {
-      q: 'Can I control who sees my profile?',
-      a: 'Absolutely. You have granular control over public visibility, and can generate unique, time-expiring sharing links.',
-    },
-    {
-      q: 'Does it integrate with LinkedIn?',
-      a: 'Yes, you can add your CredVerify public profile link to your LinkedIn, and we offer one-click exporting to LinkedIn Licenses & Certifications.',
-    },
-    {
-      q: 'How much does it cost for issuers?',
-      a: 'Pricing for organizations depends on volume. Check out our Pricing page for detailed tiers starting from small startups to enterprise.',
-    },
-    {
-      q: 'Is there an API available?',
-      a: 'Yes, a robust REST API is available for issuers to fully automate the credential lifecycle from their own internal systems.',
-    },
-  ];
+const FAQ_DATA = [
+  {
+    question: 'What services does Shadcn Space offer?',
+    answer:
+      'We offer a wide range of services including web development, app development, and digital marketing.',
+  },
+  {
+    question: 'How long does a typical project take?',
+    answer:
+      'The time it takes to complete a project depends on the complexity of the project and the scope of the work.',
+  },
+  {
+    question: 'How is pricing structured at Awake Agency?',
+    answer:
+      'Pricing is based on the complexity of the project and the scope of the work.',
+  },
+  {
+    question: 'Do you offer ongoing support after project completion?',
+    answer:
+      'Absolutely! We offer comprehensive post-launch support to ensure a seamless implementation and provide ongoing maintenance packages tailored to clients who need regular updates or technical assistance. Our commitment doesn’t end at launch — we’re here to help you every step of the way.',
+  },
+  {
+    question: 'How often will I receive updates on my project?',
+    answer:
+      'We provide updates on a regular basis to ensure that your project is running smoothly and that you are aware of any changes or updates to the project.',
+  },
+];
 
+export default function Faq() {
   return (
-    <section id="docs" className="py-24 px-margin-desktop bg-white">
-      <div className="max-w-3xl mx-auto">
-        <h2 className="text-3xl font-bold mb-12 text-center">
-          Frequently Asked Questions
-        </h2>
-        <div className="space-y-4">
-          {faqs.map((faq, i) => (
-            <div
-              key={i}
-              className="border border-outline-variant/30 rounded-xl overflow-hidden"
-            >
-              <button
-                onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                className="w-full px-6 py-5 text-left flex items-center justify-between font-bold hover:bg-surface-container-low transition-colors"
+    <section id='faq'>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:py-24 py-8 flex flex-col gap-16">
+        <div className="flex flex-col gap-4 items-center animate-in fade-in slide-in-from-top-10 duration-1000 delay-100 ease-in-out fill-mode-both">
+          <Badge
+            variant="outline"
+            className="text-sm h-auto py-1 px-3 border-0 outline outline-border"
+          >
+            FAQs
+          </Badge>
+          <h2 className="text-5xl font-medium text-center max-w-lg">
+            Got questions? We’ve got answers ready
+          </h2>
+        </div>
+        <div>
+          <Accordion className="w-full flex flex-col gap-6">
+            {FAQ_DATA.map((faq, index) => (
+              <AccordionItem
+                key={`item-${index}`}
+                value={`item-${index}`}
+                className={cn(
+                  'p-6 border border-border rounded-2xl flex flex-col gap-3 group/item data-[open]:bg-accent transition-colors animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both',
+                  index === 0 && 'delay-100',
+                  index === 1 && 'delay-200',
+                  index === 2 && 'delay-300',
+                  index === 3 && 'delay-400',
+                  index === 4 && 'delay-500',
+                )}
               >
-                <span className="text-sm">{faq.q}</span>
-                <span
-                  className={`material-symbols-outlined transition-transform duration-300 ${openIndex === i ? 'rotate-180' : ''}`}
-                >
-                  expand_more
-                </span>
-              </button>
-              {openIndex === i && (
-                <div className="px-6 pb-6 text-sm text-on-surface-variant leading-relaxed">
-                  {faq.a}
-                </div>
-              )}
-            </div>
-          ))}
+                <AccordionTrigger className="p-0 text-xl font-medium hover:no-underline **:data-[slot=accordion-trigger-icon]:hidden cursor-pointer">
+                  {faq.question}
+                  <PlusIcon className="w-6 h-6 shrink-0 transition-transform duration-200 group-aria-expanded/accordion-trigger:rotate-45" />
+                </AccordionTrigger>
+                <AccordionContent className="p-0 text-muted-foreground text-base">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </div>
     </section>
   );
-};
-
-export default FAQ;
+}
